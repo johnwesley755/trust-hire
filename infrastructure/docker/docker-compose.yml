@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  # --- Core Services (Placeholders for now) ---
+  auth-service:
+    build: ../../services/auth-service
+    container_name: trusthire-auth
+    ports:
+      - "8081:8081"
+    env_file: ../env/.env
+    depends_on:
+      - n8n
+
+  worker-service:
+    build: ../../services/worker-service
+    container_name: trusthire-worker
+    ports:
+      - "8082:8082"
+    env_file: ../env/.env
+
+  employer-service:
+    build: ../../services/employer-service
+    container_name: trusthire-employer
+    ports:
+      - "8083:8083"
+    env_file: ../env/.env
+
+  # --- AI Services ---
+  scoring-engine:
+    build: ../../ai-services/scoring-engine
+    container_name: trusthire-scoring
+    ports:
+      - "5000:5000"
+    env_file: ../env/.env
+
+networks:
+  trusthire-network:
+    driver: bridge

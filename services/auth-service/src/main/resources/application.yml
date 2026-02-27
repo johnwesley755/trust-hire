@@ -1,0 +1,47 @@
+spring:
+  application:
+    name: auth-service
+  
+  datasource:
+    url: ${POSTGRES_URL}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    # Neon pooling optimization
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+  
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+  
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${CLERK_FRONTEND_API}
+
+server:
+  port: ${AUTH_SERVICE_PORT:8081}
+
+# Clerk Webhook Secret for validation
+clerk:
+  secret-key: ${CLERK_SECRET_KEY}
+  webhook:
+    secret: ${CLERK_WEBHOOK_SECRET}
+
+# Cloudinary for media orchestration (if needed by Auth)
+cloudinary:
+  cloud-name: ${CLOUDINARY_CLOUD_NAME}
+  api-key: ${CLOUDINARY_API_KEY}
+  api-secret: ${CLOUDINARY_API_SECRET}
