@@ -13,6 +13,7 @@ import java.util.Optional;
 public class WorkerProfileServiceImpl implements WorkerProfileService {
 
     private final WorkerProfileRepository repository;
+    private final com.trusthire.worker.client.SearchClient searchClient;
 
     @Override
     public Optional<WorkerProfile> getProfileByClerkId(String clerkId) {
@@ -22,7 +23,9 @@ public class WorkerProfileServiceImpl implements WorkerProfileService {
     @Override
     @Transactional
     public WorkerProfile updateProfile(WorkerProfile profile) {
-        return repository.save(profile);
+        WorkerProfile savedProfile = repository.save(profile);
+        indexInSearch(savedProfile);
+        return savedProfile;
     }
 
     @Override
@@ -35,7 +38,28 @@ public class WorkerProfileServiceImpl implements WorkerProfileService {
                 .clerkId(clerkId)
                 .isAvailable(true)
                 .experienceYears(0)
+                .level("L1")
                 .build();
-        return repository.save(profile);
+        WorkerProfile savedProfile = repository.save(profile);
+        indexInSearch(savedProfile);
+        return savedProfile;
+    }
+
+    private void indexInSearch(WorkerProfile profile) {
+        try {
+            com.trusthire.worker.client.SearchClient.WorkerSearchRequest request = com.trusthire.worker.client.SearchClient.WorkerSearchRequest.builder()
+                    .clerkId(profile.getClerkId())
+                    .name(profile.getFullName() != null ? profile.getFullName() : "Anonymous Worker")
+                    .bio(profile.getBio())
+                    .skills(profile.getSkills() != null ? String.join(", ", profile.getSkills()) : "")
+                    .location(profile.getLocation())
+                    .level(profile.getLevel())
+                    .isVerified(false) // Verification status would come from verification-service
+                    .status(profile.getIsAvailable() != null && profile.getIsAvailable() ? "AVAILABLE" : "BUSY")
+                    .build();
+            searchClient.indexWorker(request);
+        } catch (Exception e) {
+            // Log and continue, search indexing is secondary
+        }
     }
 }

@@ -18,6 +18,7 @@ import java.util.UUID;
 public class JobServiceImpl implements JobService {
 
     private final JobRepository repository;
+    private final com.trusthire.job.client.SearchClient searchClient;
     private final org.springframework.web.client.RestTemplate restTemplate;
 
     @org.springframework.beans.factory.annotation.Value("${ai.scoring-engine.url:http://localhost:5000/score/match}")
@@ -30,7 +31,9 @@ public class JobServiceImpl implements JobService {
         if (job.getStatus() == null) {
             job.setStatus(Job.JobStatus.OPEN);
         }
-        return repository.save(job);
+        Job savedJob = repository.save(job);
+        indexJobInSearch(savedJob);
+        return savedJob;
     }
 
     @Override
@@ -52,7 +55,9 @@ public class JobServiceImpl implements JobService {
     @Transactional
     public Job updateJob(Job job) {
         log.info("Updating job: {}", job.getId());
-        return repository.save(job);
+        Job savedJob = repository.save(job);
+        indexJobInSearch(savedJob);
+        return savedJob;
     }
 
     @Override
@@ -60,6 +65,27 @@ public class JobServiceImpl implements JobService {
     public void deleteJob(UUID id) {
         log.info("Deleting job: {}", id);
         repository.deleteById(id);
+        // Add delete from search index if needed, for now focus on indexing
+    }
+
+    private void indexJobInSearch(Job job) {
+        try {
+            com.trusthire.job.client.SearchClient.JobSearchRequest request = com.trusthire.job.client.SearchClient.JobSearchRequest.builder()
+                    .jobId(job.getId())
+                    .title(job.getTitle())
+                    .description(job.getDescription())
+                    .industry(job.getIndustry())
+                    .location(job.getLocation())
+                    .budget(job.getBudget())
+                    .requiredSkills(job.getRequiredSkills() != null ? String.join(", ", job.getRequiredSkills()) : "")
+                    .employerClerkId(job.getEmployerClerkId())
+                    .status(job.getStatus() != null ? job.getStatus().name() : "OPEN")
+                    .build();
+            searchClient.indexJob(request);
+            log.info("Job {} indexed successfully", job.getId());
+        } catch (Exception e) {
+            log.error("Failed to index job {}: {}", job.getId(), e.getMessage());
+        }
     }
 
     @Override

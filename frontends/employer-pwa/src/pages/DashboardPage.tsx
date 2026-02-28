@@ -1,9 +1,11 @@
 import { useUser } from "@clerk/clerk-react";
 import { PlusCircle } from 'lucide-react';
 import { DashboardSidebar, StatsGrid, RecentApplicants } from '../features/dashboard/DashboardComponents';
+import { useNavigate } from 'react-router-dom';
 
 export default function DashboardPage() {
   const { user } = useUser();
+  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen w-full bg-slate-950 text-white flex">
@@ -12,10 +14,13 @@ export default function DashboardPage() {
       <main className="flex-1 p-10 overflow-auto">
         <header className="flex justify-between items-end mb-12">
           <div>
-            <h2 className="text-3xl font-bold">Welcome back, {user?.firstName}</h2>
+            <h2 className="text-4xl font-black tracking-tight">Welcome back, {user?.firstName}</h2>
             <p className="text-slate-400 mt-1">Here's what's happening with your hires today.</p>
           </div>
-          <button className="bg-white text-black px-6 py-2.5 rounded-full font-semibold hover:bg-slate-100 transition-all active:scale-95 cursor-pointer flex items-center gap-2">
+          <button 
+            onClick={() => navigate('/post-job')}
+            className="bg-white text-black px-8 py-3 rounded-full font-bold hover:bg-blue-500 hover:text-white transition-all active:scale-95 cursor-pointer flex items-center gap-2 shadow-xl shadow-white/10"
+          >
             <PlusCircle className="w-5 h-5" />
             Post New Job
           </button>

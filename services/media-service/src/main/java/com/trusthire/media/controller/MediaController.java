@@ -44,4 +44,12 @@ public class MediaController {
         mediaService.deleteMedia(id);
         return ResponseEntity.noContent().build();
     }
+
+    // Industrial Standard: Internal endpoint for service-to-service communication
+    @PostMapping("/internal/upload")
+    public ResponseEntity<Media> uploadFileInternal(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("ownerId") String ownerId) throws IOException {
+        return ResponseEntity.ok(mediaService.uploadFile(file, ownerId));
+    }
 }

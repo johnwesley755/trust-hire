@@ -2,6 +2,7 @@ import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { SignedIn, SignedOut } from '@clerk/clerk-react';
 import LandingPage from '../pages/LandingPage.tsx';
 import DashboardPage from '../pages/DashboardPage.tsx';
+import { IdentityVerificationPage } from '../pages/IdentityVerificationPage.tsx';
 
 export const router = createBrowserRouter([
   {
@@ -20,6 +21,14 @@ export const router = createBrowserRouter([
         <SignedIn><DashboardPage /></SignedIn>
         <SignedOut><Navigate to="/" replace /></SignedOut>
       </>
+    ),
+  },
+  {
+    path: '/verify',
+    element: (
+      <SignedIn>
+        <IdentityVerificationPage />
+      </SignedIn>
     ),
   },
 ]);

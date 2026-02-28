@@ -23,6 +23,10 @@ public class WorkerProfile {
     @Column(nullable = false, unique = true)
     private String clerkId;
 
+    private String fullName;
+    private String location;
+    private String level; // L1, L2, L3, L4
+
     @Column(columnDefinition = "TEXT")
     private String bio;
 

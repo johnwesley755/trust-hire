@@ -24,10 +24,10 @@ public class JobSearch {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    private String category;
+    private String industry;
     private String location;
-    private Double budget;
-    private String budgetType; // FIXED, HOURLY
+    private java.math.BigDecimal budget;
+    private String requiredSkills; // Comma separated for indexing
     private String employerClerkId;
     private String status;
 
