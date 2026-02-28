@@ -1,0 +1,36 @@
+spring:
+  application:
+    name: worker-service
+  
+  datasource:
+    url: ${POSTGRES_URL}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+  
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    repair-on-migrate: true
+    table: flyway_schema_history_worker
+    locations: classpath:db/migration
+  
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${CLERK_FRONTEND_API:https://sure-bengal-96.clerk.accounts.dev}
+
+server:
+  port: ${WORKER_SERVICE_PORT:8082}

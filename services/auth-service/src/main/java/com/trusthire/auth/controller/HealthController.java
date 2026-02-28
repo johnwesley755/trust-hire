@@ -15,7 +15,7 @@ public class HealthController {
         return ResponseEntity.ok(Map.of(
             "status", "UP",
             "service", "Auth Service",
-            "db", "Neon DB Connected"
+            "db", "Prisma Postgres Connected"
         ));
     }
 }

@@ -90,4 +90,10 @@
             </plugins>
         </pluginManagement>
     </build>
+    <modules>
+        <module>auth-service</module>
+        <module>worker-service</module>
+        <module>employer-service</module>
+        <module>job-service</module>
+    </modules>
 </project>
