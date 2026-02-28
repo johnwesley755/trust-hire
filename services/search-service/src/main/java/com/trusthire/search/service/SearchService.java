@@ -1,0 +1,11 @@
+package com.trusthire.search.service;
+
+import com.trusthire.search.entity.JobSearch;
+import java.util.List;
+import java.util.UUID;
+
+public interface SearchService {
+    List<JobSearch> searchJobs(String query, String category, String location);
+    JobSearch indexJob(JobSearch jobSearch);
+    void deleteJob(UUID jobId);
+}

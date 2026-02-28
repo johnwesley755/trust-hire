@@ -18,6 +18,10 @@ import java.util.UUID;
 public class JobServiceImpl implements JobService {
 
     private final JobRepository repository;
+    private final org.springframework.web.client.RestTemplate restTemplate;
+
+    @org.springframework.beans.factory.annotation.Value("${ai.scoring-engine.url:http://localhost:5000/score/match}")
+    private String scoringEngineUrl;
 
     @Override
     @Transactional
@@ -56,5 +60,34 @@ public class JobServiceImpl implements JobService {
     public void deleteJob(UUID id) {
         log.info("Deleting job: {}", id);
         repository.deleteById(id);
+    }
+
+    @Override
+    public Double calculateMatchScore(UUID jobId, String workerProfile, List<String> workerSkills) {
+        log.info("Calculating match score for job: {}", jobId);
+        
+        Optional<Job> jobOpt = repository.findById(jobId);
+        if (jobOpt.isEmpty()) {
+            log.error("Job not found: {}", jobId);
+            return 0.0;
+        }
+
+        Job job = jobOpt.get();
+        try {
+            java.util.Map<String, Object> request = new java.util.HashMap<>();
+            request.put("job_description", job.getDescription() + " " + job.getTitle());
+            request.put("worker_profile", workerProfile);
+            request.put("worker_skills", workerSkills);
+
+            @SuppressWarnings("unchecked")
+            java.util.Map<String, Object> response = restTemplate.postForObject(scoringEngineUrl, request, java.util.Map.class);
+
+            if (response != null && response.containsKey("score")) {
+                return ((Number) response.get("score")).doubleValue();
+            }
+        } catch (Exception e) {
+            log.error("Error calling scoring engine: {}", e.getMessage());
+        }
+        return 0.0;
     }
 }

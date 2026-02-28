@@ -95,5 +95,10 @@
         <module>worker-service</module>
         <module>employer-service</module>
         <module>job-service</module>
+        <module>verification-service</module>
+        <module>rating-service</module>
+        <module>notification-service</module>
+        <module>search-service</module>
+        <module>media-service</module>
     </modules>
 </project>

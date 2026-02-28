@@ -12,4 +12,5 @@ public interface JobService {
     List<Job> getJobsByEmployer(String employerClerkId);
     Job updateJob(Job job);
     void deleteJob(UUID id);
+    Double calculateMatchScore(UUID jobId, String workerProfile, java.util.List<String> workerSkills);
 }
