@@ -19,8 +19,8 @@ export const DashboardSidebar = () => {
     ];
 
     return (
-        <aside className="w-64 border-r border-white/5 p-6 space-y-10 flex flex-col bg-slate-950">
-            <div className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-indigo-500 bg-clip-text text-transparent">
+        <aside className="w-64 border-r border-slate-200 p-6 space-y-10 flex flex-col bg-white">
+            <div className="text-2xl font-bold bg-linear-to-r from-blue-400 to-indigo-500 bg-clip-text text-transparent">
                 TrustHire
             </div>
             
@@ -29,7 +29,7 @@ export const DashboardSidebar = () => {
                     <button 
                         key={item.name}
                         onClick={() => navigate(item.path)}
-                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all cursor-pointer text-slate-400 hover:bg-white/5 hover:text-white`}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all cursor-pointer text-slate-500 hover:bg-slate-50 hover:text-indigo-600`}
                     >
                         {item.icon}
                         <span className="font-medium">{item.name}</span>
@@ -37,7 +37,7 @@ export const DashboardSidebar = () => {
                 ))}
             </nav>
 
-            <div className="pt-6 border-t border-white/5 flex items-center justify-between gap-4">
+            <div className="pt-6 border-t border-slate-100 flex items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
                     <UserButton afterSignOutUrl="/" />
                     <div className="overflow-hidden">
@@ -61,7 +61,7 @@ export const StatsGrid = () => {
                 { label: 'Total Postings', value: jobs?.length || 0, trend: 'Lifetime jobs' },
                 { label: 'Pending Reviews', value: '0', trend: 'Applicants to view' },
             ].map((stat) => (
-                <div key={stat.label} className="p-6 rounded-3xl bg-white/3 border border-white/6 space-y-2 shadow-2xl shadow-black/20 text-white leading-tight">
+                <div key={stat.label} className="p-6 rounded-3xl bg-white border border-slate-200 space-y-2 shadow-sm text-slate-900 leading-tight">
                     <p className="text-slate-400 text-sm font-medium uppercase tracking-wider">{stat.label}</p>
                     <p className="text-4xl font-black">{stat.value}</p>
                     <p className="text-blue-400 text-sm font-medium">{stat.trend}</p>
@@ -83,7 +83,7 @@ export const RecentApplicants = () => {
 
     return (
         <section className="space-y-6">
-            <h3 className="text-xl font-bold text-white flex items-center gap-2">
+            <h3 className="text-xl font-bold text-slate-900 flex items-center gap-2">
                 <Clock className="w-5 h-5 text-blue-400" />
                 Recent Applicants
             </h3>
@@ -92,31 +92,31 @@ export const RecentApplicants = () => {
                     <div className="text-center py-10"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div></div>
                 ) : applications?.length ? (
                     applications.slice(0, 5).map((app) => (
-                        <div key={app.id} className="flex items-center justify-between p-5 rounded-2xl bg-white/2 border border-white/4 hover:bg-white/4 transition-all group">
+                        <div key={app.id} className="flex items-center justify-between p-5 rounded-2xl bg-white border border-slate-200 hover:border-indigo-400 transition-all group shadow-sm">
                             <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center font-bold text-blue-400 border border-white/5">
+                                <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center font-bold text-indigo-600 border border-slate-100 shadow-sm">
                                     {app.status[0]}
                                 </div>
                                 <div>
-                                    <p className="font-semibold text-white group-hover:text-blue-400 transition-colors">Applicant ID: {app.workerClerkId.substring(0, 8)}</p>
+                                    <p className="font-semibold text-slate-900 group-hover:text-indigo-600 transition-colors">Applicant ID: {app.workerClerkId.substring(0, 8)}</p>
                                     <p className="text-sm text-slate-500 italic truncate max-w-xs">{app.coverLetter || "No cover letter provided."}</p>
                                 </div>
                             </div>
                             <div className="flex gap-3 items-center">
                                 <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${
-                                    app.status === 'PENDING' ? 'bg-amber-500/10 text-amber-500 border-amber-500/20' : 
-                                    app.status === 'ACCEPTED' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 
-                                    'bg-blue-500/10 text-blue-400 border-blue-500/20'
+                                    app.status === 'PENDING' ? 'bg-amber-50 text-amber-600 border-amber-100' : 
+                                    app.status === 'ACCEPTED' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 
+                                    'bg-indigo-50 text-indigo-600 border-indigo-100'
                                 }`}>
                                     {app.status}
                                 </span>
-                                <button className="text-xs font-bold text-slate-400 hover:text-white cursor-pointer uppercase tracking-tighter">Review</button>
+                                <button className="text-xs font-bold text-slate-400 hover:text-indigo-600 cursor-pointer uppercase tracking-tighter">Review</button>
                             </div>
                         </div>
                     ))
                 ) : (
-                    <div className="col-span-full text-center py-12 bg-white/2 rounded-3xl border border-dashed border-white/5">
-                        <p className="text-slate-500 italic">No new applications to display.</p>
+                    <div className="col-span-full text-center py-12 bg-white rounded-3xl border border-dashed border-slate-200">
+                        <p className="text-slate-400 italic">No new applications to display.</p>
                     </div>
                 )}
             </div>

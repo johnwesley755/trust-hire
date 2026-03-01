@@ -14,8 +14,8 @@ export default defineConfig({
         name: 'TrustHire Worker',
         short_name: 'TrustHire Pro',
         description: 'Level up your career with TrustHire',
-        theme_color: '#1e1b4b',
-        background_color: '#1e1b4b',
+        theme_color: '#f8fafc',
+        background_color: '#f8fafc',
         display: 'standalone',
         icons: [
           {

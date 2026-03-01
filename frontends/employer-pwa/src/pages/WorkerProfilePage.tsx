@@ -41,36 +41,36 @@ export const WorkerProfilePage = () => {
     enabled: !!id
   });
 
-  if (isLoadingWorker) return <div className="min-h-screen bg-primary-950 flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500"></div></div>;
+  if (isLoadingWorker) return <div className="min-h-screen bg-slate-50 flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500"></div></div>;
 
   return (
-    <div className="min-h-screen bg-primary-950 text-white p-6 pb-32">
+    <div className="min-h-screen bg-slate-50 text-slate-900 p-6 pb-32">
       <button 
         onClick={() => navigate(-1)}
-        className="mb-8 flex items-center gap-2 text-white/40 hover:text-white transition-colors"
+        className="mb-8 flex items-center gap-2 text-slate-400 hover:text-indigo-600 transition-colors"
       >
         <ChevronLeft className="h-5 w-5" /> Back to Search
       </button>
 
       <div className="max-w-4xl mx-auto space-y-10">
         {/* Profile Header */}
-        <section className="bg-primary-900/40 border border-white/10 rounded-4xl p-10 flex flex-col md:flex-row gap-10 items-center md:items-start text-center md:text-left">
-          <div className="h-32 w-32 rounded-3xl bg-linear-to-br from-emerald-500 to-blue-500 flex items-center justify-center text-4xl font-black shadow-2xl shadow-emerald-500/20">
+        <section className="bg-white border border-slate-200 rounded-4xl p-10 flex flex-col md:flex-row gap-10 items-center md:items-start text-center md:text-left shadow-sm">
+          <div className="h-32 w-32 rounded-3xl bg-linear-to-br from-indigo-500 to-blue-500 flex items-center justify-center text-4xl font-black shadow-xl">
             {worker?.name[0]}
           </div>
           <div className="flex-1 space-y-4">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
-                <h1 className="text-4xl font-bold tracking-tight">{worker?.name}</h1>
-                <p className="text-white/40 flex items-center justify-center md:justify-start gap-1 mt-1">
+                <h1 className="text-4xl font-bold tracking-tight text-slate-900">{worker?.name}</h1>
+                <p className="text-slate-500 flex items-center justify-center md:justify-start gap-1 mt-1">
                   <MapPin className="h-4 w-4" /> {worker?.location} • Joined Jan 2026
                 </p>
               </div>
-              <div className="bg-emerald-500/10 border border-emerald-500/20 px-6 py-3 rounded-2xl flex items-center gap-3">
-                <ShieldCheck className="h-6 w-6 text-emerald-400" />
+              <div className="bg-emerald-50 border border-emerald-100 px-6 py-3 rounded-2xl flex items-center gap-3 shadow-sm">
+                <ShieldCheck className="h-6 w-6 text-emerald-600" />
                 <div>
-                  <span className="block text-xs font-bold text-emerald-400 uppercase tracking-widest">Trust Score</span>
-                  <span className="text-2xl font-black text-emerald-400">{trustScore?.score}</span>
+                  <span className="block text-xs font-bold text-emerald-600 uppercase tracking-widest">Trust Score</span>
+                  <span className="text-2xl font-black text-emerald-600">{trustScore?.score}</span>
                 </div>
               </div>
             </div>
@@ -85,12 +85,12 @@ export const WorkerProfilePage = () => {
             { label: 'Experience', value: `${worker?.experience} Years`, icon: <Briefcase className="text-indigo-400" /> },
             { label: 'Level', value: `L${worker?.level}`, icon: <Award className="text-rose-400" /> },
           ].map((stat, i) => (
-            <div key={i} className="bg-white/5 border border-white/5 p-6 rounded-3xl text-center space-y-2">
-                <div className="mx-auto w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center">
+            <div key={i} className="bg-white border border-slate-200 p-6 rounded-3xl text-center space-y-2 shadow-sm">
+                <div className="mx-auto w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center">
                     {stat.icon}
                 </div>
-                <span className="block text-xl font-bold">{stat.value}</span>
-                <span className="block text-xs font-bold text-white/40 uppercase tracking-widest">{stat.label}</span>
+                <span className="block text-xl font-bold text-slate-900">{stat.value}</span>
+                <span className="block text-xs font-bold text-slate-400 uppercase tracking-widest">{stat.label}</span>
             </div>
           ))}
         </div>
@@ -102,23 +102,23 @@ export const WorkerProfilePage = () => {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {worker?.skills.map((skill: string, i: number) => (
-              <div key={i} className="bg-emerald-500/5 border border-emerald-500/10 p-6 rounded-3xl flex items-center justify-between">
+              <div key={i} className="bg-white border border-slate-200 p-6 rounded-3xl flex items-center justify-between shadow-sm">
                 <div className="flex items-center gap-4">
-                  <div className="p-3 bg-emerald-500/10 rounded-2xl">
-                    <ShieldCheck className="h-6 w-6 text-emerald-400" />
+                  <div className="p-3 bg-emerald-50 rounded-2xl">
+                    <ShieldCheck className="h-6 w-6 text-emerald-600" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-lg">{skill}</h4>
-                    <span className="text-xs text-emerald-500/60 font-medium uppercase tracking-wider">Verified Assessment</span>
+                    <h4 className="font-bold text-lg text-slate-900">{skill}</h4>
+                    <span className="text-xs text-emerald-600 font-medium uppercase tracking-wider">Verified Assessment</span>
                   </div>
                 </div>
-                <Calendar className="h-5 w-5 text-white/10" />
+                <Calendar className="h-5 w-5 text-slate-200" />
               </div>
             ))}
           </div>
         </section>
 
-        <button className="w-full bg-white text-primary-950 py-5 rounded-3xl font-black text-xl hover:bg-emerald-400 hover:text-white transition-all shadow-2xl shadow-white/5">
+        <button className="w-full bg-indigo-600 text-white py-5 rounded-3xl font-black text-xl hover:bg-indigo-700 transition-all shadow-lg">
           HIRE THIS WORKER
         </button>
       </div>

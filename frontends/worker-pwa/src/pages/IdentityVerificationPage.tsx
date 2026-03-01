@@ -48,15 +48,15 @@ export const IdentityVerificationPage = () => {
   // If already verified or pending, show status
   if (status?.status === 'VERIFIED' || status?.status === 'PENDING') {
     return (
-      <div className="min-h-screen bg-primary-950 flex items-center justify-center p-6 text-white">
-        <div className="max-w-md w-full bg-primary-900/50 backdrop-blur-xl border border-white/10 rounded-3xl p-10 text-center space-y-6 shadow-2xl">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6 text-slate-900">
+        <div className="max-w-md w-full bg-white border border-slate-200 rounded-3xl p-10 text-center space-y-6 shadow-xl">
           {status.status === 'VERIFIED' ? (
             <>
               <div className="mx-auto w-20 h-20 bg-emerald-500/20 rounded-full flex items-center justify-center border border-emerald-500/30">
                 <CheckCircle2 className="h-10 w-10 text-emerald-400" />
               </div>
               <h1 className="text-3xl font-bold">Identity Verified</h1>
-              <p className="text-white/60">Your identity has been successfully verified. You now have full access to premium jobs.</p>
+              <p className="text-slate-500">Your identity has been successfully verified. You now have full access to premium jobs.</p>
             </>
           ) : (
             <>
@@ -64,10 +64,10 @@ export const IdentityVerificationPage = () => {
                 <Loader2 className="h-10 w-10 text-blue-400 animate-spin" />
               </div>
               <h1 className="text-3xl font-bold">Verification Pending</h1>
-              <p className="text-white/60">We are currently processing your identity documents. This usually takes less than 24 hours.</p>
+              <p className="text-slate-500">We are currently processing your identity documents. This usually takes less than 24 hours.</p>
             </>
           )}
-          <button onClick={() => window.history.back()} className="w-full bg-white/10 hover:bg-white/20 py-3 rounded-xl transition-all">
+          <button onClick={() => window.history.back()} className="w-full bg-slate-100 hover:bg-slate-200 py-3 rounded-xl transition-all font-bold text-slate-900">
             Return to Dashboard
           </button>
         </div>
@@ -76,36 +76,36 @@ export const IdentityVerificationPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-primary-950 flex flex-col items-center p-6 md:p-12 text-white">
+    <div className="min-h-screen bg-slate-50 flex flex-col items-center p-6 md:p-12 text-slate-900">
       <div className="max-w-xl w-full space-y-8">
         <div className="text-center space-y-2">
           <h1 className="text-4xl font-black bg-linear-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">Identity Trust</h1>
-          <p className="text-white/40 italic">Secure your career with professional verification</p>
+          <p className="text-slate-500 italic">Secure your career with professional verification</p>
         </div>
 
         {/* Progress Stepper */}
         <div className="flex items-center justify-between px-4 max-w-sm mx-auto mb-10">
-          <div className={`p-3 rounded-2xl border transition-all ${step >= 1 ? 'bg-blue-600 border-blue-400 shadow-lg shadow-blue-500/20' : 'bg-white/5 border-white/10'}`}>
+          <div className={`p-3 rounded-2xl border transition-all ${step >= 1 ? 'bg-indigo-600 border-indigo-400 text-white shadow-lg' : 'bg-white border-slate-200 text-slate-400'}`}>
             <Upload className="h-6 w-6" />
           </div>
           <div className={`h-1 flex-1 mx-2 rounded-full ${step >= 2 ? 'bg-blue-600' : 'bg-white/10'}`} />
-          <div className={`p-3 rounded-2xl border transition-all ${step >= 2 ? 'bg-blue-600 border-blue-400 shadow-lg shadow-blue-500/20' : 'bg-white/5 border-white/10'}`}>
+          <div className={`p-3 rounded-2xl border transition-all ${step >= 2 ? 'bg-indigo-600 border-indigo-400 text-white shadow-lg' : 'bg-white border-slate-200 text-slate-400'}`}>
             <Camera className="h-6 w-6" />
           </div>
           <div className={`h-1 flex-1 mx-2 rounded-full ${step >= 3 ? 'bg-blue-600' : 'bg-white/10'}`} />
-          <div className={`p-3 rounded-2xl border transition-all ${step >= 3 ? 'bg-blue-600 border-blue-400 shadow-lg shadow-blue-500/20' : 'bg-white/5 border-white/10'}`}>
+          <div className={`p-3 rounded-2xl border transition-all ${step >= 3 ? 'bg-indigo-600 border-indigo-400 text-white shadow-lg' : 'bg-white border-slate-200 text-slate-400'}`}>
             <ShieldCheck className="h-6 w-6" />
           </div>
         </div>
 
         {step === 1 && (
-          <div className="bg-primary-900/50 backdrop-blur-xl border border-white/10 rounded-3xl p-8 space-y-8 shadow-2xl">
+          <div className="bg-white border border-slate-200 rounded-3xl p-8 space-y-8 shadow-lg">
             <div className="space-y-4">
               <h2 className="text-2xl font-bold">1. Upload Official ID</h2>
-              <p className="text-white/60 text-sm">Please upload a clear photo of your Aadhaar Card, PAN Card, or Driver's License.</p>
+              <p className="text-slate-500 text-sm">Please upload a clear photo of your Aadhaar Card, PAN Card, or Driver's License.</p>
             </div>
             
-            <div className="relative group border-2 border-dashed border-white/10 rounded-2xl p-10 text-center hover:border-blue-500/50 hover:bg-white/5 transition-all cursor-pointer overflow-hidden">
+            <div className="relative group border-2 border-dashed border-slate-200 rounded-2xl p-10 text-center hover:border-indigo-500 hover:bg-slate-50 transition-all cursor-pointer overflow-hidden">
               <input type="file" onChange={handleDocUpload} className="absolute inset-0 opacity-0 cursor-pointer" accept="image/*" />
               {docPreview ? (
                 <img src={docPreview} alt="ID Preview" className="mx-auto max-h-48 rounded-lg shadow-xl" />
@@ -127,20 +127,20 @@ export const IdentityVerificationPage = () => {
         )}
 
         {step === 2 && (
-          <div className="bg-primary-900/50 backdrop-blur-xl border border-white/10 rounded-3xl p-8 space-y-8 shadow-2xl">
+          <div className="bg-white border border-slate-200 rounded-3xl p-8 space-y-8 shadow-lg text-slate-900">
             <div className="space-y-4">
               <h2 className="text-2xl font-bold">2. Face Match Capture</h2>
-              <p className="text-white/60 text-sm">Our AI will match your live photo with the uploaded ID. Ensure your face is clearly visible.</p>
+              <p className="text-slate-500 text-sm">Our AI will match your live photo with the uploaded ID. Ensure your face is clearly visible.</p>
             </div>
 
-            <div className="relative group border-2 border-dashed border-white/10 rounded-2xl p-10 text-center hover:border-emerald-500/50 hover:bg-white/5 transition-all cursor-pointer overflow-hidden">
+            <div className="relative group border-2 border-dashed border-slate-200 rounded-2xl p-10 text-center hover:border-emerald-500/50 hover:bg-slate-50 transition-all cursor-pointer overflow-hidden">
               <input type="file" accept="image/*" capture="user" onChange={handleLiveUpload} className="absolute inset-0 opacity-0 cursor-pointer" />
               {livePreview ? (
                 <img src={livePreview} alt="Live Preview" className="mx-auto max-h-48 rounded-full border-4 border-emerald-500/30 shadow-xl aspect-square object-cover" />
               ) : (
                 <div className="space-y-4">
-                  <div className="mx-auto w-16 h-16 bg-white/5 rounded-full flex items-center justify-center">
-                    <Camera className="h-8 w-8 text-white/40" />
+                  <div className="mx-auto w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center">
+                    <Camera className="h-8 w-8 text-slate-400" />
                   </div>
                   <div className="text-sm font-medium">Click to capture live photo</div>
                 </div>
@@ -155,20 +155,20 @@ export const IdentityVerificationPage = () => {
         )}
 
         {step === 3 && (
-          <div className="bg-primary-900/50 backdrop-blur-xl border border-white/10 rounded-3xl p-10 text-center space-y-6 shadow-2xl">
-            <div className={`mx-auto w-20 h-20 rounded-full flex items-center justify-center border ${status?.status === 'FAILED' ? 'bg-red-500/20 border-red-500/30' : 'bg-emerald-500/20 border-emerald-500/30'}`}>
-              {status?.status === 'FAILED' ? <AlertCircle className="h-10 w-10 text-red-500" /> : <CheckCircle2 className="h-10 w-10 text-emerald-400" />}
+          <div className="bg-white border border-slate-200 rounded-3xl p-10 text-center space-y-6 shadow-xl text-slate-900">
+            <div className={`mx-auto w-20 h-20 rounded-full flex items-center justify-center border ${status?.status === 'REJECTED' ? 'bg-red-500/10 border-red-500/20' : 'bg-emerald-500/10 border-emerald-500/20'}`}>
+              {status?.status === 'REJECTED' ? <AlertCircle className="h-10 w-10 text-red-500" /> : <CheckCircle2 className="h-10 w-10 text-emerald-400" />}
             </div>
-            <h2 className="text-3xl font-bold">{status?.status === 'FAILED' ? 'Match Failed' : 'Verification Success'}</h2>
-            <p className="text-white/60">
-              {status?.status === 'FAILED' 
+            <h2 className="text-3xl font-bold">{status?.status === 'REJECTED' ? 'Match Failed' : 'Verification Success'}</h2>
+            <p className="text-slate-500 text-sm">
+              {status?.status === 'REJECTED' 
                 ? 'Your face matching failed. Please try again with better lighting and a clearer ID photo.' 
                 : 'TrustHire AI has verified your identity. Redirecting to dashboard...'}
             </p>
-            {status?.status === 'FAILED' ? (
-              <button onClick={() => setStep(1)} className="w-full bg-red-600 hover:bg-red-500 py-4 rounded-xl font-bold transition-all">Try Again</button>
+            {status?.status === 'REJECTED' ? (
+              <button onClick={() => setStep(1)} className="w-full bg-red-600 hover:bg-red-500 py-4 rounded-xl font-bold transition-all text-white">Try Again</button>
             ) : (
-              <button onClick={() => window.location.href = '/dashboard'} className="w-full bg-emerald-600 hover:bg-emerald-500 py-4 rounded-xl font-bold transition-all">Go to Dashboard</button>
+              <button onClick={() => window.location.href = '/dashboard'} className="w-full bg-emerald-600 hover:bg-emerald-500 py-4 rounded-xl font-bold transition-all text-white">Go to Dashboard</button>
             )}
           </div>
         )}

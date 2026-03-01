@@ -26,13 +26,13 @@ export default function JobDetailPage() {
     mutation.mutate({ jobId: id!, coverLetter });
   };
 
-  if (isLoading) return <div className="min-h-screen bg-[#070b14] flex items-center justify-center"><div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" /></div>;
-  if (!job) return <div className="min-h-screen bg-[#070b14] text-white p-8">Job not found.</div>;
+  if (isLoading) return <div className="min-h-screen bg-slate-50 flex items-center justify-center"><div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" /></div>;
+  if (!job) return <div className="min-h-screen bg-slate-50 text-slate-900 p-8">Job not found.</div>;
 
   return (
-    <div className="min-h-screen bg-[#070b14] text-white pb-32">
-      <header className="p-6 border-b border-white/5 sticky top-0 bg-[#070b14]/80 backdrop-blur-xl z-50 flex items-center gap-4">
-        <button onClick={() => navigate(-1)} className="p-2 hover:bg-white/5 rounded-xl transition-all cursor-pointer">
+    <div className="min-h-screen bg-slate-50 text-slate-900 pb-32">
+      <header className="p-6 border-b border-slate-200 sticky top-0 bg-white/80 backdrop-blur-xl z-50 flex items-center gap-4">
+        <button onClick={() => navigate(-1)} className="p-2 hover:bg-slate-100 rounded-xl transition-all cursor-pointer">
           <ArrowLeft className="w-6 h-6" />
         </button>
         <h1 className="text-lg font-bold truncate">{job.title}</h1>
@@ -42,7 +42,7 @@ export default function JobDetailPage() {
         <section className="space-y-6">
           <div className="flex justify-between items-start">
             <div className="space-y-2">
-              <span className="px-3 py-1 bg-indigo-600/20 text-indigo-400 text-[10px] font-black uppercase tracking-widest rounded-full">
+              <span className="px-3 py-1 bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase tracking-widest rounded-full">
                 {job.industry}
               </span>
               <h2 className="text-3xl font-black italic uppercase leading-none">{job.title}</h2>
@@ -55,19 +55,19 @@ export default function JobDetailPage() {
                 <IndianRupee className="w-6 h-6" />
                 {job.budget?.toLocaleString()}
               </div>
-              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Project Budget</p>
+              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Project Budget</p>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <div className="p-4 rounded-2xl bg-white/3 border border-white/6 flex items-center gap-3">
+            <div className="p-4 rounded-2xl bg-white border border-slate-200 flex items-center gap-3 shadow-sm">
               <ShieldCheck className="w-5 h-5 text-indigo-400" />
               <div>
                 <p className="text-[10px] text-slate-500 font-bold uppercase">Client Status</p>
                 <p className="text-sm font-bold">Verified</p>
               </div>
             </div>
-            <div className="p-4 rounded-2xl bg-white/3 border border-white/6 flex items-center gap-3">
+            <div className="p-4 rounded-2xl bg-white border border-slate-200 flex items-center gap-3 shadow-sm">
               <Clock className="w-5 h-5 text-indigo-400" />
               <div>
                 <p className="text-[10px] text-slate-500 font-bold uppercase">Posted</p>
@@ -79,27 +79,27 @@ export default function JobDetailPage() {
 
         <section className="space-y-4">
           <h3 className="text-sm font-black uppercase tracking-widest text-slate-500">Job Description</h3>
-          <p className="text-slate-300 leading-relaxed text-lg font-medium">
+          <p className="text-slate-600 leading-relaxed text-lg font-medium">
             {job.description}
           </p>
         </section>
 
         {!applied ? (
-          <section className="space-y-6 p-8 rounded-3xl bg-indigo-600/5 border border-indigo-500/10 shadow-2xl shadow-indigo-500/5">
+          <section className="space-y-6 p-8 rounded-3xl bg-white border border-slate-200 shadow-sm">
             <div className="space-y-2">
               <h3 className="text-xl font-bold">Interested?</h3>
-              <p className="text-slate-400 text-sm italic">Tell the employer why you're a good fit for this job.</p>
+              <p className="text-slate-500 text-sm italic">Tell the employer why you're a good fit for this job.</p>
             </div>
-            <textarea 
+              <textarea 
               placeholder="Enter your cover letter or introduction..." 
-              className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 min-h-[150px] focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-medium"
+              className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 min-h-[150px] focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-medium text-slate-900"
               value={coverLetter}
               onChange={(e) => setCoverLetter(e.target.value)}
             />
             <button 
               onClick={handleApply}
               disabled={mutation.isPending}
-              className="w-full py-5 bg-white text-black rounded-2xl font-black text-lg hover:bg-indigo-600 hover:text-white transition-all active:scale-[0.98] shadow-2xl shadow-black disabled:opacity-50 flex items-center justify-center gap-3 cursor-pointer"
+              className="w-full py-5 bg-indigo-600 text-white rounded-2xl font-black text-lg hover:bg-indigo-700 transition-all active:scale-[0.98] shadow-lg disabled:opacity-50 flex items-center justify-center gap-3 cursor-pointer"
             >
               {mutation.isPending ? 'Processing...' : <><Send className="w-6 h-6" /> Apply Now</>}
             </button>

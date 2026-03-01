@@ -13,29 +13,29 @@ export const ProfileCard = () => {
   });
 
   const { data: progress } = useQuery({
-    queryKey: ['levelProgress', profile?.clerkId],
-    queryFn: () => levelService.getLevelProgress(profile?.clerkId || ''),
-    enabled: !!profile?.clerkId
+    queryKey: ['levelProgress', user?.id],
+    queryFn: () => levelService.getLevelProgress(user?.id || ''),
+    enabled: !!user?.id
   });
 
   return (
-    <section className="relative p-8 rounded-4xl bg-linear-to-br from-indigo-600 to-indigo-900 overflow-hidden shadow-2xl shadow-indigo-500/20 text-white">
+    <section className="relative p-8 rounded-4xl bg-white border border-slate-200 overflow-hidden shadow-sm text-slate-900">
       <div className="relative z-10 space-y-6">
         <div className="flex justify-between items-start">
           <div>
             <h2 className="text-3xl font-bold">{user?.firstName || profile?.fullName.split(' ')[0]}</h2>
             <div className="flex items-center gap-2 mt-1">
-              <span className="px-2 py-0.5 rounded-lg bg-white/20 text-[10px] font-black uppercase tracking-widest">
+               <span className="px-2 py-0.5 rounded-lg bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase tracking-widest">
                 Level {profile?.level || '1'}
               </span>
               <div className="flex gap-0.5">
                 {[1, 2, 3, 4, 5].map(i => (
-                  <div key={i} className={`w-1 h-1 rounded-full ${i <= Number(profile?.level?.replace('L', '') || 1) ? 'bg-white' : 'bg-white/30'}`} />
+                  <div key={i} className={`w-1 h-1 rounded-full ${i <= Number(profile?.level?.replace('L', '') || 1) ? 'bg-indigo-600' : 'bg-slate-200'}`} />
                 ))}
               </div>
             </div>
           </div>
-          <div className="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20">
+          <div className="w-16 h-16 rounded-2xl bg-indigo-50 flex items-center justify-center border border-indigo-100 text-indigo-600">
             <TrendingUp className="w-8 h-8" />
           </div>
         </div>
@@ -44,12 +44,12 @@ export const ProfileCard = () => {
             <span>Next Level: L{progress?.nextLevel || parseInt(profile?.level?.replace('L', '') || '1') + 1}</span>
             <span>{Math.round(progress?.progress || 0)}%</span>
           </div>
-          <div className="h-2 w-full bg-black/20 rounded-full overflow-hidden">
-            <div className="h-full bg-white rounded-full transition-all duration-1000" style={{ width: `${progress?.progress || 0}%` }} />
+          <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+            <div className="h-full bg-indigo-600 rounded-full transition-all duration-1000" style={{ width: `${progress?.progress || 0}%` }} />
           </div>
         </div>
       </div>
-      <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 blur-3xl -mr-16 -mt-16 rounded-full" />
+      <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-100/50 blur-3xl -mr-16 -mt-16 rounded-full" />
     </section>
   );
 };
@@ -78,7 +78,7 @@ export const ActionGrid = () => {
 };
 
 export const BottomNav = () => (
-  <nav className="fixed bottom-0 left-0 right-0 p-4 pb-8 bg-[#070b14]/80 backdrop-blur-2xl border-t border-white/5 flex justify-around items-center z-50">
+  <nav className="fixed bottom-0 left-0 right-0 p-4 pb-8 bg-white/80 backdrop-blur-2xl border-t border-slate-200 flex justify-around items-center z-50">
     {[
       { icon: <TrendingUp className="w-5 h-5"/>, active: true },
       { icon: <Search className="w-5 h-5"/> },

@@ -26,9 +26,9 @@ export default function ApplicationManagementPage() {
   });
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white p-8">
+    <div className="min-h-screen bg-slate-50 text-slate-900 p-8">
       <header className="max-w-6xl mx-auto mb-12 flex items-center gap-6">
-        <button onClick={() => navigate('/dashboard')} className="p-3 bg-white/5 rounded-2xl hover:bg-white/10 transition-all cursor-pointer">
+        <button onClick={() => navigate('/dashboard')} className="p-3 bg-white border border-slate-200 rounded-2xl hover:bg-slate-100 transition-all cursor-pointer shadow-sm">
           <ArrowLeft className="w-6 h-6" />
         </button>
         <div>
@@ -45,10 +45,10 @@ export default function ApplicationManagementPage() {
         ) : (
           <div className="grid grid-cols-1 gap-6">
             {applications?.map((app) => (
-              <div key={app.id} className="p-8 rounded-3xl bg-white/3 border border-white/6 hover:border-white/10 transition-all flex flex-col md:flex-row gap-8 items-start md:items-center shadow-2xl shadow-black/40">
+              <div key={app.id} className="p-8 rounded-3xl bg-white border border-slate-200 hover:border-indigo-400 transition-all flex flex-col md:flex-row gap-8 items-start md:items-center shadow-sm">
                 <div className="flex-1 space-y-4">
                   <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 rounded-2xl bg-slate-800 flex items-center justify-center border border-white/5 text-blue-400 shadow-inner">
+                    <div className="w-14 h-14 rounded-2xl bg-slate-50 flex items-center justify-center border border-slate-100 text-indigo-600 shadow-sm">
                       <User className="w-8 h-8" />
                     </div>
                     <div>
@@ -59,8 +59,8 @@ export default function ApplicationManagementPage() {
                     </div>
                   </div>
                   
-                  <div className="bg-black/20 p-6 rounded-2xl border border-white/5 italic text-slate-300 relative">
-                    <FileText className="absolute top-4 right-4 w-5 h-5 text-white/10" />
+                  <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 italic text-slate-600 relative">
+                    <FileText className="absolute top-4 right-4 w-5 h-5 text-slate-200" />
                     <p className="line-clamp-3">"{app.coverLetter || "No cover letter provided."}"</p>
                   </div>
                 </div>
@@ -68,9 +68,9 @@ export default function ApplicationManagementPage() {
                 <div className="flex items-center gap-4 w-full md:w-auto">
                   <div className="flex flex-col gap-2 w-full">
                     <span className={`px-4 py-2 rounded-xl text-center text-xs font-black uppercase tracking-widest border ${
-                      app.status === 'PENDING' ? 'bg-amber-500/10 text-amber-500 border-amber-500/20' : 
-                      app.status === 'ACCEPTED' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 
-                      'bg-rose-500/10 text-rose-500 border-rose-500/20'
+                      app.status === 'PENDING' ? 'bg-amber-50 text-amber-600 border-amber-100' : 
+                      app.status === 'ACCEPTED' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 
+                      'bg-rose-50 text-rose-600 border-rose-100'
                     }`}>
                       {app.status}
                     </span>
@@ -85,7 +85,7 @@ export default function ApplicationManagementPage() {
                         </button>
                         <button 
                           onClick={() => mutation.mutate({ id: app.id!, status: 'REJECTED' })}
-                          className="flex-1 py-3 bg-white/5 hover:bg-rose-600 text-white rounded-xl font-bold flex items-center justify-center gap-2 transition-all cursor-pointer border border-white/10"
+                          className="flex-1 py-3 bg-white border border-slate-200 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-100 text-slate-600 rounded-xl font-bold flex items-center justify-center gap-2 transition-all cursor-pointer"
                         >
                           <XCircle className="w-4 h-4" /> Reject
                         </button>
@@ -96,8 +96,8 @@ export default function ApplicationManagementPage() {
               </div>
             ))}
             {(!applications || applications.length === 0) && (
-                <div className="text-center py-24 bg-white/2 rounded-[40px] border border-dashed border-white/5 space-y-4">
-                    <p className="text-slate-600 italic text-xl">No applications to manage yet.</p>
+                <div className="text-center py-24 bg-white rounded-[40px] border border-dashed border-slate-200 space-y-4">
+                    <p className="text-slate-400 italic text-xl">No applications to manage yet.</p>
                 </div>
             )}
           </div>

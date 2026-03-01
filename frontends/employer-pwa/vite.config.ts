@@ -14,8 +14,8 @@ export default defineConfig({
         name: 'TrustHire Employer',
         short_name: 'TrustHire Boss',
         description: 'Premium Recruitment Platform for Business Owners',
-        theme_color: '#0f172a',
-        background_color: '#0f172a',
+        theme_color: '#f8fafc',
+        background_color: '#f8fafc',
         display: 'standalone',
         icons: [
           {

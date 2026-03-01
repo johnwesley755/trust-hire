@@ -14,8 +14,8 @@ export default function JobSearchPage() {
   });
 
   return (
-    <div className="min-h-screen bg-[#070b14] text-white">
-      <header className="p-8 bg-indigo-600/10 border-b border-white/5 sticky top-0 backdrop-blur-3xl z-40">
+    <div className="min-h-screen bg-slate-50 text-slate-900">
+      <header className="p-8 bg-indigo-50 border-b border-slate-200 sticky top-0 backdrop-blur-3xl z-40">
         <div className="max-w-4xl mx-auto space-y-6">
           <h1 className="text-3xl font-black italic uppercase tracking-tighter">Find Better Work</h1>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -24,7 +24,7 @@ export default function JobSearchPage() {
               <input 
                 type="text" 
                 placeholder="Search jobs (e.g. Cleaning, Driver)" 
-                className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+                className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all shadow-sm"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
               />
@@ -34,7 +34,7 @@ export default function JobSearchPage() {
               <input 
                 type="text" 
                 placeholder="Location" 
-                className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+                className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all shadow-sm"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
               />
@@ -54,7 +54,7 @@ export default function JobSearchPage() {
               <JobCard key={job.jobId} job={job} />
             ))}
             {jobs?.length === 0 && (
-              <div className="text-center py-20 bg-white/2 border border-dashed border-white/5 rounded-3xl">
+              <div className="text-center py-20 bg-white border border-dashed border-slate-200 rounded-3xl">
                 <p className="text-slate-500 italic">No jobs found matching your criteria.</p>
               </div>
             )}
@@ -77,16 +77,16 @@ function JobCard({ job }: { job: JobSearch }) {
   };
 
   return (
-    <div className="bg-white/3 border border-white/6 p-6 rounded-3xl hover:bg-white/5 transition-all group shadow-xl">
+    <div className="bg-white border border-slate-200 p-6 rounded-3xl hover:border-indigo-400 transition-all group shadow-sm">
       <div className="flex justify-between items-start mb-6">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <div className="bg-indigo-600/20 p-2 rounded-xl text-indigo-400">
+            <div className="bg-indigo-50 p-2 rounded-xl text-indigo-600">
               <Briefcase className="w-5 h-5" />
             </div>
             <h3 className="text-xl font-bold">{job.title}</h3>
           </div>
-          <p className="text-slate-400 text-sm flex items-center gap-2">
+          <p className="text-slate-500 text-sm flex items-center gap-2">
             <MapPin className="w-3 h-3" /> {job.location} • {job.industry}
           </p>
         </div>
@@ -99,14 +99,14 @@ function JobCard({ job }: { job: JobSearch }) {
         </div>
       </div>
 
-      <p className="text-slate-300 text-sm leading-relaxed line-clamp-2 mb-8 h-10">
+      <p className="text-slate-600 text-sm leading-relaxed line-clamp-2 mb-8 h-10">
         {job.description}
       </p>
 
       <div className="flex justify-between items-center">
         <div className="flex gap-2">
-          <span className="px-3 py-1 bg-white/5 text-[10px] font-bold uppercase tracking-tighter rounded-full border border-white/10 text-slate-400">Immediate Start</span>
-          <span className="px-3 py-1 bg-white/5 text-[10px] font-bold uppercase tracking-tighter rounded-full border border-white/10 text-slate-400">Verified Client</span>
+          <span className="px-3 py-1 bg-slate-100 text-[10px] font-bold uppercase tracking-tighter rounded-full border border-slate-200 text-slate-500">Immediate Start</span>
+          <span className="px-3 py-1 bg-slate-100 text-[10px] font-bold uppercase tracking-tighter rounded-full border border-slate-200 text-slate-500">Verified Client</span>
         </div>
         
         <button 
@@ -114,8 +114,8 @@ function JobCard({ job }: { job: JobSearch }) {
           disabled={applied || mutation.isPending}
           className={`px-8 py-3 rounded-2xl font-black text-sm transition-all active:scale-95 flex items-center gap-2 shadow-2xl ${
             applied 
-            ? 'bg-emerald-500/10 text-emerald-500 cursor-default border border-emerald-500/20' 
-            : 'bg-white text-black hover:bg-indigo-600 hover:text-white cursor-pointer'
+            ? 'bg-emerald-50 text-emerald-600 cursor-default border border-emerald-100' 
+            : 'bg-indigo-600 text-white hover:bg-indigo-700 cursor-pointer shadow-lg'
           }`}
         >
           {applied ? <><CheckCircle className="w-4 h-4" /> Applied</> : mutation.isPending ? 'Applying...' : <><Send className="w-4 h-4" /> Apply Now</>}
