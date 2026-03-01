@@ -14,7 +14,7 @@ export const IdentityVerificationPage = () => {
   });
 
   const docMutation = useMutation({
-    mutationFn: verificationService.uploadDocImage,
+    mutationFn: (file: File) => verificationService.uploadAadhaar(file),
     onSuccess: () => {
       setStep(2);
       refetch();
@@ -22,7 +22,7 @@ export const IdentityVerificationPage = () => {
   });
 
   const liveMutation = useMutation({
-    mutationFn: verificationService.uploadLiveCapture,
+    mutationFn: (file: File) => verificationService.uploadLiveCapture(file),
     onSuccess: () => {
       setStep(3);
       refetch();
@@ -46,11 +46,11 @@ export const IdentityVerificationPage = () => {
   };
 
   // If already verified or pending, show status
-  if (status?.status === 'SUCCESS' || status?.status === 'PENDING') {
+  if (status?.status === 'VERIFIED' || status?.status === 'PENDING') {
     return (
       <div className="min-h-screen bg-primary-950 flex items-center justify-center p-6 text-white">
         <div className="max-w-md w-full bg-primary-900/50 backdrop-blur-xl border border-white/10 rounded-3xl p-10 text-center space-y-6 shadow-2xl">
-          {status.status === 'SUCCESS' ? (
+          {status.status === 'VERIFIED' ? (
             <>
               <div className="mx-auto w-20 h-20 bg-emerald-500/20 rounded-full flex items-center justify-center border border-emerald-500/30">
                 <CheckCircle2 className="h-10 w-10 text-emerald-400" />

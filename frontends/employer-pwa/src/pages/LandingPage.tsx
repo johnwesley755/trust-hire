@@ -1,4 +1,5 @@
-import { SignedOut, SignInButton } from "@clerk/clerk-react";
+import { SignedIn, SignedOut } from "@clerk/clerk-react";
+import { Link } from "react-router-dom";
 import { Users, Briefcase, LayoutDashboard } from "lucide-react";
 
 export default function LandingPage() {
@@ -13,15 +14,18 @@ export default function LandingPage() {
         </p>
         <div className="flex gap-4 justify-center">
           <SignedOut>
-            <SignInButton mode="modal">
-              <button className="px-8 py-4 bg-blue-600 hover:bg-blue-500 rounded-full font-semibold transition-all shadow-lg shadow-blue-500/20 active:scale-95 cursor-pointer">
-                Get Started
-              </button>
-            </SignInButton>
+            <Link to="/sign-in" className="px-8 py-4 bg-blue-600 hover:bg-blue-500 rounded-full font-semibold transition-all shadow-lg shadow-blue-500/20 active:scale-95">
+              Get Started
+            </Link>
+            <Link to="/sign-up" className="px-8 py-4 bg-white/5 border border-white/10 hover:bg-white/10 rounded-full font-semibold transition-all backdrop-blur-md">
+              Sign Up
+            </Link>
           </SignedOut>
-          <button className="px-8 py-4 bg-white/5 border border-white/10 hover:bg-white/10 rounded-full font-semibold transition-all backdrop-blur-md cursor-pointer">
-            Learn More
-          </button>
+          <SignedIn>
+            <Link to="/dashboard" className="px-8 py-4 bg-blue-600 hover:bg-blue-500 rounded-full font-semibold transition-all shadow-lg shadow-blue-500/20 active:scale-95">
+              Go to Dashboard
+            </Link>
+          </SignedIn>
         </div>
       </div>
       

@@ -10,6 +10,9 @@ export interface Worker {
   experience: number;
   rating: number;
   distance: number;
+  location?: string;
+  bio?: string;
+  clerkId?: string;
   availability: 'AVAILABLE' | 'BUSY' | 'UNAVAILABLE';
   salaryRange: string;
   verificationStatus: 'PENDING' | 'SUCCESS' | 'FAILED' | 'VERIFIED';

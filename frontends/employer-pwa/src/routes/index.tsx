@@ -4,6 +4,10 @@ import LandingPage from '../pages/LandingPage.tsx';
 import DashboardPage from '../pages/DashboardPage.tsx';
 import { JobPostingPage } from '../pages/JobPostingPage.tsx';
 import { WorkerSearchPage } from '../pages/WorkerSearchPage.tsx';
+import ApplicationManagementPage from '../pages/ApplicationManagementPage.tsx';
+import { WorkerProfilePage } from '../pages/WorkerProfilePage.tsx';
+import { SignInPage } from '../pages/SignInPage.tsx';
+import { SignUpPage } from '../pages/SignUpPage.tsx';
 
 export const router = createBrowserRouter([
   {
@@ -14,6 +18,14 @@ export const router = createBrowserRouter([
         <SignedIn><Navigate to="/dashboard" replace /></SignedIn>
       </>
     ),
+  },
+  {
+    path: '/sign-in/*',
+    element: <SignInPage />,
+  },
+  {
+    path: '/sign-up/*',
+    element: <SignUpPage />,
   },
   {
     path: '/dashboard',
@@ -37,6 +49,22 @@ export const router = createBrowserRouter([
     element: (
       <SignedIn>
         <WorkerSearchPage />
+      </SignedIn>
+    ),
+  },
+  {
+    path: '/worker/:id',
+    element: (
+      <SignedIn>
+        <WorkerProfilePage />
+      </SignedIn>
+    ),
+  },
+  {
+    path: '/applications',
+    element: (
+      <SignedIn>
+        <ApplicationManagementPage />
       </SignedIn>
     ),
   },

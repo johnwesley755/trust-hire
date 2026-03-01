@@ -1,6 +1,7 @@
 import { Award, TrendingUp, Search, ShieldCheck, Briefcase, User as UserIcon } from 'lucide-react';
 import { useUser } from "@clerk/clerk-react";
 import { useQuery } from '@tanstack/react-query';
+import { levelService } from '../../api/level.service';
 import { profileService } from '../../api/profile.service';
 import { useNavigate } from 'react-router-dom';
 
@@ -9,6 +10,12 @@ export const ProfileCard = () => {
   const { data: profile } = useQuery({
     queryKey: ['workerProfile'],
     queryFn: profileService.getProfile,
+  });
+
+  const { data: progress } = useQuery({
+    queryKey: ['levelProgress', profile?.clerkId],
+    queryFn: () => levelService.getLevelProgress(profile?.clerkId || ''),
+    enabled: !!profile?.clerkId
   });
 
   return (
@@ -34,11 +41,11 @@ export const ProfileCard = () => {
         </div>
         <div className="space-y-2">
           <div className="flex justify-between text-xs font-bold uppercase tracking-wider">
-            <span>Next Level: L{parseInt(profile?.level?.replace('L', '') || '1') + 1}</span>
-            <span>85%</span>
+            <span>Next Level: L{progress?.nextLevel || parseInt(profile?.level?.replace('L', '') || '1') + 1}</span>
+            <span>{Math.round(progress?.progress || 0)}%</span>
           </div>
           <div className="h-2 w-full bg-black/20 rounded-full overflow-hidden">
-            <div className="h-full w-[85%] bg-white rounded-full" />
+            <div className="h-full bg-white rounded-full transition-all duration-1000" style={{ width: `${progress?.progress || 0}%` }} />
           </div>
         </div>
       </div>

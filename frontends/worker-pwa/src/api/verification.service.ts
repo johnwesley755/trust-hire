@@ -1,34 +1,36 @@
 import apiClient from './apiClient';
 
-export interface VerificationStatus {
-  workerClerkId: string;
-  docImageUrl: string;
-  liveImageUrl: string;
-  status: 'PENDING' | 'SUCCESS' | 'FAILED';
+export interface VerificationRecord {
+  id: string;
+  clerkId: string;
+  aadhaarMasked?: string;
+  identityVerified: boolean;
+  faceMatchScore?: number;
+  status: 'NONE' | 'PENDING' | 'VERIFIED' | 'REJECTED';
   updatedAt: string;
 }
 
 export const verificationService = {
-  uploadDocImage: async (file: File): Promise<VerificationStatus> => {
+  uploadAadhaar: async (file: File): Promise<VerificationRecord> => {
     const formData = new FormData();
     formData.append('file', file);
-    const response = await apiClient.post<VerificationStatus>('/api/verification/upload/doc', formData, {
+    const response = await apiClient.post<VerificationRecord>('/api/verification/upload-doc', formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
     return response.data;
   },
 
-  uploadLiveCapture: async (file: File): Promise<VerificationStatus> => {
+  uploadLiveCapture: async (file: File): Promise<VerificationRecord> => {
     const formData = new FormData();
     formData.append('file', file);
-    const response = await apiClient.post<VerificationStatus>('/api/verification/upload/live', formData, {
+    const response = await apiClient.post<VerificationRecord>('/api/verification/capture-live', formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
     return response.data;
   },
 
-  getStatus: async (): Promise<VerificationStatus> => {
-    const response = await apiClient.get<VerificationStatus>('/api/verification/status');
+  getStatus: async (): Promise<VerificationRecord> => {
+    const response = await apiClient.get<VerificationRecord>('/api/verification/status');
     return response.data;
   }
 };

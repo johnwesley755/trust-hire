@@ -13,12 +13,12 @@ export interface EmployerProfile {
 
 export const profileService = {
   getProfile: async (): Promise<EmployerProfile> => {
-    const response = await apiClient.get<EmployerProfile>('/api/identity/profile/employer');
+    const response = await apiClient.get<EmployerProfile>('/api/employer/profile');
     return response.data;
   },
 
   updateProfile: async (updates: Partial<EmployerProfile>): Promise<EmployerProfile> => {
-    const response = await apiClient.put<EmployerProfile>('/api/identity/profile/employer', updates);
+    const response = await apiClient.post<EmployerProfile>('/api/employer/profile', updates);
     return response.data;
   }
 };

@@ -14,12 +14,12 @@ export interface WorkerProfile {
 
 export const profileService = {
   getProfile: async (): Promise<WorkerProfile> => {
-    const response = await apiClient.get<WorkerProfile>('/api/identity/profile/worker');
+    const response = await apiClient.get<WorkerProfile>('/api/worker/profile');
     return response.data;
   },
 
   updateProfile: async (updates: Partial<WorkerProfile>): Promise<WorkerProfile> => {
-    const response = await apiClient.put<WorkerProfile>('/api/identity/profile/worker', updates);
+    const response = await apiClient.put<WorkerProfile>('/api/worker/profile', updates);
     return response.data;
   }
 };

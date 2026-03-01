@@ -22,7 +22,7 @@ export const jobService = {
   },
 
   getEmployerJobs: async (): Promise<Job[]> => {
-    const response = await apiClient.get<Job[]>('/api/jobs/my');
+    const response = await apiClient.get<Job[]>('/api/jobs/employer');
     return response.data;
   },
 };

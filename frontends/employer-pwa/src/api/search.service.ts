@@ -12,9 +12,9 @@ export interface WorkerSearch {
   status: string;
 }
 
-export const searchWorkers = async (query?: string, location?: string, level?: string): Promise<WorkerSearch[]> => {
+export const searchWorkers = async (query?: string, location?: string, level?: string, radius?: string, skills?: string): Promise<WorkerSearch[]> => {
   const response = await apiClient.get<WorkerSearch[]>('/api/search/workers', {
-    params: { query, location, level }
+    params: { query, location, level, radius, skills }
   });
   return response.data;
 };
