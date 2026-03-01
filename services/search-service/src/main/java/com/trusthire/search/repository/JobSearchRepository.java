@@ -13,12 +13,16 @@ import java.util.UUID;
 public interface JobSearchRepository extends JpaRepository<JobSearch, UUID> {
     
     @Query("SELECT j FROM JobSearch j WHERE " +
-           "(:query IS NULL OR LOWER(j.title) LIKE LOWER(CONCAT('%', :query, '%')) OR LOWER(j.description) LIKE LOWER(CONCAT('%', :query, '%'))) AND " +
-           "(:category IS NULL OR j.category = :category) AND " +
-           "(:location IS NULL OR LOWER(j.location) LIKE LOWER(CONCAT('%', :location, '%'))) AND " +
-           "(j.status = 'OPEN')")
+           "(:query IS NULL OR :query = '' OR LOWER(j.title) LIKE LOWER(CONCAT('%', :query, '%')) OR LOWER(j.description) LIKE LOWER(CONCAT('%', :query, '%'))) AND " +
+           "(:category IS NULL OR :category = '' OR LOWER(j.industry) = LOWER(:category)) AND " +
+           "(:location IS NULL OR :location = '' OR LOWER(j.location) LIKE LOWER(CONCAT('%', :location, '%'))) AND " +
+           "(:lat IS NULL OR :lon IS NULL OR :radius IS NULL OR " +
+           "(6371 * acos(cos(radians(:lat)) * cos(radians(j.latitude)) * cos(radians(j.longitude) - radians(:lon)) + sin(radians(:lat)) * sin(radians(j.latitude))) <= :radius))")
     List<JobSearch> searchJobs(
-            @Param("query") String query,
-            @Param("category") String category,
-            @Param("location") String location);
+            @Param("query") String query, 
+            @Param("category") String category, 
+            @Param("location") String location,
+            @Param("lat") Double lat,
+            @Param("lon") Double lon,
+            @Param("radius") Double radius);
 }

@@ -7,12 +7,12 @@ import java.util.UUID;
 
 public interface SearchService {
     // Jobs
-    List<JobSearch> searchJobs(String query, String category, String location);
+    List<JobSearch> searchJobs(String query, String category, String location, Double lat, Double lon, Double radius);
     JobSearch indexJob(JobSearch jobSearch);
     void deleteJob(UUID jobId);
 
     // Workers
-    List<WorkerSearch> searchWorkers(String query, String location, String level);
+    List<WorkerSearch> searchWorkers(String query, String location, String level, Double lat, Double lon, Double radius);
     WorkerSearch indexWorker(WorkerSearch workerSearch);
     void deleteWorker(String clerkId);
 }

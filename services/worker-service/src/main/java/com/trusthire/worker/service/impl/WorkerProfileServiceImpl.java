@@ -53,6 +53,8 @@ public class WorkerProfileServiceImpl implements WorkerProfileService {
                     .bio(profile.getBio())
                     .skills(profile.getSkills() != null ? String.join(", ", profile.getSkills()) : "")
                     .location(profile.getLocation())
+                    .latitude(profile.getLatitude())
+                    .longitude(profile.getLongitude())
                     .level(profile.getLevel())
                     .isVerified(false) // Verification status would come from verification-service
                     .status(profile.getIsAvailable() != null && profile.getIsAvailable() ? "AVAILABLE" : "BUSY")

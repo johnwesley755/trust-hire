@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -26,10 +27,21 @@ public class WorkerProfileController {
     }
 
     @PutMapping("/profile")
-    public ResponseEntity<WorkerProfile> updateProfile(@AuthenticationPrincipal Jwt jwt, @RequestBody WorkerProfile profile) {
+    @Transactional
+    public ResponseEntity<WorkerProfile> updateProfile(@AuthenticationPrincipal Jwt jwt, @RequestBody WorkerProfile updates) {
         String clerkId = jwt.getSubject();
-        profile.setClerkId(clerkId); // Ensure they can only update their own profile
-        return ResponseEntity.ok(profileService.updateProfile(profile));
+        return profileService.getProfileByClerkId(clerkId)
+                .map(existing -> {
+                    if (updates.getFullName() != null) existing.setFullName(updates.getFullName());
+                    if (updates.getLocation() != null) existing.setLocation(updates.getLocation());
+                    if (updates.getBio() != null) existing.setBio(updates.getBio());
+                    if (updates.getSkills() != null) existing.setSkills(updates.getSkills());
+                    if (updates.getExperienceYears() != null) existing.setExperienceYears(updates.getExperienceYears());
+                    if (updates.getHourlyRate() != null) existing.setHourlyRate(updates.getHourlyRate());
+                    if (updates.getIsAvailable() != null) existing.setIsAvailable(updates.getIsAvailable());
+                    return ResponseEntity.ok(profileService.updateProfile(existing));
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/trust-score/{clerkId}")

@@ -2,7 +2,7 @@ import { SignIn } from "@clerk/clerk-react";
 
 export const SignInPage = () => {
   return (
-    <div className="min-h-screen bg-primary-950 flex items-center justify-center p-6">
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
       <div className="w-full max-w-md">
         <SignIn 
           routing="path" 
@@ -11,16 +11,16 @@ export const SignInPage = () => {
           appearance={{
             elements: {
               rootBox: "w-full mx-auto",
-              card: "bg-primary-900 border border-white/10 shadow-2xl rounded-3xl",
-              headerTitle: "text-white text-2xl font-bold",
-              headerSubtitle: "text-white/60",
-              socialButtonsBlockButton: "bg-white/5 border border-white/10 text-white hover:bg-white/10",
-              formButtonPrimary: "bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3",
-              formFieldLabel: "text-white/80",
-              formFieldInput: "bg-white/5 border border-white/10 text-white",
-              footerActionLink: "text-indigo-400 hover:text-indigo-300",
-              identityPreviewText: "text-white",
-              identityPreviewEditButtonIcon: "text-indigo-400"
+              card: "bg-white border border-slate-200 shadow-xl rounded-3xl",
+              headerTitle: "text-slate-900 text-2xl font-bold",
+              headerSubtitle: "text-slate-500",
+              socialButtonsBlockButton: "bg-slate-50 border border-slate-200 text-slate-900 hover:bg-slate-100",
+              formButtonPrimary: "bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 shadow-lg shadow-indigo-500/20",
+              formFieldLabel: "text-slate-700 font-medium",
+              formFieldInput: "bg-white border border-slate-200 text-slate-900 focus:border-indigo-500Transition",
+              footerActionLink: "text-indigo-600 hover:text-indigo-700",
+              identityPreviewText: "text-slate-900",
+              identityPreviewEditButtonIcon: "text-indigo-600"
             }
           }}
         />

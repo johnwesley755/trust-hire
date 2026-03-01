@@ -20,6 +20,8 @@ public interface SearchClient {
         private String bio;
         private String skills;
         private String location;
+        private Double latitude;
+        private Double longitude;
         private String level;
         private Boolean isVerified;
         private String profileImageUrl;

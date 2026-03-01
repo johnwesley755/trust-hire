@@ -4,6 +4,8 @@ export interface WorkerProfile {
   id?: string;
   fullName: string;
   location: string;
+  latitude?: number;
+  longitude?: number;
   level: string;
   bio: string;
   skills: string[];

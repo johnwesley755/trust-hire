@@ -25,6 +25,8 @@ public class WorkerProfile {
 
     private String fullName;
     private String location;
+    private Double latitude;
+    private Double longitude;
     private String level; // L1, L2, L3, L4
 
     @Column(columnDefinition = "TEXT")

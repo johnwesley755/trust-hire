@@ -22,9 +22,9 @@ public class SearchServiceImpl implements SearchService {
     private final WorkerSearchRepository workerRepository;
 
     @Override
-    public List<JobSearch> searchJobs(String query, String category, String location) {
-        log.info("Searching jobs: query={}, category={}, location={}", query, category, location);
-        return jobRepository.searchJobs(query, category, location);
+    public List<JobSearch> searchJobs(String query, String category, String location, Double lat, Double lon, Double radius) {
+        log.info("Searching jobs: query={}, category={}, location={}, lat={}, lon={}, radius={}", query, category, location, lat, lon, radius);
+        return jobRepository.searchJobs(query, category, location, lat, lon, radius);
     }
 
     @Override
@@ -42,9 +42,9 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Override
-    public List<WorkerSearch> searchWorkers(String query, String location, String level) {
-        log.info("Searching workers: query={}, location={}, level={}", query, location, level);
-        return workerRepository.searchWorkers(query, location, level);
+    public List<WorkerSearch> searchWorkers(String query, String location, String level, Double lat, Double lon, Double radius) {
+        log.info("Searching workers: query={}, location={}, level={}, lat={}, lon={}, radius={}", query, location, level, lat, lon, radius);
+        return workerRepository.searchWorkers(query, location, level, lat, lon, radius);
     }
 
     @Override

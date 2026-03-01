@@ -77,21 +77,28 @@ export const ActionGrid = () => {
   );
 };
 
-export const BottomNav = () => (
-  <nav className="fixed bottom-0 left-0 right-0 p-4 pb-8 bg-white/80 backdrop-blur-2xl border-t border-slate-200 flex justify-around items-center z-50">
-    {[
-      { icon: <TrendingUp className="w-5 h-5"/>, active: true },
-      { icon: <Search className="w-5 h-5"/> },
-      { icon: <div className="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-600/30 -mt-8"><PlusCircleIcon className="w-6 h-6 text-white"/></div>, custom: true },
-      { icon: <Award className="w-5 h-5 text-slate-500"/> },
-      { icon: <UserIcon className="w-5 h-5 text-slate-500"/> },
-    ].map((item, i) => (
-      <button key={i} className={`${item.active ? 'text-indigo-400' : 'text-slate-500'} cursor-pointer`}>
-        {item.icon}
-      </button>
-    ))}
-  </nav>
-);
+export const BottomNav = () => {
+  const navigate = useNavigate();
+  return (
+    <nav className="fixed bottom-0 left-0 right-0 p-4 pb-8 bg-white/80 backdrop-blur-2xl border-t border-slate-200 flex justify-around items-center z-50">
+      {[
+        { icon: <TrendingUp className="w-5 h-5"/>, path: '/level' },
+        { icon: <Search className="w-5 h-5"/>, path: '/search' },
+        { icon: <div className="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-600/30 -mt-8"><PlusCircleIcon className="w-6 h-6 text-white"/></div>, path: '/verify', custom: true },
+        { icon: <Award className="w-5 h-5 text-slate-500"/>, path: '/tests' },
+        { icon: <UserIcon className="w-5 h-5 text-slate-500"/>, path: '/profile' },
+      ].map((item, i) => (
+        <button 
+          key={i} 
+          onClick={() => navigate(item.path)}
+          className="text-slate-500 cursor-pointer hover:text-indigo-400 transition-colors"
+        >
+          {item.icon}
+        </button>
+      ))}
+    </nav>
+  );
+};
 
 const PlusCircleIcon = ({ className }: { className?: string }) => (
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>

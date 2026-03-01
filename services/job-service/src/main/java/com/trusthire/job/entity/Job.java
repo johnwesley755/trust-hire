@@ -43,6 +43,8 @@ public class Job {
     private BigDecimal budget;
 
     private String location;
+    private Double latitude;
+    private Double longitude;
 
     @Enumerated(EnumType.STRING)
     private JobStatus status;

@@ -2,15 +2,34 @@ import { UserButton } from "@clerk/clerk-react";
 import { ProfileCard, ActionGrid, BottomNav } from '../features/dashboard/DashboardComponents';
 import { useQuery } from '@tanstack/react-query';
 import { searchJobs } from '../api/search.service';
+import { profileService } from '../api/profile.service';
 import { useNavigate } from 'react-router-dom';
 
 import { NotificationCenter } from '../features/notifications/NotificationCenter';
 
+import { useState, useEffect } from 'react';
+
 export default function DashboardPage() {
   const navigate = useNavigate();
+  const [coords, setCoords] = useState<{lat: number, lon: number} | null>(null);
+
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => setCoords({ lat: pos.coords.latitude, lon: pos.coords.longitude }),
+        (err) => console.error("Geolocation error:", err)
+      );
+    }
+  }, []);
+
+  const { data: profile } = useQuery({
+    queryKey: ['workerProfile'],
+    queryFn: profileService.getProfile,
+  });
+
   const { data: jobs } = useQuery({ 
-    queryKey: ['nearbyJobs'], 
-    queryFn: () => searchJobs('', '', ''),
+    queryKey: ['nearbyJobs', profile?.location, coords], 
+    queryFn: () => searchJobs('', '', profile?.location || '', coords?.lat, coords?.lon, 50),
     staleTime: 60000 
   });
 

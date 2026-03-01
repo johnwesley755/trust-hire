@@ -24,9 +24,12 @@ public class JobSearch {
     @Column(columnDefinition = "TEXT")
     private String description;
 
+    @Column(name = "category")
     private String industry;
     private String location;
-    private java.math.BigDecimal budget;
+    private Double latitude;
+    private Double longitude;
+    private Double budget;
     private String requiredSkills; // Comma separated for indexing
     private String employerClerkId;
     private String status;

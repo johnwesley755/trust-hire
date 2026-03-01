@@ -9,6 +9,8 @@ import { SkillTestsPage } from '../pages/SkillTestsPage.tsx';
 import { LevelDetailsPage } from '../pages/LevelDetailsPage.tsx';
 import { SignInPage } from '../pages/SignInPage.tsx';
 import { SignUpPage } from '../pages/SignUpPage.tsx';
+import ProfilePage from '../pages/ProfilePage.tsx';
+import HistoryPage from '../pages/HistoryPage.tsx';
 
 export const router = createBrowserRouter([
   {
@@ -70,10 +72,30 @@ export const router = createBrowserRouter([
     ),
   },
   {
+    path: '/jobs',
+    element: <Navigate to="/search" replace />,
+  },
+  {
+    path: '/history',
+    element: (
+      <SignedIn>
+        <HistoryPage />
+      </SignedIn>
+    ),
+  },
+  {
     path: '/job/:id',
     element: (
       <SignedIn>
         <JobDetailPage />
+      </SignedIn>
+    ),
+  },
+  {
+    path: '/profile',
+    element: (
+      <SignedIn>
+        <ProfilePage />
       </SignedIn>
     ),
   },

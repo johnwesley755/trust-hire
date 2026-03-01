@@ -1,16 +1,27 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { searchJobs, type JobSearch } from '../api/search.service';
 import { applicationService } from '../api/application.service';
-import { Search, MapPin, Briefcase, IndianRupee, Send, CheckCircle } from 'lucide-react';
+import { Search, MapPin, Briefcase, IndianRupee, Send, CheckCircle, Navigation } from 'lucide-react';
 
 export default function JobSearchPage() {
   const [query, setQuery] = useState('');
   const [location, setLocation] = useState('');
+  const [coords, setCoords] = useState<{lat: number, lon: number} | null>(null);
+  const [radius, setRadius] = useState(50);
+
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => setCoords({ lat: pos.coords.latitude, lon: pos.coords.longitude }),
+        (err) => console.error("Geolocation error:", err)
+      );
+    }
+  }, []);
 
   const { data: jobs, isLoading } = useQuery({
-    queryKey: ['jobSearch', query, location],
-    queryFn: () => searchJobs(query, '', location),
+    queryKey: ['jobSearch', query, location, coords, radius],
+    queryFn: () => searchJobs(query, '', location, coords?.lat, coords?.lon, radius),
   });
 
   return (
@@ -39,6 +50,22 @@ export default function JobSearchPage() {
                 onChange={(e) => setLocation(e.target.value)}
               />
             </div>
+          </div>
+          
+          <div className="flex items-center gap-6 bg-white/50 p-4 rounded-2xl border border-slate-200/50">
+            <div className="flex items-center gap-2 text-indigo-600 font-bold text-xs uppercase tracking-widest">
+              <Navigation className="w-4 h-4" />
+              Radius: {radius}km
+            </div>
+            <input 
+              type="range" 
+              min="5" 
+              max="200" 
+              step="5"
+              value={radius}
+              onChange={(e) => setRadius(parseInt(e.target.value))}
+              className="flex-1 h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+            />
           </div>
         </div>
       </header>

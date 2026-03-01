@@ -22,7 +22,9 @@ public interface SearchClient {
         private String description;
         private String industry;
         private String location;
-        private java.math.BigDecimal budget;
+        private Double latitude;
+        private Double longitude;
+        private Double budget;
         private String requiredSkills;
         private String employerClerkId;
         private String status;
