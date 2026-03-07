@@ -32,11 +32,8 @@ public class WorkerProfile {
     @Column(columnDefinition = "TEXT")
     private String bio;
 
-    // Mapping PostgreSQL ARRAY to Java List
-    @ElementCollection
-    @CollectionTable(name = "worker_skills", joinColumns = @JoinColumn(name = "worker_id"))
-    @Column(name = "skill")
-    private List<String> skills;
+    @Column(columnDefinition = "TEXT")
+    private String skills;
 
     private Integer experienceYears;
 

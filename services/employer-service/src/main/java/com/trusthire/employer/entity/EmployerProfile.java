@@ -33,6 +33,10 @@ public class EmployerProfile {
 
     private String businessTier; // e.g., "Silver", "Gold", "Platinum"
     
+    private String location;
+    private Double latitude;
+    private Double longitude;
+    
     @Column(columnDefinition = "BOOLEAN DEFAULT false")
     private boolean isVerified;
 

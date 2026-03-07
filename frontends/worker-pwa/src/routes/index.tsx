@@ -11,6 +11,14 @@ import { SignInPage } from '../pages/SignInPage.tsx';
 import { SignUpPage } from '../pages/SignUpPage.tsx';
 import ProfilePage from '../pages/ProfilePage.tsx';
 import HistoryPage from '../pages/HistoryPage.tsx';
+import OnboardingPage from '../pages/OnboardingPage.tsx';
+import { AuthOnboardingGuard } from '../components/AuthOnboardingGuard.tsx';
+
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => (
+  <AuthOnboardingGuard>
+    {children}
+  </AuthOnboardingGuard>
+);
 
 export const router = createBrowserRouter([
   {
@@ -33,42 +41,49 @@ export const router = createBrowserRouter([
   {
     path: '/dashboard',
     element: (
-      <>
-        <SignedIn><DashboardPage /></SignedIn>
-        <SignedOut><Navigate to="/" replace /></SignedOut>
-      </>
+      <ProtectedRoute>
+        <DashboardPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/onboarding',
+    element: (
+      <SignedIn>
+        <OnboardingPage />
+      </SignedIn>
     ),
   },
   {
     path: '/verify',
     element: (
-      <SignedIn>
+      <ProtectedRoute>
         <IdentityVerificationPage />
-      </SignedIn>
+      </ProtectedRoute>
     ),
   },
   {
     path: '/tests',
     element: (
-      <SignedIn>
+      <ProtectedRoute>
         <SkillTestsPage />
-      </SignedIn>
+      </ProtectedRoute>
     ),
   },
   {
     path: '/level',
     element: (
-      <SignedIn>
+      <ProtectedRoute>
         <LevelDetailsPage />
-      </SignedIn>
+      </ProtectedRoute>
     ),
   },
   {
     path: '/search',
     element: (
-      <SignedIn>
+      <ProtectedRoute>
         <JobSearchPage />
-      </SignedIn>
+      </ProtectedRoute>
     ),
   },
   {
@@ -78,25 +93,25 @@ export const router = createBrowserRouter([
   {
     path: '/history',
     element: (
-      <SignedIn>
+      <ProtectedRoute>
         <HistoryPage />
-      </SignedIn>
+      </ProtectedRoute>
     ),
   },
   {
     path: '/job/:id',
     element: (
-      <SignedIn>
+      <ProtectedRoute>
         <JobDetailPage />
-      </SignedIn>
+      </ProtectedRoute>
     ),
   },
   {
     path: '/profile',
     element: (
-      <SignedIn>
+      <ProtectedRoute>
         <ProfilePage />
-      </SignedIn>
+      </ProtectedRoute>
     ),
   },
 ]);

@@ -30,18 +30,20 @@ public class WorkerProfileController {
     @Transactional
     public ResponseEntity<WorkerProfile> updateProfile(@AuthenticationPrincipal Jwt jwt, @RequestBody WorkerProfile updates) {
         String clerkId = jwt.getSubject();
-        return profileService.getProfileByClerkId(clerkId)
-                .map(existing -> {
-                    if (updates.getFullName() != null) existing.setFullName(updates.getFullName());
-                    if (updates.getLocation() != null) existing.setLocation(updates.getLocation());
-                    if (updates.getBio() != null) existing.setBio(updates.getBio());
-                    if (updates.getSkills() != null) existing.setSkills(updates.getSkills());
-                    if (updates.getExperienceYears() != null) existing.setExperienceYears(updates.getExperienceYears());
-                    if (updates.getHourlyRate() != null) existing.setHourlyRate(updates.getHourlyRate());
-                    if (updates.getIsAvailable() != null) existing.setIsAvailable(updates.getIsAvailable());
-                    return ResponseEntity.ok(profileService.updateProfile(existing));
-                })
-                .orElse(ResponseEntity.notFound().build());
+        WorkerProfile profile = profileService.getProfileByClerkId(clerkId)
+                .orElseGet(() -> profileService.createProfile(clerkId));
+
+        if (updates.getFullName() != null) profile.setFullName(updates.getFullName());
+        if (updates.getLocation() != null) profile.setLocation(updates.getLocation());
+        if (updates.getLatitude() != null) profile.setLatitude(updates.getLatitude());
+        if (updates.getLongitude() != null) profile.setLongitude(updates.getLongitude());
+        if (updates.getBio() != null) profile.setBio(updates.getBio());
+        if (updates.getSkills() != null) profile.setSkills(updates.getSkills());
+        if (updates.getExperienceYears() != null) profile.setExperienceYears(updates.getExperienceYears());
+        if (updates.getHourlyRate() != null) profile.setHourlyRate(updates.getHourlyRate());
+        if (updates.getIsAvailable() != null) profile.setIsAvailable(updates.getIsAvailable());
+        
+        return ResponseEntity.ok(profileService.updateProfile(profile));
     }
 
     @GetMapping("/trust-score/{clerkId}")

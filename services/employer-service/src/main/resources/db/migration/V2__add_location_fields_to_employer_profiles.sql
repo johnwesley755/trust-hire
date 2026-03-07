@@ -1,0 +1,4 @@
+ALTER TABLE employer_profiles 
+ADD COLUMN location VARCHAR(255),
+ADD COLUMN latitude DOUBLE PRECISION,
+ADD COLUMN longitude DOUBLE PRECISION;

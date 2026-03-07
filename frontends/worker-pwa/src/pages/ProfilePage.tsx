@@ -169,8 +169,8 @@ export default function ProfilePage() {
           <div className="px-6 pb-6">
              <p className="text-[10px] text-slate-400 font-black uppercase tracking-tighter mb-2">My Skills</p>
              <div className="flex flex-wrap gap-2">
-                {profile?.skills.map(skill => (
-                    <span key={skill} className="px-3 py-1 bg-white border border-slate-200 rounded-lg text-xs font-bold shadow-sm">{skill}</span>
+                {profile?.skills?.split(',').map(skill => (
+                    <span key={skill.trim()} className="px-3 py-1 bg-white border border-slate-200 rounded-lg text-xs font-bold shadow-sm">{skill.trim()}</span>
                 ))}
              </div>
           </div>

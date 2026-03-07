@@ -8,6 +8,14 @@ import ApplicationManagementPage from '../pages/ApplicationManagementPage.tsx';
 import { WorkerProfilePage } from '../pages/WorkerProfilePage.tsx';
 import { SignInPage } from '../pages/SignInPage.tsx';
 import { SignUpPage } from '../pages/SignUpPage.tsx';
+import OnboardingPage from '../pages/OnboardingPage.tsx';
+import { AuthOnboardingGuard } from '../components/AuthOnboardingGuard.tsx';
+
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => (
+  <AuthOnboardingGuard>
+    {children}
+  </AuthOnboardingGuard>
+);
 
 export const router = createBrowserRouter([
   {
@@ -30,42 +38,49 @@ export const router = createBrowserRouter([
   {
     path: '/dashboard',
     element: (
-      <>
-        <SignedIn><DashboardPage /></SignedIn>
-        <SignedOut><Navigate to="/" replace /></SignedOut>
-      </>
+      <ProtectedRoute>
+        <DashboardPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/onboarding',
+    element: (
+      <SignedIn>
+        <OnboardingPage />
+      </SignedIn>
     ),
   },
   {
     path: '/post-job',
     element: (
-      <SignedIn>
+      <ProtectedRoute>
         <JobPostingPage />
-      </SignedIn>
+      </ProtectedRoute>
     ),
   },
   {
     path: '/find-workers',
     element: (
-      <SignedIn>
+      <ProtectedRoute>
         <WorkerSearchPage />
-      </SignedIn>
+      </ProtectedRoute>
     ),
   },
   {
     path: '/worker/:id',
     element: (
-      <SignedIn>
+      <ProtectedRoute>
         <WorkerProfilePage />
-      </SignedIn>
+      </ProtectedRoute>
     ),
   },
   {
     path: '/applications',
     element: (
-      <SignedIn>
+      <ProtectedRoute>
         <ApplicationManagementPage />
-      </SignedIn>
+      </ProtectedRoute>
     ),
   },
 ]);

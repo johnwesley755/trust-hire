@@ -17,7 +17,7 @@ public interface JobSearchRepository extends JpaRepository<JobSearch, UUID> {
            "(:category IS NULL OR :category = '' OR LOWER(j.industry) = LOWER(:category)) AND " +
            "(:location IS NULL OR :location = '' OR LOWER(j.location) LIKE LOWER(CONCAT('%', :location, '%'))) AND " +
            "(:lat IS NULL OR :lon IS NULL OR :radius IS NULL OR " +
-           "(6371 * acos(cos(radians(:lat)) * cos(radians(j.latitude)) * cos(radians(j.longitude) - radians(:lon)) + sin(radians(:lat)) * sin(radians(j.latitude))) <= :radius))")
+           "(6371 * acos(cos(radians(CAST(:lat AS Double))) * cos(radians(j.latitude)) * cos(radians(j.longitude) - radians(CAST(:lon AS Double))) + sin(radians(CAST(:lat AS Double))) * sin(radians(j.latitude))) <= CAST(:radius AS Double)))")
     List<JobSearch> searchJobs(
             @Param("query") String query, 
             @Param("category") String category, 

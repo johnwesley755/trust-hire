@@ -53,6 +53,10 @@ public class UserSyncServiceImpl implements UserSyncService {
             user.setRole(UserMetadata.Role.WORKER); 
         }
 
+        if (user.getOnboarded() == null) {
+            user.setOnboarded(false);
+        }
+
         repository.save(user);
     }
 }

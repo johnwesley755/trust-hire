@@ -23,7 +23,7 @@ public class EmployerProfileController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @PostMapping
+    @RequestMapping(method = {RequestMethod.POST, RequestMethod.PUT})
     public ResponseEntity<EmployerProfile> createOrUpdateProfile(
             @AuthenticationPrincipal Jwt jwt,
             @RequestBody EmployerProfile profileRequest) {
@@ -37,6 +37,9 @@ public class EmployerProfileController {
         if (profileRequest.getCompanyWebsite() != null) profile.setCompanyWebsite(profileRequest.getCompanyWebsite());
         if (profileRequest.getProfileBio() != null) profile.setProfileBio(profileRequest.getProfileBio());
         if (profileRequest.getBusinessTier() != null) profile.setBusinessTier(profileRequest.getBusinessTier());
+        if (profileRequest.getLocation() != null) profile.setLocation(profileRequest.getLocation());
+        if (profileRequest.getLatitude() != null) profile.setLatitude(profileRequest.getLatitude());
+        if (profileRequest.getLongitude() != null) profile.setLongitude(profileRequest.getLongitude());
 
         return ResponseEntity.ok(profileService.updateProfile(profile));
     }

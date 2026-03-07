@@ -9,72 +9,78 @@ spring:
           uri: http://localhost:8081
           predicates:
             - Path=/api/v1/auth/**
+          filters:
+            - RewritePath=/api/v1/auth/(?<segment>.*), /api/auth/$\{segment}
 
         - id: worker-service
           uri: http://localhost:8082
           predicates:
-            - Path=/api/v1/api/worker/**
+            - Path=/api/v1/api/worker/**,/api/v1/api/levels/**,/api/v1/api/skill-tests/**
           filters:
-            - StripPrefix=1
+            - StripPrefix=2
 
         - id: employer-service
           uri: http://localhost:8083
           predicates:
             - Path=/api/v1/api/employer/**
           filters:
-            - StripPrefix=1
+            - StripPrefix=2
 
         - id: job-service
           uri: http://localhost:8084
           predicates:
             - Path=/api/v1/api/jobs/**
           filters:
-            - StripPrefix=1
+            - StripPrefix=2
 
         - id: target-worker-service-direct
           uri: http://localhost:8082
           predicates:
             - Path=/api/v1/workers/**
+          filters:
+            - RewritePath=/api/v1/workers/(?<segment>.*), /api/worker/$\{segment}
 
         - id: search-service
           uri: http://localhost:8088
           predicates:
             - Path=/api/v1/api/search/**
           filters:
-            - StripPrefix=1
+            - StripPrefix=2
 
         - id: verification-service
           uri: http://localhost:8085
           predicates:
             - Path=/api/v1/api/verification/**
           filters:
-            - StripPrefix=1
+            - StripPrefix=2
 
         - id: rating-service
           uri: http://localhost:8086
           predicates:
             - Path=/api/v1/api/ratings/**
           filters:
-            - StripPrefix=1
+            - StripPrefix=2
 
         - id: notification-service
           uri: http://localhost:8087
           predicates:
             - Path=/api/v1/api/notifications/**
           filters:
-            - StripPrefix=1
+            - StripPrefix=2
 
         - id: media-service
           uri: http://localhost:8089
           predicates:
             - Path=/api/v1/api/media/**
           filters:
-            - StripPrefix=1
+            - StripPrefix=2
 
         - id: websocket-service
-          uri: ws://localhost:8087
+          uri: http://localhost:8087
           predicates:
             - Path=/ws/**
+          filters:
+            - RewritePath=/ws/(?<segment>.*), /ws/$\{segment}
 
   security:
     oauth2:
@@ -83,7 +89,7 @@ spring:
           issuer-uri: ${CLERK_FRONTEND_API:https://sure-bengal-96.clerk.accounts.dev}
 
 server:
-  port: 8080
+  port: 9000
 
 logging:
   level:

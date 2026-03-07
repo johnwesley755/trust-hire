@@ -39,6 +39,9 @@ public class UserMetadata {
     @Column(name = "email_verified")
     private Boolean emailVerified;
 
+    @Column(name = "onboarded")
+    private Boolean onboarded = false;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 

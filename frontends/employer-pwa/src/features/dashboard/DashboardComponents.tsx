@@ -25,16 +25,23 @@ export const DashboardSidebar = () => {
             </div>
             
             <nav className="flex-1 space-y-2">
-                {menuItems.map((item) => (
-                    <button 
-                        key={item.name}
-                        onClick={() => navigate(item.path)}
-                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all cursor-pointer text-slate-500 hover:bg-slate-50 hover:text-indigo-600`}
-                    >
-                        {item.icon}
-                        <span className="font-medium">{item.name}</span>
-                    </button>
-                ))}
+                {menuItems.map((item) => {
+                    const isActive = location.pathname === item.path;
+                    return (
+                        <button 
+                            key={item.name}
+                            onClick={() => navigate(item.path)}
+                            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all cursor-pointer ${
+                                isActive 
+                                ? 'bg-primary-50 text-primary-600 font-bold shadow-sm border border-primary-100' 
+                                : 'text-slate-500 hover:bg-slate-50 hover:text-primary-600'
+                            }`}
+                        >
+                            {item.icon}
+                            <span className="font-medium">{item.name}</span>
+                        </button>
+                    );
+                })}
             </nav>
 
             <div className="pt-6 border-t border-slate-100 flex items-center justify-between gap-4">
@@ -61,10 +68,10 @@ export const StatsGrid = () => {
                 { label: 'Total Postings', value: jobs?.length || 0, trend: 'Lifetime jobs' },
                 { label: 'Pending Reviews', value: '0', trend: 'Applicants to view' },
             ].map((stat) => (
-                <div key={stat.label} className="p-6 rounded-3xl bg-white border border-slate-200 space-y-2 shadow-sm text-slate-900 leading-tight">
+                <div key={stat.label} className="p-6 rounded-3xl bg-white border border-slate-200 space-y-2 shadow-sm text-slate-900 leading-tight hover:border-primary-400 transition-all group">
                     <p className="text-slate-400 text-sm font-medium uppercase tracking-wider">{stat.label}</p>
-                    <p className="text-4xl font-black">{stat.value}</p>
-                    <p className="text-blue-400 text-sm font-medium">{stat.trend}</p>
+                    <p className="text-4xl font-black group-hover:text-primary-600 transition-colors">{stat.value}</p>
+                    <p className="text-primary-400 text-sm font-medium">{stat.trend}</p>
                 </div>
             ))}
         </div>
@@ -84,7 +91,7 @@ export const RecentApplicants = () => {
     return (
         <section className="space-y-6">
             <h3 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-                <Clock className="w-5 h-5 text-blue-400" />
+                <Clock className="w-5 h-5 text-primary-400" />
                 Recent Applicants
             </h3>
             <div className="space-y-4">
@@ -92,25 +99,25 @@ export const RecentApplicants = () => {
                     <div className="text-center py-10"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div></div>
                 ) : applications?.length ? (
                     applications.slice(0, 5).map((app) => (
-                        <div key={app.id} className="flex items-center justify-between p-5 rounded-2xl bg-white border border-slate-200 hover:border-indigo-400 transition-all group shadow-sm">
+                        <div key={app.id} className="flex items-center justify-between p-5 rounded-2xl bg-white border border-slate-200 hover:border-primary-400 transition-all group shadow-sm">
                             <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center font-bold text-indigo-600 border border-slate-100 shadow-sm">
+                                <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center font-bold text-primary-600 border border-slate-100 shadow-sm group-hover:scale-110 transition-transform">
                                     {app.status[0]}
                                 </div>
                                 <div>
-                                    <p className="font-semibold text-slate-900 group-hover:text-indigo-600 transition-colors">Applicant ID: {app.workerClerkId.substring(0, 8)}</p>
+                                    <p className="font-semibold text-slate-900 group-hover:text-primary-600 transition-colors">Applicant ID: {app.workerClerkId.substring(0, 8)}</p>
                                     <p className="text-sm text-slate-500 italic truncate max-w-xs">{app.coverLetter || "No cover letter provided."}</p>
                                 </div>
                             </div>
                             <div className="flex gap-3 items-center">
                                 <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${
-                                    app.status === 'PENDING' ? 'bg-amber-50 text-amber-600 border-amber-100' : 
+                                    app.status === 'PENDING' ? 'bg-primary-50 text-primary-600 border-primary-100' : 
                                     app.status === 'ACCEPTED' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 
                                     'bg-indigo-50 text-indigo-600 border-indigo-100'
                                 }`}>
                                     {app.status}
                                 </span>
-                                <button className="text-xs font-bold text-slate-400 hover:text-indigo-600 cursor-pointer uppercase tracking-tighter">Review</button>
+                                <button className="text-xs font-bold text-slate-400 hover:text-primary-600 cursor-pointer uppercase tracking-tighter">Review</button>
                             </div>
                         </div>
                     ))
