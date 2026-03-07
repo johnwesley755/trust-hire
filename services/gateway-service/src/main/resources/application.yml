@@ -1,0 +1,93 @@
+spring:
+  application:
+    name: gateway-service
+  
+  cloud:
+    gateway:
+      routes:
+        - id: auth-service
+          uri: http://localhost:8081
+          predicates:
+            - Path=/api/v1/auth/**
+
+        - id: worker-service
+          uri: http://localhost:8082
+          predicates:
+            - Path=/api/v1/api/worker/**
+          filters:
+            - StripPrefix=1
+
+        - id: employer-service
+          uri: http://localhost:8083
+          predicates:
+            - Path=/api/v1/api/employer/**
+          filters:
+            - StripPrefix=1
+
+        - id: job-service
+          uri: http://localhost:8084
+          predicates:
+            - Path=/api/v1/api/jobs/**
+          filters:
+            - StripPrefix=1
+
+        - id: target-worker-service-direct
+          uri: http://localhost:8082
+          predicates:
+            - Path=/api/v1/workers/**
+
+        - id: search-service
+          uri: http://localhost:8088
+          predicates:
+            - Path=/api/v1/api/search/**
+          filters:
+            - StripPrefix=1
+
+        - id: verification-service
+          uri: http://localhost:8085
+          predicates:
+            - Path=/api/v1/api/verification/**
+          filters:
+            - StripPrefix=1
+
+        - id: rating-service
+          uri: http://localhost:8086
+          predicates:
+            - Path=/api/v1/api/ratings/**
+          filters:
+            - StripPrefix=1
+
+        - id: notification-service
+          uri: http://localhost:8087
+          predicates:
+            - Path=/api/v1/api/notifications/**
+          filters:
+            - StripPrefix=1
+
+        - id: media-service
+          uri: http://localhost:8089
+          predicates:
+            - Path=/api/v1/api/media/**
+          filters:
+            - StripPrefix=1
+
+        - id: websocket-service
+          uri: ws://localhost:8087
+          predicates:
+            - Path=/ws/**
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${CLERK_FRONTEND_API:https://sure-bengal-96.clerk.accounts.dev}
+
+server:
+  port: 8080
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.http.server.reactive: DEBUG
+    org.springframework.web.reactive: DEBUG
+    reactor.netty: DEBUG
