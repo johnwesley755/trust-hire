@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { useUser, SignOutButton } from "@clerk/clerk-react";
+import { useAuth, useUser } from "../providers/AuthContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { profileService, type WorkerProfile } from "../api/profile.service";
 import { User, Mail, MapPin, Award, LogOut, ChevronRight, ShieldCheck, Navigation } from "lucide-react";
 
 export default function ProfilePage() {
+  const { logout } = useAuth();
   const { user } = useUser();
   const [isEditingLocation, setIsEditingLocation] = useState(false);
   const [locationInput, setLocationInput] = useState("");
@@ -58,7 +59,7 @@ export default function ProfilePage() {
           <div className="relative">
             <img 
               src={user?.imageUrl} 
-              alt={user?.fullName || ""} 
+              alt={user?.firstName || ""} 
               className="w-24 h-24 rounded-3xl border-4 border-white shadow-xl"
             />
             <div className="absolute -bottom-2 -right-2 bg-emerald-500 text-white p-1.5 rounded-xl border-4 border-white">
@@ -66,7 +67,7 @@ export default function ProfilePage() {
             </div>
           </div>
           <div>
-            <h1 className="text-2xl font-black tracking-tight">{user?.fullName}</h1>
+            <h1 className="text-2xl font-black tracking-tight">{user?.firstName} {user?.lastName}</h1>
             <div className="flex flex-col items-center gap-2 mt-1">
               {isEditingLocation ? (
                 <div className="flex gap-2">
@@ -136,7 +137,7 @@ export default function ProfilePage() {
               </div>
               <div className="flex-1">
                 <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">Full Name</p>
-                <p className="font-semibold">{user?.fullName}</p>
+                <p className="font-semibold">{user?.firstName} {user?.lastName}</p>
               </div>
             </div>
             <div className="flex items-center gap-4">
@@ -145,7 +146,7 @@ export default function ProfilePage() {
               </div>
               <div className="flex-1">
                 <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">Email Address</p>
-                <p className="font-semibold">{user?.primaryEmailAddress?.emailAddress}</p>
+                <p className="font-semibold">{user?.email}</p>
               </div>
             </div>
           </div>
@@ -188,17 +189,18 @@ export default function ProfilePage() {
                 <ChevronRight className="w-5 h-5 text-slate-300 group-hover:text-indigo-400 transition-colors" />
             </button>
             
-            <SignOutButton>
-                <button className="w-full bg-rose-50 border border-rose-100 p-4 rounded-2xl flex items-center justify-between group hover:bg-rose-100 transition-all shadow-sm">
-                    <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-xl bg-rose-500 text-white flex items-center justify-center shadow-lg shadow-rose-500/20">
-                            <LogOut className="w-5 h-5" />
-                        </div>
-                        <span className="font-bold text-rose-600">Sign Out</span>
+            <button 
+                onClick={logout}
+                className="w-full bg-rose-50 border border-rose-100 p-4 rounded-2xl flex items-center justify-between group hover:bg-rose-100 transition-all shadow-sm"
+            >
+                <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-rose-500 text-white flex items-center justify-center shadow-lg shadow-rose-500/20">
+                        <LogOut className="w-5 h-5" />
                     </div>
-                    <ChevronRight className="w-5 h-5 text-rose-300 group-hover:text-rose-600 transition-colors" />
-                </button>
-            </SignOutButton>
+                    <span className="font-bold text-rose-600">Sign Out</span>
+                </div>
+                <ChevronRight className="w-5 h-5 text-rose-300 group-hover:text-rose-600 transition-colors" />
+            </button>
         </div>
       </div>
     </div>

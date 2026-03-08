@@ -17,7 +17,7 @@ public class JobApplicationServiceImpl implements JobApplicationService {
 
     @Override
     public JobApplication applyForJob(JobApplication application) {
-        if (repository.existsByJobIdAndWorkerClerkId(application.getJobId(), application.getWorkerClerkId())) {
+        if (repository.existsByJobIdAndWorkerId(application.getJobId(), application.getWorkerId())) {
             throw new RuntimeException("You have already applied for this job.");
         }
         return repository.save(application);
@@ -34,8 +34,8 @@ public class JobApplicationServiceImpl implements JobApplicationService {
     }
 
     @Override
-    public List<JobApplication> getApplicationsByWorker(String workerClerkId) {
-        return repository.findByWorkerClerkId(workerClerkId);
+    public List<JobApplication> getApplicationsByWorker(String workerId) {
+        return repository.findByWorkerId(workerId);
     }
 
     @Override

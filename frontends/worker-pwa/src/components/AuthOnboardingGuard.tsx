@@ -1,9 +1,7 @@
-import { useAuth, useUser } from "@clerk/clerk-react";
+import { useAuth, useUser } from "../providers/AuthContext";
 import { useEffect, useState } from "react";
 import { Navigate, useLocation } from "react-router-dom";
-import axios from "axios";
-
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8080/api/v1";
+import apiClient from "../api/apiClient";
 
 export const AuthOnboardingGuard = ({ children }: { children: React.ReactNode }) => {
   const { isSignedIn, isLoaded, getToken } = useAuth();
@@ -16,18 +14,12 @@ export const AuthOnboardingGuard = ({ children }: { children: React.ReactNode })
     const checkOnboarding = async () => {
       if (isSignedIn && user) {
         try {
-          const token = await getToken();
-          const response = await axios.post(
-            `${API_URL}/auth/sync`,
-            { role: "WORKER" },
-            {
-              headers: { Authorization: `Bearer ${token}` },
-            }
-          );
+          // In our native system, we can just check the user object 
+          // but if we want to stay synced with backend:
+          const response = await apiClient.post('/api/auth/sync', { role: "WORKER" });
           setIsOnboarded(response.data.onboarded);
         } catch (error) {
           console.error("Onboarding check failed:", error);
-          // Default to false if check fails to be safe, or handle error
           setIsOnboarded(false);
         } finally {
           setLoading(false);
@@ -43,7 +35,7 @@ export const AuthOnboardingGuard = ({ children }: { children: React.ReactNode })
   if (!isLoaded || loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-emerald-500"></div>
       </div>
     );
   }

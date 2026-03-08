@@ -16,8 +16,8 @@ public class WorkerProfileServiceImpl implements WorkerProfileService {
     private final com.trusthire.worker.client.SearchClient searchClient;
 
     @Override
-    public Optional<WorkerProfile> getProfileByClerkId(String clerkId) {
-        return repository.findByClerkId(clerkId);
+    public Optional<WorkerProfile> getProfileByUserId(String userId) {
+        return repository.findByUserId(userId);
     }
 
     @Override
@@ -30,12 +30,12 @@ public class WorkerProfileServiceImpl implements WorkerProfileService {
 
     @Override
     @Transactional
-    public WorkerProfile createProfile(String clerkId) {
-        if (repository.findByClerkId(clerkId).isPresent()) {
+    public WorkerProfile createProfile(String userId) {
+        if (repository.findByUserId(userId).isPresent()) {
             throw new RuntimeException("Profile already exists");
         }
         WorkerProfile profile = WorkerProfile.builder()
-                .clerkId(clerkId)
+                .userId(userId)
                 .isAvailable(true)
                 .experienceYears(0)
                 .level("L1")
@@ -48,7 +48,7 @@ public class WorkerProfileServiceImpl implements WorkerProfileService {
     private void indexInSearch(WorkerProfile profile) {
         try {
             com.trusthire.worker.client.SearchClient.WorkerSearchRequest request = com.trusthire.worker.client.SearchClient.WorkerSearchRequest.builder()
-                    .clerkId(profile.getClerkId())
+                    .userId(profile.getUserId())
                     .name(profile.getFullName() != null ? profile.getFullName() : "Anonymous Worker")
                     .bio(profile.getBio())
                     .skills(profile.getSkills() != null ? String.join(", ", profile.getSkills()) : "")

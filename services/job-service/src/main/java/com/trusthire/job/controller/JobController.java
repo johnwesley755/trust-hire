@@ -20,7 +20,7 @@ public class JobController {
 
     @PostMapping
     public ResponseEntity<Job> createJob(@AuthenticationPrincipal Jwt jwt, @RequestBody Job job) {
-        job.setEmployerClerkId(jwt.getSubject());
+        job.setEmployerId(jwt.getSubject());
         return ResponseEntity.ok(jobService.createJob(job));
     }
 
@@ -45,7 +45,7 @@ public class JobController {
     public ResponseEntity<Job> updateJob(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID id, @RequestBody Job jobRequest) {
         return jobService.getJobById(id)
                 .map(job -> {
-                    if (!job.getEmployerClerkId().equals(jwt.getSubject())) {
+                    if (!job.getEmployerId().equals(jwt.getSubject())) {
                         return ResponseEntity.status(403).<Job>build();
                     }
                     job.setTitle(jobRequest.getTitle());
@@ -67,7 +67,7 @@ public class JobController {
     public ResponseEntity<Void> deleteJob(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID id) {
         return jobService.getJobById(id)
                 .map(job -> {
-                    if (!job.getEmployerClerkId().equals(jwt.getSubject())) {
+                    if (!job.getEmployerId().equals(jwt.getSubject())) {
                         return ResponseEntity.status(403).<Void>build();
                     }
                     jobService.deleteJob(id);

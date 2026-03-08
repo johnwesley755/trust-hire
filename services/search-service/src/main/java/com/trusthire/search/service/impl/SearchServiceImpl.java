@@ -56,14 +56,14 @@ public class SearchServiceImpl implements SearchService {
     @Override
     @Transactional
     public WorkerSearch indexWorker(WorkerSearch workerSearch) {
-        log.info("Indexing worker: {}", workerSearch.getClerkId());
+        log.info("Indexing worker: {}", workerSearch.getUserId());
         return workerRepository.save(workerSearch);
     }
 
     @Override
     @Transactional
-    public void deleteWorker(String clerkId) {
-        log.info("Deleting worker: {}", clerkId);
-        workerRepository.deleteById(clerkId);
+    public void deleteWorker(String userId) {
+        log.info("Deleting worker: {}", userId);
+        workerRepository.deleteById(userId);
     }
 }

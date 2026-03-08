@@ -1,5 +1,5 @@
-import { createBrowserRouter, Navigate } from 'react-router-dom';
-import { SignedIn, SignedOut } from '@clerk/clerk-react';
+import { createBrowserRouter } from 'react-router-dom';
+import { SignedIn } from '../providers/AuthContext';
 import LandingPage from '../pages/LandingPage.tsx';
 import DashboardPage from '../pages/DashboardPage.tsx';
 import { JobPostingPage } from '../pages/JobPostingPage.tsx';
@@ -22,12 +22,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => (
 export const router = createBrowserRouter([
   {
     path: '/',
-    element: (
-      <>
-        <SignedOut><LandingPage /></SignedOut>
-        <SignedIn><Navigate to="/dashboard" replace /></SignedIn>
-      </>
-    ),
+    element: <LandingPage />,
   },
   {
     path: '/sign-in/*',

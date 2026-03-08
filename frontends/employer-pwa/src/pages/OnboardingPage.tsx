@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { useAuth } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import apiClient from "../api/apiClient";
 import { 
   Building2, 
   MapPin, 
@@ -12,7 +11,7 @@ import {
   Navigation
 } from "lucide-react";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8080/api/v1";
+
 
 const INDUSTRY_OPTIONS = [
   "Construction", "Facility Management", "Retail", "Hospitality", 
@@ -20,7 +19,6 @@ const INDUSTRY_OPTIONS = [
 ];
 
 export default function OnboardingPage() {
-  const { getToken } = useAuth();
   const navigate = useNavigate();
   
   const [step, setStep] = useState(1);
@@ -63,11 +61,9 @@ export default function OnboardingPage() {
   const handleSubmit = async () => {
     setIsSubmitting(true);
     try {
-      const token = await getToken();
-      
       // 1. Update Employer Profile in employer-service
-      await axios.put(
-        `${API_URL}/api/employer/profile`,
+      await apiClient.put(
+        '/api/employer/profile',
         {
           companyName: formData.companyName,
           industry: formData.industry,
@@ -76,15 +72,13 @@ export default function OnboardingPage() {
           businessTier: "BASIC",
           latitude: formData.latitude,
           longitude: formData.longitude
-        },
-        { headers: { Authorization: `Bearer ${token}` } }
+        }
       );
 
       // 2. Mark as Onboarded in Auth Service
-      await axios.post(
-          `${API_URL}/auth/sync`, 
-          { role: "EMPLOYER", onboarded: true }, 
-          { headers: { Authorization: `Bearer ${token}` } }
+      await apiClient.post(
+          '/api/auth/sync', 
+          { role: "EMPLOYER", onboarded: true }
       );
 
       navigate("/dashboard");

@@ -22,7 +22,7 @@ public class Job {
     private UUID id;
 
     @Column(nullable = false)
-    private String employerClerkId;
+    private String employerId;
 
     @Column(nullable = false)
     private String title;

@@ -17,8 +17,8 @@ public class EmployerProfileController {
 
     @GetMapping
     public ResponseEntity<EmployerProfile> getProfile(@AuthenticationPrincipal Jwt jwt) {
-        String clerkId = jwt.getSubject();
-        return profileService.getProfileByClerkId(clerkId)
+        String userId = jwt.getSubject();
+        return profileService.getProfileByUserId(userId)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -28,9 +28,9 @@ public class EmployerProfileController {
             @AuthenticationPrincipal Jwt jwt,
             @RequestBody EmployerProfile profileRequest) {
         
-        String clerkId = jwt.getSubject();
-        EmployerProfile profile = profileService.getProfileByClerkId(clerkId)
-                .orElseGet(() -> profileService.createProfile(clerkId));
+        String userId = jwt.getSubject();
+        EmployerProfile profile = profileService.getProfileByUserId(userId)
+                .orElseGet(() -> profileService.createProfile(userId));
 
         if (profileRequest.getCompanyName() != null) profile.setCompanyName(profileRequest.getCompanyName());
         if (profileRequest.getIndustry() != null) profile.setIndustry(profileRequest.getIndustry());

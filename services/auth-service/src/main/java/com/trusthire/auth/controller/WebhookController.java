@@ -1,6 +1,5 @@
 package com.trusthire.auth.controller;
 
-import com.trusthire.auth.service.UserSyncService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -13,8 +12,6 @@ import java.util.Map;
 @Slf4j
 public class WebhookController {
 
-    private final UserSyncService syncService;
-
     @PostMapping("/clerk")
     public ResponseEntity<Void> handleClerkWebhook(
             @RequestHeader("svix-id") String svixId,
@@ -22,14 +19,9 @@ public class WebhookController {
             @RequestHeader("svix-signature") String svixSignature,
             @RequestBody Map<String, Object> payload) {
         
-        log.info("Received Clerk webhook event: {}", payload.get("type"));
+        log.info("Received legacy Clerk webhook event: {}", payload.get("type"));
         
-        // TODO: Implement Svix signature verification using the CLERK_WEBHOOK_SECRET
-        
-        String eventType = (String) payload.get("type");
-        if ("user.created".equals(eventType) || "user.updated".equals(eventType)) {
-            syncService.syncUser((Map<String, Object>) payload.get("data"));
-        }
+        // Clerk is removed. We acknowledge receipt but do not sync.
 
         return ResponseEntity.ok().build();
     }

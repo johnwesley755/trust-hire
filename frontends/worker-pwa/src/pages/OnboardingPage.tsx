@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { useUser, useAuth } from "@clerk/clerk-react";
+import { useUser } from "../providers/AuthContext";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import apiClient from "../api/apiClient";
 import { 
   User, 
   MapPin, 
@@ -13,7 +13,7 @@ import {
   Navigation
 } from "lucide-react";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8080/api/v1";
+
 
 const SKILL_OPTIONS = [
   "Carpentry", "Plumbing", "Electrical", "Masonry", "Painting",
@@ -22,12 +22,11 @@ const SKILL_OPTIONS = [
 
 export default function OnboardingPage() {
   const { user } = useUser();
-  const { getToken } = useAuth();
   const navigate = useNavigate();
   
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
-    fullName: user?.fullName || "",
+    fullName: user ? `${user.firstName} ${user.lastName}` : "",
     bio: "",
     skills: [] as string[],
     experienceYears: 0,
@@ -74,11 +73,9 @@ export default function OnboardingPage() {
   const handleSubmit = async () => {
     setIsSubmitting(true);
     try {
-      const token = await getToken();
-      
       // 1. Update Worker Profile
-      await axios.put(
-        `${API_URL}/api/worker/profile`,
+      await apiClient.put(
+        '/api/worker/profile',
         {
           fullName: formData.fullName,
           bio: formData.bio,
@@ -88,16 +85,13 @@ export default function OnboardingPage() {
           latitude: formData.latitude,
           longitude: formData.longitude,
           isAvailable: true
-        },
-        { headers: { Authorization: `Bearer ${token}` } }
+        }
       );
 
       // 2. Mark as Onboarded in Auth Service
-      // We'll create a new internal endpoint for this or just do it in the sync endpoint
-      await axios.post(
-          `${API_URL}/auth/sync`, 
-          { onboarded: true }, 
-          { headers: { Authorization: `Bearer ${token}` } }
+      await apiClient.post(
+          '/api/auth/sync', 
+          { onboarded: true }
       );
 
       navigate("/dashboard");

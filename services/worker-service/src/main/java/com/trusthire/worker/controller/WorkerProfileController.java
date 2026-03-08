@@ -20,18 +20,18 @@ public class WorkerProfileController {
 
     @GetMapping("/profile")
     public ResponseEntity<WorkerProfile> getMyProfile(@AuthenticationPrincipal Jwt jwt) {
-        String clerkId = jwt.getSubject();
-        return profileService.getProfileByClerkId(clerkId)
+        String userId = jwt.getSubject();
+        return profileService.getProfileByUserId(userId)
                 .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.ok(profileService.createProfile(clerkId)));
+                .orElseGet(() -> ResponseEntity.ok(profileService.createProfile(userId)));
     }
 
     @PutMapping("/profile")
     @Transactional
     public ResponseEntity<WorkerProfile> updateProfile(@AuthenticationPrincipal Jwt jwt, @RequestBody WorkerProfile updates) {
-        String clerkId = jwt.getSubject();
-        WorkerProfile profile = profileService.getProfileByClerkId(clerkId)
-                .orElseGet(() -> profileService.createProfile(clerkId));
+        String userId = jwt.getSubject();
+        WorkerProfile profile = profileService.getProfileByUserId(userId)
+                .orElseGet(() -> profileService.createProfile(userId));
 
         if (updates.getFullName() != null) profile.setFullName(updates.getFullName());
         if (updates.getLocation() != null) profile.setLocation(updates.getLocation());
@@ -46,8 +46,8 @@ public class WorkerProfileController {
         return ResponseEntity.ok(profileService.updateProfile(profile));
     }
 
-    @GetMapping("/trust-score/{clerkId}")
-    public ResponseEntity<TrustScoreResponse> getTrustScore(@PathVariable String clerkId) {
+    @GetMapping("/trust-score/{userId}")
+    public ResponseEntity<TrustScoreResponse> getTrustScore(@PathVariable String userId) {
         return ResponseEntity.ok(TrustScoreResponse.builder()
                 .score(450)
                 .identityVerified(false)

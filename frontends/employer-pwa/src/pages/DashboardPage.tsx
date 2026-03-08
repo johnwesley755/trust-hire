@@ -1,4 +1,4 @@
-import { useUser } from "@clerk/clerk-react";
+import { useUser } from "../providers/AuthContext";
 import { PlusCircle } from 'lucide-react';
 import { DashboardSidebar, StatsGrid, RecentApplicants } from '../features/dashboard/DashboardComponents';
 import { useNavigate } from 'react-router-dom';

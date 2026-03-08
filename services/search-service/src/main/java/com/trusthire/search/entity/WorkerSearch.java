@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class WorkerSearch {
     @Id
-    private String clerkId; // Maps to Clerk User ID
+    private String userId; // Maps to Native User ID
 
     @Column(nullable = false)
     private String name;

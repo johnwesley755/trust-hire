@@ -15,7 +15,7 @@ public interface SearchClient {
     @Data
     @Builder
     class WorkerSearchRequest {
-        private String clerkId;
+        private String userId;
         private String name;
         private String bio;
         private String skills;

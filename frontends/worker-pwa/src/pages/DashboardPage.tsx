@@ -1,4 +1,4 @@
-import { UserButton } from "@clerk/clerk-react";
+import { UserButton } from "../components/UserButton";
 import { ProfileCard, ActionGrid, BottomNav } from '../features/dashboard/DashboardComponents';
 import { DashboardSidebar } from '../features/dashboard/DashboardSidebar';
 import { useQuery } from '@tanstack/react-query';
@@ -43,7 +43,7 @@ export default function DashboardPage() {
           <div className="text-xl font-black italic tracking-tighter uppercase text-primary-600">TrustPro</div>
           <div className="flex items-center gap-4">
             <NotificationCenter />
-            <UserButton afterSignOutUrl="/" />
+            <UserButton />
           </div>
         </header>
 

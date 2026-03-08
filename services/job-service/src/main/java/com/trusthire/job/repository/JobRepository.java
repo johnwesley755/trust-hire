@@ -9,6 +9,6 @@ import java.util.UUID;
 
 @Repository
 public interface JobRepository extends JpaRepository<Job, UUID> {
-    List<Job> findByEmployerClerkId(String employerClerkId);
+    List<Job> findByEmployerId(String employerId);
     List<Job> findByStatus(Job.JobStatus status);
 }

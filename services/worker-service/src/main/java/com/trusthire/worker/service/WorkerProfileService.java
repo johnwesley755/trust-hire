@@ -4,7 +4,7 @@ import com.trusthire.worker.entity.WorkerProfile;
 import java.util.Optional;
 
 public interface WorkerProfileService {
-    Optional<WorkerProfile> getProfileByClerkId(String clerkId);
+    Optional<WorkerProfile> getProfileByUserId(String userId);
     WorkerProfile updateProfile(WorkerProfile profile);
-    WorkerProfile createProfile(String clerkId);
+    WorkerProfile createProfile(String userId);
 }

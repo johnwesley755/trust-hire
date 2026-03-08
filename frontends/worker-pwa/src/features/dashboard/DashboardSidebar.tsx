@@ -1,5 +1,6 @@
 import { LayoutDashboard, Search, Award, Briefcase, User as UserIcon } from 'lucide-react';
-import { useUser, UserButton } from "@clerk/clerk-react";
+import { useUser } from "../../providers/AuthContext";
+import { UserButton } from "../../components/UserButton";
 import { useNavigate, useLocation } from 'react-router-dom';
 import { NotificationCenter } from '../notifications/NotificationCenter';
 
@@ -47,7 +48,7 @@ export const DashboardSidebar = () => {
 
             <div className="pt-6 border-t border-slate-100 flex items-center justify-between gap-4">
                 <div className="flex items-center gap-3 min-w-0">
-                    <UserButton afterSignOutUrl="/" />
+                    <UserButton />
                     <div className="overflow-hidden">
                         <p className="text-sm font-bold truncate text-slate-900">{user?.firstName || 'Worker'}</p>
                         <p className="text-[10px] font-black uppercase tracking-widest text-primary-600">Professional</p>

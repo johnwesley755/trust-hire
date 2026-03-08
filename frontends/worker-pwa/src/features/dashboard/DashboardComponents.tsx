@@ -1,5 +1,5 @@
 import { Award, TrendingUp, Search, ShieldCheck, Briefcase, User as UserIcon } from 'lucide-react';
-import { useUser } from "@clerk/clerk-react";
+import { useUser } from "../../providers/AuthContext";
 import { useQuery } from '@tanstack/react-query';
 import { levelService } from '../../api/level.service';
 import { profileService } from '../../api/profile.service';

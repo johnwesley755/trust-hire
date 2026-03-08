@@ -21,7 +21,7 @@ public class WorkerProfile {
     private UUID id;
 
     @Column(nullable = false, unique = true)
-    private String clerkId;
+    private String userId;
 
     private String fullName;
     private String location;

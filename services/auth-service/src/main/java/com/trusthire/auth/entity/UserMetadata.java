@@ -18,11 +18,14 @@ public class UserMetadata {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    @Column(name = "clerk_id", unique = true, nullable = false)
-    private String clerkId;
-
     @Column(unique = true, nullable = false)
     private String email;
+
+    @Column(name = "password_hash")
+    private String passwordHash;
+
+    @Column(name = "phone_number")
+    private String phoneNumber;
 
     @Column(name = "first_name")
     private String firstName;
@@ -39,6 +42,7 @@ public class UserMetadata {
     @Column(name = "email_verified")
     private Boolean emailVerified;
 
+    @Builder.Default
     @Column(name = "onboarded")
     private Boolean onboarded = false;
 

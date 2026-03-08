@@ -1,9 +1,7 @@
-import { useAuth, useUser } from "@clerk/clerk-react";
+import { useAuth, useUser } from "../providers/AuthContext";
 import { useEffect, useState } from "react";
 import { Navigate, useLocation } from "react-router-dom";
-import axios from "axios";
-
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8080/api/v1";
+import apiClient from "../api/apiClient";
 
 export const AuthOnboardingGuard = ({ children }: { children: React.ReactNode }) => {
   const { isSignedIn, isLoaded, getToken } = useAuth();
@@ -16,14 +14,7 @@ export const AuthOnboardingGuard = ({ children }: { children: React.ReactNode })
     const checkOnboarding = async () => {
       if (isSignedIn && user) {
         try {
-          const token = await getToken();
-          const response = await axios.post(
-            `${API_URL}/auth/sync`,
-            { role: "EMPLOYER" },
-            {
-              headers: { Authorization: `Bearer ${token}` },
-            }
-          );
+          const response = await apiClient.post('/api/auth/sync', { role: "EMPLOYER" });
           setIsOnboarded(response.data.onboarded);
         } catch (error) {
           console.error("Onboarding check failed:", error);

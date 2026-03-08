@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { searchJobs, type JobSearch } from '../api/search.service';
+import { jobService, type Job } from '../api/job.service';
 import { applicationService } from '../api/application.service';
 import { Search, MapPin, Briefcase, IndianRupee, Send, CheckCircle, Navigation } from 'lucide-react';
 
@@ -32,18 +33,27 @@ export default function JobSearchPage() {
     }
   };
 
-  const { data: jobs, isLoading } = useQuery({
+  const { data: searchResults, isLoading: isSearching } = useQuery({
     queryKey: ['jobSearch', query, location, coords, radius],
-    // Only send coords if they used the GPS detector. If they typed manually, send the text string.
     queryFn: () => searchJobs(
         query, 
         '', 
-        coords ? '' : location, // If coords exist, don't send location string to avoid conflicting constraints
+        coords ? '' : location, 
         coords?.lat, 
         coords?.lon, 
         radius
     ),
+    enabled: Boolean(query || coords || (location && location !== "Current Location (GPS Detected)")),
   });
+
+  const { data: allJobs, isLoading: isLoadingAll } = useQuery({
+    queryKey: ['allJobs'],
+    queryFn: () => jobService.getAllJobs(),
+    enabled: !query && !coords && (!location || location === "Current Location (GPS Detected)"),
+  });
+
+  const jobs = (query || coords || (location && location !== "Current Location (GPS Detected)")) ? searchResults : allJobs;
+  const isLoading = isSearching || isLoadingAll;
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
@@ -112,7 +122,7 @@ export default function JobSearchPage() {
         ) : (
           <div className="grid grid-cols-1 gap-6">
             {jobs?.map((job) => (
-              <JobCard key={job.jobId} job={job} />
+              <JobCard key={'jobId' in job ? job.jobId : job.id} job={job} />
             ))}
             {jobs?.length === 0 && (
               <div className="text-center py-20 bg-white border border-dashed border-slate-200 rounded-3xl">
@@ -126,15 +136,19 @@ export default function JobSearchPage() {
   );
 }
 
-function JobCard({ job }: { job: JobSearch }) {
+function JobCard({ job }: { job: JobSearch | Job }) {
   const [applied, setApplied] = useState(false);
+  const jobId = 'jobId' in job ? job.jobId : job.id;
+  
   const mutation = useMutation({
     mutationFn: (data: Parameters<typeof applicationService.applyForJob>[0]) => applicationService.applyForJob(data),
     onSuccess: () => setApplied(true)
   });
 
   const handleApply = () => {
-    mutation.mutate({ jobId: job.jobId, coverLetter: "Interested in this position." });
+    if (jobId) {
+        mutation.mutate({ jobId: jobId, coverLetter: "Interested in this position." });
+    }
   };
 
   return (

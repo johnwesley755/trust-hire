@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { levelService } from '../api/level.service';
-import { useUser } from '@clerk/clerk-react';
+import { useUser } from '../providers/AuthContext';
 import { Star, ShieldCheck, Briefcase, Award, ArrowUpCircle, Info } from 'lucide-react';
 
 export const LevelDetailsPage = () => {

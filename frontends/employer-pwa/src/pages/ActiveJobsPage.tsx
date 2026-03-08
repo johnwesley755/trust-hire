@@ -22,7 +22,7 @@ export function ActiveJobsPage() {
                     </div>
                     <button 
                         onClick={() => navigate('/post-job')}
-                        className="bg-primary-600 text-white px-8 py-3 rounded-full font-bold hover:bg-primary-700 transition-all active:scale-95 cursor-pointer shadow-lg"
+                        className="bg-indigo-600 text-white px-8 py-3 rounded-full font-bold hover:bg-indigo-700 transition-all active:scale-95 cursor-pointer shadow-lg"
                     >
                         Post New Job
                     </button>
@@ -31,15 +31,15 @@ export function ActiveJobsPage() {
                 <main>
                     {isLoading ? (
                         <div className="flex justify-center py-20">
-                            <div className="w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full animate-spin" />
+                            <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {jobs?.map((job) => (
-                                <div key={job.id} className="bg-white p-6 rounded-3xl border border-slate-200 hover:border-primary-400 transition-all shadow-sm flex flex-col justify-between group">
+                                <div key={job.id} className="bg-white p-6 rounded-3xl border border-slate-200 hover:border-indigo-400 transition-all shadow-sm flex flex-col justify-between group">
                                     <div className="space-y-4">
                                         <div className="flex justify-between items-start">
-                                            <div className="w-12 h-12 rounded-xl bg-slate-50 text-primary-600 flex items-center justify-center border border-slate-100 shadow-sm group-hover:scale-110 transition-transform">
+                                            <div className="w-12 h-12 rounded-xl bg-slate-50 text-indigo-600 flex items-center justify-center border border-slate-100 shadow-sm group-hover:scale-110 transition-transform">
                                                 <Briefcase className="w-6 h-6" />
                                             </div>
                                             <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${
@@ -49,7 +49,7 @@ export function ActiveJobsPage() {
                                             </span>
                                         </div>
                                         <div>
-                                            <h3 className="text-lg font-bold group-hover:text-primary-600 transition-colors">{job.title}</h3>
+                                            <h3 className="text-lg font-bold group-hover:text-indigo-600 transition-colors">{job.title}</h3>
                                             <p className="text-sm text-slate-500 line-clamp-2 mt-1">{job.description}</p>
                                         </div>
                                         <div className="flex flex-wrap gap-3 mt-4">
@@ -67,7 +67,7 @@ export function ActiveJobsPage() {
                                          {/* Potential for manage applications shortcut per job */}
                                          <button 
                                             onClick={() => navigate('/applications')}
-                                            className="w-full py-2.5 bg-slate-50 text-primary-600 hover:bg-primary-50 rounded-xl font-bold text-sm transition-colors border border-slate-100 cursor-pointer"
+                                            className="w-full py-2.5 bg-slate-50 text-indigo-600 hover:bg-indigo-50 rounded-xl font-bold text-sm transition-colors border border-slate-100 cursor-pointer"
                                         >
                                             View Applications
                                         </button>

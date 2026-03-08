@@ -31,7 +31,7 @@ public class JobSearch {
     private Double longitude;
     private Double budget;
     private String requiredSkills; // Comma separated for indexing
-    private String employerClerkId;
+    private String employerId;
     private String status;
 
     @CreationTimestamp

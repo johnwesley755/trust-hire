@@ -21,7 +21,7 @@ public class JobApplication {
     private UUID jobId;
 
     @Column(nullable = false)
-    private String workerClerkId;
+    private String workerId;
 
     @Enumerated(EnumType.STRING)
     private ApplicationStatus status;

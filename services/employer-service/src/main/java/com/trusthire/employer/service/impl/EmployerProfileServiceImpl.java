@@ -19,28 +19,28 @@ public class EmployerProfileServiceImpl implements EmployerProfileService {
     private final EmployerProfileRepository repository;
 
     @Override
-    public Optional<EmployerProfile> getProfileByClerkId(String clerkId) {
-        log.info("Fetching employer profile for clerkId: {}", clerkId);
-        return repository.findByClerkId(clerkId);
+    public Optional<EmployerProfile> getProfileByUserId(String userId) {
+        log.info("Fetching employer profile for userId: {}", userId);
+        return repository.findByUserId(userId);
     }
 
     @Override
     @Transactional
     public EmployerProfile updateProfile(EmployerProfile profile) {
-        log.info("Updating employer profile for clerkId: {}", profile.getClerkId());
+        log.info("Updating employer profile for userId: {}", profile.getUserId());
         return repository.save(profile);
     }
 
     @Override
     @Transactional
-    public EmployerProfile createProfile(String clerkId) {
-        log.info("Creating employer profile for clerkId: {}", clerkId);
-        if (repository.findByClerkId(clerkId).isPresent()) {
+    public EmployerProfile createProfile(String userId) {
+        log.info("Creating employer profile for userId: {}", userId);
+        if (repository.findByUserId(userId).isPresent()) {
             throw new RuntimeException("Profile already exists");
         }
         EmployerProfile profile = EmployerProfile.builder()
                 .id(UUID.randomUUID())
-                .clerkId(clerkId)
+                .userId(userId)
                 .isVerified(false)
                 .businessTier("Silver")
                 .build();

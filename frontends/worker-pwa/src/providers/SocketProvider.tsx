@@ -1,12 +1,13 @@
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { useAuth } from '@clerk/clerk-react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import type { ReactNode } from 'react';
+import { useAuth } from '../providers/AuthContext';
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 
 interface SocketContextType {
   connected: boolean;
-  subscribe: (destination: string, callback: (message: any) => void) => () => void;
-  publish: (destination: string, body: any) => void;
+  subscribe: (destination: string, callback: (message: { body: string }) => void) => () => void;
+  publish: (destination: string, body: Record<string, unknown>) => void;
 }
 
 const SocketContext = createContext<SocketContextType | undefined>(undefined);
@@ -25,14 +26,13 @@ export const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   const [connected, setConnected] = useState(false);
 
   useEffect(() => {
-    if (!isSignedIn) {
-      if (stompClient) {
-        stompClient.deactivate();
-        setStompClient(null);
-        setConnected(false);
-      }
+    if (!isSignedIn && stompClient) {
+      stompClient.deactivate();
+      setStompClient(null);
+      setConnected(false);
       return;
     }
+    if (!isSignedIn) return;
 
     const initSocket = async () => {
       const token = await getToken();
@@ -79,7 +79,7 @@ export const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     };
   }, [isSignedIn, getToken]);
 
-  const subscribe = (destination: string, callback: (message: any) => void) => {
+  const subscribe = (destination: string, callback: (message: { body: string }) => void) => {
     if (!stompClient || !connected) {
       console.warn('Cannot subscribe, socket not connected');
       return () => {};
@@ -92,7 +92,7 @@ export const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     return () => subscription.unsubscribe();
   };
 
-  const publish = (destination: string, body: any) => {
+  const publish = (destination: string, body: Record<string, unknown>) => {
     if (!stompClient || !connected) {
       console.warn('Cannot publish, socket not connected');
       return;

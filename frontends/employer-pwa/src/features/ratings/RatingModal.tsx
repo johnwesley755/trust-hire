@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { ratingService } from '../../api/rating.service';
 import { Star, X, Loader2 } from 'lucide-react';
@@ -17,7 +17,7 @@ export const RatingModal = ({ isOpen, onClose, workerClerkId, workerName, jobId 
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationFn: (data: { rateeClerkId: string; jobId: string; rating: number; comment: string }) =>
+    mutationFn: (data: { rateeClerkId: string; jobId: string; score: number; comment: string }) =>
       ratingService.submitRating(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['ratings', workerClerkId] });
@@ -29,7 +29,7 @@ export const RatingModal = ({ isOpen, onClose, workerClerkId, workerName, jobId 
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-      <div className="w-full max-w-md bg-primary-900 border border-white/10 rounded-3xl p-8 shadow-2xl space-y-6">
+      <div className="w-full max-w-md bg-slate-900 border border-white/10 rounded-3xl p-8 shadow-2xl space-y-6">
         <div className="flex justify-between items-center">
           <h2 className="text-2xl font-bold text-white">Rate {workerName}</h2>
           <button onClick={onClose} className="text-white/40 hover:text-white">
@@ -57,14 +57,14 @@ export const RatingModal = ({ isOpen, onClose, workerClerkId, workerName, jobId 
             value={comment}
             onChange={(e) => setComment(e.target.value)}
             placeholder="How was the worker's performance and punctuality?"
-            className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 h-32 resize-none"
+            className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 h-32 resize-none"
           />
         </div>
 
         <button
-          onClick={() => mutation.mutate({ rateeClerkId: workerClerkId, jobId, rating, comment })}
+          onClick={() => mutation.mutate({ rateeClerkId: workerClerkId, jobId, score: rating, comment })}
           disabled={mutation.isPending}
-          className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-2xl transition-all shadow-lg shadow-blue-500/20 flex items-center justify-center gap-2"
+          className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-4 rounded-2xl transition-all shadow-lg shadow-indigo-500/20 flex items-center justify-center gap-2"
         >
           {mutation.isPending && <Loader2 className="animate-spin h-5 w-5" />}
           {mutation.isPending ? 'Submitting...' : 'Submit Professional Rating'}

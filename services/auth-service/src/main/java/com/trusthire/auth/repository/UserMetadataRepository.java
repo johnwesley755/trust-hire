@@ -8,6 +8,8 @@ import java.util.UUID;
 
 @Repository
 public interface UserMetadataRepository extends JpaRepository<UserMetadata, UUID> {
-    Optional<UserMetadata> findByClerkId(String clerkId);
     Optional<UserMetadata> findByEmail(String email);
+    Optional<UserMetadata> findByPhoneNumber(String phoneNumber);
+    boolean existsByEmail(String email);
+    boolean existsByPhoneNumber(String phoneNumber);
 }

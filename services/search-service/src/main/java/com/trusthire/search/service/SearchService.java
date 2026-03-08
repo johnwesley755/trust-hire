@@ -14,5 +14,5 @@ public interface SearchService {
     // Workers
     List<WorkerSearch> searchWorkers(String query, String location, String level, Double lat, Double lon, Double radius);
     WorkerSearch indexWorker(WorkerSearch workerSearch);
-    void deleteWorker(String clerkId);
+    void deleteWorker(String userId);
 }

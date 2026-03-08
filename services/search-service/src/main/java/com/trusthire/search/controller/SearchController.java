@@ -56,9 +56,9 @@ public class SearchController {
         return ResponseEntity.ok(searchService.indexWorker(workerSearch));
     }
 
-    @DeleteMapping("/index/worker/{clerkId}")
-    public ResponseEntity<Void> deleteWorker(@PathVariable String clerkId) {
-        searchService.deleteWorker(clerkId);
+    @DeleteMapping("/index/worker/{userId}")
+    public ResponseEntity<Void> deleteWorker(@PathVariable String userId) {
+        searchService.deleteWorker(userId);
         return ResponseEntity.noContent().build();
     }
 }

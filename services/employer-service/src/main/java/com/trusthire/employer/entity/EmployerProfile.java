@@ -22,7 +22,7 @@ public class EmployerProfile {
     private UUID id;
 
     @Column(nullable = false, unique = true)
-    private String clerkId;
+    private String userId;
 
     private String companyName;
     private String industry;

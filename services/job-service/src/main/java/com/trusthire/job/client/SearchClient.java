@@ -26,7 +26,7 @@ public interface SearchClient {
         private Double longitude;
         private Double budget;
         private String requiredSkills;
-        private String employerClerkId;
+        private String employerId;
         private String status;
     }
 }

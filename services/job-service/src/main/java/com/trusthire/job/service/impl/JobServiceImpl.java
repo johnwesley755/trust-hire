@@ -47,8 +47,8 @@ public class JobServiceImpl implements JobService {
     }
 
     @Override
-    public List<Job> getJobsByEmployer(String employerClerkId) {
-        return repository.findByEmployerClerkId(employerClerkId);
+    public List<Job> getJobsByEmployer(String employerId) {
+        return repository.findByEmployerId(employerId);
     }
 
     @Override
@@ -80,7 +80,7 @@ public class JobServiceImpl implements JobService {
                     .longitude(job.getLongitude())
                     .budget(job.getBudget() != null ? job.getBudget().doubleValue() : null)
                     .requiredSkills(job.getRequiredSkills() != null ? String.join(", ", job.getRequiredSkills()) : "")
-                    .employerClerkId(job.getEmployerClerkId())
+                    .employerId(job.getEmployerId())
                     .status(job.getStatus() != null ? job.getStatus().name() : "OPEN")
                     .build();
             searchClient.indexJob(request);

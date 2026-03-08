@@ -14,18 +14,13 @@ public class UserServiceImpl implements UserService {
     private final UserMetadataRepository repository;
 
     @Override
-    public Optional<UserMetadata> getUserByClerkId(String clerkId) {
-        return repository.findByClerkId(clerkId);
-    }
-
-    @Override
     public Optional<UserMetadata> getUserByEmail(String email) {
         return repository.findByEmail(email);
     }
 
     @Override
-    public boolean isEmailVerified(String clerkId) {
-        return repository.findByClerkId(clerkId)
+    public boolean isEmailVerified(String email) {
+        return repository.findByEmail(email)
                 .map(UserMetadata::getEmailVerified)
                 .orElse(false);
     }

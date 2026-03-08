@@ -6,5 +6,5 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface EmployerProfileRepository extends JpaRepository<EmployerProfile, UUID> {
-    Optional<EmployerProfile> findByClerkId(String clerkId);
+    Optional<EmployerProfile> findByUserId(String userId);
 }

@@ -20,7 +20,7 @@ public class JobApplicationController {
 
     @PostMapping
     public ResponseEntity<JobApplication> apply(@AuthenticationPrincipal Jwt jwt, @RequestBody JobApplication application) {
-        application.setWorkerClerkId(jwt.getSubject());
+        application.setWorkerId(jwt.getSubject());
         return ResponseEntity.ok(applicationService.applyForJob(application));
     }
 
