@@ -15,8 +15,8 @@ public interface WorkerSearchRepository extends JpaRepository<WorkerSearch, Stri
            "(:query IS NULL OR :query = '' OR LOWER(w.name) LIKE LOWER(CONCAT('%', :query, '%')) OR LOWER(w.skills) LIKE LOWER(CONCAT('%', :query, '%'))) AND " +
            "(:location IS NULL OR :location = '' OR LOWER(w.location) LIKE LOWER(CONCAT('%', :location, '%'))) AND " +
            "(:level IS NULL OR :level = '' OR w.level = :level) AND " +
-           "(:lat IS NULL OR :lon IS NULL OR :radius IS NULL OR " +
-           "(6371 * acos(cos(radians(CAST(:lat AS Double))) * cos(radians(w.latitude)) * cos(radians(w.longitude) - radians(CAST(:lon AS Double))) + sin(radians(CAST(:lat AS Double))) * sin(radians(w.latitude))) <= CAST(:radius AS Double)))")
+           "(:lat = -999.0 OR :lon = -999.0 OR :radius = -999.0 OR " +
+           "(6371 * acos(cos(radians(cast(:lat as double))) * cos(radians(w.latitude)) * cos(radians(w.longitude) - radians(cast(:lon as double))) + sin(radians(cast(:lat as double))) * sin(radians(w.latitude))) <= cast(:radius as double)))")
     List<WorkerSearch> searchWorkers(
             @Param("query") String query, 
             @Param("location") String location, 

@@ -10,6 +10,8 @@ export interface Job {
   experienceYearsRequired?: number;
   budget: number;
   location: string;
+  latitude?: number;
+  longitude?: number;
   status?: 'OPEN' | 'CLOSED' | 'IN_PROGRESS' | 'COMPLETED';
   createdAt?: string;
   updatedAt?: string;

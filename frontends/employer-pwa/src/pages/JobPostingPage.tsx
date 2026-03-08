@@ -2,13 +2,16 @@ import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { jobService } from '../api/job.service';
 import { useNavigate } from 'react-router-dom';
-import { Briefcase, MapPin, DollarSign, Tag, Plus, X } from 'lucide-react';
+import { Briefcase, MapPin, DollarSign, Tag, Plus, X, Navigation } from 'lucide-react';
 
 export const JobPostingPage = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [skills, setSkills] = useState<string[]>([]);
   const [skillInput, setSkillInput] = useState('');
+  const [locationName, setLocationName] = useState('');
+  const [coords, setCoords] = useState<{lat: number, lon: number} | null>(null);
+  const [isDetecting, setIsDetecting] = useState(false);
 
   const mutation = useMutation({
     mutationFn: (job: import('../api/job.service').Job) => jobService.createJob(job),
@@ -25,11 +28,34 @@ export const JobPostingPage = () => {
       title: formData.get('title') as string,
       description: formData.get('description') as string,
       industry: formData.get('industry') as string,
-      location: formData.get('location') as string,
+      location: locationName,
+      latitude: coords?.lat,
+      longitude: coords?.lon,
       budget: Number(formData.get('budget')),
       requiredSkills: skills,
     };
     mutation.mutate(jobData);
+  };
+
+  const detectLocation = () => {
+    setIsDetecting(true);
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          setCoords({ lat: pos.coords.latitude, lon: pos.coords.longitude });
+          setLocationName("Current Location (GPS Detected)");
+          setIsDetecting(false);
+        },
+        (err) => {
+          console.error("Geolocation error:", err);
+          setIsDetecting(false);
+          alert("Could not detect location. Please type it manually.");
+        }
+      );
+    } else {
+        setIsDetecting(false);
+        alert("Geolocation is not supported by this browser.");
+    }
   };
 
   const addSkill = () => {
@@ -76,9 +102,30 @@ export const JobPostingPage = () => {
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium text-slate-600">Location</label>
-              <div className="relative">
-                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 h-5 w-5" />
-                <input name="location" required placeholder="Bangalore, Electronic City" className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-11 pr-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 shadow-sm" />
+              <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 h-5 w-5" />
+                    <input 
+                        name="location" 
+                        required 
+                        placeholder="Bangalore, Electronic City" 
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-11 pr-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 shadow-sm" 
+                        value={locationName}
+                        onChange={(e) => {
+                            setLocationName(e.target.value);
+                            setCoords(null); // Reset coords if they type manually
+                        }}
+                    />
+                  </div>
+                  <button 
+                    type="button" 
+                    onClick={detectLocation}
+                    disabled={isDetecting}
+                    className="bg-indigo-50 text-indigo-600 hover:bg-indigo-100 p-3 rounded-xl transition-colors shadow-sm flex items-center justify-center border border-indigo-100"
+                    title="Detect Current Location"
+                  >
+                    <Navigation className={`h-5 w-5 ${isDetecting ? 'animate-pulse' : ''}`} />
+                  </button>
               </div>
             </div>
           </div>

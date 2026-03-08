@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { searchJobs, type JobSearch } from '../api/search.service';
 import { applicationService } from '../api/application.service';
@@ -9,19 +9,40 @@ export default function JobSearchPage() {
   const [location, setLocation] = useState('');
   const [coords, setCoords] = useState<{lat: number, lon: number} | null>(null);
   const [radius, setRadius] = useState(50);
+  const [isDetecting, setIsDetecting] = useState(false);
 
-  useEffect(() => {
+  const detectLocation = () => {
+    setIsDetecting(true);
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        (pos) => setCoords({ lat: pos.coords.latitude, lon: pos.coords.longitude }),
-        (err) => console.error("Geolocation error:", err)
+        (pos) => {
+          setCoords({ lat: pos.coords.latitude, lon: pos.coords.longitude });
+          setLocation("Current Location (GPS Detected)");
+          setIsDetecting(false);
+        },
+        (err) => {
+          console.error("Geolocation error:", err);
+          setIsDetecting(false);
+          alert("Could not detect location. Please type it manually.");
+        }
       );
+    } else {
+        setIsDetecting(false);
+        alert("Geolocation is not supported by this browser.");
     }
-  }, []);
+  };
 
   const { data: jobs, isLoading } = useQuery({
     queryKey: ['jobSearch', query, location, coords, radius],
-    queryFn: () => searchJobs(query, '', location, coords?.lat, coords?.lon, radius),
+    // Only send coords if they used the GPS detector. If they typed manually, send the text string.
+    queryFn: () => searchJobs(
+        query, 
+        '', 
+        coords ? '' : location, // If coords exist, don't send location string to avoid conflicting constraints
+        coords?.lat, 
+        coords?.lon, 
+        radius
+    ),
   });
 
   return (
@@ -40,15 +61,28 @@ export default function JobSearchPage() {
                 onChange={(e) => setQuery(e.target.value)}
               />
             </div>
-            <div className="relative">
-              <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 w-5 h-5" />
-              <input 
-                type="text" 
-                placeholder="Location" 
-                className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all shadow-sm"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-              />
+            <div className="relative flex gap-2">
+              <div className="relative flex-1">
+                  <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 w-5 h-5" />
+                  <input 
+                    type="text" 
+                    placeholder="Location" 
+                    className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all shadow-sm"
+                    value={location}
+                    onChange={(e) => {
+                        setLocation(e.target.value);
+                        setCoords(null); // Clear coords if user types manually
+                    }}
+                  />
+              </div>
+              <button 
+                  onClick={detectLocation}
+                  disabled={isDetecting}
+                  className="bg-white text-indigo-600 hover:bg-indigo-50 p-4 rounded-2xl transition-colors shadow-sm flex items-center justify-center border border-slate-200"
+                  title="Detect Current Location"
+              >
+                  <Navigation className={`w-5 h-5 ${isDetecting ? 'animate-pulse' : ''}`} />
+              </button>
             </div>
           </div>
           

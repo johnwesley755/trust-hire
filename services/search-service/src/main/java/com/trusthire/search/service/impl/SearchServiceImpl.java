@@ -24,7 +24,10 @@ public class SearchServiceImpl implements SearchService {
     @Override
     public List<JobSearch> searchJobs(String query, String category, String location, Double lat, Double lon, Double radius) {
         log.info("Searching jobs: query={}, category={}, location={}, lat={}, lon={}, radius={}", query, category, location, lat, lon, radius);
-        return jobRepository.searchJobs(query, category, location, lat, lon, radius);
+        Double safeLat = lat != null ? lat : -999.0;
+        Double safeLon = lon != null ? lon : -999.0;
+        Double safeRadius = radius != null ? radius : -999.0;
+        return jobRepository.searchJobs(query, category, location, safeLat, safeLon, safeRadius);
     }
 
     @Override
@@ -44,7 +47,10 @@ public class SearchServiceImpl implements SearchService {
     @Override
     public List<WorkerSearch> searchWorkers(String query, String location, String level, Double lat, Double lon, Double radius) {
         log.info("Searching workers: query={}, location={}, level={}, lat={}, lon={}, radius={}", query, location, level, lat, lon, radius);
-        return workerRepository.searchWorkers(query, location, level, lat, lon, radius);
+        Double safeLat = lat != null ? lat : -999.0;
+        Double safeLon = lon != null ? lon : -999.0;
+        Double safeRadius = radius != null ? radius : -999.0;
+        return workerRepository.searchWorkers(query, location, level, safeLat, safeLon, safeRadius);
     }
 
     @Override

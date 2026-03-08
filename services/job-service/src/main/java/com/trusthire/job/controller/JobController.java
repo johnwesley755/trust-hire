@@ -55,6 +55,8 @@ public class JobController {
                     job.setExperienceYearsRequired(jobRequest.getExperienceYearsRequired());
                     job.setBudget(jobRequest.getBudget());
                     job.setLocation(jobRequest.getLocation());
+                    job.setLatitude(jobRequest.getLatitude());
+                    job.setLongitude(jobRequest.getLongitude());
                     job.setStatus(jobRequest.getStatus());
                     return ResponseEntity.ok(jobService.updateJob(job));
                 })
