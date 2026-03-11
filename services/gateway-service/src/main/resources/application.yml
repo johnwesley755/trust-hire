@@ -8,9 +8,9 @@ spring:
         - id: auth-service
           uri: http://localhost:8081
           predicates:
-            - Path=/api/v1/auth/**
+            - Path=/api/v1/api/auth/**
           filters:
-            - RewritePath=/api/v1/auth/(?<segment>.*), /api/auth/$\{segment}
+            - RewritePath=/api/v1/api/auth/(?<segment>.*), /api/auth/$\{segment}
 
         - id: worker-service
           uri: http://localhost:8082
@@ -82,11 +82,6 @@ spring:
           filters:
             - RewritePath=/ws/(?<segment>.*), /ws/$\{segment}
 
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: ${CLERK_FRONTEND_API:https://sure-bengal-96.clerk.accounts.dev}
 
 server:
   port: 9000

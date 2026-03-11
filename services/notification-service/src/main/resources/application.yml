@@ -42,12 +42,6 @@ spring:
           starttls:
             enable: true
 
-  security:
-    oauth2:
-      resource-server:
-        jwt:
-          issuer-uri: ${CLERK_ISSUER}
-          jwk-set-uri: ${CLERK_JWKS_URI}
 
 server:
   port: 8087

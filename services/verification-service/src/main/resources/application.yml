@@ -30,12 +30,6 @@ spring:
     table: flyway_schema_history_verification
     locations: classpath:db/migration
   
-  security:
-    oauth2:
-      resource-server:
-        jwt:
-          issuer-uri: ${CLERK_ISSUER}
-          jwk-set-uri: ${CLERK_JWKS_URI}
 
 cloudinary:
   cloud-name: ${CLOUDINARY_CLOUD_NAME}

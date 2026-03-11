@@ -1,22 +1,20 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap');
 
 @theme {
-  --color-primary-50: #ecfdf5;
-  --color-primary-100: #d1fae5;
-  --color-primary-200: #a7f3d0;
-  --color-primary-300: #6ee7b7;
-  --color-primary-400: #34d399;
-  --color-primary-500: #10b981;
-  --color-primary-600: #059669;
-  --color-primary-700: #047857;
-  --color-primary-800: #065f46;
-  --color-primary-900: #064e3b;
-  --color-primary-950: #022c22;
+  /* Brand colors — Jobbbly-inspired */
+  --color-brand-cream: #f5f4ef;
+  --color-brand-amber: #f0b429;
+  --color-brand-amber-dark: #d99e1a;
+  --color-brand-teal: #1d4744;
+  --color-brand-teal-light: #2a5f5b;
+  --color-brand-ink: #111111;
+  --color-brand-muted: #6b7280;
 
   @keyframes fade-in-up {
     from {
       opacity: 0;
-      transform: translateY(20px);
+      transform: translateY(30px);
     }
     to {
       opacity: 1;
@@ -24,54 +22,75 @@
     }
   }
 
-  @keyframes float {
-    0%, 100% {
-      transform: translateY(0);
+  @keyframes fade-in-left {
+    from {
+      opacity: 0;
+      transform: translateX(-30px);
     }
-    50% {
-      transform: translateY(-10px);
+    to {
+      opacity: 1;
+      transform: translateX(0);
     }
   }
 
-  @keyframes pulse-slow {
+  @keyframes float-slow {
     0%, 100% {
-      opacity: 1;
+      transform: translateY(0) rotate(0deg);
     }
     50% {
-      opacity: 0.8;
+      transform: translateY(-12px) rotate(5deg);
     }
+  }
+
+  @keyframes float-medium {
+    0%, 100% {
+      transform: translateY(0) rotate(0deg);
+    }
+    50% {
+      transform: translateY(-8px) rotate(-5deg);
+    }
+  }
+
+  @keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
   }
 }
 
 @utility animate-fade-in-up {
-  animation: fade-in-up 0.8s ease-out forwards;
+  animation: fade-in-up 0.7s ease-out forwards;
 }
 
-@utility animate-float {
-  animation: float 6s ease-in-out infinite;
+@utility animate-fade-in-left {
+  animation: fade-in-left 0.7s ease-out forwards;
+}
+
+@utility animate-float-slow {
+  animation: float-slow 7s ease-in-out infinite;
+}
+
+@utility animate-float-medium {
+  animation: float-medium 5s ease-in-out infinite;
+}
+
+@utility animate-marquee {
+  animation: marquee 25s linear infinite;
 }
 
 @utility glass-header {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(245, 244, 239, 0.85);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
 }
-
-@utility glass-card {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
 
 :root {
-  font-family: 'Outfit', 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Outfit', system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
   color-scheme: light;
-  color: #0f172a;
-  background-color: #f8fafc;
+  color: #111111;
+  background-color: #f5f4ef;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -83,4 +102,5 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  background-color: #f5f4ef;
 }

@@ -29,6 +29,21 @@ spring:
     table: flyway_schema_history_auth
     locations: classpath:db/migration
   
+  mail:
+    host: smtp-relay.brevo.com
+    port: 587
+    username: ${BREVO_SMTP_USERNAME}
+    password: ${BREVO_API_KEY}
+    properties:
+      mail:
+        from:
+          email: ${BREVO_SENDER_EMAIL}
+          name: ${BREVO_SENDER_NAME}
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+  
   security:
     oauth2:
       resourceserver:
