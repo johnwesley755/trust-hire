@@ -1,148 +1,177 @@
-import { useRef, useState, useLayoutEffect } from "react";
-import { Zap, Award, MapPin } from "lucide-react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, useSpring } from "framer-motion";
+import React, { useRef } from "react";
+import { Zap, ShieldCheck, Target, Sparkles } from "lucide-react";
 
-const BENEFITS = [
+interface Benefit {
+  title: string;
+  description: string;
+  icon: React.ReactNode;
+  badge: string;
+  color: string;
+  illustration: string;
+  accent: string;
+}
+
+const benefits: Benefit[] = [
   {
-    icon: <Zap className="w-6 h-6" />,
-    color: "bg-[#f5f4ef]",
-    textColor: "text-[#1d4744]",
     title: "Premium Earnings",
-    desc: "Verified pros earn up to 40% more than market rates. No middlemen, no hidden cuts.",
-    tag: "Up to 40% more",
-    image: "/assets/landing/worker-payout.png",
+    description: "Verified pros earn up to 40% more than market rates. No middlemen, no hidden cuts. Get paid what you're actually worth, directly to your bank.",
+    icon: <Zap className="w-10 h-10" />,
+    badge: "UP TO 40% MORE",
+    color: "bg-[#f9f8f4] text-brand-teal",
+    illustration: "/assets/landing/trusthyre-worker.png",
+    accent: "bg-brand-amber/10"
   },
   {
-    icon: <Award className="w-6 h-6" />,
-    color: "bg-[#1d4744]",
-    textColor: "text-[#f0b429]",
     title: "Reputation Score",
-    desc: "Each job builds your verified work history. Higher ratings unlock bigger corporate contracts.",
-    tag: "Blockchain secured",
-    image: "/assets/landing/worker-master.png",
+    description: "Each job builds your verified work history on the blockchain. Higher ratings unlock bigger corporate contracts and priority matching.",
+    icon: <ShieldCheck className="w-10 h-10" />,
+    badge: "BLOCKCHAIN SECURED",
+    color: "bg-brand-teal text-white",
+    illustration: "/assets/landing/worker-master.png",
+    accent: "bg-white/10"
   },
   {
-    icon: <MapPin className="w-6 h-6" />,
-    color: "bg-[#f0b429]",
-    textColor: "text-[#1d4744]",
     title: "Smart Job Matching",
-    desc: "Get notified instantly about jobs near you that match your exact skills. One-tap applications.",
-    tag: "AI-powered match",
-    image: "/assets/landing/hero-professional.png",
-  },
+    description: "Our AI engine finds jobs that match your exact skills and location. No more searching, just notified and apply with one tap.",
+    icon: <Target className="w-10 h-10" />,
+    badge: "AI-POWERED MATCH",
+    color: "bg-brand-amber text-brand-teal",
+    illustration: "/assets/landing/success-worker.png",
+    accent: "bg-black/10"
+  }
 ];
 
 export function LandingBenefits() {
-  const targetRef = useRef<HTMLDivElement>(null);
-  const trackRef = useRef<HTMLDivElement>(null);
-  const [scrollRange, setScrollRange] = useState(0);
-
-  // Measure the exact overflow distance needed for the track
-  useLayoutEffect(() => {
-    const updateMeasurements = () => {
-      if (trackRef.current) {
-        // scrollWidth gives the full hidden width. 
-        // We subtract widow width to know exactly how many pixels to scroll.
-        // Adding roughly a card's padding gap so it doesn't end abruptly against the edge.
-        const maxScrollDist = trackRef.current.scrollWidth - window.innerWidth + 80;
-        setScrollRange(maxScrollDist > 0 ? maxScrollDist : 0);
-      }
-    };
-    
-    updateMeasurements();
-    // Re-check after images potentially load
-    const timeout = setTimeout(updateMeasurements, 300);
-    window.addEventListener("resize", updateMeasurements);
-    return () => {
-      clearTimeout(timeout);
-      window.removeEventListener("resize", updateMeasurements);
-    };
-  }, []);
-
-  const { scrollYProgress } = useScroll({
-    target: targetRef,
-    offset: ["start start", "end end"]
-  });
-
-  // Translate by the precise pixel delta
-  const x = useTransform(scrollYProgress, [0, 1], [0, -scrollRange]); 
-
-  // Dynamically set height so 1px scrolled down = 1px shifted right.
-  const containerHeight = scrollRange > 0 ? `calc(100vh + ${scrollRange}px)` : "300vh";
+  const containerRef = useRef(null);
 
   return (
-    <section ref={targetRef} id="benefits" style={{ height: containerHeight }} className="relative z-20 bg-white shadow-[0_-20px_50px_rgba(0,0,0,0.1)]">
-      
-      {/* Sticky container locked precisely to viewport height */}
-      <div className="sticky top-0 h-[100svh] min-h-[600px] flex flex-col justify-center overflow-hidden py-12 md:py-20 bg-white">
-      
-        <div className="max-w-7xl mx-auto px-6 relative z-10 w-full shrink-0 mb-6 md:mb-10 lg:mb-12 mt-auto">
-           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 md:gap-8">
-            <motion.div 
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-            >
-              <span className="text-[#f0b429] font-black text-sm uppercase tracking-[0.2em] bg-[#f0b429]/10 px-4 py-1.5 rounded-full">
-                Why Join Us
-              </span>
-              <h2 className="text-4xl md:text-5xl lg:text-[64px] font-black text-[#111] mt-6 leading-[1.1] tracking-tight">
-                Better Jobs. <br className="hidden md:block"/>
-                <span className="text-[#f0b429]">Better Life.</span>
-              </h2>
-            </motion.div>
-            <motion.p 
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
-              className="text-[#666] max-w-sm leading-relaxed font-medium md:pb-3"
-            >
-              We built TrustHire to give India's skilled workers access to the
-              same premium opportunities as top professionals.
-            </motion.p>
+    <section 
+      ref={containerRef} 
+      className="relative bg-white py-20 lg:py-32"
+      id="benefits"
+    >
+      <div className="max-w-[1600px] mx-auto px-6 relative z-10">
+        {/* Centered Header - No Sidebar to avoid whitespace */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+          className="text-center max-w-4xl mx-auto mb-12 lg:mb-16"
+        >
+          <div className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-brand-amber/10 border border-brand-amber/20 text-brand-amber text-xs font-black uppercase tracking-[0.3em] mb-8">
+            <Sparkles size={16} className="animate-pulse" />
+            <span>The TrustHire Advantage</span>
           </div>
-        </div>
+          <h2 className="text-6xl sm:text-7xl lg:text-[100px] font-black text-brand-teal leading-[0.9] tracking-tighter mb-8">
+            Better Jobs.<br />
+            <span className="text-brand-amber">Better Life.</span>
+          </h2>
+          <p className="text-xl sm:text-2xl text-brand-muted font-medium leading-relaxed max-w-2xl mx-auto">
+            Experience the next generation of professional field work. Full transparency, instant payouts, and a career path that belongs to you.
+          </p>
+        </motion.div>
 
-        <div className="relative z-10 pl-6 md:pl-10 lg:pl-[calc((100vw-1280px)/2+24px)] w-full flex-grow mb-auto pb-4">
-          <motion.div ref={trackRef} style={{ x }} className="flex gap-6 md:gap-10 w-max h-full items-center">
-            {BENEFITS.map((b, i) => (
-             <div
-                key={i}
-                className={`w-[85vw] sm:w-[420px] lg:w-[460px] h-[65vh] min-h-[520px] max-h-[680px] rounded-[32px] md:rounded-[40px] border border-black/5 ${b.color} flex flex-col p-6 lg:p-8 shadow-2xl relative overflow-hidden group hover:-translate-y-2 transition-transform duration-500 shrink-0`}
-              >
-                {/* Content */}
-                <div className="mb-6 z-10 shrink-0">
-                  <div className="flex items-start justify-between mb-8">
-                    <div className={`w-14 h-14 bg-black/10 ${b.textColor} rounded-2xl flex items-center justify-center shadow-inner pt-1`}>
-                      {b.icon}
-                    </div>
-                    <span className={`inline-block px-4 py-2 bg-black/5 ${b.color === "bg-[#1d4744]" ? "text-white/90" : "text-[#111]"} text-[10px] md:text-xs font-black uppercase tracking-wider rounded-full backdrop-blur-sm border border-white/10`}>
-                      {b.tag}
-                    </span>
-                  </div>
-
-                  <h3 className={`text-3xl lg:text-[34px] font-black ${b.color === "bg-[#1d4744]" ? "text-white" : "text-[#111]"} mb-4 leading-tight`}>{b.title}</h3>
-                  <p className={`${b.color === "bg-[#1d4744]" ? "text-white/80" : "text-[#555]"} leading-relaxed font-medium text-[17px] line-clamp-3`}>{b.desc}</p>
-                </div>
-
-                {/* Sub-container */}
-                <div className="flex-grow flex items-start justify-center w-full bg-white rounded-[20px] md:rounded-[24px] overflow-hidden border border-black/5 relative shadow-inner pt-4 md:pt-6 px-6 mt-2">
-                  <img 
-                    src={b.image}
-                    alt={b.title}
-                    className="w-[250px] md:w-[280px] h-auto object-cover object-top drop-shadow-sm transform-gpu transition-transform duration-700 group-hover:scale-105 -mb-4"
-                  />
-                </div>
-              </div>
-            ))}
-            
-            {/* Visual Spacer so the scroll doesn't perfectly hug the edge if window is wide */}
-            <div className="w-[10vw] md:w-[20vw] flex-none" />
-          </motion.div>
+        {/* Layered Stack (Deck of Cards) */}
+        <div className="space-y-32 lg:space-y-0 relative">
+          {benefits.map((benefit, index) => (
+            <div key={index} className="lg:h-screen lg:sticky lg:top-0 flex items-center justify-center py-10 lg:py-0">
+              <BenefitCard benefit={benefit} isFirst={index === 0} />
+            </div>
+          ))}
         </div>
       </div>
+
+      {/* Decorative ornaments that fill the background */}
+      <div className="absolute top-[10%] left-[-10%] w-[500px] h-[500px] bg-brand-cream/50 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[20%] right-[-10%] w-[600px] h-[600px] bg-brand-amber/5 rounded-full blur-[150px] pointer-events-none" />
     </section>
+  );
+}
+
+function BenefitCard({ benefit, isFirst }: { benefit: Benefit, isFirst: boolean }) {
+  const cardRef = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: cardRef,
+    offset: ["start end", "end start"]
+  });
+
+  // Simplified spring for better performance (less CPU intensive)
+  const smoothProgress = useSpring(scrollYProgress, {
+    stiffness: 80,
+    damping: 25,
+    restDelta: 0.005
+  });
+
+  // Scale and rotation for the "Deck of Cards" effect
+  const scale = useTransform(smoothProgress, [0, 0.4, 0.6, 1], [0.9, 1, 1, 0.9]);
+  const rotate = useTransform(smoothProgress, [0, 0.5, 1], [1, 0, -1]);
+  const opacity = useTransform(smoothProgress, [0, 0.1, 0.9, 1], [0.7, 1, 1, 0.8]);
+
+  return (
+    <motion.div
+      ref={cardRef}
+      style={{ scale, rotate, opacity }}
+      className={`relative w-full rounded-[48px] sm:rounded-[80px] p-8 sm:p-14 lg:p-20 shadow-[0_30px_90px_rgba(0,0,0,0.06)] overflow-hidden border border-black/5 group flex flex-col lg:flex-row items-center gap-12 lg:gap-20 ${benefit.color} will-change-transform transform-gpu`}
+    >
+      {/* Visual Content (Illustration) */}
+      <div className="w-full lg:w-1/2 order-2 lg:order-1">
+        <div className={`relative aspect-4/3 sm:aspect-square rounded-[40px] sm:rounded-[60px] ${benefit.accent} flex items-center justify-center overflow-hidden p-8 sm:p-12`}>
+            {/* Background pattern */}
+            <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "radial-gradient(circle at 2px 2px, currentColor 1px, transparent 0)", backgroundSize: "32px 32px" }} />
+            
+            <motion.img 
+              initial={{ scale: 0.9, opacity: 0 }}
+              whileInView={{ scale: 1, opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1, duration: 0.8, ease: "easeOut" }}
+              src={benefit.illustration} 
+              alt={benefit.title}
+              // Performance optimizations for LCP
+              loading={isFirst ? "eager" : "lazy"}
+              fetchPriority={isFirst ? "high" : "auto"}
+              className="w-full h-full object-contain relative z-10 transition-transform duration-700 group-hover:scale-105"
+            />
+        </div>
+      </div>
+
+      {/* Textual Content */}
+      <div className="w-full lg:w-1/2 order-1 lg:order-2 space-y-8 lg:space-y-10">
+        <div className="flex items-center justify-between">
+          <div className="w-20 h-20 rounded-[28px] bg-white/20 backdrop-blur-2xl flex items-center justify-center shadow-xl ring-1 ring-black/5">
+            <div className="group-hover:scale-110 transition-all duration-300">
+               {benefit.icon}
+            </div>
+          </div>
+          <motion.span 
+             initial={{ opacity: 0, x: 20 }}
+             whileInView={{ opacity: 1, x: 0 }}
+             className="px-6 py-2.5 rounded-full bg-black/5 text-[11px] font-black tracking-[0.2em] uppercase backdrop-blur-md border border-white/10"
+          >
+            {benefit.badge}
+          </motion.span>
+        </div>
+
+        <div className="space-y-6">
+          <h3 className="text-5xl sm:text-6xl font-black leading-none tracking-tighter">
+            {benefit.title}
+          </h3>
+          <p className="text-xl lg:text-2xl font-medium opacity-80 leading-snug tracking-tight max-w-xl">
+            {benefit.description}
+          </p>
+        </div>
+
+        {/* Feature Points */}
+        <div className="flex flex-wrap gap-3">
+           {["Direct Bank Payout", "Zero Commission", "24/7 Support"].map((tag, i) => (
+             <div key={i} className="px-5 py-2.5 rounded-xl bg-black/5 text-[10px] font-bold uppercase tracking-[0.15em]">{tag}</div>
+           ))}
+        </div>
+      </div>
+
+      {/* Glossy Overlay */}
+      <div className="absolute inset-0 bg-linear-to-tr from-white/10 to-transparent pointer-events-none" />
+    </motion.div>
   );
 }

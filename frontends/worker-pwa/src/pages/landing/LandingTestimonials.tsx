@@ -40,14 +40,14 @@ export function LandingTestimonials() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-16"
+          className="text-center mb-12 sm:mb-16 px-4"
         >
-          <span className="text-[#f0b429] font-black text-sm uppercase tracking-[0.2em]">
+          <span className="text-brand-amber font-black text-xs sm:text-sm uppercase tracking-[0.2em]">
             Worker Stories
           </span>
-          <h2 className="text-4xl md:text-5xl font-black mt-3 leading-tight">
-            Trusted by thousands of <br />
-            <span className="text-[#f0b429]">verified professionals.</span>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black mt-3 leading-tight">
+            Trusted by thousands of <br className="hidden sm:block" />
+            <span className="text-brand-amber">verified professionals.</span>
           </h2>
         </motion.div>
 

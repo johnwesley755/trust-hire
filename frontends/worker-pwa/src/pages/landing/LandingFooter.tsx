@@ -20,26 +20,26 @@ export function LandingFooter() {
       >
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
           <div>
-            <h3 className="text-3xl md:text-4xl font-black text-[#111] leading-tight">
+            <h3 className="text-2xl sm:text-3xl md:text-4xl font-black text-[#111] leading-tight text-center md:text-left">
               Ready to earn{" "}
-              <span className="text-[#1d4744]">more,</span>{" "}
+              <span className="text-brand-teal">more,</span>{" "}
               stress{" "}
-              <span className="text-[#1d4744]">less?</span>
+              <span className="text-brand-teal">less?</span>
             </h3>
-            <p className="text-[#111]/70 font-semibold mt-2">
+            <p className="text-[#111]/70 font-semibold mt-2 text-center md:text-left text-sm sm:text-base">
               Join 50,000+ verified professionals. Free to sign up.
             </p>
           </div>
-          <div className="flex gap-4">
+          <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
             <Link
               to="/sign-up"
-              className="px-7 py-4 bg-[#1d4744] text-white rounded-2xl font-black hover:bg-[#2a5f5b] transition-all hover:shadow-xl hover:-translate-y-1"
+              className="px-7 py-4 bg-brand-teal text-white rounded-2xl font-black hover:bg-[#2a5f5b] transition-all hover:shadow-xl hover:-translate-y-1 text-center"
             >
               Get Started Free
             </Link>
             <Link
               to="/sign-in"
-              className="px-7 py-4 bg-white text-[#111] rounded-2xl font-black hover:bg-[#f5f4ef] transition-all hover:-translate-y-1"
+              className="px-7 py-4 bg-white text-[#111] rounded-2xl font-black hover:bg-brand-cream transition-all hover:-translate-y-1 text-center"
             >
               Sign In
             </Link>
