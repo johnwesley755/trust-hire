@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { ShieldCheck, Menu, X } from "lucide-react";
-import { SignedIn, SignedOut } from "../../providers/AuthContext";
+import { Menu, X, ShieldCheck } from "lucide-react";
+import { useAuth } from "../../providers/AuthContext";
 
 export function LandingNavbar() {
+  const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { user } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
@@ -13,99 +14,114 @@ export function LandingNavbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  const navLinks = [
+    { name: "How it works", href: "#how-it-works" },
+    { name: "Talent Vision", href: "#vision" },
+    { name: "Features", href: "#features" },
+  ];
+
   return (
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled ? "glass-header py-3 shadow-md" : "bg-transparent py-5"
+        isScrolled ? "bg-white/90 backdrop-blur-md py-3 shadow-sm" : "bg-transparent py-6"
       }`}
     >
-      <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
+      <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
         {/* Logo */}
-        <div className="flex items-center gap-2">
-          <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
-            <ShieldCheck className="text-white w-6 h-6" />
+        <Link to="/" className="flex items-center gap-2.5 group">
+          <div className="w-10 h-10 bg-brand-secondary rounded-xl flex items-center justify-center shadow-lg group-hover:bg-brand-primary transition-all duration-300">
+            <ShieldCheck className="text-white group-hover:text-brand-secondary w-6 h-6 transition-colors" />
           </div>
-          <span className="text-2xl font-bold tracking-tight text-slate-900">
-            TrustHire <span className="text-indigo-600">Employer</span>
-          </span>
-        </div>
+          <div className="flex flex-col leading-none">
+            <span className="text-2xl font-black text-brand-text tracking-tighter">
+              TrustHire
+            </span>
+            <span className="text-[10px] font-black text-brand-primary uppercase tracking-[0.15em] bg-brand-secondary px-1.5 py-0.5 rounded ml-0.5">
+              Enterprise
+            </span>
+          </div>
+        </Link>
 
         {/* Desktop Nav */}
-        <div className="hidden md:flex items-center gap-8">
-          <a
-            href="#features"
-            className="text-slate-600 hover:text-indigo-600 font-medium transition-colors"
-          >
-            Features
-          </a>
-          <a
-            href="#how-it-works"
-            className="text-slate-600 hover:text-indigo-600 font-medium transition-colors"
-          >
-            How it Works
-          </a>
-          <div className="h-6 w-px bg-slate-200 mx-2" />
-          <SignedOut>
-            <Link
-              to="/sign-in"
-              className="text-slate-900 font-semibold hover:text-indigo-600 transition-colors"
-            >
-              Sign In
-            </Link>
-            <Link
-              to="/sign-up"
-              className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full font-semibold transition-all shadow-lg shadow-indigo-500/20 active:scale-95"
-            >
-              Join Network
-            </Link>
-          </SignedOut>
-          <SignedIn>
+        <div className="hidden lg:flex items-center gap-10">
+          <div className="flex items-center gap-10">
+            {navLinks.map((link) => (
+              <a
+                key={link.name}
+                href={link.href}
+                className="text-sm font-black text-brand-secondary hover:text-brand-primary transition-all tracking-tight"
+              >
+                {link.name}
+              </a>
+            ))}
+          </div>
+
+          <div className="h-6 w-px bg-brand-border mx-2" />
+
+          {user ? (
             <Link
               to="/dashboard"
-              className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full font-semibold transition-all shadow-lg shadow-indigo-500/20 active:scale-95"
+              className="px-6 py-2.5 bg-brand-secondary hover:bg-brand-secondary/90 text-brand-primary rounded-xl font-black text-sm transition-all shadow-xl shadow-brand-secondary/10"
             >
               Dashboard
             </Link>
-          </SignedIn>
+          ) : (
+            <div className="flex items-center gap-10">
+              <Link
+                to="/sign-in"
+                className="text-sm font-black text-brand-secondary hover:text-brand-primary transition-all tracking-tight"
+              >
+                Sign In
+              </Link>
+              <Link
+                to="/sign-up"
+                className="px-8 py-4 bg-brand-secondary text-brand-primary rounded-2xl font-black text-sm tracking-tight transition-all shadow-2xl hover:scale-105 active:scale-95 shadow-brand-secondary/20"
+              >
+                Start Hiring
+              </Link>
+            </div>
+          )}
         </div>
 
-        {/* Hamburger */}
+        {/* Mobile Toggle */}
         <button
-          className="md:hidden text-slate-900"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          className="lg:hidden text-brand-text p-2 bg-brand-surface rounded-lg"
+          onClick={() => setIsOpen(!isOpen)}
         >
-          {mobileMenuOpen ? <X /> : <Menu />}
+          {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
       </div>
 
       {/* Mobile Menu */}
-      {mobileMenuOpen && (
-        <div className="md:hidden absolute top-full left-0 right-0 bg-white border-b border-slate-100 p-6 space-y-4 shadow-xl animate-fade-in-up">
-          <a href="#features" className="block text-slate-600 font-medium">
-            Features
-          </a>
-          <a href="#how-it-works" className="block text-slate-600 font-medium">
-            How it Works
-          </a>
-          <SignedOut>
-            <Link to="/sign-in" className="block text-slate-900 font-semibold">
+      {isOpen && (
+        <div className="lg:hidden absolute top-full left-4 right-4 bg-white rounded-2xl border border-brand-border p-6 shadow-2xl mt-4 animate-fade-in-up">
+          <div className="flex flex-col gap-6">
+            {navLinks.map((link) => (
+              <a
+                key={link.name}
+                href={link.href}
+                className="text-lg font-black text-brand-text"
+                onClick={() => setIsOpen(false)}
+              >
+                {link.name}
+              </a>
+            ))}
+            <hr className="border-brand-border" />
+            <Link
+              to="/sign-in"
+              className="text-lg font-black text-brand-text"
+              onClick={() => setIsOpen(false)}
+            >
               Sign In
             </Link>
             <Link
               to="/sign-up"
-              className="block w-full text-center py-3 bg-indigo-600 text-white rounded-xl font-semibold"
+              className="w-full py-4 bg-brand-secondary text-brand-primary rounded-xl font-black text-center shadow-lg"
+              onClick={() => setIsOpen(false)}
             >
-              Get Started
+              Start Hiring
             </Link>
-          </SignedOut>
-          <SignedIn>
-            <Link
-              to="/dashboard"
-              className="block w-full text-center py-3 bg-indigo-600 text-white rounded-xl font-semibold"
-            >
-              Dashboard
-            </Link>
-          </SignedIn>
+          </div>
         </div>
       )}
     </nav>

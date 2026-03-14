@@ -1,63 +1,80 @@
-import { Users, ShieldCheck, Zap } from "lucide-react";
+import { motion } from "framer-motion";
+import { 
+  ShieldCheck, 
+  Lock,
+  Database,
+  Eye
+} from "lucide-react";
 
 const FEATURES = [
   {
-    title: "AI Face Identification",
-    desc: "Eliminate proxy attendance. Our system matches workers' live faces with government IDs in real-time.",
-    icon: <Users className="w-7 h-7" />,
-    color: "bg-blue-50 text-blue-600",
+    title: "AI Direct-Scout",
+    desc: "Our neural engine scans 50+ industrial metrics to find your perfect worker match in under 5 seconds.",
+    icon: Eye,
+    color: "bg-brand-primary",
+    textColor: "text-brand-secondary"
   },
   {
-    title: "Blockchain Verification",
-    desc: "Work history and ratings are secured on-chain, ensuring tamper-proof professional reputation.",
-    icon: <ShieldCheck className="w-7 h-7" />,
-    color: "bg-indigo-50 text-indigo-600",
+    title: "On-Chain Identity",
+    desc: "Every credential and work hour is signed on an immutable blockchain ledger to eliminate fraud.",
+    icon: Database,
+    color: "bg-brand-secondary",
+    textColor: "text-brand-primary"
   },
   {
-    title: "Instant Job Filling",
-    desc: "Our matching algorithm finds the best available talent within minutes based on skill ratings and proximity.",
-    icon: <Zap className="w-7 h-7" />,
-    color: "bg-amber-50 text-amber-600",
+    title: "Biometric Security",
+    desc: "Integrated face-match protocol ensures that 100% of attendance is verified and proxy-free.",
+    icon: ShieldCheck,
+    color: "bg-brand-accent",
+    textColor: "text-white"
+  },
+  {
+    title: "Smart Compliance",
+    desc: "Automated local and federal compliance checks for every deployment, everywhere.",
+    icon: Lock,
+    color: "bg-brand-primary",
+    textColor: "text-brand-secondary"
   },
 ];
 
 export function LandingFeatures() {
   return (
-    <section id="features" className="py-24 md:py-32 px-6">
-      <div className="max-w-7xl mx-auto text-center space-y-6 mb-20">
-        <h2 className="text-indigo-600 font-bold uppercase tracking-[0.2em] text-sm">
-          Our Difference
-        </h2>
-        <h3 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight">
-          The Future of{" "}
-          <span className="text-indigo-600">Workforce Management.</span>
-        </h3>
-        <p className="text-slate-500 max-w-2xl mx-auto text-lg leading-relaxed">
-          Stop worrying about background checks and fake identities. We've
-          built the ultimate trust layer.
-        </p>
-      </div>
-
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
-        {FEATURES.map((feature, i) => (
-          <div
-            key={i}
-            className="group p-10 rounded-[2.5rem] bg-white border border-slate-100 hover:border-indigo-400 transition-all duration-500 shadow-[0_10px_40px_rgba(0,0,0,0.02)] hover:shadow-[0_20px_50px_rgba(79,70,229,0.1)] relative overflow-hidden"
-          >
-            <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50/50 rounded-bl-[5rem] -mr-16 -mt-16 group-hover:scale-110 transition-transform" />
-            <div
-              className={`w-14 h-14 rounded-2xl ${feature.color} flex items-center justify-center mb-8 shadow-inner`}
+    <section id="features" className="py-32 bg-white relative overflow-hidden">
+      <div className="absolute inset-0 cloud-grid opacity-10 pointer-events-none" />
+      <div className="max-w-7xl mx-auto px-6 relative z-10">
+        <div className="text-center space-y-6 mb-24">
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="text-sm font-black text-brand-accent uppercase tracking-widest bg-brand-accent/10 px-6 py-2 rounded-full inline-block"
             >
-              {feature.icon}
-            </div>
-            <h4 className="text-2xl font-bold text-slate-900 mb-4">
-              {feature.title}
-            </h4>
-            <p className="text-slate-600 leading-relaxed font-medium">
-              {feature.desc}
-            </p>
-          </div>
-        ))}
+                Core Infrastructure
+            </motion.div>
+            <h3 className="text-4xl lg:text-8xl font-black tracking-tighter text-brand-secondary leading-[0.9]">
+                Enterprise Tools for <br />
+                <span className="text-brand-primary">Bulletproof Ops.</span>
+            </h3>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {FEATURES.map((feature, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              whileInView={{ opacity: 1, scale: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.1 }}
+              className="p-10 bg-white rounded-[60px] shadow-2xl hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.15)] hover:-translate-y-3 transition-all duration-500 group border border-brand-border"
+            >
+              <div className={`w-20 h-20 ${feature.color} rounded-[32px] flex items-center justify-center mb-10 shadow-xl group-hover:rotate-12 transition-all`}>
+                <feature.icon className={`w-10 h-10 ${feature.textColor}`} />
+              </div>
+              <h4 className="text-3xl font-black text-brand-secondary mb-4 tracking-tight leading-tight">{feature.title}</h4>
+              <p className="text-sm text-brand-muted font-bold leading-relaxed">{feature.desc}</p>
+            </motion.div>
+          ))}
+        </div>
       </div>
     </section>
   );

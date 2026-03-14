@@ -1,17 +1,16 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary-50: #eef2ff;
-  --color-primary-100: #e0e7ff;
-  --color-primary-200: #c7d2fe;
-  --color-primary-300: #a5b4fc;
-  --color-primary-400: #818cf8;
-  --color-primary-500: #6366f1;
-  --color-primary-600: #4f46e5;
-  --color-primary-700: #4338ca;
-  --color-primary-800: #3730a3;
-  --color-primary-900: #1e1b4b;
-  --color-primary-950: #111827;
+  /* Brand Colors - Illustrative Enterprise Theme (Inspired by Ojob) */
+  --color-brand-primary: #facc15;     /* Vibrant Amber */
+  --color-brand-primary-dark: #eab308;
+  --color-brand-secondary: #111111;   /* Deep Black */
+  --color-brand-accent: #ef4444;      /* Energetic Red */
+  --color-brand-bg: #ffffff;          /* Pure White */
+  --color-brand-surface: #f8fafc;
+  --color-brand-border: #e2e8f0;
+  --color-brand-text: #111111;
+  --color-brand-muted: #64748b;
 
   @keyframes fade-in-up {
     from {
@@ -24,54 +23,96 @@
     }
   }
 
+  @keyframes fade-in-right {
+    from {
+      opacity: 0;
+      transform: translateX(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
   @keyframes float {
     0%, 100% {
       transform: translateY(0);
     }
     50% {
-      transform: translateY(-10px);
-    }
-  }
-
-  @keyframes pulse-slow {
-    0%, 100% {
-      opacity: 1;
-    }
-    50% {
-      opacity: 0.8;
+      transform: translateY(-8px);
     }
   }
 }
 
 @utility animate-fade-in-up {
-  animation: fade-in-up 0.8s ease-out forwards;
+  animation: fade-in-up 0.6s ease-out forwards;
 }
 
-@utility animate-float {
-  animation: float 6s ease-in-out infinite;
+@utility animate-fade-in-right {
+  animation: fade-in-right 0.6s ease-out forwards;
 }
 
-@utility glass-header {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+@utility cloud-grid {
+  background-image:
+    radial-gradient(circle at 2px 2px, var(--color-brand-primary) 1px, transparent 0);
+  background-size: 40px 40px;
+  opacity: 0.15;
 }
 
 @utility glass-card {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  @apply bg-white/70 backdrop-blur-xl border border-white/50 shadow-2xl;
 }
 
+@utility outer-glow {
+  box-shadow: 0 0 50px -10px var(--color-brand-primary);
+}
+
+@utility oriented-rays {
+  background: radial-gradient(circle at top left, var(--color-brand-primary) 0%, transparent 70%);
+  opacity: 0.05;
+}
+
+@utility animate-float {
+  animation: float 5s ease-in-out infinite;
+}
+
+@utility glass-header {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--color-brand-border);
+}
+
+/* Custom Selection */
+::selection {
+  background-color: var(--color-brand-primary);
+  color: var(--color-brand-secondary);
+}
+
+/* Smooth Scrolling Custom Classes */
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-scrolling iframe {
+  pointer-events: none;
+}
 
 :root {
-  font-family: 'Outfit', 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Outfit', system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
   color-scheme: light;
-  color: #0f172a;
-  background-color: #f8fafc;
+  color: var(--color-brand-text);
+  background-color: var(--color-brand-bg);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -83,4 +124,5 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  background-color: var(--color-brand-bg);
 }

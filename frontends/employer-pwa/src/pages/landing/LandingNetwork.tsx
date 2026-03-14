@@ -1,60 +1,80 @@
 import { Link } from "react-router-dom";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, Globe2 } from "lucide-react";
 
 const VERIFICATION_STEPS = [
-  "Identity Verification",
-  "Skill Assessment",
-  "Reference Checks",
-  "Face Biometrics",
+  "Biometric Identity Verification",
+  "Blockchain Work History Ledger",
+  "Government-Record Criminal Checks",
+  "NQF-Aligned Skill Validation",
 ];
 
 export function LandingNetwork() {
   return (
-    <section className="py-32 px-6">
-      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-16 items-center">
-        {/* Image */}
-        <div className="w-full lg:w-1/2 rounded-3xl overflow-hidden shadow-2xl border-8 border-white">
-          <img
-            src="/assets/landing/workers-collage.png"
-            alt="Verified Workers"
-            className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-1000"
-          />
+    <section className="py-32 px-6 bg-white overflow-hidden">
+      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-24 items-center">
+        {/* Image - Using Hero Illustration for Group Feel */}
+        <div className="w-full lg:w-1/2 rounded-[60px] overflow-hidden shadow-2xl border-4 border-white group bg-brand-surface relative aspect-square">
+            <div className="absolute inset-0 bg-brand-primary/5 group-hover:bg-transparent transition-colors duration-500 z-10" />
+            <img
+                src="/images/indi_group.png"
+                alt="Verified Indian Workforce"
+                className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-[2000ms]"
+            />
+            {/* Overlay badge */}
+            <div className="absolute bottom-10 left-10 z-20 bg-brand-secondary text-brand-primary px-6 py-4 rounded-2xl font-black text-sm flex items-center gap-3 shadow-2xl border border-white/10">
+                <Globe2 className="w-5 h-5" />
+                PAN-INDIA VERIFICATION
+            </div>
         </div>
 
         {/* Copy */}
-        <div className="w-full lg:w-1/2 space-y-8">
-          <h3 className="text-4xl font-extrabold text-slate-900 leading-tight">
-            Elite Workforce Network,{" "}
-            <span className="text-indigo-600 underline decoration-indigo-200">
-              Pre-Vetted.
-            </span>
-          </h3>
-          <p className="text-lg text-slate-600 leading-relaxed font-medium">
-            We don't just provide workers; we provide a professional network.
-            Every worker on TrustHire passes a rigorous 4-step verification
-            process before they can even view your job postings.
-          </p>
-          <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="w-full lg:w-1/2 space-y-12">
+          <div className="space-y-6">
+            <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                className="text-sm font-black text-brand-accent uppercase tracking-widest"
+            >
+                Global Reach, Local Trust
+            </motion.div>
+            <h3 className="text-4xl lg:text-7xl font-black text-brand-secondary leading-[1] tracking-tighter">
+              Nationwide Force, <br />
+              <span className="text-brand-primary">Verified by Truth.</span>
+            </h3>
+            <p className="text-xl text-brand-muted leading-relaxed font-bold">
+              TrustHire provides access to the largest verified professional network in India. 
+              Our blockchain-backed identity layer ensures that every hire is safe, secure, 
+              and legally compliant.
+            </p>
+          </div>
+          
+          <ul className="grid grid-cols-1 sm:grid-cols-2 gap-8">
             {VERIFICATION_STEPS.map((item, i) => (
               <li
                 key={i}
-                className="flex items-center gap-3 font-bold text-slate-700"
+                className="flex items-center gap-4 font-black text-brand-secondary group text-sm"
               >
-                <div className="w-6 h-6 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center">
-                  <CheckCircle2 className="w-4 h-4" />
+                <div className="w-10 h-10 bg-brand-primary/10 text-brand-primary rounded-2xl flex items-center justify-center group-hover:bg-brand-primary group-hover:text-brand-secondary transition-all">
+                  <CheckCircle2 className="w-6 h-6 stroke-[3px]" />
                 </div>
                 {item}
               </li>
             ))}
           </ul>
-          <Link
-            to="/sign-up"
-            className="inline-block px-10 py-4 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl font-bold transition-all shadow-xl active:scale-95"
-          >
-            Access the Network
-          </Link>
+
+          <div className="pt-6">
+            <Link
+                to="/sign-up"
+                className="inline-block px-12 py-6 bg-brand-secondary text-brand-primary rounded-2xl font-black text-lg transition-all shadow-2xl hover:scale-105 active:scale-95"
+            >
+                Join the Network
+            </Link>
+          </div>
         </div>
       </div>
     </section>
   );
 }
+
+import { motion } from "framer-motion";

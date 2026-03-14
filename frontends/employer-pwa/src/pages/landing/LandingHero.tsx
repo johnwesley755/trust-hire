@@ -1,82 +1,147 @@
 import { Link } from "react-router-dom";
-import { CheckCircle2, Zap, ArrowRight, Star } from "lucide-react";
+import { motion } from "framer-motion";
+import { Search, ShieldCheck, Zap, TrendingUp } from "lucide-react";
+
+// Correct path to assets in public directory
+const HERO_ILLUSTRATION = "/images/indi_electrician.png";
 
 export function LandingHero() {
   return (
-    <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 px-6">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-        {/* Left: Copy */}
-        <div className="space-y-8 animate-fade-in-up">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-700 rounded-full text-sm font-bold border border-indigo-100 uppercase tracking-wider">
-            <Zap className="w-4 h-4" />
-            Revolutionizing Hiring
-          </div>
-          <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 leading-[1.1] tracking-tight">
-            Hire{" "}
-            <span className="bg-linear-to-r from-indigo-600 to-blue-500 bg-clip-text text-transparent">
-              Verified
-            </span>{" "}
-            Professionals{" "}
-            <span className="text-indigo-600">Instantly.</span>
-          </h1>
-          <p className="text-xl text-slate-600 max-w-lg leading-relaxed">
-            India's first premium platform for business owners. Aadhaar
-            verified, face-matched, and performance-rated workers at your
-            fingertips.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4">
+    <section className="relative pt-32 pb-20 overflow-hidden bg-white min-h-[90vh] flex items-center">
+      {/* Background Oriented Pattern */}
+      <div className="absolute inset-0 cloud-grid opacity-10 pointer-events-none" />
+      <div className="absolute top-0 right-0 w-3/4 h-full oriented-rays pointer-events-none opacity-20" />
+      
+      <div className="max-w-7xl mx-auto px-6 flex flex-col lg:flex-row items-center gap-12 relative z-10 w-full">
+        {/* Left Content */}
+        <div className="w-full lg:w-1/2 space-y-10 text-center lg:text-left">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="inline-flex items-center gap-2 bg-brand-primary/15 border border-brand-primary/20 px-4 py-2 rounded-full shadow-sm"
+          >
+            <ShieldCheck className="w-4 h-4 text-brand-primary" />
+            <span className="text-sm font-black text-brand-secondary">Blockchain-Verified Talent Pool</span>
+          </motion.div>
+
+          <motion.h1
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-6xl lg:text-8xl font-black text-brand-secondary leading-[1.05] tracking-tighter"
+          >
+            Hire with <br />
+            <span className="text-brand-primary relative inline-block">
+                Absolute Trust.
+              <motion.div 
+                className="absolute -bottom-2 left-0 right-0 h-4 bg-brand-primary/20 -z-10"
+                initial={{ width: 0 }}
+                animate={{ width: "100%" }}
+                transition={{ delay: 0.6, duration: 0.8 }}
+              />
+            </span> <br />
+            Scale Faster.
+          </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="text-lg md:text-xl text-brand-muted max-w-xl mx-auto lg:mx-0 font-bold leading-relaxed"
+          >
+            TrustHire bridges the gap between top Indian professionals and global enterprises through a secure, blockchain-verified ecosystem. Find, verify, and deploy in clicks.
+          </motion.p>
+
+          {/* Search Mock */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="relative flex items-center p-2 bg-white rounded-3xl shadow-2xl border border-brand-border group hover:border-brand-primary transition-all duration-300"
+          >
+            <div className="flex-1 flex items-center gap-3 px-4 text-left">
+              <Search className="text-brand-muted w-6 h-6" />
+              <div className="flex flex-col flex-1">
+                <span className="text-[10px] uppercase font-black text-brand-muted">Search Skilled Talent</span>
+                <input
+                    type="text"
+                    placeholder="Electrician, Supervisor, Engineer..."
+                    className="w-full outline-none text-brand-text font-black text-lg bg-transparent border-none placeholder:text-brand-muted/40"
+                />
+              </div>
+            </div>
+            <div className="w-px h-10 bg-brand-border" />
             <Link
               to="/sign-up"
-              className="px-8 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold text-lg transition-all shadow-[0_20px_50px_rgba(79,70,229,0.3)] hover:-translate-y-1 flex items-center justify-center gap-2 group"
+              className="bg-brand-secondary text-brand-primary p-4 rounded-2xl hover:scale-105 active:scale-95 transition-all shadow-lg shadow-brand-primary/20"
             >
-              Start Hiring Now
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              <Search className="w-7 h-7 stroke-[3px]" />
             </Link>
-            <div className="flex -space-x-3 items-center ml-4">
-              {[1, 2, 3, 4].map((i) => (
-                <div
-                  key={i}
-                  className="w-12 h-12 rounded-full border-4 border-white overflow-hidden bg-slate-200"
-                >
-                  <img src={`https://i.pravatar.cc/150?u=${i + 20}`} alt="user" />
+          </motion.div>
+          
+          <div className="flex flex-wrap items-center justify-center lg:justify-start gap-8 pt-4">
+            <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-brand-surface rounded-xl flex items-center justify-center text-brand-primary">
+                    <Zap className="w-5 h-5 fill-current" />
                 </div>
-              ))}
-              <div className="pl-6 text-sm">
-                <div className="flex text-amber-500 mb-0.5">
-                  {[1, 2, 3, 4, 5].map((s) => (
-                    <Star key={s} className="w-3 h-3 fill-current" />
-                  ))}
+                <div className="text-left">
+                    <div className="text-xs font-black text-brand-secondary uppercase">Instant Match</div>
+                    <div className="text-[10px] font-bold text-brand-muted">AI-Powered Scoring</div>
                 </div>
-                <p className="text-slate-600 font-medium">
-                  Trusted by 500+ Businesses
-                </p>
-              </div>
+            </div>
+            <div className="w-px h-10 bg-brand-border hidden sm:block" />
+            <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-brand-surface rounded-xl flex items-center justify-center text-brand-accent">
+                    <TrendingUp className="w-5 h-5" />
+                </div>
+                <div className="text-left">
+                    <div className="text-xs font-black text-brand-secondary uppercase">Scalable Fleet</div>
+                    <div className="text-[10px] font-bold text-brand-muted">Verified History</div>
+                </div>
             </div>
           </div>
         </div>
 
-        {/* Right: Visual */}
-        <div className="relative animate-float">
-          <div className="absolute -inset-4 bg-indigo-500/10 rounded-[2.5rem] blur-3xl" />
-          <div className="relative bg-white p-4 rounded-[2.5rem] shadow-2xl border border-white/20">
-            <img
-              src="/assets/landing/hero-visual.png"
-              alt="TrustHire Platform"
-              className="rounded-[1.8rem] w-full shadow-inner"
-            />
-          </div>
-          {/* Floating Stat */}
-          <div className="absolute -bottom-6 -left-6 bg-white p-5 rounded-3xl shadow-xl border border-slate-100 flex items-center gap-4 animate-fade-in-up">
-            <div className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center">
-              <CheckCircle2 className="w-7 h-7" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-slate-900">100%</p>
-              <p className="text-xs font-bold text-slate-500 uppercase">
-                Verification Rate
-              </p>
-            </div>
-          </div>
+        {/* Right Content - Full Width Illustration Integration */}
+        <div className="w-full lg:w-1/2 relative min-h-[500px] flex items-center justify-center">
+            <motion.div 
+                className="relative z-10 w-full"
+                initial={{ x: 50, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ duration: 1, ease: "easeOut" }}
+            >
+                <img 
+                    src={HERO_ILLUSTRATION} 
+                    alt="Indian Professional Electrician" 
+                    className="w-full h-auto drop-shadow-[0_80px_100px_rgba(250,204,21,0.3)] animate-float rounded-full border-[12px] border-white/40 backdrop-blur-sm"
+                />
+            </motion.div>
+
+            {/* Floating Talent Card */}
+            <motion.div
+                className="absolute top-10 right-0 p-5 glass-card rounded-[32px] z-20 w-72 translate-x-12 hidden md:block border-2 border-brand-primary/20"
+                animate={{ y: [0, -25, 0] }}
+                transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
+            >
+                <div className="flex items-center gap-4">
+                    <div className="w-14 h-14 bg-brand-primary rounded-2xl flex items-center justify-center text-brand-secondary font-black overflow-hidden border-2 border-white shadow-md">
+                        <img src="/images/indi_electrician.png" alt="Arjun V." className="w-full h-full object-cover" />
+                    </div>
+                    <div className="text-left">
+                        <h4 className="font-black text-brand-secondary text-base">Arjun Varma</h4>
+                        <div className="flex items-center gap-1 text-[10px] text-brand-muted font-bold">
+                            <span className="text-brand-accent font-black tracking-tighter">MASTER ELECTRICIAN</span>
+                        </div>
+                    </div>
+                </div>
+                <div className="mt-5 pt-4 border-t border-brand-border flex items-center justify-between">
+                    <div>
+                        <div className="text-[10px] font-black text-brand-muted uppercase">Trust Score</div>
+                        <div className="text-lg font-black text-brand-primary">99.8%</div>
+                    </div>
+                    <div className="px-4 py-2 bg-brand-secondary text-brand-primary rounded-xl text-[10px] font-black uppercase tracking-tight shadow-lg">Verified</div>
+                </div>
+            </motion.div>
         </div>
       </div>
     </section>
