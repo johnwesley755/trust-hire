@@ -4,6 +4,8 @@ import { AuthProvider } from './providers/AuthContext'
 import { QueryProvider } from './providers/QueryProvider.tsx'
 import { SocketProvider } from './providers/SocketProvider.tsx'
 import './index.css'
+import './i18n'
+import { LanguageProvider } from './providers/LanguageContext'
 import App from './App.tsx'
 
 createRoot(document.getElementById('root')!).render(
@@ -11,7 +13,9 @@ createRoot(document.getElementById('root')!).render(
     <AuthProvider>
       <QueryProvider>
         <SocketProvider>
-          <App />
+          <LanguageProvider>
+            <App />
+          </LanguageProvider>
         </SocketProvider>
       </QueryProvider>
     </AuthProvider>

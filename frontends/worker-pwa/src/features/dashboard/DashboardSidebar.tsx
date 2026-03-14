@@ -3,18 +3,20 @@ import { useUser } from "../../providers/AuthContext";
 import { UserButton } from "../../components/UserButton";
 import { useNavigate, useLocation } from 'react-router-dom';
 import { NotificationCenter } from '../notifications/NotificationCenter';
+import { useLanguage } from '../../hooks/useLanguage';
 
 export const DashboardSidebar = () => {
     const { user } = useUser();
     const navigate = useNavigate();
     const location = useLocation();
+    const { t } = useLanguage();
     
     const menuItems = [
-        { name: 'Dashboard', icon: <LayoutDashboard className="w-5 h-5" />, path: '/dashboard' },
-        { name: 'Find Jobs', icon: <Search className="w-5 h-5" />, path: '/search' },
-        { name: 'Skill Tests', icon: <Award className="w-5 h-5" />, path: '/tests' },
-        { name: 'My History', icon: <Briefcase className="w-5 h-5" />, path: '/history' },
-        { name: 'My Profile', icon: <UserIcon className="w-5 h-5" />, path: '/profile' },
+        { name: t('sidebar.dashboard'), icon: <LayoutDashboard className="w-5 h-5" />, path: '/dashboard' },
+        { name: t('sidebar.findJobs'), icon: <Search className="w-5 h-5" />, path: '/search' },
+        { name: t('sidebar.skillTests'), icon: <Award className="w-5 h-5" />, path: '/tests' },
+        { name: t('sidebar.history'), icon: <Briefcase className="w-5 h-5" />, path: '/history' },
+        { name: t('sidebar.profile'), icon: <UserIcon className="w-5 h-5" />, path: '/profile' },
     ];
 
     return (
@@ -51,7 +53,7 @@ export const DashboardSidebar = () => {
                     <UserButton />
                     <div className="overflow-hidden">
                         <p className="text-sm font-bold truncate text-slate-900">{user?.firstName || 'Worker'}</p>
-                        <p className="text-[10px] font-black uppercase tracking-widest text-primary-600">Professional</p>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-primary-600">{t('sidebar.professional')}</p>
                     </div>
                 </div>
                 <NotificationCenter />

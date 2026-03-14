@@ -1,6 +1,7 @@
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import React, { useRef } from "react";
 import { Zap, ShieldCheck, Target, Sparkles } from "lucide-react";
+import { useLanguage } from "../../hooks/useLanguage";
 
 interface Benefit {
   title: string;
@@ -12,38 +13,39 @@ interface Benefit {
   accent: string;
 }
 
-const benefits: Benefit[] = [
-  {
-    title: "Premium Earnings",
-    description: "Verified pros earn up to 40% more than market rates. No middlemen, no hidden cuts. Get paid what you're actually worth, directly to your bank.",
-    icon: <Zap className="w-10 h-10" />,
-    badge: "UP TO 40% MORE",
-    color: "bg-[#f9f8f4] text-brand-teal",
-    illustration: "/assets/landing/trusthyre-worker.png",
-    accent: "bg-brand-amber/10"
-  },
-  {
-    title: "Reputation Score",
-    description: "Each job builds your verified work history on the blockchain. Higher ratings unlock bigger corporate contracts and priority matching.",
-    icon: <ShieldCheck className="w-10 h-10" />,
-    badge: "BLOCKCHAIN SECURED",
-    color: "bg-brand-teal text-white",
-    illustration: "/assets/landing/worker-master.png",
-    accent: "bg-white/10"
-  },
-  {
-    title: "Smart Job Matching",
-    description: "Our AI engine finds jobs that match your exact skills and location. No more searching, just notified and apply with one tap.",
-    icon: <Target className="w-10 h-10" />,
-    badge: "AI-POWERED MATCH",
-    color: "bg-brand-amber text-brand-teal",
-    illustration: "/assets/landing/success-worker.png",
-    accent: "bg-black/10"
-  }
-];
-
 export function LandingBenefits() {
   const containerRef = useRef(null);
+  const { t } = useLanguage();
+
+  const translatedBenefits: Benefit[] = [
+    {
+      title: t('benefits.points.1.title'),
+      description: t('benefits.points.1.desc'),
+      icon: <Zap className="w-10 h-10" />,
+      badge: t('benefits.points.1.badge'),
+      color: "bg-[#f9f8f4] text-brand-teal",
+      illustration: "/assets/landing/trusthyre-worker.png",
+      accent: "bg-brand-amber/10"
+    },
+    {
+      title: t('benefits.points.2.title'),
+      description: t('benefits.points.2.desc'),
+      icon: <ShieldCheck className="w-10 h-10" />,
+      badge: t('benefits.points.2.badge'),
+      color: "bg-brand-teal text-white",
+      illustration: "/assets/landing/worker-master.png",
+      accent: "bg-white/10"
+    },
+    {
+      title: t('benefits.points.3.title'),
+      description: t('benefits.points.3.desc'),
+      icon: <Target className="w-10 h-10" />,
+      badge: t('benefits.points.3.badge'),
+      color: "bg-brand-amber text-brand-teal",
+      illustration: "/assets/landing/success-worker.png",
+      accent: "bg-black/10"
+    }
+  ];
 
   return (
     <section 
@@ -62,20 +64,20 @@ export function LandingBenefits() {
         >
           <div className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-brand-amber/10 border border-brand-amber/20 text-brand-amber text-xs font-black uppercase tracking-[0.3em] mb-8">
             <Sparkles size={16} className="animate-pulse" />
-            <span>The TrustHire Advantage</span>
+            <span>{t('benefits.badge')}</span>
           </div>
           <h2 className="text-6xl sm:text-7xl lg:text-[100px] font-black text-brand-teal leading-[0.9] tracking-tighter mb-8">
-            Better Jobs.<br />
-            <span className="text-brand-amber">Better Life.</span>
+            {t('benefits.title')}<br />
+            <span className="text-brand-amber">{t('benefits.title.accent')}</span>
           </h2>
           <p className="text-xl sm:text-2xl text-brand-muted font-medium leading-relaxed max-w-2xl mx-auto">
-            Experience the next generation of professional field work. Full transparency, instant payouts, and a career path that belongs to you.
+            {t('benefits.subtitle')}
           </p>
         </motion.div>
 
         {/* Layered Stack (Deck of Cards) */}
         <div className="space-y-32 lg:space-y-0 relative">
-          {benefits.map((benefit, index) => (
+          {translatedBenefits.map((benefit, index) => (
             <div key={index} className="lg:h-screen lg:sticky lg:top-0 flex items-center justify-center py-10 lg:py-0">
               <BenefitCard benefit={benefit} isFirst={index === 0} />
             </div>
@@ -92,6 +94,7 @@ export function LandingBenefits() {
 
 function BenefitCard({ benefit, isFirst }: { benefit: Benefit, isFirst: boolean }) {
   const cardRef = useRef(null);
+  const { t } = useLanguage();
   const { scrollYProgress } = useScroll({
     target: cardRef,
     offset: ["start end", "end start"]
@@ -164,7 +167,7 @@ function BenefitCard({ benefit, isFirst }: { benefit: Benefit, isFirst: boolean 
 
         {/* Feature Points */}
         <div className="flex flex-wrap gap-3">
-           {["Direct Bank Payout", "Zero Commission", "24/7 Support"].map((tag, i) => (
+           {[t('benefits.tags.1'), t('benefits.tags.2'), t('benefits.tags.3')].map((tag, i) => (
              <div key={i} className="px-5 py-2.5 rounded-xl bg-black/5 text-[10px] font-bold uppercase tracking-[0.15em]">{tag}</div>
            ))}
         </div>

@@ -1,36 +1,39 @@
 import { motion } from "framer-motion";
 import { Star, Quote } from "lucide-react";
-
-const TESTIMONIALS = [
-  {
-    name: "Rajesh Kumar",
-    role: "L3 Senior Mason",
-    location: "Mumbai",
-    quote: "TrustPro changed how I find work. Before, I was waiting for contractors to call. Now, I have verified jobs lined up for the whole month, and the pay is always on time.",
-    rating: 5,
-    image: "https://i.pravatar.cc/150?u=rajesh",
-  },
-  {
-    name: "Anita Desai",
-    role: "L2 Verified Chef",
-    location: "Pune",
-    quote: "The instant bank payouts are a lifesaver. I don't have to chase managers for my daily wages anymore. Everything is transparent and right on my phone.",
-    rating: 5,
-    image: "https://i.pravatar.cc/150?u=anita",
-  },
-  {
-    name: "Vikram Singh",
-    role: "L4 Master Electrician",
-    location: "Delhi",
-    quote: "Being an L4 Master gets me priority on large corporate projects. The respect and pay scale I get through this platform is unmatched in the industry.",
-    rating: 5,
-    image: "https://i.pravatar.cc/150?u=vikram",
-  },
-];
+import { useLanguage } from "../../hooks/useLanguage";
 
 export function LandingTestimonials() {
+  const { t } = useLanguage();
+
+  const TESTIMONIALS = [
+    {
+      name: t('testimonials.1.name'),
+      role: t('testimonials.1.role'),
+      location: t('testimonials.1.location'),
+      quote: t('testimonials.1.quote'),
+      rating: 5,
+      image: "https://i.pravatar.cc/150?u=rajesh",
+    },
+    {
+      name: t('testimonials.2.name'),
+      role: t('testimonials.2.role'),
+      location: t('testimonials.2.location'),
+      quote: t('testimonials.2.quote'),
+      rating: 5,
+      image: "https://i.pravatar.cc/150?u=anita",
+    },
+    {
+      name: t('testimonials.3.name'),
+      role: t('testimonials.3.role'),
+      location: t('testimonials.3.location'),
+      quote: t('testimonials.3.quote'),
+      rating: 5,
+      image: "https://i.pravatar.cc/150?u=vikram",
+    },
+  ];
+
   return (
-    <section className="py-28 bg-[#1d4744] text-white relative overflow-hidden">
+    <section className="py-28 bg-brand-teal text-white relative overflow-hidden">
       {/* Background Decorative Pattern */}
       <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 5px 5px, rgba(255,255,255,0.8) 2px, transparent 2px)', backgroundSize: '30px 30px' }} />
       
@@ -43,11 +46,11 @@ export function LandingTestimonials() {
           className="text-center mb-12 sm:mb-16 px-4"
         >
           <span className="text-brand-amber font-black text-xs sm:text-sm uppercase tracking-[0.2em]">
-            Worker Stories
+            {t('testimonials.badge')}
           </span>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-black mt-3 leading-tight">
-            Trusted by thousands of <br className="hidden sm:block" />
-            <span className="text-brand-amber">verified professionals.</span>
+            {t('testimonials.title')} <br className="hidden sm:block" />
+            <span className="text-brand-amber">{t('testimonials.accent')}</span>
           </h2>
         </motion.div>
 
@@ -61,15 +64,15 @@ export function LandingTestimonials() {
               transition={{ delay: i * 0.2, duration: 0.6 }}
               className="bg-white/10 backdrop-blur-md rounded-3xl p-8 border border-white/10 flex flex-col relative"
             >
-              <Quote className="absolute top-6 right-6 w-12 h-12 text-[#f0b429]/20" />
+              <Quote className="absolute top-6 right-6 w-12 h-12 text-brand-amber/20" />
               
               <div className="flex gap-1 mb-6">
                 {[...Array(t.rating)].map((_, i) => (
-                  <Star key={i} className="w-5 h-5 fill-[#f0b429] text-[#f0b429]" />
+                  <Star key={i} className="w-5 h-5 fill-brand-amber text-brand-amber" />
                 ))}
               </div>
               
-              <p className="text-white/90 text-lg font-medium leading-relaxed mb-8 flex-grow">
+              <p className="text-white/90 text-lg font-medium leading-relaxed mb-8 grow">
                 "{t.quote}"
               </p>
               
@@ -77,11 +80,11 @@ export function LandingTestimonials() {
                 <img 
                   src={t.image} 
                   alt={t.name}
-                  className="w-14 h-14 rounded-full border-2 border-[#f0b429] object-cover"
+                  className="w-14 h-14 rounded-full border-2 border-brand-amber object-cover"
                 />
                 <div>
                   <h4 className="font-black text-base">{t.name}</h4>
-                  <p className="text-[#f0b429] text-sm font-bold">{t.role} <span className="text-white/50 font-medium">· {t.location}</span></p>
+                  <p className="text-brand-amber text-sm font-bold">{t.role} <span className="text-white/50 font-medium">· {t.location}</span></p>
                 </div>
               </div>
             </motion.div>

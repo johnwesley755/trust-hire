@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { searchJobs } from '../api/search.service';
 import { profileService } from '../api/profile.service';
 import { useNavigate } from 'react-router-dom';
+import { useLanguage } from '../hooks/useLanguage';
 
 import { NotificationCenter } from '../features/notifications/NotificationCenter';
 
@@ -12,6 +13,7 @@ import { useState, useEffect } from 'react';
 
 export default function DashboardPage() {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [coords, setCoords] = useState<{lat: number, lon: number} | null>(null);
 
   useEffect(() => {
@@ -50,8 +52,8 @@ export default function DashboardPage() {
         <main className="p-6 md:p-10 max-w-7xl mx-auto w-full space-y-8 animate-in slide-in-from-bottom duration-500 pb-24 md:pb-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             <div className="lg:col-span-12">
-               <h1 className="text-3xl font-black tracking-tight mb-2 hidden md:block">Worker Dashboard</h1>
-               <p className="text-slate-500 hidden md:block mb-8 font-medium italic">Welcome back! Here are the latest opportunities for you.</p>
+               <h1 className="text-3xl font-black tracking-tight mb-2 hidden md:block">{t('dashboard.title')}</h1>
+               <p className="text-slate-500 hidden md:block mb-8 font-medium italic">{t('dashboard.welcome')}</p>
             </div>
             
             <div className="lg:col-span-4 space-y-8">
@@ -61,12 +63,12 @@ export default function DashboardPage() {
 
             <section className="lg:col-span-8 space-y-6">
               <div className="flex justify-between items-end">
-                <h3 className="text-xl font-black tracking-tight">Jobs Near You</h3>
+                <h3 className="text-xl font-black tracking-tight">{t('dashboard.jobsNearYou')}</h3>
                 <button 
                   onClick={() => navigate('/search')}
                   className="text-[10px] text-primary-600 font-black uppercase tracking-widest cursor-pointer hover:underline"
                 >
-                  View All
+                  {t('dashboard.viewAll')}
                 </button>
               </div>
               
@@ -84,13 +86,13 @@ export default function DashboardPage() {
                       onClick={() => navigate(`/job/${job.jobId}`)}
                       className="w-full py-3 bg-primary-600 text-white rounded-2xl font-bold active:scale-95 transition-all text-sm cursor-pointer shadow-lg shadow-primary-600/20 hover:bg-primary-700"
                     >
-                      Quick Apply
+                      {t('dashboard.quickApply')}
                     </button>
                   </div>
                 ))}
                 {(!jobs || jobs.length === 0) && (
                   <div className="col-span-full p-12 rounded-4xl bg-white border border-dashed border-slate-200 text-center">
-                    <p className="text-slate-500 italic">No jobs found nearby.</p>
+                    <p className="text-slate-500 italic">{t('dashboard.noJobs')}</p>
                   </div>
                 )}
               </div>

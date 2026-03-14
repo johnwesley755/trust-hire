@@ -18,51 +18,54 @@ import {
   Briefcase, 
   Smartphone
 } from "lucide-react";
-
-const STEPS = [
-  {
-    num: "01",
-    title: "Aadhaar Face Match",
-    desc: "Privacy-first verification using SHA-256 hashing. Your data is encrypted and secure.",
-  },
-  {
-    num: "02",
-    title: "L1 Certification",
-    desc: "Pass a quick skill assessment to earn your 🌱 Beginner badge and unlock job discovery.",
-  },
-  {
-    num: "03",
-    title: "Hyperlocal Match",
-    desc: "AI-driven matching finds jobs with high-trust employers within 5-50km of you.",
-  },
-  {
-    num: "04",
-    title: "Instant Settlement",
-    desc: "Complete the job and receive your salary directly to your bank via digital settlement.",
-  },
-];
-
-const PERKS = [
-  "L4 Elite Pay Bands (₹25k+)",
-  "Accidental Insurance Cover",
-  "Smart Rating-based Hikes",
-  "Digitally Signed Contracts",
-];
-
-const TRUST_POINTS = [
-  { icon: <ShieldAlert className="w-5 h-5" />, title: "SHA-256 Privacy", desc: "We never store your full Aadhaar number. Only masked tokens are used." },
-  { icon: <UserCheck className="w-5 h-5" />, title: "AI Face Liveness", desc: "Advanced biometric matching ensure zero fake profiles on the platform." },
-  { icon: <BadgeCheck className="w-5 h-5" />, title: "L1-L4 Badging", desc: "Build a reputation that employers trust. Higher levels = Higher daily payout." },
-];
-
-const TIMELINE = [
-  { time: "5 PM", event: "Work Done", icon: <Hammer className="w-4 h-4" /> },
-  { time: "6 PM", event: "Employer Check", icon: <UserCheck className="w-4 h-4" /> },
-  { time: "8 PM", event: "Money in Bank", icon: <CircleDollarSign className="w-4 h-4 text-green-500" /> },
-];
+import { useLanguage } from "../../hooks/useLanguage";
 
 export function LandingEarnings() {
+  const { t } = useLanguage();
   const containerRef = useRef(null);
+
+  const STEPS = [
+    {
+      num: "01",
+      title: t('earnings.step.1.title'),
+      desc: t('earnings.step.1.desc'),
+    },
+    {
+      num: "02",
+      title: t('earnings.step.2.title'),
+      desc: t('earnings.step.2.desc'),
+    },
+    {
+      num: "03",
+      title: t('earnings.step.3.title'),
+      desc: t('earnings.step.3.desc'),
+    },
+    {
+      num: "04",
+      title: t('earnings.step.4.title'),
+      desc: t('earnings.step.4.desc'),
+    },
+  ];
+
+  const PERKS = [
+    t('earnings.perk.1'),
+    t('earnings.perk.2'),
+    t('earnings.perk.3'),
+    t('earnings.perk.4'),
+  ];
+
+  const TRUST_POINTS = [
+    { icon: <ShieldAlert className="w-5 h-5" />, title: t('earnings.trust.point.1.title'), desc: t('earnings.trust.point.1.desc') },
+    { icon: <UserCheck className="w-5 h-5" />, title: t('earnings.trust.point.2.title'), desc: t('earnings.trust.point.2.desc') },
+    { icon: <BadgeCheck className="w-5 h-5" />, title: t('earnings.trust.point.3.title'), desc: t('earnings.trust.point.3.desc') },
+  ];
+
+  const TIMELINE = [
+    { time: t('earnings.timeline.1.time'), event: t('earnings.timeline.1.event'), icon: <Hammer className="w-4 h-4" /> },
+    { time: t('earnings.timeline.2.time'), event: t('earnings.timeline.2.event'), icon: <UserCheck className="w-4 h-4" /> },
+    { time: t('earnings.timeline.3.time'), event: t('earnings.timeline.3.event'), icon: <CircleDollarSign className="w-4 h-4 text-green-500" /> },
+  ];
+
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start end", "end start"]
@@ -92,7 +95,7 @@ export function LandingEarnings() {
         className="absolute bottom-10 left-[10%] w-[400px] h-[400px] bg-linear-to-tr from-brand-amber/15 to-transparent rounded-full blur-[100px] z-0" 
       />
 
-      {/* ── Background Icon Ecosystem: ENHANCED VISIBILITY ── */}
+      {/* ── Background Icon Ecosystem ── */}
       <div className="absolute inset-0 pointer-events-none">
         <motion.div style={{ y: iconY1 }} className="absolute top-[10%] right-[15%] text-brand-teal/15 rotate-12">
           <CircleDollarSign size={200} />
@@ -119,12 +122,12 @@ export function LandingEarnings() {
             >
               <span className="inline-flex items-center gap-2 text-brand-amber font-black text-[10px] sm:text-xs uppercase tracking-[0.3em] mb-4 sm:mb-6 bg-white shadow-sm border border-brand-amber/20 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full">
                 <Zap className="w-3 h-3 fill-current" />
-                Simple Process
+                {t('earnings.badge')}
               </span>
               <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-black text-[#111] leading-[1.1] tracking-tight">
-                Start earning in{" "}
+                {t('earnings.title')}{" "}
                 <span className="text-brand-teal relative inline-block">
-                  4 steps
+                  {t('earnings.title.steps')}
                   <motion.svg 
                     initial={{ pathLength: 0 }}
                     whileInView={{ pathLength: 1 }}
@@ -173,10 +176,10 @@ export function LandingEarnings() {
             </motion.div>
           </div>
 
-          {/* Right Column: Visual Composition - OPTIMIZED FOR MOBILE STACKING */}
+          {/* Right Column: Visual Composition */}
           <div className="relative h-auto lg:h-[800px] flex flex-col items-center justify-center pt-20 lg:pt-0">
             
-            {/* Background Decorative Icons - REDUCED ON MOBILE */}
+            {/* Background Decorative Icons */}
             <motion.div style={{ y: iconY1 }} className="absolute -top-[5%] left-[5%] text-brand-teal/20 -rotate-12 hidden sm:block">
               <HardHat className="w-16 h-16 lg:w-[90px] lg:h-[90px]" strokeWidth={0.5} />
             </motion.div>
@@ -187,7 +190,7 @@ export function LandingEarnings() {
               <Smartphone className="w-16 h-16 lg:w-[110px] lg:h-[110px]" strokeWidth={0.5} />
             </motion.div>
             
-            {/* Main Central Image with Parallax & Stylized Container */}
+            {/* Main Central Image */}
             <motion.div
               style={{ y: window.innerWidth >= 1024 ? workerY : 0 }}
               initial={{ opacity: 0, scale: 0.9 }}
@@ -204,7 +207,7 @@ export function LandingEarnings() {
               <div className="absolute inset-0 bg-linear-to-t from-black/30 via-transparent to-transparent pointer-events-none" />
             </motion.div>
 
-            {/* Floating Cards & Badges - RE-STACKED FOR MOBILE */}
+            {/* Floating Cards & Badges */}
             <div className="flex flex-col sm:flex-row lg:block gap-6 w-full lg:static">
               
               {/* Glassmorphism Earnings Card */}
@@ -219,14 +222,14 @@ export function LandingEarnings() {
                     <Wallet size={20} className="sm:w-6 sm:h-6" strokeWidth={2.5} />
                   </span>
                   <div>
-                    <span className="text-[10px] font-black uppercase tracking-[1.5px] text-brand-teal/60 block">Daily Wallet</span>
-                    <span className="text-[10px] sm:text-xs font-bold text-[#111]">Updated Live</span>
+                    <span className="text-[10px] font-black uppercase tracking-[1.5px] text-brand-teal/60 block">{t('earnings.card.wallet')}</span>
+                    <span className="text-[10px] sm:text-xs font-bold text-[#111]">{t('earnings.card.status')}</span>
                   </div>
                 </div>
                 <h3 className="text-4xl sm:text-6xl font-black text-[#111] mb-2 tracking-tighter">₹2,450</h3>
                 <div className="flex items-center gap-2 mb-6 sm:mb-8 bg-green-50 py-1.5 px-3 rounded-lg sm:rounded-xl w-fit">
                   <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                  <p className="text-[10px] font-black text-green-700 uppercase tracking-wider">Settled to Bank</p>
+                  <p className="text-[10px] font-black text-green-700 uppercase tracking-wider">{t('earnings.card.settled')}</p>
                 </div>
                 <div className="grid grid-cols-2 lg:grid-cols-1 gap-3 sm:gap-4">
                   {PERKS.map((perk, i) => (
@@ -251,7 +254,7 @@ export function LandingEarnings() {
                   </div>
                   <div>
                     <p className="text-2xl sm:text-3xl font-black leading-none mb-1 text-white">94%</p>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-[#111]/80">Retention</p>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-[#111]/80">{t('earnings.retention')}</p>
                   </div>
                 </motion.div>
 
@@ -266,22 +269,22 @@ export function LandingEarnings() {
                     <ShieldCheck className="w-7 h-7 sm:w-8 sm:h-8" />
                   </div>
                   <div>
-                    <p className="text-sm sm:text-base font-black text-[#111] leading-none mb-1">L1 Professional</p>
-                    <p className="text-[9px] sm:text-[11px] text-[#888] font-black uppercase tracking-widest">Skill Verified</p>
+                    <p className="text-sm sm:text-base font-black text-[#111] leading-none mb-1">{t('earnings.badge.l1')}</p>
+                    <p className="text-[9px] sm:text-[11px] text-[#888] font-black uppercase tracking-widest">{t('earnings.badge.verified')}</p>
                   </div>
                 </motion.div>
               </div>
 
             </div>
 
-            {/* Abstract Decorative Circles - HIDDEN ON MOBILE */}
+            {/* Abstract Decorative Circles */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] border border-brand-teal/5 rounded-full z-0 hidden lg:block" />
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[900px] border border-brand-teal/3 rounded-full z-0 hidden lg:block" />
 
           </div>
         </div>
 
-        {/* ── NEW: Expanded Trust & Timeline Sections ── */}
+        {/* ── Trust & Timeline Sections ── */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-20">
           
           {/* Trust Points Grid */}
@@ -291,7 +294,10 @@ export function LandingEarnings() {
             viewport={{ once: true }}
             className="space-y-6 bg-white p-10 lg:p-14 rounded-[48px] shadow-xl shadow-brand-teal/5 border border-brand-teal/5"
           >
-            <h3 className="text-2xl lg:text-3xl font-black text-[#111] mb-8">Why 50,000+ workers <span className="text-brand-teal">trust us</span></h3>
+            <h3 className="text-2xl lg:text-3xl font-black text-[#111] mb-8">
+              {t('earnings.trust.title')}{" "}
+              <span className="text-brand-teal">{t('earnings.trust.accent')}</span>
+            </h3>
             <div className="grid gap-8">
               {TRUST_POINTS.map((point, i) => (
                 <div key={i} className="flex gap-6 items-start group">
@@ -318,7 +324,10 @@ export function LandingEarnings() {
             {/* Background pattern for timeline */}
             <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(white 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
             
-            <h3 className="text-2xl lg:text-3xl font-black mb-10">Same-Day Payout <span className="text-brand-amber">Cycle</span></h3>
+            <h3 className="text-2xl lg:text-3xl font-black mb-10">
+              {t('earnings.timeline.title')}{" "}
+              <span className="text-brand-amber">{t('earnings.timeline.accent')}</span>
+            </h3>
             
             <div className="relative space-y-12">
               {/* Vertical dotted line */}
@@ -346,7 +355,7 @@ export function LandingEarnings() {
                   <Zap size={20} fill="currentColor" />
                 </div>
                 <p className="text-xs font-bold leading-relaxed opacity-80">
-                  Join the Waitlist to get exclusive early access to Instant Digital Settlements.
+                  {t('earnings.timeline.footer')}
                 </p>
               </div>
             </div>

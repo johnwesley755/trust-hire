@@ -16,10 +16,19 @@ import {
   MapPin
 } from "lucide-react";
 import { motion, useScroll, useTransform, useMotionValue, useSpring } from "framer-motion";
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
+import { useLanguage } from "../../hooks/useLanguage";
 
 export function LandingHero() {
+  const [isLoading, setIsLoading] = useState(true);
   const containerRef = useRef(null);
+  const { t } = useLanguage();
+
+  useEffect(() => {
+    // Simulate loading time for the "premium" feel
+    const timer = setTimeout(() => setIsLoading(false), 2000);
+    return () => clearTimeout(timer);
+  }, []);
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end start"]
@@ -50,18 +59,46 @@ export function LandingHero() {
   return (
     <section ref={containerRef} className="relative z-10 w-full overflow-hidden bg-brand-cream pt-28 lg:pt-32 pb-12 min-h-svh flex flex-col justify-center">
       
+      {/* ── Premium Preloader ── */}
+      {isLoading && (
+        <motion.div 
+          initial={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.8, ease: "easeInOut" }}
+          className="fixed inset-0 z-100 bg-brand-cream flex flex-col items-center justify-center gap-6"
+        >
+          <div className="relative">
+            <motion.div 
+              animate={{ rotate: 360 }}
+              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+              className="w-20 h-20 border-4 border-brand-teal/20 border-t-brand-teal rounded-full"
+            />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <img src="/assets/landing/flag.png" alt="India" className="w-8 h-8 rounded-full object-cover" />
+            </div>
+          </div>
+          <motion.p 
+            animate={{ opacity: [0.4, 1, 0.4] }}
+            transition={{ duration: 1.5, repeat: Infinity }}
+            className="text-brand-teal font-black uppercase tracking-[0.3em] text-[10px]"
+          >
+            TrustHire India
+          </motion.p>
+        </motion.div>
+      )}
+      
       {/* ── Visual Impact: Interactive Tech Grid ── */}
       <motion.div 
         style={{ x: moveX, y: moveY }}
         className="absolute inset-0 z-0 pointer-events-none overflow-hidden"
       >
-        <div 
+        {/* <div 
           className="absolute inset-[-100px] opacity-[0.08]" 
           style={{ 
             backgroundImage: `linear-gradient(to right, #1d4744 1px, transparent 1px), linear-gradient(to bottom, #1d4744 1px, transparent 1px)`,
             backgroundSize: '60px 60px'
           }} 
-        />
+        /> */}
         <div className="absolute inset-0 bg-radial-gradient from-transparent via-brand-cream/40 to-brand-cream" />
       </motion.div>
       
@@ -148,18 +185,18 @@ export function LandingHero() {
             className="flex flex-col items-center"
           >
             <div className="inline-flex items-center gap-3 px-4 py-2 lg:px-6 lg:py-3 bg-white shadow-xl shadow-brand-teal/5 text-brand-teal rounded-full text-xs sm:text-sm font-black uppercase tracking-[0.2em] border border-brand-teal/10 mb-6 lg:mb-8 transform hover:scale-105 transition-transform cursor-default">
-              <span className="flex h-2 w-2 rounded-full bg-brand-amber animate-pulse" />
-              India's AI-Powered Verified Network
+              <img src="/assets/landing/flag.png" alt="India Flag" className="w-5 h-5 rounded-sm object-cover shadow-sm" />
+              {t('hero.tagline')}
             </div>
             
-            <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-[115px] font-black text-[#111] leading-[1.1] lg:leading-[0.95] tracking-tight">
-              Scale your <br className="sm:hidden" />
+            <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-[100px] font-black text-[#111] leading-[1.1] lg:leading-none tracking-tight max-w-4xl">
+              {t('hero.title.safest')} <br className="hidden sm:block" />
+              <span className="text-[#555] font-medium text-4xl sm:text-6xl md:text-7xl lg:text-8xl">{t('hero.title.for')}</span>{' '}
               <span className="relative inline-block mt-2 sm:mt-0">
-                <span className="relative z-10 text-white px-4 sm:px-8 py-1 sm:py-2">Career</span>
+                <span className="relative z-10 text-white px-4 sm:px-8 py-1 sm:py-2">{t('hero.title.work')}</span>
                 <span className="absolute inset-0 bg-brand-teal rounded-xl sm:rounded-2xl -rotate-1 z-0 shadow-lg" />
-              </span>
-              <br />
-              with <span className="text-brand-amber">Elite Tiers.</span>
+              </span>{' '}
+              <span className="text-brand-amber">{t('hero.title.and')}</span> {t('hero.title.jobs')}
             </h1>
           </motion.div>
 
@@ -169,9 +206,7 @@ export function LandingHero() {
             transition={{ delay: 0.2, duration: 0.7 }}
             className="text-base sm:text-lg md:text-xl text-[#555] max-w-2xl mx-auto leading-relaxed font-medium px-4 sm:px-0"
           >
-            Join India's most trusted network of L1-L4 verified professionals. 
-            Get matched with hyperlocal jobs, pass AI-skill tests, and level up 
-            to ₹25,000+ monthly bands.
+            {t('hero.subtitle')}
           </motion.p>
 
           <motion.div
@@ -184,12 +219,12 @@ export function LandingHero() {
               to="/sign-up"
               className="group flex items-center justify-center gap-2 px-6 py-4 lg:px-8 bg-brand-teal hover:bg-[#2a5f5b] text-white rounded-2xl font-bold text-base sm:text-lg transition-all hover:shadow-[0_8px_30px_rgba(29,71,68,0.35)] hover:-translate-y-1"
             >
-              Get Started Now
+              {t('hero.cta')}
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </Link>
             <button className="flex items-center justify-center gap-3 px-6 py-4 lg:px-8 text-[#111] bg-white border-2 border-black/10 rounded-2xl font-bold text-base sm:text-lg hover:border-brand-teal hover:text-brand-teal transition-all hover:-translate-y-1 shadow-sm">
               <Play className="w-5 h-5 fill-current" />
-              Watch Video
+              {t('hero.video')}
             </button>
           </motion.div>
           
@@ -201,9 +236,9 @@ export function LandingHero() {
             className="flex flex-wrap justify-center gap-x-6 lg:gap-x-10 gap-y-6 pt-6 lg:pt-8"
           >
             {[
-              { icon: <Users className="w-5 h-5 text-brand-amber" />, value: "50k+", label: "Verified Workers" },
-              { icon: <TrendingUp className="w-5 h-5 text-brand-amber" />, value: "₹2,450", label: "Avg Earnings" },
-              { icon: <ShieldCheck className="w-5 h-5 text-brand-amber" />, value: "4.9★", label: "Rating" },
+              { icon: <Users className="w-5 h-5 text-brand-amber" />, value: "50k+", label: t('stats.workers') },
+              { icon: <TrendingUp className="w-5 h-5 text-brand-amber" />, value: "₹2,450", label: t('stats.earnings') },
+              { icon: <ShieldCheck className="w-5 h-5 text-brand-amber" />, value: "4.9★", label: t('stats.rating') },
             ].map((stat, i) => (
               <div key={i} className="flex items-center gap-3 min-w-[140px] justify-start sm:justify-center">
                 <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm border border-black/5 shrink-0">

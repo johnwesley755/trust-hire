@@ -1,11 +1,14 @@
 import { motion } from "framer-motion";
 import { ShieldCheck, ShieldAlert, Zap, CheckCircle } from "lucide-react";
+import { useLanguage } from "../../hooks/useLanguage";
 
 export function LandingTrust() {
+  const { t } = useLanguage();
+
   const securityFeatures = [
-    { title: "SHA-256 Masking", desc: "Your Aadhaar is tokenized. We only see XXXX-XXXX-1234.", icon: <ShieldAlert className="w-6 h-6" /> },
-    { title: "n8n AI Orchestrator", desc: "Automated background checks synced across all services.", icon: <Zap className="w-6 h-6" /> },
-    { title: "UIDAI Compliant", desc: "Full adherence to latest India DPDP Act 2023 guidelines.", icon: <CheckCircle className="w-6 h-6" /> },
+    { title: t('trust.feature.1.title'), desc: t('trust.feature.1.desc'), icon: <ShieldAlert className="w-6 h-6" /> },
+    { title: t('trust.feature.2.title'), desc: t('trust.feature.2.desc'), icon: <Zap className="w-6 h-6" /> },
+    { title: t('trust.feature.3.title'), desc: t('trust.feature.3.desc'), icon: <CheckCircle className="w-6 h-6" /> },
   ];
 
   return (
@@ -23,12 +26,12 @@ export function LandingTrust() {
             transition={{ duration: 0.8 }}
           >
             <span className="inline-flex items-center gap-2 px-4 py-2 bg-brand-teal/10 text-brand-teal rounded-full text-xs font-black uppercase tracking-widest border border-brand-teal/20 mb-8">
-              Privacy First Platform
+              {t('trust.badge')}
             </span>
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-[#111] leading-[1.1] mb-8">
-              Your identity is <br />
+              {t('trust.title')} <br />
               <span className="text-brand-teal relative inline-block">
-                Never Stored.
+                {t('trust.title.accent')}
                 <motion.div 
                   initial={{ scaleX: 0 }}
                   whileInView={{ scaleX: 1 }}
@@ -39,9 +42,7 @@ export function LandingTrust() {
               </span>
             </h2>
             <p className="text-[#555] text-lg font-medium leading-relaxed mb-12 max-w-xl">
-              TrustHire uses bank-grade SHA-256 hashing to protect your Aadhaar. 
-              Our n8n-powered verification engine ensures zero human access to 
-              your sensitive documents.
+              {t('trust.desc')}
             </p>
 
             <div className="space-y-8">
@@ -74,7 +75,7 @@ export function LandingTrust() {
               
               <div className="space-y-8 lg:space-y-12">
                 <div className="space-y-3 sm:space-y-4">
-                  <p className="text-brand-teal font-black text-[10px] sm:text-xs uppercase tracking-widest">Aadhaar Data (Input)</p>
+                  <p className="text-brand-teal font-black text-[10px] sm:text-xs uppercase tracking-widest">{t('trust.visual.input')}</p>
                   <div className="bg-white/5 border border-white/10 p-4 sm:p-6 rounded-xl sm:rounded-2xl">
                     <p className="text-white/40 font-mono text-base sm:text-lg tracking-[0.3em] sm:tracking-[0.4em]">1234 5678 9012</p>
                   </div>
@@ -91,7 +92,7 @@ export function LandingTrust() {
                 </div>
  
                 <div className="space-y-3 sm:space-y-4">
-                  <p className="text-brand-amber font-black text-[10px] sm:text-xs uppercase tracking-widest">SHA-256 Token (Stored)</p>
+                  <p className="text-brand-amber font-black text-[10px] sm:text-xs uppercase tracking-widest">{t('trust.visual.stored')}</p>
                   <div className="bg-brand-teal/20 border border-brand-teal/30 p-4 sm:p-6 rounded-xl sm:rounded-2xl">
                     <p className="text-brand-teal font-mono text-[9px] sm:text-[10px] break-all opacity-80 leading-relaxed">
                       e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855...

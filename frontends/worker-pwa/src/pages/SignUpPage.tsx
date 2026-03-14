@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../providers/AuthContext';
 import apiClient from '../api/apiClient';
 import { Mail, Lock, Loader2, ArrowRight, User, Phone, ShieldCheck } from 'lucide-react';
+import { useLanguage } from '../hooks/useLanguage';
 
 export const SignUpPage = () => {
     const [formData, setFormData] = useState({
@@ -13,6 +14,7 @@ export const SignUpPage = () => {
         lastName: '',
         otp: ''
     });
+    const { t } = useLanguage();
     const [otpSent, setOtpSent] = useState(false);
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -29,7 +31,8 @@ export const SignUpPage = () => {
         try {
             await apiClient.post('/api/auth/send-otp', { email: formData.email });
             setOtpSent(true);
-        } catch (_err) {
+        } catch (err) {
+            console.error(err);
             setError('Failed to send OTP. Please try again.');
         } finally {
             setIsLoading(false);
@@ -53,9 +56,8 @@ export const SignUpPage = () => {
             });
             login(response.data.token, response.data.user);
             navigate('/onboarding');
-        } catch (err: unknown) {
-            const error = err as any;
-            setError(error.response?.data?.message || error.response?.data || 'Registration failed. Please check your details.');
+        } catch (err: any) {
+            setError(err.response?.data?.message || err.response?.data || 'Registration failed. Please check your details.');
         } finally {
             setIsLoading(false);
         }
@@ -65,8 +67,8 @@ export const SignUpPage = () => {
         <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-4">
             <div className="w-full max-w-lg bg-white rounded-3xl shadow-xl border border-slate-100 p-8 sm:p-10">
                 <div className="text-center mb-8">
-                    <h1 className="text-3xl font-bold text-slate-900 mb-2">Create Account</h1>
-                    <p className="text-slate-500">Join TrustHire as a worker</p>
+                    <h1 className="text-3xl font-bold text-slate-900 mb-2">{t('auth.signup.title')}</h1>
+                    <p className="text-slate-500">{t('auth.signup.subtitle')}</p>
                 </div>
 
                 {error && (
@@ -78,7 +80,7 @@ export const SignUpPage = () => {
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-2">First Name</label>
+                            <label className="block text-sm font-medium text-slate-700 mb-2">{t('auth.signup.firstName')}</label>
                             <div className="relative">
                                 <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                                 <input
@@ -92,7 +94,7 @@ export const SignUpPage = () => {
                             </div>
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-2">Last Name</label>
+                            <label className="block text-sm font-medium text-slate-700 mb-2">{t('auth.signup.lastName')}</label>
                             <div className="relative">
                                 <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                                 <input
@@ -108,7 +110,7 @@ export const SignUpPage = () => {
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-2">Email Address</label>
+                        <label className="block text-sm font-medium text-slate-700 mb-2">{t('auth.signin.email')}</label>
                         <div className="relative">
                             <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                             <input
@@ -123,7 +125,7 @@ export const SignUpPage = () => {
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-2">Phone Number</label>
+                        <label className="block text-sm font-medium text-slate-700 mb-2">{t('auth.signup.phoneNumber')}</label>
                         <div className="relative">
                             <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                             <input
@@ -138,7 +140,7 @@ export const SignUpPage = () => {
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-2">Password</label>
+                        <label className="block text-sm font-medium text-slate-700 mb-2">{t('auth.signin.password')}</label>
                         <div className="relative">
                             <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                             <input
@@ -154,7 +156,7 @@ export const SignUpPage = () => {
 
                     {otpSent && (
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-2">Verification Code (OTP)</label>
+                            <label className="block text-sm font-medium text-slate-700 mb-2">{t('auth.signup.verifyCode')}</label>
                             <div className="relative">
                                 <ShieldCheck className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                                 <input
@@ -178,11 +180,11 @@ export const SignUpPage = () => {
                             <Loader2 className="w-5 h-5 animate-spin" />
                         ) : !otpSent ? (
                             <>
-                                Get Verification Code <ArrowRight className="w-5 h-5" />
+                                {t('auth.signup.getOtp')} <ArrowRight className="w-5 h-5" />
                             </>
                         ) : (
                             <>
-                                Create Account <ShieldCheck className="w-5 h-5" />
+                                {t('auth.signup.createAccount')} <ShieldCheck className="w-5 h-5" />
                             </>
                         )}
                     </button>
@@ -193,15 +195,15 @@ export const SignUpPage = () => {
                             onClick={handleSendOtp}
                             className="w-full text-slate-500 text-sm hover:text-emerald-600 transition-colors mt-2"
                         >
-                            Didn't receive code? Resend
+                            {t('auth.signup.resend')}
                         </button>
                     )}
                 </form>
 
                 <div className="mt-8 text-center text-slate-600">
-                    Already have an account?{' '}
+                    {t('auth.signup.haveAccount')}{' '}
                     <Link to="/sign-in" className="text-emerald-600 font-bold hover:underline underline-offset-4">
-                        Sign In
+                        {t('auth.signin.button')}
                     </Link>
                 </div>
             </div>

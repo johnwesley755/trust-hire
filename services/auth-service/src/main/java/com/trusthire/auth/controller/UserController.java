@@ -86,6 +86,23 @@ public class UserController {
             .orElse(ResponseEntity.status(401).build());
     }
 
+    @PostMapping("/sync")
+    public ResponseEntity<UserMetadata> syncUser(@AuthenticationPrincipal Jwt jwt, @org.springframework.web.bind.annotation.RequestBody Map<String, Object> request) {
+        String userId = jwt.getSubject();
+        return repository.findById(java.util.UUID.fromString(userId))
+            .map(user -> {
+                if (request.containsKey("role")) {
+                    user.setRole(UserMetadata.Role.valueOf((String) request.get("role")));
+                }
+                if (request.containsKey("onboarded")) {
+                    user.setOnboarded((Boolean) request.get("onboarded"));
+                }
+                repository.save(user);
+                return ResponseEntity.ok(user);
+            })
+            .orElse(ResponseEntity.notFound().build());
+    }
+
     @lombok.Data
     public static class AuthResponse {
         private final String token;

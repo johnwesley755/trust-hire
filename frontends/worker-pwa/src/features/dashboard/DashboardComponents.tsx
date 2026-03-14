@@ -4,9 +4,11 @@ import { useQuery } from '@tanstack/react-query';
 import { levelService } from '../../api/level.service';
 import { profileService } from '../../api/profile.service';
 import { useNavigate } from 'react-router-dom';
+import { useLanguage } from '../../hooks/useLanguage';
 
 export const ProfileCard = () => {
   const { user } = useUser();
+  const { t } = useLanguage();
   const { data: profile } = useQuery({
     queryKey: ['workerProfile'],
     queryFn: profileService.getProfile,
@@ -41,7 +43,7 @@ export const ProfileCard = () => {
         </div>
         <div className="space-y-2">
           <div className="flex justify-between text-xs font-bold uppercase tracking-wider">
-            <span>Next Level: L{progress?.nextLevel || parseInt(profile?.level?.replace('L', '') || '1') + 1}</span>
+            <span>{t('dashboard.profile.nextLevel')}: L{progress?.nextLevel || parseInt(profile?.level?.replace('L', '') || '1') + 1}</span>
             <span>{Math.round(progress?.progress || 0)}%</span>
           </div>
           <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
@@ -56,13 +58,14 @@ export const ProfileCard = () => {
 
 export const ActionGrid = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   return (
     <section className="grid grid-cols-2 gap-4">
       {[
-        { label: 'Find Jobs', icon: <Search />, color: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20', path: '/search' },
-        { label: 'Skill Tests', icon: <Award />, color: 'bg-amber-500/10 text-amber-500 border-amber-500/20', path: '/tests' },
-        { label: 'Verify ID', icon: <ShieldCheck />, color: 'bg-blue-500/10 text-blue-400 border-blue-500/20', path: '/verify' },
-        { label: 'Work History', icon: <Briefcase />, color: 'bg-rose-500/10 text-rose-500 border-rose-500/20', path: '/history' },
+        { label: t('dashboard.actions.findJobs'), icon: <Search />, color: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20', path: '/search' },
+        { label: t('dashboard.actions.skillTests'), icon: <Award />, color: 'bg-amber-500/10 text-amber-500 border-amber-500/20', path: '/tests' },
+        { label: t('dashboard.actions.verifyId'), icon: <ShieldCheck />, color: 'bg-blue-500/10 text-blue-400 border-blue-500/20', path: '/verify' },
+        { label: t('dashboard.actions.history'), icon: <Briefcase />, color: 'bg-rose-500/10 text-rose-500 border-rose-500/20', path: '/history' },
       ].map((action) => (
         <button 
           key={action.label} 

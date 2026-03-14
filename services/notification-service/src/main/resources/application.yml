@@ -24,8 +24,8 @@ spring:
         format_sql: true
   
   flyway:
-    enabled: true
-    baseline-on-migrate: true
+    enabled: false
+    baseline-on-migrate: false
     repair-on-migrate: true
     table: flyway_schema_history_notification
     locations: classpath:db/migration

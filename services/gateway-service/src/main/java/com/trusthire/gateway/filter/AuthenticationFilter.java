@@ -29,7 +29,8 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
             "/api/auth/register",
             "/api/auth/login",
             "/api/auth/send-otp",
-            "/api/jobs/search"
+            "/api/jobs/search",
+            "/ws/"
     );
 
     @Override

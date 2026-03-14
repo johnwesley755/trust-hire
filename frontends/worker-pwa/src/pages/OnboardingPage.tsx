@@ -12,6 +12,7 @@ import {
   ShieldCheck,
   Navigation
 } from "lucide-react";
+import { useLanguage } from "../hooks/useLanguage";
 
 
 
@@ -23,6 +24,7 @@ const SKILL_OPTIONS = [
 export default function OnboardingPage() {
   const { user } = useUser();
   const navigate = useNavigate();
+  const { t } = useLanguage();
   
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
@@ -125,12 +127,12 @@ export default function OnboardingPage() {
               <User className="w-8 h-8" />
             </div>
             <div className="space-y-2">
-              <h1 className="text-3xl font-black tracking-tight text-slate-900">Welcome to TrustHire!</h1>
-              <p className="text-slate-500 font-medium">Let's get your profile ready to find high-paying jobs.</p>
+              <h1 className="text-3xl font-black tracking-tight text-slate-900">{t('onboarding.step1.title')}</h1>
+              <p className="text-slate-500 font-medium">{t('onboarding.step1.subtitle')}</p>
             </div>
             <div className="space-y-4">
                <div>
-                <label className="text-xs font-black uppercase tracking-widest text-slate-400 mb-2 block">Full Name</label>
+                <label className="text-xs font-black uppercase tracking-widest text-slate-400 mb-2 block">{t('onboarding.step1.fullName')}</label>
                 <input 
                   type="text" 
                   value={formData.fullName}
@@ -149,11 +151,11 @@ export default function OnboardingPage() {
               <Zap className="w-8 h-8" />
             </div>
             <div className="space-y-2">
-              <h1 className="text-3xl font-black tracking-tight text-slate-900">Your Expertise</h1>
-              <p className="text-slate-500 font-medium">What kind of work are you looking for?</p>
+              <h1 className="text-3xl font-black tracking-tight text-slate-900">{t('onboarding.step2.title')}</h1>
+              <p className="text-slate-500 font-medium">{t('onboarding.step2.subtitle')}</p>
             </div>
             <div className="space-y-4">
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400 mb-2 block">Choose Skills</label>
+              <label className="text-xs font-black uppercase tracking-widest text-slate-400 mb-2 block">{t('onboarding.step2.chooseSkills')}</label>
               <div className="flex flex-wrap gap-2">
                 {SKILL_OPTIONS.map(skill => (
                   <button
@@ -170,7 +172,7 @@ export default function OnboardingPage() {
                 ))}
               </div>
               <div className="mt-4">
-                <label className="text-xs font-black uppercase tracking-widest text-slate-400 mb-2 block">Experience (Years)</label>
+                <label className="text-xs font-black uppercase tracking-widest text-slate-400 mb-2 block">{t('onboarding.step2.experience')}</label>
                 <input 
                   type="number" 
                   value={formData.experienceYears}
@@ -188,8 +190,8 @@ export default function OnboardingPage() {
               <Hammer className="w-8 h-8" />
             </div>
             <div className="space-y-2">
-              <h1 className="text-3xl font-black tracking-tight text-slate-900">About You</h1>
-              <p className="text-slate-500 font-medium">Write a short bio to attract employers.</p>
+              <h1 className="text-3xl font-black tracking-tight text-slate-900">{t('onboarding.step3.title')}</h1>
+              <p className="text-slate-500 font-medium">{t('onboarding.step3.subtitle')}</p>
             </div>
             <div className="space-y-4">
               <textarea 
@@ -209,15 +211,15 @@ export default function OnboardingPage() {
               <MapPin className="w-8 h-8" />
             </div>
             <div className="space-y-2">
-              <h1 className="text-3xl font-black tracking-tight text-slate-900">Your Location</h1>
-              <p className="text-slate-500 font-medium">We'll find jobs near you.</p>
+              <h1 className="text-3xl font-black tracking-tight text-slate-900">{t('onboarding.step4.title')}</h1>
+              <p className="text-slate-500 font-medium">{t('onboarding.step4.subtitle')}</p>
             </div>
             <div className="space-y-4">
               <button 
                 onClick={detectLocation}
                 className="w-full bg-indigo-50 text-indigo-600 font-black p-4 rounded-2xl flex items-center justify-center gap-2 border-2 border-indigo-100 hover:bg-indigo-100 transition-all"
               >
-                <Navigation className="w-5 h-5" /> Use My Current Location
+                <Navigation className="w-5 h-5" /> {t('onboarding.step4.useCurrent')}
               </button>
               <div className="text-center text-xs font-bold text-slate-300">OR</div>
               <input 
@@ -239,7 +241,7 @@ export default function OnboardingPage() {
               onClick={prevStep}
               className="flex-1 bg-slate-100 text-slate-600 font-black p-4 rounded-2xl flex items-center justify-center gap-2 border-2 border-slate-100 active:scale-95 transition-all"
             >
-              <ChevronLeft className="w-5 h-5" /> Back
+              <ChevronLeft className="w-5 h-5" /> {t('onboarding.nav.back')}
             </button>
           )}
           
@@ -250,14 +252,14 @@ export default function OnboardingPage() {
               isSubmitting ? "opacity-70" : ""
             }`}
           >
-            {isSubmitting ? "Finishing..." : (step < 4 ? <>Continue <ChevronRight className="w-5 h-5" /></> : "Get Started!")}
+            {isSubmitting ? t('onboarding.nav.finish') : (step < 4 ? <>{t('onboarding.nav.continue')} <ChevronRight className="w-5 h-5" /></> : t('onboarding.nav.getStarted'))}
           </button>
         </div>
 
       </div>
 
       <div className="mt-8 flex items-center gap-2 text-slate-400 font-bold text-sm">
-        <ShieldCheck className="w-4 h-4 text-emerald-500" /> Secure & Verified by TrustHire
+        <ShieldCheck className="w-4 h-4 text-emerald-500" /> {t('onboarding.secure')}
       </div>
     </div>
   );
