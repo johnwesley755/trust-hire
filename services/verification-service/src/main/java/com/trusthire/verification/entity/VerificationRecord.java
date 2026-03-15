@@ -20,7 +20,7 @@ public class VerificationRecord {
     private UUID id;
 
     @Column(nullable = false)
-    private String workerClerkId;
+    private String userId;
 
     private String docImageUrl; // Aadhaar/ID photo URL
     private String liveImageUrl; // Live capture photo URL

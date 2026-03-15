@@ -7,8 +7,8 @@ import java.util.UUID;
 
 public interface RatingService {
     Rating submitRating(Rating rating);
-    List<Rating> getRatingsForUser(String rateeClerkId);
-    List<Rating> getRatingsByUser(String reviewerClerkId);
-    Double getAverageRatingForUser(String rateeClerkId);
+    List<Rating> getRatingsForUser(String rateeId);
+    List<Rating> getRatingsByUser(String reviewerId);
+    Double getAverageRatingForUser(String rateeId);
     Optional<Rating> getRatingById(UUID id);
 }

@@ -27,12 +27,12 @@ public class VerificationServiceImpl implements VerificationService {
 
     @Override
     @Transactional
-    public VerificationRecord uploadDocImage(String workerClerkId, MultipartFile file) throws IOException {
-        log.info("Uploading document image for worker: {} via Media Service", workerClerkId);
-        String url = uploadToMediaService(file, workerClerkId);
+    public VerificationRecord uploadDocImage(String workerId, MultipartFile file) throws IOException {
+        log.info("Uploading document image for worker: {} via Media Service", workerId);
+        String url = uploadToMediaService(file, workerId);
         
-        VerificationRecord record = repository.findByWorkerClerkId(workerClerkId)
-                .orElse(VerificationRecord.builder().workerClerkId(workerClerkId).build());
+        VerificationRecord record = repository.findByUserId(workerId)
+                .orElse(VerificationRecord.builder().userId(workerId).build());
         
         record.setDocImageUrl(url);
         record.setStatus(VerificationRecord.VerificationStatus.PENDING);
@@ -46,12 +46,12 @@ public class VerificationServiceImpl implements VerificationService {
 
     @Override
     @Transactional
-    public VerificationRecord uploadLiveCapture(String workerClerkId, MultipartFile file) throws IOException {
-        log.info("Uploading live capture for worker: {} via Media Service", workerClerkId);
-        String url = uploadToMediaService(file, workerClerkId);
+    public VerificationRecord uploadLiveCapture(String workerId, MultipartFile file) throws IOException {
+        log.info("Uploading live capture for worker: {} via Media Service", workerId);
+        String url = uploadToMediaService(file, workerId);
         
-        VerificationRecord record = repository.findByWorkerClerkId(workerClerkId)
-                .orElse(VerificationRecord.builder().workerClerkId(workerClerkId).build());
+        VerificationRecord record = repository.findByUserId(workerId)
+                .orElse(VerificationRecord.builder().userId(workerId).build());
         
         record.setLiveImageUrl(url);
         
@@ -65,7 +65,7 @@ public class VerificationServiceImpl implements VerificationService {
     }
 
     private void performFaceMatch(VerificationRecord record) {
-        log.info("Starting AI face match for worker: {}", record.getWorkerClerkId());
+        log.info("Starting AI face match for worker: {}", record.getUserId());
         try {
             java.util.Map<String, String> request = new java.util.HashMap<>();
             request.put("img1_path", record.getDocImageUrl());
@@ -75,10 +75,10 @@ public class VerificationServiceImpl implements VerificationService {
             java.util.Map<String, Object> response = restTemplate.postForObject(faceMatchUrl, request, java.util.Map.class);
 
             if (response != null && (Boolean) response.get("verified")) {
-                log.info("Face match successful: {}", record.getWorkerClerkId());
+                log.info("Face match successful: {}", record.getUserId());
                 record.setStatus(VerificationRecord.VerificationStatus.SUCCESS);
             } else {
-                log.warn("Face match failed: {}", record.getWorkerClerkId());
+                log.warn("Face match failed: {}", record.getUserId());
                 record.setStatus(VerificationRecord.VerificationStatus.FAILED);
             }
         } catch (Exception e) {
@@ -88,8 +88,8 @@ public class VerificationServiceImpl implements VerificationService {
     }
 
     @Override
-    public Optional<VerificationRecord> getStatus(String workerClerkId) {
-        return repository.findByWorkerClerkId(workerClerkId);
+    public Optional<VerificationRecord> getStatus(String userId) {
+        return repository.findByUserId(userId);
     }
 
     private String uploadToMediaService(MultipartFile file, String ownerId) {

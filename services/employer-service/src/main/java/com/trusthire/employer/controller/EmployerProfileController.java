@@ -40,6 +40,8 @@ public class EmployerProfileController {
         if (profileRequest.getLocation() != null) profile.setLocation(profileRequest.getLocation());
         if (profileRequest.getLatitude() != null) profile.setLatitude(profileRequest.getLatitude());
         if (profileRequest.getLongitude() != null) profile.setLongitude(profileRequest.getLongitude());
+        if (profileRequest.getAddress() != null) profile.setAddress(profileRequest.getAddress());
+        if (profileRequest.getCity() != null) profile.setCity(profileRequest.getCity());
 
         return ResponseEntity.ok(profileService.updateProfile(profile));
     }

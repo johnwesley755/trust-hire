@@ -2,7 +2,7 @@ import apiClient from './apiClient';
 
 export interface EmployerVerificationRecord {
   id: string;
-  clerkId: string;
+  userId?: string;
   businessTier: 'BASIC' | 'VERIFIED' | 'PREMIUM';
   isVerified: boolean;
   docUrl?: string;

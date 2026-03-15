@@ -1,7 +1,7 @@
 import apiClient from './apiClient';
 
 export interface WorkerSearch {
-  clerkId: string;
+  userId: string;
   name: string;
   bio: string;
   skills: string;

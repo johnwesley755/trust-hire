@@ -2,7 +2,7 @@ import apiClient from './apiClient';
 
 export interface VerificationRecord {
   id: string;
-  clerkId: string;
+  userId: string;
   aadhaarMasked?: string;
   identityVerified: boolean;
   faceMatchScore?: number;

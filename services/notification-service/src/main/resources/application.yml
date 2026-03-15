@@ -3,9 +3,9 @@ spring:
     name: notification-service
   
   datasource:
-    url: ${POSTGRES_URL}
-    username: ${POSTGRES_USER}
-    password: ${POSTGRES_PASSWORD}
+    url: ${NOTIFICATION_DB_URL:jdbc:postgresql://localhost:5432/trusthire_notification_db}
+    username: ${POSTGRES_USER:trusthire_user}
+    password: ${POSTGRES_PASSWORD:trusthire123}
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 2
@@ -31,9 +31,9 @@ spring:
     locations: classpath:db/migration
   
   mail:
-    host: ${BREVO_SMTP_HOST}
-    port: ${BREVO_SMTP_PORT}
-    username: ${BREVO_SENDER_EMAIL}
+    host: ${BREVO_SMTP_HOST:smtp-brevo.com}
+    port: ${BREVO_SMTP_PORT:587}
+    username: ${BREVO_SMTP_USERNAME:${BREVO_SENDER_EMAIL}}
     password: ${BREVO_API_KEY}
     properties:
       mail:

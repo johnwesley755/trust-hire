@@ -52,7 +52,7 @@ export default function ApplicationManagementPage() {
                       <User className="w-8 h-8" />
                     </div>
                     <div>
-                      <h3 className="text-xl font-bold">Worker #{app.workerClerkId.substring(0, 8)}</h3>
+                      <h3 className="text-xl font-bold">Worker #{app.workerId.substring(0, 8)}</h3>
                       <p className="text-sm text-slate-500 font-medium flex items-center gap-2 uppercase tracking-widest">
                         <Clock className="w-3 h-3" /> Applied {new Date(app.appliedAt).toLocaleDateString()}
                       </p>

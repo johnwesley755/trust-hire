@@ -2,7 +2,7 @@ import apiClient from './apiClient';
 
 export interface Job {
   id?: string;
-  employerClerkId?: string;
+  employerId?: string;
   title: string;
   description: string;
   industry: string;

@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
+import java.util.UUID;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -24,8 +26,8 @@ public class UserController {
     private final org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
 
     @GetMapping("/me")
-    public ResponseEntity<UserMetadata> getCurrentUser(@AuthenticationPrincipal Jwt jwt) {
-        String userId = jwt.getSubject();
+    public ResponseEntity<UserMetadata> getCurrentUser(org.springframework.security.core.Authentication authentication) {
+        String userId = (String) authentication.getPrincipal();
         return repository.findById(java.util.UUID.fromString(userId))
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -42,16 +44,19 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(@org.springframework.web.bind.annotation.RequestBody RegisterRequest request) {
+    public ResponseEntity<?> register(@org.springframework.web.bind.annotation.RequestBody RegisterRequest request) {
+        System.out.println("DEBUG: Auth Controller - Registration attempt for: " + request.getEmail());
         
         // Ensure email isn't already taken
         if (repository.existsByEmail(request.getEmail())) {
-            return ResponseEntity.badRequest().build();
+            System.err.println("DEBUG: Auth Controller - Registration failed: Email already exists: " + request.getEmail());
+            return ResponseEntity.badRequest().body(Map.of("error", "Email already registered"));
         }
 
         // Validate OTP
         if (!otpService.validateOtp(request.getEmail(), request.getOtp())) {
-            return ResponseEntity.status(401).body(null); 
+            System.err.println("DEBUG: Auth Controller - Registration failed: Invalid OTP for: " + request.getEmail());
+            return ResponseEntity.status(401).body(Map.of("error", "Invalid or expired OTP")); 
         }
 
         UserMetadata newUser = UserMetadata.builder()
@@ -87,8 +92,8 @@ public class UserController {
     }
 
     @PostMapping("/sync")
-    public ResponseEntity<UserMetadata> syncUser(@AuthenticationPrincipal Jwt jwt, @org.springframework.web.bind.annotation.RequestBody Map<String, Object> request) {
-        String userId = jwt.getSubject();
+    public ResponseEntity<UserMetadata> syncUser(org.springframework.security.core.Authentication authentication, @org.springframework.web.bind.annotation.RequestBody Map<String, Object> request) {
+        String userId = (String) authentication.getPrincipal();
         return repository.findById(java.util.UUID.fromString(userId))
             .map(user -> {
                 if (request.containsKey("role")) {
@@ -103,6 +108,18 @@ public class UserController {
             .orElse(ResponseEntity.notFound().build());
     }
 
+    @PostMapping("/test/cleanup")
+    public ResponseEntity<?> cleanupUser(@org.springframework.web.bind.annotation.RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        return repository.findByEmail(email)
+            .map(user -> {
+                repository.delete(user);
+                System.out.println("DEBUG: Auth Controller - Test Cleanup: Deleted user " + email);
+                return ResponseEntity.ok(Map.of("message", "User deleted successfully"));
+            })
+            .orElse(ResponseEntity.notFound().build());
+    }
+
     @lombok.Data
     public static class AuthResponse {
         private final String token;
@@ -113,10 +130,16 @@ public class UserController {
     public static class RegisterRequest {
         private String email;
         private String password;
+        
+        @com.fasterxml.jackson.annotation.JsonProperty("phone")
         private String phoneNumber;
+        
         private String firstName;
         private String lastName;
+        
+        @com.fasterxml.jackson.annotation.JsonProperty("profile_image_url")
         private String profileImageUrl;
+        
         private String role;
         private String otp;
     }

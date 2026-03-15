@@ -23,13 +23,13 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     @Transactional
     public Notification createNotification(Notification notification) {
-        log.info("Creating notification for recipient: {}", notification.getRecipientClerkId());
+        log.info("Creating notification for recipient: {}", notification.getUserId());
         return repository.save(notification);
     }
 
     @Override
-    public List<Notification> getNotificationsForUser(String recipientClerkId) {
-        return repository.findByRecipientClerkIdOrderByCreatedAtDesc(recipientClerkId);
+    public List<Notification> getNotificationsForUser(String userId) {
+        return repository.findByUserIdOrderByCreatedAtDesc(userId);
     }
 
     @Override
@@ -43,12 +43,12 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     @Transactional
-    public void sendNotification(String recipientClerkId, String title, String message, String email, boolean sendEmail) {
-        log.info("Sending notification to user: {}", recipientClerkId);
+    public void sendNotification(String userId, String title, String message, String email, boolean sendEmail) {
+        log.info("Sending notification to user: {}", userId);
         
         // Save in-app notification
         Notification notification = Notification.builder()
-                .recipientClerkId(recipientClerkId)
+                .userId(userId)
                 .title(title)
                 .message(message)
                 .isRead(false)

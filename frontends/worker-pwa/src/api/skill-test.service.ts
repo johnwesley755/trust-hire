@@ -12,7 +12,7 @@ export interface SkillTest {
 
 export interface TestSubmission {
   testId: string;
-  clerkId: string;
+  userId: string;
   answers: any[];
   maxPoints: number;
 }

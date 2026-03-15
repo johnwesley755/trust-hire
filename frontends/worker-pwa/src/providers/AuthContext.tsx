@@ -29,7 +29,7 @@ export const useAuth = () => {
   return context;
 };
 
-// Mock useUser for compatibility with Clerk-dependent components
+// Custom hook for accessing user profile and auth state
 export const useUser = () => {
     const { user, isLoaded, isSignedIn } = useAuth();
     return { user, isLoaded, isSignedIn };

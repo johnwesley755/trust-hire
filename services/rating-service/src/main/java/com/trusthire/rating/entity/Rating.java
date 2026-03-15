@@ -20,10 +20,10 @@ public class Rating {
     private UUID id;
 
     @Column(nullable = false)
-    private String reviewerClerkId; // The person giving the rating
+    private String reviewerId; // The person giving the rating
 
     @Column(nullable = false)
-    private String rateeClerkId; // The person being rated
+    private String rateeId; // The person being rated
 
     @Column(nullable = false)
     private UUID jobId; // The associated job

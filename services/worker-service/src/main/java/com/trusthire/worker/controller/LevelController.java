@@ -14,11 +14,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class LevelController {
 
-    @GetMapping("/worker/{clerkId}")
-    public ResponseEntity<LevelDetails> getLevelDetails(@PathVariable String clerkId) {
+    @GetMapping("/worker/{workerId}")
+    public ResponseEntity<LevelDetails> getLevelDetails(@PathVariable String workerId) {
         // Mock data logic for now, connecting to real profile data
         return ResponseEntity.ok(LevelDetails.builder()
-                .workerId(clerkId)
+                .workerId(workerId)
                 .currentLevel(1)
                 .levelScore(450)
                 .components(LevelComponents.builder()
@@ -34,8 +34,8 @@ public class LevelController {
                 .build());
     }
 
-    @GetMapping("/progress/{clerkId}")
-    public ResponseEntity<LevelProgress> getLevelProgress(@PathVariable String clerkId) {
+    @GetMapping("/progress/{workerId}")
+    public ResponseEntity<LevelProgress> getLevelProgress(@PathVariable String workerId) {
         return ResponseEntity.ok(LevelProgress.builder()
                 .currentLevel(1)
                 .levelScore(450)

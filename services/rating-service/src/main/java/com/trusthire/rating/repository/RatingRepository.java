@@ -9,7 +9,7 @@ import java.util.UUID;
 
 @Repository
 public interface RatingRepository extends JpaRepository<Rating, UUID> {
-    List<Rating> findByRateeClerkId(String rateeClerkId);
-    List<Rating> findByReviewerClerkId(String reviewerClerkId);
+    List<Rating> findByRateeId(String rateeId);
+    List<Rating> findByReviewerId(String reviewerId);
     List<Rating> findByJobId(UUID jobId);
 }

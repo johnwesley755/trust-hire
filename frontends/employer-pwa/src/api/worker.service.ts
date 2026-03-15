@@ -12,7 +12,7 @@ export interface Worker {
   distance: number;
   location?: string;
   bio?: string;
-  clerkId?: string;
+  userId?: string;
   availability: 'AVAILABLE' | 'BUSY' | 'UNAVAILABLE';
   salaryRange: string;
   verificationStatus: 'PENDING' | 'SUCCESS' | 'FAILED' | 'VERIFIED';

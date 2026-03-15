@@ -45,6 +45,8 @@ public class Job {
     private String location;
     private Double latitude;
     private Double longitude;
+    private String address;
+    private String city;
 
     @Enumerated(EnumType.STRING)
     private JobStatus status;

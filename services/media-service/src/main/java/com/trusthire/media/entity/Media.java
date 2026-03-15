@@ -29,7 +29,7 @@ public class Media {
     private Long fileSize;
 
     @Column(nullable = false)
-    private String ownerClerkId;
+    private String ownerId;
 
     @CreationTimestamp
     private LocalDateTime createdAt;

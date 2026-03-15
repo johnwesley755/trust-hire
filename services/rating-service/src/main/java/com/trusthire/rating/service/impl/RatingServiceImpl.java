@@ -22,23 +22,23 @@ public class RatingServiceImpl implements RatingService {
     @Override
     @Transactional
     public Rating submitRating(Rating rating) {
-        log.info("Submitting rating for ratee: {} by reviewer: {}", rating.getRateeClerkId(), rating.getReviewerClerkId());
+        log.info("Submitting rating for ratee: {} by reviewer: {}", rating.getRateeId(), rating.getReviewerId());
         return repository.save(rating);
     }
 
     @Override
-    public List<Rating> getRatingsForUser(String rateeClerkId) {
-        return repository.findByRateeClerkId(rateeClerkId);
+    public List<Rating> getRatingsForUser(String rateeId) {
+        return repository.findByRateeId(rateeId);
     }
 
     @Override
-    public List<Rating> getRatingsByUser(String reviewerClerkId) {
-        return repository.findByReviewerClerkId(reviewerClerkId);
+    public List<Rating> getRatingsByUser(String reviewerId) {
+        return repository.findByReviewerId(reviewerId);
     }
 
     @Override
-    public Double getAverageRatingForUser(String rateeClerkId) {
-        List<Rating> ratings = repository.findByRateeClerkId(rateeClerkId);
+    public Double getAverageRatingForUser(String rateeId) {
+        List<Rating> ratings = repository.findByRateeId(rateeId);
         if (ratings.isEmpty()) {
             return 0.0;
         }

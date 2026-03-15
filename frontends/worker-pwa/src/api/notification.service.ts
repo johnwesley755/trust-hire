@@ -2,7 +2,7 @@ import apiClient from './apiClient';
 
 export interface Notification {
   id: string;
-  clerkId: string;
+  userId: string;
   title: string;
   message: string;
   type: string;

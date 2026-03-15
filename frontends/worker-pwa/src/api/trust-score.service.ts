@@ -6,13 +6,13 @@ export interface TrustScoreDetails {
   skillsVerifiedCount: number;
   avgRating: number;
   reliabilityRate: number; // 0-1
-  lastUpdated: string;
+  userId: string;
 }
 
 export const trustScoreService = {
-  getTrustScore: async (clerkId: string): Promise<TrustScoreDetails> => {
+  getTrustScore: async (userId: string): Promise<TrustScoreDetails> => {
     // This connects to the worker-service (profile level/status)
-    const response = await apiClient.get<TrustScoreDetails>(`/api/worker/trust-score/${clerkId}`);
+    const response = await apiClient.get<TrustScoreDetails>(`/api/worker/trust-score/${userId}`);
     return response.data;
   }
 };

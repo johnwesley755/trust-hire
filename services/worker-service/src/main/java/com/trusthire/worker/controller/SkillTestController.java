@@ -64,7 +64,7 @@ public class SkillTestController {
     @Data
     public static class TestSubmission {
         private UUID testId;
-        private String clerkId;
+        private String workerId;
         private List<Object> answers;
         private int maxPoints;
     }

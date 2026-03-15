@@ -6,7 +6,7 @@ import java.util.UUID;
 
 public interface NotificationService {
     Notification createNotification(Notification notification);
-    List<Notification> getNotificationsForUser(String recipientClerkId);
+    List<Notification> getNotificationsForUser(String userId);
     void markAsRead(UUID id);
-    void sendNotification(String recipientClerkId, String title, String message, String email, boolean sendEmail);
+    void sendNotification(String userId, String title, String message, String email, boolean sendEmail);
 }

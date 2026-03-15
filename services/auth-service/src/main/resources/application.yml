@@ -3,9 +3,9 @@ spring:
     name: auth-service
   
   datasource:
-    url: ${POSTGRES_URL}
-    username: ${POSTGRES_USER}
-    password: ${POSTGRES_PASSWORD}
+    url: ${AUTH_DB_URL:jdbc:postgresql://localhost:5432/trusthire_auth_db}
+    username: ${POSTGRES_USER:trusthire_user}
+    password: ${POSTGRES_PASSWORD:trusthire123}
     driver-class-name: org.postgresql.Driver
     # Neon pooling optimization
     hikari:
@@ -65,3 +65,7 @@ cloudinary:
   cloud-name: ${CLOUDINARY_CLOUD_NAME}
   api-key: ${CLOUDINARY_API_KEY}
   api-secret: ${CLOUDINARY_API_SECRET}
+
+app:
+  jwt:
+    expiration: 86400000 # 24 hours

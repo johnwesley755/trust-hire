@@ -12,17 +12,13 @@ import java.util.Map;
 @Slf4j
 public class WebhookController {
 
-    @PostMapping("/clerk")
-    public ResponseEntity<Void> handleClerkWebhook(
-            @RequestHeader("svix-id") String svixId,
-            @RequestHeader("svix-timestamp") String svixTimestamp,
-            @RequestHeader("svix-signature") String svixSignature,
+    @PostMapping("/sync")
+    public ResponseEntity<Void> handleLegacySync(
             @RequestBody Map<String, Object> payload) {
         
-        log.info("Received legacy Clerk webhook event: {}", payload.get("type"));
+        log.info("Received legacy sync event: {}", payload.get("type"));
         
-        // Clerk is removed. We acknowledge receipt but do not sync.
-
+        // Legacy sync logic removed.
         return ResponseEntity.ok().build();
     }
 }

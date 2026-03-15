@@ -86,7 +86,7 @@ export const WorkerSearchPage = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {results?.map((worker: WorkerSearch) => (
-              <div key={worker.clerkId} className="bg-white border border-slate-200 rounded-2xl p-6 hover:border-indigo-500 transition-all group overflow-hidden relative shadow-sm">
+              <div key={worker.userId} className="bg-white border border-slate-200 rounded-2xl p-6 hover:border-indigo-500 transition-all group overflow-hidden relative shadow-sm">
                 <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                   <ShieldCheck className="h-20 w-20 text-emerald-400" />
                 </div>
@@ -124,7 +124,7 @@ export const WorkerSearchPage = () => {
                     <span className="text-sm font-bold text-emerald-400">Level {worker.level}</span>
                   </div>
                   <button 
-                    onClick={() => navigate(`/worker/${worker.clerkId}`)}
+                    onClick={() => navigate(`/worker/${worker.userId}`)}
                     className="text-sm font-bold bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-all"
                   >
                     View Profile

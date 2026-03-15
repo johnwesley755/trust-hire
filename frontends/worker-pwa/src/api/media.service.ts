@@ -4,7 +4,7 @@ export interface MediaResponse {
   id: string;
   url: string;
   type: string;
-  ownerClerkId: string;
+  ownerId: string;
 }
 
 export const mediaService = {

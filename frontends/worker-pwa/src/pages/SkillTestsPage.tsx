@@ -6,7 +6,7 @@ import { useState } from 'react';
 
 export interface TestSubmission {
   testId: string;
-  clerkId: string;
+  userId: string;
   answers: unknown[];
   maxPoints: number;
 }

@@ -9,5 +9,5 @@ import java.util.UUID;
 
 @Repository
 public interface VerificationRepository extends JpaRepository<VerificationRecord, UUID> {
-    Optional<VerificationRecord> findByWorkerClerkId(String workerClerkId);
+    Optional<VerificationRecord> findByUserId(String userId);
 }

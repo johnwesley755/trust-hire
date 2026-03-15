@@ -28,6 +28,7 @@ export default function OnboardingPage() {
     companyWebsite: "",
     profileBio: "",
     businessAddress: "",
+    city: "",
     latitude: null as number | null,
     longitude: null as number | null,
   });
@@ -41,14 +42,38 @@ export default function OnboardingPage() {
   const detectLocation = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        (pos) => {
+        async (pos) => {
+          const { latitude, longitude } = pos.coords;
           setFormData(prev => ({
             ...prev,
-            latitude: pos.coords.latitude,
-            longitude: pos.coords.longitude,
-            businessAddress: "Current Location (GPS Detected)"
+            latitude,
+            longitude,
+            businessAddress: "Detecting address..."
           }));
-          setLocationError("");
+
+          try {
+            const response = await fetch(
+              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`,
+              { headers: { 'Accept-Language': 'en' } }
+            );
+            const data = await response.json();
+            
+            const address = data.display_name;
+            const city = data.address.city || data.address.town || data.address.village || data.address.suburb || "Unknown City";
+            
+            setFormData(prev => ({
+              ...prev,
+              businessAddress: address,
+              city: city
+            }));
+            setLocationError("");
+          } catch (err) {
+            console.error("Reverse geocoding failed:", err);
+            setFormData(prev => ({
+              ...prev,
+              businessAddress: "Location detected (Address fetch failed)"
+            }));
+          }
         },
         (err) => {
           setLocationError("Could not detect location. Please type it.");
@@ -71,7 +96,9 @@ export default function OnboardingPage() {
           profileBio: formData.profileBio,
           businessTier: "BASIC",
           latitude: formData.latitude,
-          longitude: formData.longitude
+          longitude: formData.longitude,
+          address: formData.businessAddress,
+          city: formData.city || ""
         }
       );
 

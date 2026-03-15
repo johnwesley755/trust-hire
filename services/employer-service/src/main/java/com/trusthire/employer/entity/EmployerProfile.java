@@ -36,7 +36,9 @@ public class EmployerProfile {
     private String location;
     private Double latitude;
     private Double longitude;
-    
+    private String address;
+    private String city;
+
     @Column(columnDefinition = "BOOLEAN DEFAULT false")
     private boolean isVerified;
 

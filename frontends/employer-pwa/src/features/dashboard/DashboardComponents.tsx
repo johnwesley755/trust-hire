@@ -108,7 +108,7 @@ export const RecentApplicants = () => {
                                     {app.status[0]}
                                 </div>
                                 <div>
-                                    <p className="font-semibold text-slate-900 group-hover:text-indigo-600 transition-colors">Applicant ID: {app.workerClerkId.substring(0, 8)}</p>
+                                    <p className="font-semibold text-slate-900 group-hover:text-indigo-600 transition-colors">Applicant ID: {app.workerId.substring(0, 8)}</p>
                                     <p className="text-sm text-slate-500 italic truncate max-w-xs">{app.coverLetter || "No cover letter provided."}</p>
                                 </div>
                             </div>

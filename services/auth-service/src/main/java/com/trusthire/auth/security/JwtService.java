@@ -15,11 +15,32 @@ import java.util.function.Function;
 @Component
 public class JwtService {
 
-    @Value("${JWT_SECRET:default-secret-key-that-must-be-very-long-for-hs256}")
+    @Value("${JWT_SECRET:Q7mV2f8YbKc6n4GxR1Pz9TqJ5sH3W8dL0uCkE2aB7yFvM6rN1tX4pS9ZgH5jU3w}")
     private String jwtSecret;
 
-    @Value("${app.jwt.expiration:900000}")
-    private long jwtExpiration; // 15 mins default
+    @Value("${app.jwt.expiration:86400000}")
+    private long jwtExpiration; // 24 hours default
+
+    @jakarta.annotation.PostConstruct
+    public void init() {
+        try {
+            java.security.MessageDigest digest = java.security.MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(jwtSecret.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : hash) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
+            }
+            System.out.println("DEBUG: Auth JwtService - JWT_SECRET Fingerprint (SHA-256): " + hexString.toString());
+        } catch (Exception e) {
+            System.err.println("DEBUG: Auth JwtService - Could not generate secret fingerprint: " + e.getMessage());
+        }
+
+        if ("default-secret-key-that-must-be-very-long-for-hs256".equals(jwtSecret)) {
+            System.err.println("WARNING: Auth Service is using the DEFAULT JWT_SECRET fallback!");
+        }
+    }
 
     public String extractUserId(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -39,6 +60,8 @@ public class JwtService {
         return Jwts.builder()
                 .setClaims(extraClaims)
                 .setSubject(user.getId().toString())
+                .setIssuer("trust-hire-auth")
+                .setAudience("trust-hire-services")
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration))
                 .signWith(getSigningKey(), io.jsonwebtoken.SignatureAlgorithm.HS256)
@@ -71,7 +94,7 @@ public class JwtService {
     }
 
     private SecretKey getSigningKey() {
-        byte[] keyBytes = jwtSecret.getBytes();
+        byte[] keyBytes = jwtSecret.getBytes(java.nio.charset.StandardCharsets.UTF_8);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 }

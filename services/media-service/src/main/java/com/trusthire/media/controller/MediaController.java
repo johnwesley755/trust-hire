@@ -24,8 +24,8 @@ public class MediaController {
     public ResponseEntity<Media> uploadFile(
             @RequestParam("file") MultipartFile file,
             @AuthenticationPrincipal Jwt jwt) throws IOException {
-        String ownerClerkId = jwt.getSubject();
-        return ResponseEntity.ok(mediaService.uploadFile(file, ownerClerkId));
+        String ownerId = (jwt != null) ? jwt.getSubject() : "ANONYMOUS";
+        return ResponseEntity.ok(mediaService.uploadFile(file, ownerId));
     }
 
     @GetMapping("/{id}")
@@ -35,8 +35,8 @@ public class MediaController {
 
     @GetMapping("/my")
     public ResponseEntity<List<Media>> getMyMedia(@AuthenticationPrincipal Jwt jwt) {
-        String ownerClerkId = jwt.getSubject();
-        return ResponseEntity.ok(mediaService.getMediaByOwner(ownerClerkId));
+        String ownerId = jwt.getSubject();
+        return ResponseEntity.ok(mediaService.getMediaByOwner(ownerId));
     }
 
     @DeleteMapping("/{id}")

@@ -21,7 +21,7 @@ import java.util.List;
 @Component
 public class AuthenticationFilter implements GlobalFilter, Ordered {
 
-    @Value("${JWT_SECRET:default-secret-key-that-must-be-very-long-for-hs256}")
+    @Value("${JWT_SECRET:Q7mV2f8YbKc6n4GxR1Pz9TqJ5sH3W8dL0uCkE2aB7yFvM6rN1tX4pS9ZgH5jU3w}")
     private String jwtSecret;
 
     // Open endpoints that don't need token verification
@@ -30,6 +30,8 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
             "/api/auth/login",
             "/api/auth/send-otp",
             "/api/jobs/search",
+            "/api/media/upload",
+            "/api/auth/test/cleanup",
             "/ws/"
     );
 
@@ -86,7 +88,7 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
     }
 
     private SecretKey getSigningKey() {
-        byte[] keyBytes = jwtSecret.getBytes();
+        byte[] keyBytes = jwtSecret.getBytes(java.nio.charset.StandardCharsets.UTF_8);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 

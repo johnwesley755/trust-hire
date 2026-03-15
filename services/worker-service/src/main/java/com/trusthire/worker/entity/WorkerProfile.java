@@ -28,6 +28,8 @@ public class WorkerProfile {
     private Double latitude;
     private Double longitude;
     private String level; // L1, L2, L3, L4
+    private String address;
+    private String city;
 
     @Column(columnDefinition = "TEXT")
     private String bio;

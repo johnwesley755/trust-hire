@@ -2,7 +2,7 @@ import apiClient from './apiClient';
 
 export interface EmployerProfile {
   id?: string;
-  clerkId: string;
+  userId: string;
   companyName: string;
   industry: string;
   companyWebsite: string;

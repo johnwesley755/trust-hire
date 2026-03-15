@@ -23,18 +23,18 @@ public class RatingController {
             @AuthenticationPrincipal Jwt jwt,
             @RequestBody Rating rating) {
         // Set the reviewer ID from the authenticated user
-        rating.setReviewerClerkId(jwt.getSubject());
+        rating.setReviewerId(jwt.getSubject());
         return ResponseEntity.ok(ratingService.submitRating(rating));
     }
 
-    @GetMapping("/user/{rateeClerkId}")
-    public ResponseEntity<List<Rating>> getRatingsForUser(@PathVariable String rateeClerkId) {
-        return ResponseEntity.ok(ratingService.getRatingsForUser(rateeClerkId));
+    @GetMapping("/user/{rateeId}")
+    public ResponseEntity<List<Rating>> getRatingsForUser(@PathVariable String rateeId) {
+        return ResponseEntity.ok(ratingService.getRatingsForUser(rateeId));
     }
 
-    @GetMapping("/user/{rateeClerkId}/average")
-    public ResponseEntity<Double> getAverageRating(@PathVariable String rateeClerkId) {
-        return ResponseEntity.ok(ratingService.getAverageRatingForUser(rateeClerkId));
+    @GetMapping("/user/{rateeId}/average")
+    public ResponseEntity<Double> getAverageRating(@PathVariable String rateeId) {
+        return ResponseEntity.ok(ratingService.getAverageRatingForUser(rateeId));
     }
 
     @GetMapping("/my")

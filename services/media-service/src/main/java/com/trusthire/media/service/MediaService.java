@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.UUID;
 
 public interface MediaService {
-    Media uploadFile(MultipartFile file, String ownerClerkId) throws IOException;
+    Media uploadFile(MultipartFile file, String ownerId) throws IOException;
     Media getMediaInfo(UUID id);
-    List<Media> getMediaByOwner(String ownerClerkId);
+    List<Media> getMediaByOwner(String ownerId);
     void deleteMedia(UUID id) throws IOException;
 }

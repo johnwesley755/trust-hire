@@ -3,7 +3,7 @@ import apiClient from './apiClient';
 export interface JobApplication {
   id?: string;
   jobId: string;
-  workerClerkId: string;
+  workerId: string;
   status: 'PENDING' | 'REVIEWING' | 'ACCEPTED' | 'REJECTED' | 'COMPLETED';
   appliedAt: string;
   coverLetter?: string;

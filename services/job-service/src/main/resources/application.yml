@@ -3,9 +3,9 @@ spring:
     name: job-service
   
   datasource:
-    url: ${POSTGRES_URL}
-    username: ${POSTGRES_USER}
-    password: ${POSTGRES_PASSWORD}
+    url: ${JOB_DB_URL:jdbc:postgresql://localhost:5432/trusthire_job_db}
+    username: ${POSTGRES_USER:trusthire_user}
+    password: ${POSTGRES_PASSWORD:trusthire123}
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 2
@@ -16,7 +16,7 @@ spring:
   
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate 
     show-sql: true
     properties:
       hibernate:

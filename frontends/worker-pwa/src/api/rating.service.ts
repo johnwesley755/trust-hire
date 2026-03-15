@@ -2,8 +2,8 @@ import apiClient from './apiClient';
 
 export interface Rating {
   id?: string;
-  reviewerClerkId?: string;
-  rateeClerkId: string;
+  reviewerId?: string;
+  rateeId: string;
   jobId: string;
   score: number;
   comment: string;

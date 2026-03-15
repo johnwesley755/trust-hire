@@ -10,7 +10,7 @@ spring:
           predicates:
             - Path=/api/v1/api/auth/**
           filters:
-            - RewritePath=/api/v1/api/auth/(?<segment>.*), /api/auth/$\{segment}
+            - StripPrefix=2
 
         - id: worker-service
           uri: http://localhost:8082

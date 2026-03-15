@@ -26,8 +26,8 @@ public class MediaServiceImpl implements MediaService {
 
     @Override
     @Transactional
-    public Media uploadFile(MultipartFile file, String ownerClerkId) throws IOException {
-        log.info("Uploading file for owner: {}", ownerClerkId);
+    public Media uploadFile(MultipartFile file, String ownerId) throws IOException {
+        log.info("Uploading file for owner: {}", ownerId);
         
         @SuppressWarnings("rawtypes")
         Map uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
@@ -38,7 +38,7 @@ public class MediaServiceImpl implements MediaService {
                 .fileName(file.getOriginalFilename())
                 .fileType(file.getContentType())
                 .fileSize(file.getSize())
-                .ownerClerkId(ownerClerkId)
+                .ownerId(ownerId)
                 .build();
         
         return repository.save(media);
@@ -51,8 +51,8 @@ public class MediaServiceImpl implements MediaService {
     }
 
     @Override
-    public List<Media> getMediaByOwner(String ownerClerkId) {
-        return repository.findByOwnerClerkId(ownerClerkId);
+    public List<Media> getMediaByOwner(String ownerId) {
+        return repository.findByOwnerId(ownerId);
     }
 
     @Override

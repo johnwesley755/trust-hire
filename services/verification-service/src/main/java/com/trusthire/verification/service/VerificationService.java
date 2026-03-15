@@ -8,7 +8,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface VerificationService {
-    VerificationRecord uploadDocImage(String workerClerkId, MultipartFile file) throws IOException;
-    VerificationRecord uploadLiveCapture(String workerClerkId, MultipartFile file) throws IOException;
-    Optional<VerificationRecord> getStatus(String workerClerkId);
+    VerificationRecord uploadDocImage(String workerId, MultipartFile file) throws IOException;
+    VerificationRecord uploadLiveCapture(String workerId, MultipartFile file) throws IOException;
+    Optional<VerificationRecord> getStatus(String workerId);
 }

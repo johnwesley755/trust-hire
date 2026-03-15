@@ -6,21 +6,21 @@ import { Star, X, Loader2 } from 'lucide-react';
 interface RatingModalProps {
   isOpen: boolean;
   onClose: () => void;
-  workerClerkId: string;
+  workerId: string;
   workerName: string;
   jobId: string;
 }
 
-export const RatingModal = ({ isOpen, onClose, workerClerkId, workerName, jobId }: RatingModalProps) => {
+export const RatingModal = ({ isOpen, onClose, workerId, workerName, jobId }: RatingModalProps) => {
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState('');
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationFn: (data: { rateeClerkId: string; jobId: string; score: number; comment: string }) =>
+    mutationFn: (data: { rateeId: string; jobId: string; score: number; comment: string }) =>
       ratingService.submitRating(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['ratings', workerClerkId] });
+      queryClient.invalidateQueries({ queryKey: ['ratings', workerId] });
       onClose();
     },
   });
@@ -62,7 +62,7 @@ export const RatingModal = ({ isOpen, onClose, workerClerkId, workerName, jobId 
         </div>
 
         <button
-          onClick={() => mutation.mutate({ rateeClerkId: workerClerkId, jobId, score: rating, comment })}
+          onClick={() => mutation.mutate({ rateeId: workerId, jobId, score: rating, comment })}
           disabled={mutation.isPending}
           className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-4 rounded-2xl transition-all shadow-lg shadow-indigo-500/20 flex items-center justify-center gap-2"
         >

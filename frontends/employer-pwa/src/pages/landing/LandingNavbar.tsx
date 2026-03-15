@@ -15,9 +15,10 @@ export function LandingNavbar() {
   }, []);
 
   const navLinks = [
-    { name: "How it works", href: "#how-it-works" },
-    { name: "Talent Vision", href: "#vision" },
-    { name: "Features", href: "#features" },
+    { name: "Mission", href: "#vision" },
+    { name: "Enterprise", href: "#features" },
+    { name: "Verification", href: "#network" },
+    { name: "Fleet", href: "#how-it-works" },
   ];
 
   return (
@@ -43,43 +44,41 @@ export function LandingNavbar() {
         </Link>
 
         {/* Desktop Nav */}
-        <div className="hidden lg:flex items-center gap-10">
-          <div className="flex items-center gap-10">
-            {navLinks.map((link) => (
-              <a
-                key={link.name}
-                href={link.href}
-                className="text-sm font-black text-brand-secondary hover:text-brand-primary transition-all tracking-tight"
-              >
-                {link.name}
-              </a>
-            ))}
-          </div>
+        <div className="hidden lg:flex items-center gap-12">
+          {navLinks.map((link) => (
+            <a
+              key={link.name}
+              href={link.href}
+              className="text-sm font-bold text-brand-secondary/80 hover:text-brand-primary transition-colors tracking-tight"
+            >
+              {link.name}
+            </a>
+          ))}
+        </div>
 
-          <div className="h-6 w-px bg-brand-border mx-2" />
-
+        <div className="hidden lg:flex items-center gap-6">
           {user ? (
             <Link
               to="/dashboard"
-              className="px-6 py-2.5 bg-brand-secondary hover:bg-brand-secondary/90 text-brand-primary rounded-xl font-black text-sm transition-all shadow-xl shadow-brand-secondary/10"
+              className="px-8 py-3.5 bg-brand-secondary text-brand-primary rounded-xl font-black text-sm shadow-xl hover:scale-105 active:scale-95 transition-all"
             >
               Dashboard
             </Link>
           ) : (
-            <div className="flex items-center gap-10">
+            <>
               <Link
-                to="/sign-in"
-                className="text-sm font-black text-brand-secondary hover:text-brand-primary transition-all tracking-tight"
+                to="/login"
+                className="text-sm font-black text-brand-secondary hover:text-brand-primary transition-colors tracking-tight"
               >
-                Sign In
+                Partner Login
               </Link>
               <Link
                 to="/sign-up"
-                className="px-8 py-4 bg-brand-secondary text-brand-primary rounded-2xl font-black text-sm tracking-tight transition-all shadow-2xl hover:scale-105 active:scale-95 shadow-brand-secondary/20"
+                className="px-8 py-3.5 bg-brand-secondary text-brand-primary rounded-xl font-black text-sm shadow-xl hover:scale-105 active:scale-95 transition-all"
               >
-                Start Hiring
+                Get Started
               </Link>
-            </div>
+            </>
           )}
         </div>
 
@@ -108,18 +107,18 @@ export function LandingNavbar() {
             ))}
             <hr className="border-brand-border" />
             <Link
-              to="/sign-in"
+              to="/login"
               className="text-lg font-black text-brand-text"
               onClick={() => setIsOpen(false)}
             >
-              Sign In
+              Login
             </Link>
             <Link
               to="/sign-up"
               className="w-full py-4 bg-brand-secondary text-brand-primary rounded-xl font-black text-center shadow-lg"
               onClick={() => setIsOpen(false)}
             >
-              Start Hiring
+              Get Started
             </Link>
           </div>
         </div>

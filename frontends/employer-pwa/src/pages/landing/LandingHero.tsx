@@ -1,147 +1,115 @@
-import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Search, ShieldCheck, Zap, TrendingUp } from "lucide-react";
-
-// Correct path to assets in public directory
-const HERO_ILLUSTRATION = "/images/indi_electrician.png";
+import { ArrowRight, Shield, ShieldCheck } from 'lucide-react';
+import { Link } from "react-router-dom";
 
 export function LandingHero() {
   return (
-    <section className="relative pt-32 pb-20 overflow-hidden bg-white min-h-[90vh] flex items-center">
-      {/* Background Oriented Pattern */}
-      <div className="absolute inset-0 cloud-grid opacity-10 pointer-events-none" />
-      <div className="absolute top-0 right-0 w-3/4 h-full oriented-rays pointer-events-none opacity-20" />
-      
-      <div className="max-w-7xl mx-auto px-6 flex flex-col lg:flex-row items-center gap-12 relative z-10 w-full">
-        {/* Left Content */}
-        <div className="w-full lg:w-1/2 space-y-10 text-center lg:text-left">
+    <section className="relative min-h-screen flex items-center pt-20 overflow-hidden bg-white">
+      {/* Background patterns */}
+      <div className="absolute inset-0 cloud-grid opacity-[0.05] pointer-events-none" />
+      <div className="absolute top-0 right-0 w-2/3 h-full bg-linear-to-l from-brand-primary/10 to-transparent blur-3xl pointer-events-none" />
+
+      <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center relative z-10">
+        <div className="space-y-10">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-2 bg-brand-primary/15 border border-brand-primary/20 px-4 py-2 rounded-full shadow-sm"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="inline-flex items-center gap-3 px-6 py-2 bg-brand-primary/10 border border-brand-primary/20 rounded-full text-brand-primary text-xs font-black tracking-widest uppercase"
           >
-            <ShieldCheck className="w-4 h-4 text-brand-primary" />
-            <span className="text-sm font-black text-brand-secondary">Blockchain-Verified Talent Pool</span>
+            <Shield className="w-4 h-4" />
+            Blockchain-Verified Talent Infrastructure
           </motion.div>
 
-          <motion.h1
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-6xl lg:text-8xl font-black text-brand-secondary leading-[1.05] tracking-tighter"
-          >
-            Hire with <br />
-            <span className="text-brand-primary relative inline-block">
-                Absolute Trust.
-              <motion.div 
-                className="absolute -bottom-2 left-0 right-0 h-4 bg-brand-primary/20 -z-10"
-                initial={{ width: 0 }}
-                animate={{ width: "100%" }}
-                transition={{ delay: 0.6, duration: 0.8 }}
-              />
-            </span> <br />
-            Scale Faster.
-          </motion.h1>
+          <div className="space-y-6">
+            <motion.h1 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="text-6xl lg:text-8xl font-black tracking-tighter leading-[0.9] text-brand-secondary"
+            >
+              Secure Your <br />
+              <span className="text-brand-primary">Verified Fleet</span> <br />
+              in Seconds.
+            </motion.h1>
+            <motion.p 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="text-xl text-brand-muted max-w-lg font-bold leading-relaxed"
+            >
+              TrustHire is India's leading enterprise talent cloud. We use AI and blockchain 
+              to provide 100% verified professionals for your critical operations.
+            </motion.p>
+          </div>
 
-          <motion.p
+          <motion.div 
             initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="text-lg md:text-xl text-brand-muted max-w-xl mx-auto lg:mx-0 font-bold leading-relaxed"
-          >
-            TrustHire bridges the gap between top Indian professionals and global enterprises through a secure, blockchain-verified ecosystem. Find, verify, and deploy in clicks.
-          </motion.p>
-
-          {/* Search Mock */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="relative flex items-center p-2 bg-white rounded-3xl shadow-2xl border border-brand-border group hover:border-brand-primary transition-all duration-300"
+            className="flex flex-wrap gap-6"
           >
-            <div className="flex-1 flex items-center gap-3 px-4 text-left">
-              <Search className="text-brand-muted w-6 h-6" />
-              <div className="flex flex-col flex-1">
-                <span className="text-[10px] uppercase font-black text-brand-muted">Search Skilled Talent</span>
-                <input
-                    type="text"
-                    placeholder="Electrician, Supervisor, Engineer..."
-                    className="w-full outline-none text-brand-text font-black text-lg bg-transparent border-none placeholder:text-brand-muted/40"
-                />
-              </div>
-            </div>
-            <div className="w-px h-10 bg-brand-border" />
             <Link
               to="/sign-up"
-              className="bg-brand-secondary text-brand-primary p-4 rounded-2xl hover:scale-105 active:scale-95 transition-all shadow-lg shadow-brand-primary/20"
+              className="px-12 py-6 bg-brand-secondary text-brand-primary rounded-2xl font-black text-lg shadow-2xl hover:scale-105 active:scale-95 transition-all flex items-center gap-3"
             >
-              <Search className="w-7 h-7 stroke-[3px]" />
+              Start Scouting
+              <ArrowRight className="w-6 h-6" />
             </Link>
+            <div className="flex -space-x-4 items-center">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="w-12 h-12 rounded-full border-4 border-white bg-slate-200 overflow-hidden">
+                  <img src={`https://i.pravatar.cc/150?u=${i}`} alt="user" />
+                </div>
+              ))}
+              <div className="pl-8 text-sm font-black text-brand-secondary">
+                <div className="text-brand-primary">15,000+</div>
+                Partner Companies
+              </div>
+            </div>
           </motion.div>
-          
-          <div className="flex flex-wrap items-center justify-center lg:justify-start gap-8 pt-4">
-            <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-brand-surface rounded-xl flex items-center justify-center text-brand-primary">
-                    <Zap className="w-5 h-5 fill-current" />
-                </div>
-                <div className="text-left">
-                    <div className="text-xs font-black text-brand-secondary uppercase">Instant Match</div>
-                    <div className="text-[10px] font-bold text-brand-muted">AI-Powered Scoring</div>
-                </div>
-            </div>
-            <div className="w-px h-10 bg-brand-border hidden sm:block" />
-            <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-brand-surface rounded-xl flex items-center justify-center text-brand-accent">
-                    <TrendingUp className="w-5 h-5" />
-                </div>
-                <div className="text-left">
-                    <div className="text-xs font-black text-brand-secondary uppercase">Scalable Fleet</div>
-                    <div className="text-[10px] font-bold text-brand-muted">Verified History</div>
-                </div>
-            </div>
-          </div>
         </div>
 
-        {/* Right Content - Full Width Illustration Integration */}
-        <div className="w-full lg:w-1/2 relative min-h-[500px] flex items-center justify-center">
+        <div className="relative">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="relative z-10 rounded-[80px] overflow-hidden border-8 border-white shadow-2xl bg-brand-surface group"
+          >
+            <img 
+              src="/images/indi_electrician.png" 
+              alt="Professional Indian Workforce" 
+              className="w-full h-auto transform group-hover:scale-105 transition-transform duration-1000"
+            />
+            {/* Real-time verification badge */}
             <motion.div 
-                className="relative z-10 w-full"
-                initial={{ x: 50, opacity: 0 }}
+                className="absolute top-10 right-10 p-6 glass-card rounded-3xl z-20 border-2 border-emerald-500/20 shadow-2xl"
+                initial={{ x: 20, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
-                transition={{ duration: 1, ease: "easeOut" }}
+                transition={{ delay: 0.5 }}
             >
-                <img 
-                    src={HERO_ILLUSTRATION} 
-                    alt="Indian Professional Electrician" 
-                    className="w-full h-auto drop-shadow-[0_80px_100px_rgba(250,204,21,0.3)] animate-float rounded-full border-[12px] border-white/40 backdrop-blur-sm"
-                />
+                <div className="flex items-center gap-3 mb-2">
+                    <div className="w-4 h-4 rounded-full bg-emerald-500 animate-pulse" />
+                    <span className="text-[10px] font-black text-brand-secondary tracking-widest uppercase">Verified Sync</span>
+                </div>
+                <div className="text-2xl font-black text-brand-secondary">On-Chain ID</div>
             </motion.div>
+          </motion.div>
 
-            {/* Floating Talent Card */}
-            <motion.div
-                className="absolute top-10 right-0 p-5 glass-card rounded-[32px] z-20 w-72 translate-x-12 hidden md:block border-2 border-brand-primary/20"
-                animate={{ y: [0, -25, 0] }}
-                transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
-            >
-                <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 bg-brand-primary rounded-2xl flex items-center justify-center text-brand-secondary font-black overflow-hidden border-2 border-white shadow-md">
-                        <img src="/images/indi_electrician.png" alt="Arjun V." className="w-full h-full object-cover" />
-                    </div>
-                    <div className="text-left">
-                        <h4 className="font-black text-brand-secondary text-base">Arjun Varma</h4>
-                        <div className="flex items-center gap-1 text-[10px] text-brand-muted font-bold">
-                            <span className="text-brand-accent font-black tracking-tighter">MASTER ELECTRICIAN</span>
-                        </div>
-                    </div>
-                </div>
-                <div className="mt-5 pt-4 border-t border-brand-border flex items-center justify-between">
-                    <div>
-                        <div className="text-[10px] font-black text-brand-muted uppercase">Trust Score</div>
-                        <div className="text-lg font-black text-brand-primary">99.8%</div>
-                    </div>
-                    <div className="px-4 py-2 bg-brand-secondary text-brand-primary rounded-xl text-[10px] font-black uppercase tracking-tight shadow-lg">Verified</div>
-                </div>
-            </motion.div>
+          {/* Floating Feature Card */}
+          <motion.div
+            animate={{ y: [0, -20, 0] }}
+            transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
+            className="absolute -bottom-10 -left-10 p-8 bg-brand-primary rounded-[40px] shadow-2xl z-20 hidden lg:block"
+          >
+            <div className="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center mb-6">
+                <ShieldCheck className="w-6 h-6 text-emerald-500" />
+            </div>
+            <div>
+                <div className="text-[10px] font-black uppercase tracking-widest opacity-60">Success Rate</div>
+                <div className="text-3xl font-black">99.2%</div>
+            </div>
+          </motion.div>
         </div>
       </div>
     </section>

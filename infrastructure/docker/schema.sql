@@ -7,7 +7,6 @@ CREATE EXTENSION IF NOT EXISTS postgis;
 -- Common Metadata Table (Mirrors Clerk user data)
 CREATE TABLE IF NOT EXISTS user_metadata (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    clerk_id VARCHAR(255) UNIQUE NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
     first_name VARCHAR(255),
     last_name VARCHAR(255),
