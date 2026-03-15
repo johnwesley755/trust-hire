@@ -13,11 +13,24 @@ export const AuthOnboardingGuard = ({ children }: { children: React.ReactNode })
   useEffect(() => {
     const checkOnboarding = async () => {
       if (isSignedIn && user) {
+        if (user.onboarded) {
+          setIsOnboarded(true);
+          setLoading(false);
+          return;
+        }
+
         try {
-          // In our native system, we can just check the user object 
-          // but if we want to stay synced with backend:
           const response = await apiClient.post('/api/auth/sync', { role: "WORKER" });
           setIsOnboarded(response.data.onboarded);
+          
+          if (response.data.onboarded) {
+             const storedUser = localStorage.getItem('user');
+             if (storedUser) {
+                 const userObj = JSON.parse(storedUser);
+                 userObj.onboarded = true;
+                 localStorage.setItem('user', JSON.stringify(userObj));
+             }
+          }
         } catch (error) {
           console.error("Onboarding check failed:", error);
           setIsOnboarded(false);
@@ -44,7 +57,7 @@ export const AuthOnboardingGuard = ({ children }: { children: React.ReactNode })
     return <Navigate to="/" state={{ from: location }} replace />;
   }
 
-  if (isOnboarded === false && location.pathname !== "/onboarding") {
+  if (isOnboarded === false && location.pathname !== "/onboarding" && location.pathname !== "/verify-identity") {
     return <Navigate to="/onboarding" replace />;
   }
 

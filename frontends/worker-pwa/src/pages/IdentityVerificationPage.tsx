@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { verificationService } from '../api/verification.service';
+import apiClient from '../api/apiClient';
 import { ShieldCheck, Upload, Camera, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 
 export const IdentityVerificationPage = () => {
@@ -45,8 +46,8 @@ export const IdentityVerificationPage = () => {
     }
   };
 
-  // If already verified or pending, show status
-  if (status?.status === 'VERIFIED' || status?.status === 'PENDING') {
+  // If already verified or pending (and past upload steps), show status
+  if (status?.status === 'VERIFIED' || (status?.status === 'PENDING' && step === 3)) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6 text-slate-900">
         <div className="max-w-md w-full bg-white border border-slate-200 rounded-3xl p-10 text-center space-y-6 shadow-xl">
@@ -57,6 +58,25 @@ export const IdentityVerificationPage = () => {
               </div>
               <h1 className="text-3xl font-bold">Identity Verified</h1>
               <p className="text-slate-500">Your identity has been successfully verified. You now have full access to premium jobs.</p>
+              <button 
+                onClick={async () => {
+                  try {
+                    await apiClient.post('/api/auth/sync', { onboarded: true });
+                    const storedUser = localStorage.getItem('user');
+                    if (storedUser) {
+                      const userObj = JSON.parse(storedUser);
+                      userObj.onboarded = true;
+                      localStorage.setItem('user', JSON.stringify(userObj));
+                    }
+                    window.location.href = '/dashboard';
+                  } catch (e) {
+                    console.error(e);
+                  }
+                }}
+                className="w-full bg-emerald-600 hover:bg-emerald-500 py-3 rounded-xl transition-all font-bold text-white mt-4"
+              >
+                Go to Dashboard
+              </button>
             </>
           ) : (
             <>
@@ -65,11 +85,11 @@ export const IdentityVerificationPage = () => {
               </div>
               <h1 className="text-3xl font-bold">Verification Pending</h1>
               <p className="text-slate-500">We are currently processing your identity documents. This usually takes less than 24 hours.</p>
+              <button onClick={() => window.history.back()} className="w-full bg-slate-100 hover:bg-slate-200 py-3 rounded-xl transition-all font-bold text-slate-900 mt-4">
+                Return to Dashboard
+              </button>
             </>
           )}
-          <button onClick={() => window.history.back()} className="w-full bg-slate-100 hover:bg-slate-200 py-3 rounded-xl transition-all font-bold text-slate-900">
-            Return to Dashboard
-          </button>
         </div>
       </div>
     );
@@ -168,7 +188,23 @@ export const IdentityVerificationPage = () => {
             {status?.status === 'REJECTED' ? (
               <button onClick={() => setStep(1)} className="w-full bg-red-600 hover:bg-red-500 py-4 rounded-xl font-bold transition-all text-white">Try Again</button>
             ) : (
-              <button onClick={() => window.location.href = '/dashboard'} className="w-full bg-emerald-600 hover:bg-emerald-500 py-4 rounded-xl font-bold transition-all text-white">Go to Dashboard</button>
+              <button onClick={async () => {
+                try {
+                  await apiClient.post('/api/auth/sync', { onboarded: true });
+                  
+                  const storedUser = localStorage.getItem('user');
+                  if (storedUser) {
+                    const userObj = JSON.parse(storedUser);
+                    userObj.onboarded = true;
+                    localStorage.setItem('user', JSON.stringify(userObj));
+                  }
+                  
+                  window.location.href = '/dashboard';
+                } catch (e) {
+                  console.error(e);
+                  alert("Failed to sync onboarding status. Please check your connection.");
+                }
+              }} className="w-full bg-emerald-600 hover:bg-emerald-500 py-4 rounded-xl font-bold transition-all text-white">Go to Dashboard</button>
             )}
           </div>
         )}

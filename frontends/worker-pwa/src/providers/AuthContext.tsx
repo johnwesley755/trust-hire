@@ -9,7 +9,7 @@ interface User {
   onboarded: boolean;
   firstName?: string;
   lastName?: string;
-  imageUrl?: string;
+  profileImageUrl?: string;
 }
 
 interface AuthContextType {

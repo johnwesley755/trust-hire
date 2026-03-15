@@ -38,6 +38,6 @@ public class VerificationRecord {
     private LocalDateTime updatedAt;
 
     public enum VerificationStatus {
-        PENDING, SUCCESS, FAILED
+        NONE, PENDING, VERIFIED, REJECTED
     }
 }

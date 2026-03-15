@@ -2,13 +2,15 @@ import { useState } from "react";
 import { useAuth, useUser } from "../providers/AuthContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { profileService, type WorkerProfile } from "../api/profile.service";
-import { User, Mail, MapPin, Award, LogOut, ChevronRight, ShieldCheck, Navigation } from "lucide-react";
+import apiClient from "../api/apiClient";
+import { User, Mail, MapPin, Award, LogOut, ChevronRight, ShieldCheck, Navigation, Camera, Loader2 } from "lucide-react";
 
 export default function ProfilePage() {
   const { logout } = useAuth();
   const { user } = useUser();
   const [isEditingLocation, setIsEditingLocation] = useState(false);
   const [locationInput, setLocationInput] = useState("");
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: profile, isLoading } = useQuery({
@@ -24,6 +26,45 @@ export default function ProfilePage() {
     }
   });
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      alert("Image size must be less than 5MB");
+      return;
+    }
+
+    setIsUploadingImage(true);
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      // 1. Upload to Media Service
+      const uploadRes = await apiClient.post('/api/media/upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      const newImageUrl = uploadRes.data.url;
+
+      // 2. Sync to Auth Service
+      await apiClient.post('/api/auth/sync', { profileImageUrl: newImageUrl });
+
+      // 3. Update localStorage and trigger re-render
+      const storedUser = localStorage.getItem('user');
+      if (storedUser) {
+        const userObj = JSON.parse(storedUser);
+        userObj.profileImageUrl = newImageUrl;
+        localStorage.setItem('user', JSON.stringify(userObj));
+        window.location.reload(); // Quick explicit reload to show updated local state
+      }
+    } catch (err: any) {
+      console.error("Failed to upload image:", err);
+      alert(err.response?.data?.message || "Failed to update profile image");
+    } finally {
+      setIsUploadingImage(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
@@ -33,20 +74,43 @@ export default function ProfilePage() {
   }
 
   const handleUpdateLocation = () => {
-    updateMutation.mutate({ location: locationInput });
+    updateMutation.mutate({ location: locationInput, address: locationInput });
   };
 
   const useCurrentLocation = () => {
     if (navigator.geolocation) {
+      setIsEditingLocation(true);
+      setLocationInput("Detecting GPS...");
       navigator.geolocation.getCurrentPosition(
-        (pos) => {
+        async (pos) => {
+          const { latitude, longitude } = pos.coords;
+          let newAddress = "Current Location (GPS)";
+          let newCity = "";
+          try {
+            const response = await fetch(
+              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`,
+              { headers: { 'Accept-Language': 'en' } }
+            );
+            const data = await response.json();
+            newAddress = data.display_name;
+            newCity = data.address.city || data.address.town || data.address.village || data.address.suburb || "";
+          } catch (err) {
+             console.error("Reverse geocoding failed", err);
+          }
+          
+          setLocationInput(newAddress);
           updateMutation.mutate({ 
-            latitude: pos.coords.latitude, 
-            longitude: pos.coords.longitude,
-            location: locationInput || "Current Location" 
+            latitude, 
+            longitude,
+            location: newAddress,
+            address: newAddress,
+            city: newCity
           });
         },
-        (err) => console.error("Geolocation error:", err)
+        (err) => {
+          console.error("Geolocation error:", err);
+          setLocationInput("GPS Failed");
+        }
       );
     }
   };
@@ -56,13 +120,39 @@ export default function ProfilePage() {
       {/* Profile Header */}
       <div className="bg-white border-b border-slate-200 p-8 pt-12">
         <div className="max-w-2xl mx-auto flex flex-col items-center text-center space-y-4">
-          <div className="relative">
-            <img 
-              src={user?.imageUrl} 
-              alt={user?.firstName || ""} 
-              className="w-24 h-24 rounded-3xl border-4 border-white shadow-xl"
+          <div className="relative group cursor-pointer">
+            <input 
+              type="file" 
+              accept="image/*" 
+              onChange={handleImageUpload} 
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+              title="Change Profile Photo"
             />
-            <div className="absolute -bottom-2 -right-2 bg-emerald-500 text-white p-1.5 rounded-xl border-4 border-white">
+            {user?.profileImageUrl ? (
+                <img 
+                  src={user.profileImageUrl} 
+                  alt={user.firstName || ""} 
+                  className={`w-24 h-24 rounded-3xl border-4 border-white shadow-xl object-cover transition-opacity ${isUploadingImage ? 'opacity-50' : 'group-hover:opacity-75'}`}
+                />
+            ) : (
+                <div className="w-24 h-24 rounded-3xl border-4 border-white shadow-xl bg-slate-100 flex items-center justify-center text-slate-400">
+                  <User className="w-10 h-10" />
+                </div>
+            )}
+            
+            {/* Hover Camera Icon overlay */}
+            <div className={`absolute inset-0 bg-slate-900/40 rounded-3xl flex items-center justify-center transition-all opacity-0 ${!isUploadingImage && 'group-hover:opacity-100'}`}>
+              <Camera className="w-8 h-8 text-white" />
+            </div>
+
+            {/* Spinner Overlay */}
+            {isUploadingImage && (
+              <div className="absolute inset-0 bg-white/60 backdrop-blur-sm rounded-3xl flex items-center justify-center z-20">
+                  <Loader2 className="w-8 h-8 text-indigo-600 animate-spin" />
+              </div>
+            )}
+
+            <div className="absolute -bottom-2 -right-2 bg-emerald-500 text-white p-1.5 rounded-xl border-4 border-white z-20 flex items-center justify-center shadow-lg">
               <ShieldCheck className="w-4 h-4" />
             </div>
           </div>

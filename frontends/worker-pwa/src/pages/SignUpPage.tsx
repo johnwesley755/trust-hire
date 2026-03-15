@@ -6,6 +6,7 @@ import { Mail, Lock, Loader2, ArrowRight, User, ShieldCheck } from 'lucide-react
 import { useLanguage } from '../hooks/useLanguage';
 import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
+import { ImageUpload } from '../components/ImageUpload';
 
 export const SignUpPage = () => {
     const [formData, setFormData] = useState({
@@ -14,6 +15,7 @@ export const SignUpPage = () => {
         phoneNumber: '',
         firstName: '',
         lastName: '',
+        profile_image_url: '',
         role: 'WORKER'
     });
     const { t } = useLanguage();
@@ -213,6 +215,13 @@ export const SignUpPage = () => {
                                 />
                             </div>
                         </div>
+                    </div>
+
+                    <div className="pt-2">
+                        <ImageUpload 
+                            onUploadSuccess={(url) => setFormData({...formData, profile_image_url: url})}
+                            currentImage={formData.profile_image_url}
+                        />
                     </div>
 
                     <button

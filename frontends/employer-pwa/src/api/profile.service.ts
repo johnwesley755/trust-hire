@@ -8,6 +8,9 @@ export interface EmployerProfile {
   companyWebsite: string;
   profileBio: string;
   businessTier: string;
+  location?: string;
+  address?: string;
+  city?: string;
   isVerified: boolean;
 }
 

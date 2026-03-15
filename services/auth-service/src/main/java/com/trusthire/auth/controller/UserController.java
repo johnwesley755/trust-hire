@@ -102,6 +102,9 @@ public class UserController {
                 if (request.containsKey("onboarded")) {
                     user.setOnboarded((Boolean) request.get("onboarded"));
                 }
+                if (request.containsKey("profileImageUrl")) {
+                    user.setProfileImageUrl((String) request.get("profileImageUrl"));
+                }
                 repository.save(user);
                 return ResponseEntity.ok(user);
             })

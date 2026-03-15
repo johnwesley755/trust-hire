@@ -2,6 +2,12 @@ spring:
   application:
     name: verification-service
   
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 20MB
+
+  
   datasource:
     url: ${VERIFICATION_DB_URL:jdbc:postgresql://localhost:5432/trusthire_verification_db}
     username: ${POSTGRES_USER:trusthire_user}

@@ -15,8 +15,8 @@ export const UserButton = () => {
                 onClick={() => setIsOpen(!isOpen)}
                 className="w-10 h-10 rounded-full bg-emerald-100 border-2 border-emerald-500 overflow-hidden flex items-center justify-center hover:scale-105 transition-transform"
             >
-                {user.imageUrl ? (
-                    <img src={user.imageUrl} alt="Avatar" className="w-full h-full object-cover" />
+                {user.profileImageUrl ? (
+                    <img src={user.profileImageUrl} alt="Avatar" className="w-full h-full object-cover" />
                 ) : (
                     <User className="w-6 h-6 text-emerald-600" />
                 )}

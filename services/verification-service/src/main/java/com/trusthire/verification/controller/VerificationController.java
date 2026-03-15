@@ -36,6 +36,11 @@ public class VerificationController {
     public ResponseEntity<VerificationRecord> getStatus(@AuthenticationPrincipal Jwt jwt) {
         return verificationService.getStatus(jwt.getSubject())
                 .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                .orElseGet(() -> ResponseEntity.ok(
+                        VerificationRecord.builder()
+                                .userId(jwt.getSubject())
+                                .status(VerificationRecord.VerificationStatus.NONE)
+                                .build()
+                ));
     }
 }

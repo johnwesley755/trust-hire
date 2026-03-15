@@ -37,10 +37,13 @@ public class WorkerProfileController {
         if (updates.getLocation() != null) profile.setLocation(updates.getLocation());
         if (updates.getLatitude() != null) profile.setLatitude(updates.getLatitude());
         if (updates.getLongitude() != null) profile.setLongitude(updates.getLongitude());
+        if (updates.getCity() != null) profile.setCity(updates.getCity());
+        if (updates.getAddress() != null) profile.setAddress(updates.getAddress());
         if (updates.getBio() != null) profile.setBio(updates.getBio());
         if (updates.getSkills() != null) profile.setSkills(updates.getSkills());
         if (updates.getExperienceYears() != null) profile.setExperienceYears(updates.getExperienceYears());
         if (updates.getHourlyRate() != null) profile.setHourlyRate(updates.getHourlyRate());
+        if (updates.getLevel() != null) profile.setLevel(updates.getLevel());
         if (updates.getIsAvailable() != null) profile.setIsAvailable(updates.getIsAvailable());
         
         return ResponseEntity.ok(profileService.updateProfile(profile));

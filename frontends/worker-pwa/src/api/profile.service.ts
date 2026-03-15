@@ -4,6 +4,8 @@ export interface WorkerProfile {
   id?: string;
   fullName: string;
   location: string;
+  city?: string;
+  address?: string;
   latitude?: number;
   longitude?: number;
   level: string;

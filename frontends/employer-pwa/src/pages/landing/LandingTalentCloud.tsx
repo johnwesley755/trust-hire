@@ -1,11 +1,11 @@
 import { motion } from "framer-motion";
 import { ShieldCheck, Globe, Star } from "lucide-react";
 
-const PROFESSIONALS = [
-  { name: "Arjun K.", role: "Lead Electrician", rating: 4.9, location: "Bangalore", image: "/images/indi_electrician.png" },
-  { name: "Priya S.", role: "Site Supervisor", rating: 4.8, location: "Mumbai", image: "/images/indi_supervisor.png" },
-  { name: "Rajesh M.", role: "HVAC Specialist", rating: 5.0, location: "Delhi", image: "/images/indi_group.png" },
-];
+// const PROFESSIONALS = [
+//   { name: "Arjun K.", role: "Lead Electrician", rating: 4.9, location: "Bangalore", image: "/images/indi_electrician.png" },
+//   { name: "Priya S.", role: "Site Supervisor", rating: 4.8, location: "Mumbai", image: "/images/indi_supervisor.png" },
+//   { name: "Rajesh M.", role: "HVAC Specialist", rating: 5.0, location: "Delhi", image: "/images/indi_group.png" },
+// ];
 
 export function LandingTalentCloud() {
   return (

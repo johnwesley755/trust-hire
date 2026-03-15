@@ -31,8 +31,11 @@ export default function OnboardingPage() {
     fullName: user ? `${user.firstName} ${user.lastName}` : "",
     bio: "",
     skills: [] as string[],
-    experienceYears: 0,
+    experienceYears: "",
+    hourlyRate: "",
+    level: "L1",
     location: "",
+    city: "",
     latitude: null as number | null,
     longitude: null as number | null,
   });
@@ -40,7 +43,13 @@ export default function OnboardingPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [locationError, setLocationError] = useState("");
 
-  const nextStep = () => setStep(s => s + 1);
+  const nextStep = () => {
+    if (step === 2 && (formData.experienceYears === "" || formData.hourlyRate === "")) {
+      alert("Please enter both your Experience Years and Hourly Rate to continue.");
+      return;
+    }
+    setStep(s => s + 1);
+  };
   const prevStep = () => setStep(s => s - 1);
 
   const toggleSkill = (skill: string) => {
@@ -55,14 +64,38 @@ export default function OnboardingPage() {
   const detectLocation = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        (pos) => {
+        async (pos) => {
+          const { latitude, longitude } = pos.coords;
           setFormData(prev => ({
             ...prev,
-            latitude: pos.coords.latitude,
-            longitude: pos.coords.longitude,
-            location: "Current Location (GPS Detected)"
+            latitude,
+            longitude,
+            location: "Detecting address..."
           }));
-          setLocationError("");
+
+          try {
+            const response = await fetch(
+              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`,
+              { headers: { 'Accept-Language': 'en' } }
+            );
+            const data = await response.json();
+            
+            const address = data.display_name;
+            const city = data.address.city || data.address.town || data.address.village || data.address.suburb || "Unknown City";
+            
+            setFormData(prev => ({
+              ...prev,
+              location: address,
+              city: city
+            }));
+            setLocationError("");
+          } catch (err) {
+            console.error("Reverse geocoding failed:", err);
+            setFormData(prev => ({
+              ...prev,
+              location: "Location detected (Address fetch failed)"
+            }));
+          }
         },
         (err) => {
           setLocationError("Could not detect location. Please type it.");
@@ -82,21 +115,19 @@ export default function OnboardingPage() {
           fullName: formData.fullName,
           bio: formData.bio,
           skills: formData.skills.join(", "),
-          experienceYears: formData.experienceYears,
+          experienceYears: Number(formData.experienceYears),
+          hourlyRate: Number(formData.hourlyRate),
+          level: formData.level,
           location: formData.location,
+          address: formData.location,
+          city: formData.city,
           latitude: formData.latitude,
           longitude: formData.longitude,
           isAvailable: true
         }
       );
 
-      // 2. Mark as Onboarded in Auth Service
-      await apiClient.post(
-          '/api/auth/sync', 
-          { onboarded: true }
-      );
-
-      navigate("/dashboard");
+      navigate("/verify-identity");
     } catch (error) {
       console.error("Onboarding failed:", error);
       alert("Something went wrong. Please try again.");
@@ -171,14 +202,42 @@ export default function OnboardingPage() {
                   </button>
                 ))}
               </div>
+              <div className="grid grid-cols-2 gap-4 mt-4">
+                <div>
+                  <label className="text-xs font-black uppercase tracking-widest text-slate-400 mb-2 block">{t('onboarding.step2.experience')}</label>
+                  <input 
+                    type="number" 
+                    value={formData.experienceYears}
+                    onChange={(e) => setFormData({...formData, experienceYears: e.target.value})}
+                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-4 font-bold focus:border-indigo-500 focus:outline-none transition-all"
+                    placeholder="e.g. 5"
+                    min="0"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-black uppercase tracking-widest text-slate-400 mb-2 block">Hourly Rate (₹)</label>
+                  <input 
+                    type="number" 
+                    value={formData.hourlyRate}
+                    onChange={(e) => setFormData({...formData, hourlyRate: e.target.value})}
+                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-4 font-bold focus:border-indigo-500 focus:outline-none transition-all"
+                    placeholder="e.g. 500"
+                    min="1"
+                  />
+                </div>
+              </div>
               <div className="mt-4">
-                <label className="text-xs font-black uppercase tracking-widest text-slate-400 mb-2 block">{t('onboarding.step2.experience')}</label>
-                <input 
-                  type="number" 
-                  value={formData.experienceYears}
-                  onChange={(e) => setFormData({...formData, experienceYears: parseInt(e.target.value) || 0})}
-                  className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-4 font-bold focus:border-indigo-500 focus:outline-none transition-all"
-                />
+                <label className="text-xs font-black uppercase tracking-widest text-slate-400 mb-2 block">Experience Level</label>
+                <select 
+                  value={formData.level}
+                  onChange={(e) => setFormData({...formData, level: e.target.value})}
+                  className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-4 font-bold focus:border-indigo-500 focus:outline-none transition-all appearance-none"
+                >
+                  <option value="L1">L1 - Beginner</option>
+                  <option value="L2">L2 - Intermediate</option>
+                  <option value="L3">L3 - Expert</option>
+                  <option value="L4">L4 - Master</option>
+                </select>
               </div>
             </div>
           </div>

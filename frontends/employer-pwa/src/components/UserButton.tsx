@@ -27,8 +27,8 @@ export const UserButton = () => {
                 className="flex items-center gap-2 p-1 rounded-full hover:bg-slate-100 transition-all active:scale-95"
             >
                 <div className="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold text-lg shadow-md overflow-hidden">
-                    {user.imageUrl ? (
-                        <img src={user.imageUrl} alt={user.firstName} className="w-full h-full object-cover" />
+                    {user.profileImageUrl ? (
+                        <img src={user.profileImageUrl} alt={user.firstName} className="w-full h-full object-cover" />
                     ) : (
                         user.firstName?.[0] || 'E'
                     )}
@@ -43,7 +43,13 @@ export const UserButton = () => {
                         <p className="text-xs text-slate-500 truncate">{user.email}</p>
                     </div>
 
-                    <button className="w-full flex items-center gap-3 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 transition-colors">
+                    <button 
+                        onClick={() => {
+                            setIsOpen(false);
+                            window.location.href = '/profile';
+                        }}
+                        className="w-full flex items-center gap-3 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
+                    >
                         <User className="w-4 h-4" />
                         Profile
                     </button>

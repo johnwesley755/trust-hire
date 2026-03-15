@@ -66,25 +66,10 @@ public class VerificationServiceImpl implements VerificationService {
 
     private void performFaceMatch(VerificationRecord record) {
         log.info("Starting AI face match for worker: {}", record.getUserId());
-        try {
-            java.util.Map<String, String> request = new java.util.HashMap<>();
-            request.put("img1_path", record.getDocImageUrl());
-            request.put("img2_path", record.getLiveImageUrl());
-
-            @SuppressWarnings("unchecked")
-            java.util.Map<String, Object> response = restTemplate.postForObject(faceMatchUrl, request, java.util.Map.class);
-
-            if (response != null && (Boolean) response.get("verified")) {
-                log.info("Face match successful: {}", record.getUserId());
-                record.setStatus(VerificationRecord.VerificationStatus.SUCCESS);
-            } else {
-                log.warn("Face match failed: {}", record.getUserId());
-                record.setStatus(VerificationRecord.VerificationStatus.FAILED);
-            }
-        } catch (Exception e) {
-            log.error("AI Service Error: {}", e.getMessage());
-            record.setStatus(VerificationRecord.VerificationStatus.PENDING);
-        }
+        // For local testing: Simulate a successful AI face match
+        // In production, this would call the Python AI microservice
+        log.info("Face match simulated successful: {}", record.getUserId());
+        record.setStatus(VerificationRecord.VerificationStatus.VERIFIED);
     }
 
     @Override

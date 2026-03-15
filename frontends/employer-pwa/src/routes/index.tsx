@@ -12,6 +12,7 @@ import OnboardingPage from '../pages/OnboardingPage.tsx';
 import { AuthOnboardingGuard } from '../components/AuthOnboardingGuard.tsx';
 
 import { ActiveJobsPage } from '../pages/ActiveJobsPage.tsx';
+import ProfilePage from '../pages/ProfilePage.tsx';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => (
   <AuthOnboardingGuard>
@@ -85,6 +86,14 @@ export const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <ApplicationManagementPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/profile',
+    element: (
+      <ProtectedRoute>
+        <ProfilePage />
       </ProtectedRoute>
     ),
   },

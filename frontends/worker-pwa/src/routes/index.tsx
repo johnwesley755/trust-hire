@@ -50,7 +50,7 @@ export const router = createBrowserRouter([
     ),
   },
   {
-    path: '/verify',
+    path: '/verify-identity',
     element: (
       <ProtectedRoute>
         <IdentityVerificationPage />
