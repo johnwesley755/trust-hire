@@ -45,7 +45,7 @@ export const SignInPage = () => {
                         </div>
                         <div className="flex flex-col">
                             <span className="text-2xl font-bold tracking-tight text-brand-secondary uppercase leading-none">TrustHire</span>
-                            <span className="text-[10px] font-black text-brand-muted uppercase tracking-[0.2em] mt-1">Enterprise Solution</span>
+                            <span className="text-[10px] font-medium text-brand-muted uppercase tracking-[0.2em] mt-1.5">Business Solutions</span>
                         </div>
                     </Link>
                 </div>
@@ -56,12 +56,12 @@ export const SignInPage = () => {
                         animate={{ opacity: 1, y: 0 }}
                         className="mb-10 text-left"
                     >
-                        <h1 className="text-6xl font-black text-brand-secondary tracking-tighter leading-[0.85] mb-6">
+                        <h1 className="text-6xl font-bold text-brand-secondary tracking-tight leading-[1.1] mb-6">
                             Welcome <br />
-                            <span className="text-brand-primary">Back.</span>
+                            <span className="text-brand-primary">back.</span>
                         </h1>
-                        <p className="text-brand-muted font-bold text-xl max-w-sm leading-relaxed">
-                            Sign in to manage your enterprise talent infrastructure and operations.
+                        <p className="text-brand-muted font-medium text-xl max-w-sm leading-relaxed">
+                            Sign in to manage your company operations and hiring.
                         </p>
                     </motion.div>
 
@@ -80,7 +80,7 @@ export const SignInPage = () => {
 
                     <form onSubmit={handleSubmit} className="space-y-8">
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-muted ml-1">Work Email</label>
+                            <label className="text-[10px] font-medium uppercase tracking-[0.2em] text-brand-muted ml-1">Work Email</label>
                             <div className="relative group">
                                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                     <Mail className="w-5 h-5 text-brand-muted/30 group-focus-within:text-brand-primary transition-colors" />
@@ -97,7 +97,7 @@ export const SignInPage = () => {
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-muted ml-1">Password</label>
+                            <label className="text-[10px] font-medium uppercase tracking-[0.2em] text-brand-muted ml-1">Password</label>
                             <div className="relative group">
                                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                     <Lock className="w-5 h-5 text-brand-muted/30 group-focus-within:text-brand-primary transition-colors" />
@@ -129,7 +129,7 @@ export const SignInPage = () => {
                         <button
                             type="submit"
                             disabled={isLoading || !isFormValid}
-                            className="w-full bg-brand-secondary text-brand-primary font-black py-5 rounded-2xl shadow-lg hover:shadow-brand-secondary/20 hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-4 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-xl uppercase tracking-wide"
+                            className="w-full bg-brand-secondary text-brand-primary font-semibold py-5 rounded-2xl shadow-lg hover:bg-neutral-800 active:scale-[0.99] flex items-center justify-center gap-4 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-xl uppercase tracking-widest"
                         >
                             {isLoading ? (
                                 <Loader2 className="w-7 h-7 animate-spin" />
@@ -140,8 +140,8 @@ export const SignInPage = () => {
                     </form>
 
                     <div className="mt-12 pt-8 border-t border-brand-border/50 text-center lg:text-left">
-                        <p className="text-brand-muted font-bold text-sm">
-                            New enterprise?{' '}
+                        <p className="text-brand-muted font-medium text-sm">
+                            New to TrustHire?{' '}
                             <Link to="/sign-up" className="text-brand-secondary hover:text-brand-primary transition-colors ml-1 border-b border-brand-primary/20 hover:border-brand-primary">
                                 Register company
                             </Link>
@@ -171,12 +171,12 @@ export const SignInPage = () => {
                         className="space-y-10"
                     >
                         <div className="space-y-4 max-w-lg text-left">
-                            <h3 className="text-6xl font-black text-white tracking-tighter leading-[1.1]">
-                                Strategic <br />
-                                <span className="text-brand-primary">Excellence.</span>
+                            <h3 className="text-6xl font-bold text-white tracking-tight leading-[1.1]">
+                                Build your <br />
+                                <span className="text-brand-primary">Workforce.</span>
                             </h3>
-                            <p className="text-xl text-white/60 font-medium leading-relaxed">
-                                Access your enterprise talent dashboard and manage global operations with state-of-the-art security.
+                            <p className="text-xl text-white/70 font-medium leading-relaxed">
+                                Access your management dashboard and hire professionals with ease and security.
                             </p>
                         </div>
 
@@ -185,15 +185,15 @@ export const SignInPage = () => {
                                 <div className="w-12 h-12 bg-brand-primary/10 rounded-xl flex items-center justify-center mb-4">
                                     <ShieldCheck className="w-6 h-6 text-brand-primary" />
                                 </div>
-                                <div className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-1">Infrastructure</div>
-                                <div className="text-xl font-bold text-white">Bank-Grade</div>
+                                <div className="text-[10px] font-medium text-white/40 uppercase tracking-widest mb-1">Infrastructure</div>
+                                <div className="text-xl font-semibold text-white">Trust-Verified</div>
                             </div>
                             <div className="glass-card p-8 rounded-3xl border-white/5 bg-white/5 text-left">
                                 <div className="w-12 h-12 bg-brand-primary/10 rounded-xl flex items-center justify-center mb-4">
                                     <ArrowRight className="w-6 h-6 text-brand-primary" />
                                 </div>
-                                <div className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-1">Performance</div>
-                                <div className="text-xl font-bold text-white">Instant Sync</div>
+                                <div className="text-[10px] font-medium text-white/40 uppercase tracking-widest mb-1">Performance</div>
+                                <div className="text-xl font-semibold text-white">Real-time Data</div>
                             </div>
                         </div>
                     </motion.div>

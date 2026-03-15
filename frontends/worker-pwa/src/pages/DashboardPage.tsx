@@ -6,9 +6,9 @@ import { searchJobs } from '../api/search.service';
 import { profileService } from '../api/profile.service';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../hooks/useLanguage';
-
+import { motion } from 'framer-motion';
 import { NotificationCenter } from '../features/notifications/NotificationCenter';
-
+import { BriefcaseIcon, MapPin, Search, ChevronRight, Globe, ShieldCheck } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 export default function DashboardPage() {
@@ -37,62 +37,113 @@ export default function DashboardPage() {
   });
 
   return (
-    <div className="min-h-screen w-full bg-slate-50 text-slate-900 flex">
+    <div className="min-h-screen w-full bg-brand-bg text-brand-secondary flex selection:bg-brand-primary selection:text-brand-secondary">
       <DashboardSidebar />
 
-      <div className="flex-1 flex flex-col min-h-screen">
-        <header className="p-6 flex justify-between items-center border-b border-slate-200 sticky top-0 bg-white/80 backdrop-blur-xl z-50 md:hidden">
-          <div className="text-xl font-black italic tracking-tighter uppercase text-primary-600">TrustPro</div>
+      <div className="flex-1 flex flex-col min-h-screen relative overflow-x-hidden">
+        <div className="absolute inset-0 cloud-grid opacity-[0.02] pointer-events-none" />
+        
+        <header className="p-8 flex justify-between items-center border-b border-brand-border sticky top-0 bg-white/80 backdrop-blur-2xl z-40 md:hidden">
+          <div className="flex items-center gap-3">
+             <div className="w-10 h-10 bg-brand-secondary rounded-xl flex items-center justify-center">
+                <BriefcaseIcon className="w-6 h-6 text-brand-primary" />
+             </div>
+             <span className="text-xl font-bold tracking-tight text-neutral-900 uppercase">TrustPro</span>
+          </div>
           <div className="flex items-center gap-4">
             <NotificationCenter />
-            <UserButton />
+            <div className="relative">
+                <UserButton />
+                <div className="absolute -bottom-1 -right-1 bg-emerald-500 text-white rounded-full p-0.5 border-2 border-white shadow-sm">
+                    <ShieldCheck className="w-2.5 h-2.5" />
+                </div>
+            </div>
           </div>
         </header>
 
-        <main className="p-6 md:p-10 max-w-7xl mx-auto w-full space-y-8 animate-in slide-in-from-bottom duration-500 pb-24 md:pb-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <main className="p-8 md:p-16 max-w-7xl mx-auto w-full space-y-12 pb-32 md:pb-16 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+            
             <div className="lg:col-span-12">
-               <h1 className="text-3xl font-black tracking-tight mb-2 hidden md:block">{t('dashboard.title')}</h1>
-               <p className="text-slate-500 hidden md:block mb-8 font-medium italic">{t('dashboard.welcome')}</p>
+               <motion.div 
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="space-y-2 hidden md:block"
+               >
+                 <div className="flex items-center gap-2 text-brand-muted font-bold uppercase tracking-[0.3em] text-[10px]">
+                    <Globe className="w-3 h-3" /> Professional Repository
+                 </div>
+                 <h1 className="text-6xl font-black tracking-tighter text-neutral-900 uppercase">{t('dashboard.title')}</h1>
+                 <p className="text-brand-muted font-medium text-lg italic opacity-60">{t('dashboard.welcome')}</p>
+               </motion.div>
             </div>
             
-            <div className="lg:col-span-4 space-y-8">
+            <div className="lg:col-span-4 space-y-10">
                <ProfileCard />
                <ActionGrid />
             </div>
 
-            <section className="lg:col-span-8 space-y-6">
-              <div className="flex justify-between items-end">
-                <h3 className="text-xl font-black tracking-tight">{t('dashboard.jobsNearYou')}</h3>
+            <section className="lg:col-span-8 space-y-10">
+              <div className="flex justify-between items-end border-b border-brand-border pb-6">
+                <div className="space-y-1">
+                    <h3 className="text-3xl font-bold tracking-tight text-neutral-900 uppercase">Opportunities</h3>
+                    <p className="text-brand-muted font-medium text-xs uppercase tracking-widest">{t('dashboard.jobsNearYou')}</p>
+                </div>
                 <button 
                   onClick={() => navigate('/search')}
-                  className="text-[10px] text-primary-600 font-black uppercase tracking-widest cursor-pointer hover:underline"
+                  className="px-6 py-2 bg-brand-surface border border-brand-border text-[9px] text-brand-muted font-bold uppercase tracking-widest cursor-pointer hover:bg-brand-secondary hover:text-brand-primary transition-all rounded-full"
                 >
                   {t('dashboard.viewAll')}
                 </button>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {jobs?.slice(0, 4).map(job => (
-                  <div key={job.jobId} className="p-6 rounded-3xl bg-white border border-slate-200 space-y-4 shadow-sm hover:border-primary-400 transition-all group">
-                    <div className="flex justify-between">
-                      <div className="flex-1">
-                        <h4 className="font-bold text-lg group-hover:text-primary-600 transition-colors line-clamp-1">{job.title}</h4>
-                        <p className="text-xs text-slate-500 italic">{job.location} • {job.industry}</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-4">
+                {jobs?.slice(0, 4).map((job, i) => (
+                  <motion.div 
+                    key={job.jobId} 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.1 }}
+                    className="p-8 rounded-[2.5rem] bg-white border border-brand-border space-y-6 shadow-sm hover:shadow-2xl hover:border-brand-primary transition-all group relative overflow-hidden"
+                  >
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-brand-primary/5 rounded-bl-full pointer-events-none group-hover:bg-brand-primary/10 transition-colors" />
+                    
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-start">
+                        <div className="space-y-1 flex-1">
+                            <h4 className="font-bold text-xl text-neutral-900 group-hover:text-brand-primary transition-colors line-clamp-1 uppercase tracking-tight">{job.title}</h4>
+                            <div className="flex items-center gap-2 text-brand-muted/60 font-medium text-xs italic">
+                                <MapPin className="w-3.5 h-3.5" /> {job.location}
+                            </div>
+                        </div>
+                         <div className="bg-brand-surface px-4 py-2 rounded-xl text-emerald-600 font-bold text-sm shadow-sm border border-brand-border">
+                            ₹{job.budget?.toLocaleString()}
+                        </div>
                       </div>
-                      <span className="text-emerald-500 font-black text-lg">₹{job.budget?.toLocaleString()}</span>
+
+                      <div className="flex flex-wrap gap-2">
+                        <span className="px-3 py-1 bg-brand-surface border border-brand-border rounded-lg text-[9px] font-bold uppercase tracking-widest text-brand-muted">{job.industry}</span>
+                        <div className="flex items-center gap-1.5 ml-auto text-[9px] font-bold text-brand-primary py-1 px-3 bg-brand-primary/5 border border-brand-primary/10 rounded-lg uppercase tracking-widest">
+                            <ShieldCheck className="w-3 h-3" /> TrustVerified
+                        </div>
+                      </div>
                     </div>
+
                     <button 
                       onClick={() => navigate(`/job/${job.jobId}`)}
-                      className="w-full py-3 bg-primary-600 text-white rounded-2xl font-bold active:scale-95 transition-all text-sm cursor-pointer shadow-lg shadow-primary-600/20 hover:bg-primary-700"
+                      className="w-full py-4 bg-brand-secondary text-brand-primary rounded-[1.5rem] font-bold active:scale-95 transition-all text-xs cursor-pointer shadow-xl shadow-brand-secondary/10 hover:bg-neutral-800 uppercase tracking-widest group-hover:translate-y-[-2px]"
                     >
                       {t('dashboard.quickApply')}
                     </button>
-                  </div>
+                  </motion.div>
                 ))}
+                
                 {(!jobs || jobs.length === 0) && (
-                  <div className="col-span-full p-12 rounded-4xl bg-white border border-dashed border-slate-200 text-center">
-                    <p className="text-slate-500 italic">{t('dashboard.noJobs')}</p>
+                  <div className="col-span-full p-20 rounded-[3rem] bg-white border border-dashed border-brand-border text-center space-y-4">
+                    <div className="w-16 h-16 bg-brand-surface rounded-full flex items-center justify-center mx-auto opacity-20">
+                        <Search className="w-8 h-8 text-brand-muted" />
+                    </div>
+                    <p className="text-brand-muted italic font-medium">{t('dashboard.noJobs')}</p>
                   </div>
                 )}
               </div>

@@ -3,7 +3,7 @@ import { useAuth, useUser } from "../providers/AuthContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { profileService, type EmployerProfile } from "../api/profile.service";
 import apiClient from "../api/apiClient";
-import { User, Mail, MapPin, Building2, LogOut, ChevronRight, ShieldCheck, Navigation, Camera, Loader2, Globe } from "lucide-react";
+import { User, Mail, MapPin, Building2, LogOut, ShieldCheck, Camera, Loader2, Globe } from "lucide-react";
 import { DashboardSidebar } from '../features/dashboard/DashboardComponents';
 
 export default function ProfilePage() {
@@ -118,10 +118,15 @@ export default function ProfilePage() {
             </div>
 
             <div>
-              <h1 className="text-3xl font-black tracking-tight text-slate-900">
-                {user?.firstName} {user?.lastName}
-              </h1>
-              <p className="text-slate-500 font-medium">Employer Profile</p>
+              <div className="flex items-center justify-center gap-3 mb-1">
+                <h1 className="text-4xl font-black tracking-tight text-neutral-900 uppercase">
+                    {user?.firstName} {user?.lastName}
+                </h1>
+                <div className="bg-emerald-500 text-white p-1 rounded-lg shadow-lg shadow-emerald-500/20">
+                    <ShieldCheck className="w-5 h-5" />
+                </div>
+              </div>
+              <p className="text-brand-primary font-bold uppercase tracking-[0.2em] text-xs">Verified Enterprise Administrator</p>
             </div>
           </div>
         </div>

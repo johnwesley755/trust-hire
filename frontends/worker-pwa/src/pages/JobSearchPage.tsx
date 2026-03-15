@@ -3,7 +3,9 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { searchJobs, type JobSearch } from '../api/search.service';
 import { jobService, type Job } from '../api/job.service';
 import { applicationService } from '../api/application.service';
-import { Search, MapPin, Briefcase, IndianRupee, Send, CheckCircle, Navigation } from 'lucide-react';
+import { Search, MapPin, Briefcase, IndianRupee, Send, CheckCircle, Navigation, Globe, ShieldCheck, ChevronRight } from 'lucide-react';
+import { DashboardSidebar } from '../features/dashboard/DashboardSidebar';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function JobSearchPage() {
   const [query, setQuery] = useState('');
@@ -18,7 +20,7 @@ export default function JobSearchPage() {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
           setCoords({ lat: pos.coords.latitude, lon: pos.coords.longitude });
-          setLocation("Current Location (GPS Detected)");
+          setLocation("Detected Location");
           setIsDetecting(false);
         },
         (err) => {
@@ -43,100 +45,126 @@ export default function JobSearchPage() {
         coords?.lon, 
         radius
     ),
-    enabled: Boolean(query || coords || (location && location !== "Current Location (GPS Detected)")),
+    enabled: Boolean(query || coords || (location && location !== "Detected Location")),
   });
 
   const { data: allJobs, isLoading: isLoadingAll } = useQuery({
     queryKey: ['allJobs'],
     queryFn: () => jobService.getAllJobs(),
-    enabled: !query && !coords && (!location || location === "Current Location (GPS Detected)"),
+    enabled: !query && !coords && (!location || location === "Detected Location"),
   });
 
-  const jobs = (query || coords || (location && location !== "Current Location (GPS Detected)")) ? searchResults : allJobs;
+  const jobs = (query || coords || (location && location !== "Detected Location")) ? searchResults : allJobs;
   const isLoading = isSearching || isLoadingAll;
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900">
-      <header className="p-8 bg-indigo-50 border-b border-slate-200 sticky top-0 backdrop-blur-3xl z-40">
-        <div className="max-w-4xl mx-auto space-y-6">
-          <h1 className="text-3xl font-black italic uppercase tracking-tighter">Find Better Work</h1>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="relative md:col-span-2">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 w-5 h-5" />
-              <input 
-                type="text" 
-                placeholder="Search jobs (e.g. Cleaning, Driver)" 
-                className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all shadow-sm"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-              />
-            </div>
-            <div className="relative flex gap-2">
-              <div className="relative flex-1">
-                  <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 w-5 h-5" />
-                  <input 
-                    type="text" 
-                    placeholder="Location" 
-                    className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all shadow-sm"
-                    value={location}
-                    onChange={(e) => {
-                        setLocation(e.target.value);
-                        setCoords(null); // Clear coords if user types manually
-                    }}
-                  />
-              </div>
-              <button 
-                  onClick={detectLocation}
-                  disabled={isDetecting}
-                  className="bg-white text-indigo-600 hover:bg-indigo-50 p-4 rounded-2xl transition-colors shadow-sm flex items-center justify-center border border-slate-200"
-                  title="Detect Current Location"
-              >
-                  <Navigation className={`w-5 h-5 ${isDetecting ? 'animate-pulse' : ''}`} />
-              </button>
-            </div>
-          </div>
-          
-          <div className="flex items-center gap-6 bg-white/50 p-4 rounded-2xl border border-slate-200/50">
-            <div className="flex items-center gap-2 text-indigo-600 font-bold text-xs uppercase tracking-widest">
-              <Navigation className="w-4 h-4" />
-              Radius: {radius}km
-            </div>
-            <input 
-              type="range" 
-              min="5" 
-              max="200" 
-              step="5"
-              value={radius}
-              onChange={(e) => setRadius(parseInt(e.target.value))}
-              className="flex-1 h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
-            />
-          </div>
-        </div>
-      </header>
+    <div className="min-h-screen bg-brand-bg flex text-brand-secondary selection:bg-brand-primary selection:text-brand-secondary">
+      <DashboardSidebar />
+      
+      <div className="flex-1 flex flex-col min-h-screen relative overflow-x-hidden">
+        <div className="absolute inset-0 cloud-grid opacity-[0.02] pointer-events-none" />
+        
+        <header className="p-8 lg:p-12 border-b border-brand-border bg-white/80 backdrop-blur-3xl sticky top-0 z-40">
+            <div className="max-w-5xl mx-auto space-y-10">
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                    <div className="space-y-1">
+                        <div className="flex items-center gap-2 text-brand-muted font-bold uppercase tracking-[0.3em] text-[10px]">
+                            <Globe className="w-3.5 h-3.5" /> Market Intelligence
+                        </div>
+                        <h1 className="text-5xl font-black tracking-tighter text-neutral-900 uppercase">Opportunity Hub</h1>
+                    </div>
+                    <div className="flex items-center gap-4 bg-brand-surface border border-brand-border px-6 py-3 rounded-2xl shadow-sm">
+                         <Navigation className={`w-4 h-4 text-brand-primary ${isDetecting ? 'animate-pulse' : ''}`} />
+                         <div className="flex flex-col">
+                            <span className="text-[9px] font-bold text-brand-muted uppercase tracking-widest">Global Range</span>
+                            <span className="text-[11px] font-bold text-brand-secondary uppercase">{radius} KM Radius</span>
+                         </div>
+                         <input 
+                            type="range" 
+                            min="5" 
+                            max="200" 
+                            step="5"
+                            value={radius}
+                            onChange={(e) => setRadius(parseInt(e.target.value))}
+                            className="ml-4 h-1.5 bg-brand-border rounded-lg appearance-none cursor-pointer accent-brand-secondary w-24 md:w-40"
+                        />
+                    </div>
+                </div>
 
-      <main className="max-w-4xl mx-auto p-8 space-y-6">
-        {isLoading ? (
-          <div className="flex justify-center py-20 animate-pulse">
-            <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 gap-6">
-            {jobs?.map((job) => (
-              <JobCard key={'jobId' in job ? job.jobId : job.id} job={job} />
-            ))}
-            {jobs?.length === 0 && (
-              <div className="text-center py-20 bg-white border border-dashed border-slate-200 rounded-3xl">
-                <p className="text-slate-500 italic">No jobs found matching your criteria.</p>
-              </div>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div className="md:col-span-2 relative group">
+                        <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-brand-muted/30 group-focus-within:text-brand-primary transition-colors w-5 h-5" />
+                        <input 
+                            type="text" 
+                            placeholder="Search roles or expertise..." 
+                            className="w-full bg-white border border-brand-border rounded-[1.5rem] py-6 pl-16 pr-6 focus:outline-none focus:border-brand-primary transition-all shadow-sm font-semibold text-sm placeholder:text-brand-muted/20"
+                            value={query}
+                            onChange={(e) => setQuery(e.target.value)}
+                        />
+                    </div>
+                    <div className="md:col-span-1 relative group">
+                        <MapPin className="absolute left-6 top-1/2 -translate-y-1/2 text-brand-muted/30 group-focus-within:text-brand-primary transition-colors w-5 h-5" />
+                        <input 
+                            type="text" 
+                            placeholder="Location Filter" 
+                            className="w-full bg-white border border-brand-border rounded-[1.5rem] py-6 pl-16 pr-6 focus:outline-none focus:border-brand-primary transition-all shadow-sm font-semibold text-sm placeholder:text-brand-muted/20"
+                            value={location}
+                            onChange={(e) => {
+                                setLocation(e.target.value);
+                                setCoords(null);
+                            }}
+                        />
+                    </div>
+                    <button 
+                        onClick={detectLocation}
+                        disabled={isDetecting}
+                        className="bg-brand-secondary text-brand-primary hover:bg-neutral-800 p-6 rounded-[1.5rem] transition-all shadow-xl active:scale-95 disabled:opacity-50 flex items-center justify-center gap-3 uppercase font-bold text-[10px] tracking-widest"
+                    >
+                        <Navigation className={`w-5 h-5 ${isDetecting ? 'animate-pulse' : ''}`} />
+                        <span className="hidden lg:inline">Sync GPS</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main className="max-w-5xl mx-auto p-8 lg:p-12 w-full space-y-10 relative z-10">
+            {isLoading ? (
+                <div className="flex flex-col items-center justify-center py-32 space-y-6">
+                    <div className="w-16 h-16 border-4 border-brand-primary border-t-brand-secondary rounded-full animate-spin" />
+                    <p className="text-brand-muted font-bold uppercase tracking-[0.3em] text-[10px] animate-pulse">Syncing Opportunities...</p>
+                </div>
+            ) : (
+                <div className="grid grid-cols-1 gap-8 mb-12">
+                    <AnimatePresence mode="popLayout">
+                        {jobs?.map((job, i) => (
+                            <JobCard key={'jobId' in job ? job.jobId : job.id} job={job} index={i} />
+                        ))}
+                    </AnimatePresence>
+                    
+                    {jobs?.length === 0 && (
+                        <motion.div 
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="text-center py-32 bg-white border border-dashed border-brand-border rounded-[3rem] space-y-4 shadow-inner"
+                        >
+                            <div className="w-20 h-20 bg-brand-surface rounded-full flex items-center justify-center mx-auto opacity-40 grayscale">
+                                <Search className="w-10 h-10 text-brand-muted" />
+                            </div>
+                            <div className="space-y-2">
+                                <p className="text-brand-secondary font-bold text-xl uppercase tracking-tight">Access Denied</p>
+                                <p className="text-brand-muted font-medium italic">No matches found within the specified parameters.</p>
+                            </div>
+                        </motion.div>
+                    )}
+                </div>
             )}
-          </div>
-        )}
-      </main>
+        </main>
+      </div>
     </div>
   );
 }
 
-function JobCard({ job }: { job: JobSearch | Job }) {
+function JobCard({ job, index }: { job: JobSearch | Job, index: number }) {
   const [applied, setApplied] = useState(false);
   const jobId = 'jobId' in job ? job.jobId : job.id;
   
@@ -147,55 +175,81 @@ function JobCard({ job }: { job: JobSearch | Job }) {
 
   const handleApply = () => {
     if (jobId) {
-        mutation.mutate({ jobId: jobId, coverLetter: "Interested in this position." });
+        mutation.mutate({ jobId: jobId, coverLetter: "Professional application for the specified position." });
     }
   };
 
   return (
-    <div className="bg-white border border-slate-200 p-6 rounded-3xl hover:border-indigo-400 transition-all group shadow-sm">
-      <div className="flex justify-between items-start mb-6">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <div className="bg-indigo-50 p-2 rounded-xl text-indigo-600">
-              <Briefcase className="w-5 h-5" />
-            </div>
-            <h3 className="text-xl font-bold">{job.title}</h3>
-          </div>
-          <p className="text-slate-500 text-sm flex items-center gap-2">
-            <MapPin className="w-3 h-3" /> {job.location} • {job.industry}
-          </p>
-        </div>
-        <div className="text-right">
-          <div className="flex items-center gap-1 text-emerald-400 font-black text-xl">
-            <IndianRupee className="w-4 h-4" />
-            {job.budget?.toLocaleString()}
-          </div>
-          <p className="text-[10px] text-slate-600 font-bold uppercase tracking-widest mt-1">Estim. Budget</p>
-        </div>
-      </div>
-
-      <p className="text-slate-600 text-sm leading-relaxed line-clamp-2 mb-8 h-10">
-        {job.description}
-      </p>
-
-      <div className="flex justify-between items-center">
-        <div className="flex gap-2">
-          <span className="px-3 py-1 bg-slate-100 text-[10px] font-bold uppercase tracking-tighter rounded-full border border-slate-200 text-slate-500">Immediate Start</span>
-          <span className="px-3 py-1 bg-slate-100 text-[10px] font-bold uppercase tracking-tighter rounded-full border border-slate-200 text-slate-500">Verified Client</span>
-        </div>
+    <motion.div 
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: index * 0.05 }}
+        className="bg-white border border-brand-border p-10 rounded-[3rem] hover:border-brand-primary transition-all group shadow-sm hover:shadow-2xl relative overflow-hidden"
+    >
+        <div className="absolute top-0 right-0 w-32 h-32 bg-brand-primary opacity-[0.02] rounded-bl-full group-hover:opacity-[0.08] transition-opacity" />
         
-        <button 
-          onClick={handleApply}
-          disabled={applied || mutation.isPending}
-          className={`px-8 py-3 rounded-2xl font-black text-sm transition-all active:scale-95 flex items-center gap-2 shadow-2xl ${
-            applied 
-            ? 'bg-emerald-50 text-emerald-600 cursor-default border border-emerald-100' 
-            : 'bg-indigo-600 text-white hover:bg-indigo-700 cursor-pointer shadow-lg'
-          }`}
-        >
-          {applied ? <><CheckCircle className="w-4 h-4" /> Applied</> : mutation.isPending ? 'Applying...' : <><Send className="w-4 h-4" /> Apply Now</>}
-        </button>
-      </div>
-    </div>
+        <div className="flex flex-col md:flex-row justify-between items-start gap-8 mb-10">
+            <div className="space-y-4 flex-1">
+                <div className="flex items-center gap-4">
+                    <div className="bg-brand-secondary p-4 rounded-2xl text-brand-primary shadow-lg transform group-hover:scale-110 transition-transform">
+                        <Briefcase className="w-6 h-6" />
+                    </div>
+                    <div className="space-y-1">
+                         <h3 className="text-3xl font-bold text-neutral-900 uppercase tracking-tighter leading-none group-hover:text-brand-primary transition-colors">
+                            {job.title}
+                        </h3>
+                        <div className="flex items-center gap-3 text-brand-muted/60 font-medium text-xs uppercase tracking-widest italic">
+                            <span className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5" /> {job.location}</span>
+                            <span className="w-1 h-1 bg-brand-border rounded-full" />
+                            <span>{job.industry}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div className="text-left md:text-right bg-brand-surface md:bg-transparent px-6 py-4 md:p-0 rounded-2xl border border-brand-border md:border-0 w-full md:w-auto">
+                <div className="flex items-center md:justify-end gap-2 text-brand-secondary font-black text-3xl tracking-tighter">
+                    <span className="text-brand-primary text-xl">₹</span>
+                    {job.budget?.toLocaleString()}
+                </div>
+                <p className="text-[9px] text-brand-muted font-bold uppercase tracking-[0.2em] mt-1 ml-1 md:ml-0">Financial Allocation</p>
+            </div>
+        </div>
+
+        <div className="bg-brand-surface/50 rounded-3xl p-8 mb-10 border border-brand-border/50 text-left">
+            <p className="text-brand-muted/80 font-medium leading-relaxed line-clamp-2 h-12 text-lg">
+                {job.description}
+            </p>
+        </div>
+
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-6">
+            <div className="flex flex-wrap gap-3">
+                <div className="px-4 py-2 bg-white border border-brand-border rounded-xl text-[9px] font-bold uppercase tracking-widest text-brand-muted flex items-center gap-2 group-hover:border-brand-primary/30 transition-colors">
+                    <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" /> Immediate Deployment
+                </div>
+                <div className="px-4 py-2 bg-white border border-brand-border rounded-xl text-[9px] font-bold uppercase tracking-widest text-brand-muted flex items-center gap-2">
+                    <ShieldCheck className="w-3.5 h-3.5 text-brand-primary" /> Verified Enterprise
+                </div>
+            </div>
+            
+            <button 
+                onClick={handleApply}
+                disabled={applied || mutation.isPending}
+                className={`w-full sm:w-auto px-12 py-5 rounded-[2rem] font-bold text-xs transition-all active:scale-[0.98] flex items-center justify-center gap-4 uppercase tracking-[0.2em] shadow-2xl ${
+                    applied 
+                    ? 'bg-emerald-500 text-white cursor-default' 
+                    : 'bg-brand-secondary text-brand-primary hover:bg-neutral-800 cursor-pointer shadow-brand-secondary/20'
+                }`}
+            >
+                {applied ? (
+                    <><CheckCircle className="w-5 h-5" /> Applied</>
+                ) : mutation.isPending ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                    <>Initiate Application <ChevronRight className="w-5 h-5" /></>
+                )}
+            </button>
+        </div>
+    </motion.div>
   );
 }

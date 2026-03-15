@@ -15,10 +15,13 @@ export const AuthOnboardingGuard = ({ children }: { children: React.ReactNode })
       if (isSignedIn && user) {
         try {
           const response = await apiClient.post('/api/auth/sync', { role: "EMPLOYER" });
-          setIsOnboarded(response.data.onboarded);
+          const status = response.data.onboarded || localStorage.getItem('onboarded') === 'true';
+          setIsOnboarded(status);
         } catch (error) {
           console.error("Onboarding check failed:", error);
-          setIsOnboarded(false);
+          // If the API fails but we have a local flag, trust it for the UI/UX
+          const localStatus = localStorage.getItem('onboarded') === 'true';
+          setIsOnboarded(localStatus);
         } finally {
           setLoading(false);
         }

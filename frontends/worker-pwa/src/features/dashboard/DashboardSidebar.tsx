@@ -1,4 +1,4 @@
-import { LayoutDashboard, Search, Award, Briefcase, User as UserIcon } from 'lucide-react';
+import { LayoutDashboard, Search, Award, Briefcase, User as UserIcon, ShieldCheck, BriefcaseIcon } from 'lucide-react';
 import { useUser } from "../../providers/AuthContext";
 import { UserButton } from "../../components/UserButton";
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -20,43 +20,66 @@ export const DashboardSidebar = () => {
     ];
 
     return (
-        <aside className="hidden md:flex w-64 border-r border-slate-200 p-6 space-y-10 flex-col bg-white h-screen sticky top-0">
-            <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center text-white font-black italic">TP</div>
-                <div className="text-2xl font-black italic tracking-tighter uppercase text-slate-900">
-                    TrustPro
+        <aside className="hidden md:flex w-72 border-r border-brand-border p-8 space-y-12 flex-col bg-white h-screen sticky top-0 z-40">
+            <div className="flex items-center gap-4 px-2">
+                <div className="w-12 h-12 bg-brand-secondary rounded-xl flex items-center justify-center shadow-lg transition-transform hover:scale-105 active:scale-95 cursor-pointer" onClick={() => navigate('/')}>
+                    <BriefcaseIcon className="w-7 h-7 text-brand-primary" />
+                </div>
+                <div className="flex flex-col">
+                    <span className="text-2xl font-bold tracking-tight text-neutral-900 uppercase leading-none">TrustPro</span>
+                    <span className="text-[9px] font-medium text-brand-primary uppercase tracking-[0.3em] mt-1.5">Verified Network</span>
                 </div>
             </div>
             
-            <nav className="flex-1 space-y-2">
+            <nav className="flex-1 space-y-3">
+                <div className="px-3 mb-6">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-muted/40 italic">Main Repository</p>
+                </div>
                 {menuItems.map((item) => {
                     const isActive = location.pathname === item.path;
                     return (
                         <button 
                             key={item.name}
                             onClick={() => navigate(item.path)}
-                            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all cursor-pointer ${
+                            className={`w-full flex items-center gap-4 px-5 py-4 rounded-[1.25rem] transition-all cursor-pointer group ${
                                 isActive 
-                                ? 'bg-primary-50 text-primary-600 font-bold shadow-sm border border-primary-100' 
-                                : 'text-slate-500 hover:bg-slate-50 hover:text-primary-600'
+                                ? 'bg-brand-secondary text-brand-primary shadow-xl shadow-brand-secondary/10' 
+                                : 'text-brand-muted hover:bg-brand-surface hover:text-brand-secondary'
                             }`}
                         >
-                            {item.icon}
-                            <span className="font-medium">{item.name}</span>
+                            <div className={`transition-colors ${isActive ? 'text-brand-primary' : 'group-hover:text-brand-primary'}`}>
+                                {item.icon}
+                            </div>
+                            <span className={`text-sm tracking-tight ${isActive ? 'font-bold' : 'font-semibold'}`}>
+                                {item.name}
+                            </span>
+                            {isActive && (
+                                <div className="ml-auto w-1.5 h-1.5 bg-brand-primary rounded-full shadow-[0_0_8px_rgba(250,204,21,0.6)]" />
+                            )}
                         </button>
                     );
                 })}
             </nav>
 
-            <div className="pt-6 border-t border-slate-100 flex items-center justify-between gap-4">
-                <div className="flex items-center gap-3 min-w-0">
-                    <UserButton />
+            <div className="pt-8 border-t border-brand-border flex items-center justify-between gap-4">
+                <div className="flex items-center gap-4 min-w-0">
+                    <div className="relative">
+                        <UserButton />
+                        <div className="absolute -bottom-1 -right-1 bg-emerald-500 text-white rounded-full p-0.5 border-2 border-white shadow-sm">
+                            <ShieldCheck className="w-3 h-3" />
+                        </div>
+                    </div>
                     <div className="overflow-hidden">
-                        <p className="text-sm font-bold truncate text-slate-900">{user?.firstName || 'Worker'}</p>
-                        <p className="text-[10px] font-black uppercase tracking-widest text-primary-600">{t('sidebar.professional')}</p>
+                        <div className="flex items-center gap-1.5">
+                            <p className="text-[13px] font-bold truncate text-brand-secondary">{user?.firstName || 'Professional'}</p>
+                            <ShieldCheck className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                        </div>
+                        <p className="text-[9px] font-bold uppercase tracking-[0.15em] text-brand-primary">Verified Hub</p>
                     </div>
                 </div>
-                <NotificationCenter />
+                <div className="flex items-center gap-2">
+                    <NotificationCenter />
+                </div>
             </div>
         </aside>
     );

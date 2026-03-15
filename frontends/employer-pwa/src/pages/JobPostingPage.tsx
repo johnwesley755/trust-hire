@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { jobService } from '../api/job.service';
 import { useNavigate } from 'react-router-dom';
-import { Briefcase, MapPin, DollarSign, Tag, Plus, X, Navigation } from 'lucide-react';
+import { Briefcase, MapPin, DollarSign, Tag, Plus, X, Navigation, ChevronRight, Loader2 } from 'lucide-react';
 
 export const JobPostingPage = () => {
   const navigate = useNavigate();
@@ -37,14 +37,28 @@ export const JobPostingPage = () => {
     mutation.mutate(jobData);
   };
 
-  const detectLocation = () => {
+  const detectLocation = async () => {
     setIsDetecting(true);
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          setCoords({ lat: pos.coords.latitude, lon: pos.coords.longitude });
-          setLocationName("Current Location (GPS Detected)");
-          setIsDetecting(false);
+        async (pos) => {
+          const { latitude, longitude } = pos.coords;
+          setCoords({ lat: latitude, lon: longitude });
+          setLocationName("Detecting address...");
+
+          try {
+            const response = await fetch(
+              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`,
+              { headers: { 'Accept-Language': 'en' } }
+            );
+            const data = await response.json();
+            setLocationName(data.display_name || "Detected Location");
+          } catch (err) {
+            console.error("Reverse geocoding failed:", err);
+            setLocationName("Location Detected (Manual edit recommended)");
+          } finally {
+            setIsDetecting(false);
+          }
         },
         (err) => {
           console.error("Geolocation error:", err);
@@ -70,50 +84,63 @@ export const JobPostingPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 p-4 md:p-8">
-      <div className="max-w-2xl mx-auto bg-white rounded-2xl border border-slate-200 p-6 md:p-10 shadow-lg">
-        <h1 className="text-3xl font-bold bg-linear-to-r from-indigo-600 to-blue-600 bg-clip-text text-transparent mb-8">
-          Post a New Job
-        </h1>
+    <div className="min-h-screen bg-brand-bg p-6 md:p-12 selection:bg-brand-primary selection:text-brand-secondary">
+      <div className="absolute inset-0 cloud-grid opacity-[0.05] pointer-events-none" />
+      
+      <div className="max-w-3xl mx-auto bg-brand-surface rounded-[3rem] border border-brand-border p-8 md:p-14 shadow-2xl relative z-10 overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-2 bg-brand-primary/20" />
+        
+        <header className="mb-12 flex items-center gap-6">
+            <div className="w-16 h-16 bg-brand-secondary text-brand-primary rounded-[2rem] flex items-center justify-center shadow-xl">
+                <Plus className="w-8 h-8" />
+            </div>
+            <div>
+                <h1 className="text-4xl font-bold text-brand-secondary tracking-tight leading-none">Post a Job</h1>
+                <p className="text-brand-primary text-xs font-semibold uppercase tracking-widest mt-1">Listing Details</p>
+            </div>
+        </header>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-600">Job Title</label>
-            <div className="relative">
-              <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 h-5 w-5" />
+        <form onSubmit={handleSubmit} className="space-y-10">
+          <div className="space-y-3">
+            <label className="text-[10px] font-medium uppercase tracking-[0.2em] text-brand-muted ml-1">Job Title</label>
+            <div className="relative group">
+              <Briefcase className="absolute left-5 top-1/2 -translate-y-1/2 text-brand-muted/30 group-focus-within:text-brand-primary h-5 w-5 transition-colors" />
               <input
                 name="title"
                 required
-                placeholder="e.g. Master Plumber for High-Rise"
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-11 pr-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all text-slate-900 shadow-sm"
+                placeholder="e.g. Project Manager"
+                className="w-full bg-white border border-brand-border rounded-2xl py-5 pl-14 pr-5 focus:outline-none focus:border-brand-primary transition-all text-brand-secondary font-medium placeholder:text-brand-muted/20"
               />
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-600">Industry / Domain</label>
-              <select name="industry" className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 shadow-sm">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="space-y-3">
+              <label className="text-[10px] font-medium uppercase tracking-[0.2em] text-brand-muted ml-1">Industry Sector</label>
+              <select name="industry" className="w-full bg-white border border-brand-border rounded-2xl py-5 px-5 focus:outline-none focus:border-brand-primary text-brand-secondary font-medium appearance-none cursor-pointer">
                 <option value="CONSTRUCTION">Construction</option>
                 <option value="MAINTENANCE">Maintenance</option>
                 <option value="ELECTRICAL">Electrical</option>
                 <option value="PLUMBING">Plumbing</option>
+                <option value="LOGISTICS">Logistics</option>
+                <option value="FACILITY">Facility Management</option>
               </select>
             </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-600">Location</label>
-              <div className="flex gap-2">
-                  <div className="relative flex-1">
-                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 h-5 w-5" />
+            
+            <div className="space-y-3">
+              <label className="text-[10px] font-medium uppercase tracking-[0.2em] text-brand-muted ml-1">Job Location</label>
+              <div className="flex gap-3">
+                  <div className="relative flex-1 group">
+                    <MapPin className="absolute left-5 top-1/2 -translate-y-1/2 text-brand-muted/30 group-focus-within:text-brand-primary h-5 w-5 transition-colors" />
                     <input 
                         name="location" 
                         required 
-                        placeholder="Bangalore, Electronic City" 
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-11 pr-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 shadow-sm" 
+                        placeholder="City, State" 
+                        className="w-full bg-white border border-brand-border rounded-2xl py-5 pl-14 pr-5 focus:outline-none focus:border-brand-primary text-brand-secondary font-medium placeholder:text-brand-muted/20" 
                         value={locationName}
                         onChange={(e) => {
                             setLocationName(e.target.value);
-                            setCoords(null); // Reset coords if they type manually
+                            setCoords(null);
                         }}
                     />
                   </div>
@@ -121,54 +148,60 @@ export const JobPostingPage = () => {
                     type="button" 
                     onClick={detectLocation}
                     disabled={isDetecting}
-                    className="bg-indigo-50 text-indigo-600 hover:bg-indigo-100 p-3 rounded-xl transition-colors shadow-sm flex items-center justify-center border border-indigo-100"
+                    className="bg-brand-surface text-brand-secondary hover:bg-neutral-800 hover:text-brand-primary p-5 rounded-2xl transition-all shadow-lg border border-brand-border group active:scale-95"
                     title="Detect Current Location"
                   >
-                    <Navigation className={`h-5 w-5 ${isDetecting ? 'animate-pulse' : ''}`} />
+                    <Navigation className={`h-6 w-6 ${isDetecting ? 'animate-spin' : 'group-hover:rotate-12'} transition-transform`} />
                   </button>
               </div>
             </div>
           </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-600">Description</label>
-            <textarea name="description" rows={4} required placeholder="Detail the job requirements and scope..." className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 resize-none shadow-sm" />
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-600">Total Budget (Est.)</label>
-            <div className="relative">
-              <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 h-5 w-5" />
-              <input name="budget" type="number" required placeholder="5000" className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-11 pr-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 shadow-sm" />
-            </div>
+          <div className="space-y-3">
+            <label className="text-[10px] font-medium uppercase tracking-[0.2em] text-brand-muted ml-1">Job Description</label>
+            <textarea 
+                name="description" 
+                rows={4} 
+                required 
+                placeholder="Describe the role and requirements..." 
+                className="w-full bg-white border border-brand-border rounded-2xl py-5 px-6 focus:outline-none focus:border-brand-primary text-brand-secondary font-medium resize-none placeholder:text-brand-muted/20" 
+            />
           </div>
 
           <div className="space-y-3">
-            <label className="text-sm font-medium text-slate-600">Required Skills</label>
-            <div className="flex gap-2">
-              <div className="relative flex-1">
-                <Tag className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 h-5 w-5" />
+            <label className="text-[10px] font-medium uppercase tracking-[0.2em] text-brand-muted ml-1">Job Budget (Monthly)</label>
+            <div className="relative group">
+              <DollarSign className="absolute left-5 top-1/2 -translate-y-1/2 text-brand-muted/30 group-focus-within:text-brand-primary h-5 w-5 transition-colors" />
+              <input name="budget" type="number" required placeholder="Enter amount" className="w-full bg-white border border-brand-border rounded-2xl py-5 pl-14 pr-5 focus:outline-none focus:border-brand-primary text-brand-secondary font-medium" />
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <label className="text-[10px] font-medium uppercase tracking-[0.2em] text-brand-muted ml-1">Required Skills</label>
+            <div className="flex gap-3">
+              <div className="relative flex-1 group">
+                <Tag className="absolute left-5 top-1/2 -translate-y-1/2 text-brand-muted/30 group-focus-within:text-brand-primary h-5 w-5 transition-colors" />
                 <input
                   value={skillInput}
                   onChange={(e) => setSkillInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addSkill())}
-                  placeholder="e.g. Soldering"
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-11 pr-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 shadow-sm"
+                  placeholder="e.g. Sales, Marketing"
+                  className="w-full bg-white border border-brand-border rounded-2xl py-5 pl-14 pr-5 focus:outline-none focus:border-brand-primary text-brand-secondary font-medium placeholder:text-brand-muted/20"
                 />
               </div>
               <button
                 type="button"
                 onClick={addSkill}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white p-3 rounded-xl transition-colors shadow-md"
+                className="bg-brand-secondary text-brand-primary p-5 rounded-2xl transition-all shadow-xl hover:scale-105 active:scale-95"
               >
                 <Plus className="h-6 w-6" />
               </button>
             </div>
-            <div className="flex flex-wrap gap-2 pt-1">
+            <div className="flex flex-wrap gap-3 pt-2">
               {skills.map(skill => (
-                <span key={skill} className="flex items-center gap-1 bg-slate-100 border border-slate-200 rounded-lg px-3 py-1 text-sm font-medium text-slate-700">
+                <span key={skill} className="flex items-center gap-2 bg-brand-secondary text-brand-primary rounded-xl px-4 py-2 text-xs font-semibold uppercase tracking-widest border border-brand-secondary">
                   {skill}
-                  <X className="h-4 w-4 cursor-pointer hover:text-red-600" onClick={() => removeSkill(skill)} />
+                  <X className="h-4 w-4 cursor-pointer hover:text-white transition-colors" onClick={() => removeSkill(skill)} />
                 </span>
               ))}
             </div>
@@ -177,9 +210,11 @@ export const JobPostingPage = () => {
           <button
             type="submit"
             disabled={mutation.isPending}
-            className="w-full bg-linear-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 py-4 rounded-xl font-bold text-lg text-white shadow-lg shadow-indigo-500/10 transition-all disabled:opacity-50 mt-4"
+            className="w-full bg-brand-secondary text-brand-primary py-6 rounded-4xl font-semibold text-xl uppercase tracking-widest shadow-2xl shadow-brand-secondary/10 hover:bg-neutral-800 active:scale-[0.99] transition-all disabled:opacity-50 mt-8 flex items-center justify-center gap-4 group"
           >
-            {mutation.isPending ? 'Publishing...' : 'Publish Job Listing'}
+            {mutation.isPending ? <Loader2 className="w-8 h-8 animate-spin" /> : (
+                <>Post Job <ChevronRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" /></>
+            )}
           </button>
         </form>
       </div>

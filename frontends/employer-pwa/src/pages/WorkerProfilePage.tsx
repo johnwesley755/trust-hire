@@ -1,7 +1,8 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { workerService } from '../api/worker.service';
-import { ShieldCheck, MapPin, Award, Star, Briefcase, ChevronLeft, Calendar } from 'lucide-react';
+import { ShieldCheck, MapPin, Award, Star, Briefcase, ChevronLeft, Calendar, Loader2 } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 // Defining it here since it's cleaner for now
 export interface TrustScoreResponse {
@@ -41,86 +42,136 @@ export const WorkerProfilePage = () => {
     enabled: !!id
   });
 
-  if (isLoadingWorker) return <div className="min-h-screen bg-slate-50 flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500"></div></div>;
+  if (isLoadingWorker) return (
+    <div className="min-h-screen bg-brand-bg flex flex-col items-center justify-center gap-4">
+        <Loader2 className="h-12 w-12 text-brand-primary animate-spin" />
+        <p className="text-[10px] font-semibold uppercase tracking-widest text-brand-muted">Loading profile...</p>
+    </div>
+  );
+
+  const stats = [
+    { label: 'Rating', value: `${trustScore?.avgRating} / 5`, icon: <Star className="text-brand-primary h-5 w-5" /> },
+    { label: 'Reliability', value: `${(trustScore?.reliabilityRate || 0) * 100}%`, icon: <ShieldCheck className="text-brand-primary h-5 w-5" /> },
+    { label: 'Experience', value: `${worker?.experience} YRS`, icon: <Briefcase className="text-brand-primary h-5 w-5" /> },
+    { label: 'Exp Level', value: `LVL ${worker?.level}`, icon: <Award className="text-brand-primary h-5 w-5" /> },
+  ];
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 p-6 pb-32">
-      <button 
-        onClick={() => navigate(-1)}
-        className="mb-8 flex items-center gap-2 text-slate-400 hover:text-indigo-600 transition-colors"
-      >
-        <ChevronLeft className="h-5 w-5" /> Back to Search
-      </button>
-
-      <div className="max-w-4xl mx-auto space-y-10">
-        {/* Profile Header */}
-        <section className="bg-white border border-slate-200 rounded-4xl p-10 flex flex-col md:flex-row gap-10 items-center md:items-start text-center md:text-left shadow-sm">
-          <div className="h-32 w-32 rounded-3xl bg-linear-to-br from-indigo-500 to-blue-500 flex items-center justify-center text-4xl font-black shadow-xl">
-            {worker?.name[0]}
-          </div>
-          <div className="flex-1 space-y-4">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div>
-                <h1 className="text-4xl font-bold tracking-tight text-slate-900">{worker?.name}</h1>
-                <p className="text-slate-500 flex items-center justify-center md:justify-start gap-1 mt-1">
-                  <MapPin className="h-4 w-4" /> {worker?.location} • Joined Jan 2026
-                </p>
-              </div>
-              <div className="bg-emerald-50 border border-emerald-100 px-6 py-3 rounded-2xl flex items-center gap-3 shadow-sm">
-                <ShieldCheck className="h-6 w-6 text-emerald-600" />
-                <div>
-                  <span className="block text-xs font-bold text-emerald-600 uppercase tracking-widest">Trust Score</span>
-                  <span className="text-2xl font-black text-emerald-600">{trustScore?.score}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Stats Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {[
-            { label: 'Avg. Rating', value: `${trustScore?.avgRating} / 5`, icon: <Star className="text-amber-400" /> },
-            { label: 'Reliability', value: `${(trustScore?.reliabilityRate || 0) * 100}%`, icon: <ShieldCheck className="text-blue-400" /> },
-            { label: 'Experience', value: `${worker?.experience} Years`, icon: <Briefcase className="text-indigo-400" /> },
-            { label: 'Level', value: `L${worker?.level}`, icon: <Award className="text-rose-400" /> },
-          ].map((stat, i) => (
-            <div key={i} className="bg-white border border-slate-200 p-6 rounded-3xl text-center space-y-2 shadow-sm">
-                <div className="mx-auto w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center">
-                    {stat.icon}
-                </div>
-                <span className="block text-xl font-bold text-slate-900">{stat.value}</span>
-                <span className="block text-xs font-bold text-slate-400 uppercase tracking-widest">{stat.label}</span>
-            </div>
-          ))}
-        </div>
-
-        {/* Verified Skills */}
-        <section className="space-y-6">
-          <h2 className="text-2xl font-bold flex items-center gap-2">
-            <Award className="text-emerald-400" /> Verified Skill Badges
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {worker?.skills.map((skill: string, i: number) => (
-              <div key={i} className="bg-white border border-slate-200 p-6 rounded-3xl flex items-center justify-between shadow-sm">
-                <div className="flex items-center gap-4">
-                  <div className="p-3 bg-emerald-50 rounded-2xl">
-                    <ShieldCheck className="h-6 w-6 text-emerald-600" />
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-lg text-slate-900">{skill}</h4>
-                    <span className="text-xs text-emerald-600 font-medium uppercase tracking-wider">Verified Assessment</span>
-                  </div>
-                </div>
-                <Calendar className="h-5 w-5 text-slate-200" />
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <button className="w-full bg-indigo-600 text-white py-5 rounded-3xl font-black text-xl hover:bg-indigo-700 transition-all shadow-lg">
-          HIRE THIS WORKER
+    <div className="min-h-screen bg-brand-bg text-brand-secondary selection:bg-brand-primary selection:text-brand-secondary">
+      <div className="absolute inset-0 cloud-grid opacity-[0.03] pointer-events-none" />
+      
+      <div className="max-w-5xl mx-auto px-6 py-12 pb-32 relative z-10">
+        <button 
+            onClick={() => navigate(-1)}
+            className="mb-10 flex items-center gap-3 text-brand-muted hover:text-brand-primary transition-all font-semibold uppercase tracking-widest text-[10px] group"
+        >
+            <ChevronLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" /> Back to Search
         </button>
+
+        <div className="space-y-12">
+            {/* Profile Header */}
+            <motion.section 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-brand-surface border border-brand-border rounded-[3rem] p-10 flex flex-col md:flex-row gap-10 items-center md:items-start text-center md:text-left shadow-2xl relative overflow-hidden group"
+            >
+                <div className="absolute top-0 right-0 p-10 opacity-[0.02] pointer-events-none">
+                    <ShieldCheck className="w-64 h-64 text-brand-primary" />
+                </div>
+
+                <div className="h-40 w-40 rounded-4xl bg-brand-secondary text-brand-primary flex items-center justify-center text-6xl font-bold shadow-2xl border border-brand-secondary shrink-0 relative z-10">
+                    {worker?.name[0]}
+                </div>
+                
+                <div className="flex-1 space-y-6 relative z-10 pt-2">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                        <div>
+                            <h1 className="text-5xl font-bold text-neutral-900 tracking-tight leading-tight mb-4">{worker?.name}</h1>
+                            <div className="flex flex-wrap items-center justify-center md:justify-start gap-4">
+                                <span className="text-brand-muted flex items-center gap-2 text-[10px] font-semibold uppercase tracking-widest">
+                                    <MapPin className="h-4 w-4 text-brand-primary" /> {worker?.location}
+                                </span>
+                                <span className="w-1.5 h-1.5 rounded-full bg-brand-border" />
+                                <span className="text-brand-muted text-[10px] font-semibold uppercase tracking-widest">Joined Jan 2026</span>
+                            </div>
+                        </div>
+                        <div className="bg-brand-secondary px-8 py-5 rounded-4xl flex items-center gap-4 shadow-2xl border border-brand-secondary">
+                            <ShieldCheck className="h-8 w-8 text-brand-primary" />
+                            <div className="text-left">
+                                <span className="block text-[8px] font-semibold text-brand-primary uppercase tracking-widest leading-none mb-1">Trust Score</span>
+                                <span className="text-3xl font-bold text-brand-primary leading-none uppercase tracking-tight">{trustScore?.score}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div className="bg-brand-bg/50 p-6 rounded-3xl border border-brand-border text-brand-muted font-medium relative shadow-inner">
+                        <p className="leading-relaxed">"{worker?.bio || "No professional overview provided."}"</p>
+                    </div>
+                </div>
+            </motion.section>
+
+            {/* Stats Grid */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {stats.map((stat, i) => (
+                <motion.div 
+                    key={i} 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.05 }}
+                    className="bg-brand-surface border border-brand-border p-8 rounded-4xl text-center space-y-3 shadow-xl hover:border-brand-primary/30 transition-all group"
+                >
+                    <div className="mx-auto w-12 h-12 bg-brand-secondary rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                        {stat.icon}
+                    </div>
+                    <div>
+                        <span className="block text-2xl font-bold text-brand-secondary uppercase tracking-tight leading-none mb-1">{stat.value}</span>
+                        <span className="block text-[8px] font-semibold text-brand-muted uppercase tracking-widest">{stat.label}</span>
+                    </div>
+                </motion.div>
+            ))}
+            </div>
+
+            {/* Verified Skills */}
+            <section className="space-y-8">
+                <div className="flex items-center gap-4">
+                    <Award className="text-brand-primary h-8 w-8" />
+                    <h2 className="text-3xl font-bold text-neutral-900 uppercase tracking-tight">Verified Skills</h2>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {worker?.skills.map((skill: string, i: number) => (
+                    <motion.div 
+                        key={i} 
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: i * 0.1 }}
+                        className="bg-white border border-brand-border p-8 rounded-4xl flex items-center justify-between shadow-2xl group hover:border-brand-primary/50 transition-all cursor-default"
+                    >
+                        <div className="flex items-center gap-5">
+                            <div className="p-4 bg-brand-secondary rounded-2xl shadow-xl group-hover:rotate-12 transition-transform">
+                                <ShieldCheck className="h-7 w-7 text-brand-primary" />
+                            </div>
+                            <div>
+                                <h4 className="font-bold text-xl text-brand-secondary uppercase tracking-tight mb-1">{skill}</h4>
+                                <span className="text-[10px] text-brand-primary font-semibold uppercase tracking-widest">Verified by TrustHire</span>
+                            </div>
+                        </div>
+                        <Calendar className="h-6 w-6 text-brand-border group-hover:text-brand-primary transition-colors" />
+                    </motion.div>
+                    ))}
+                </div>
+            </section>
+
+            <motion.button 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="w-full bg-brand-secondary text-brand-primary py-6 rounded-4xl font-bold text-2xl uppercase tracking-widest shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-brand-secondary hover:bg-neutral-900 active:scale-[0.99] transition-all"
+            >
+                Hire Worker
+            </motion.button>
+        </div>
       </div>
     </div>
   );

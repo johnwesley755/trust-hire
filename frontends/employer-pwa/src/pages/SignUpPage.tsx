@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../providers/AuthContext';
 import apiClient from '../api/apiClient';
-import { Mail, Lock, Loader2, ArrowRight, User, Building2, ShieldCheck } from 'lucide-react';
+import { Mail, Lock, Loader2, ArrowRight, User, Building2, ShieldCheck, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
@@ -72,77 +72,91 @@ export const SignUpPage = () => {
 
     if (otpSent) {
         return (
-            <div className="min-h-screen bg-brand-bg flex items-center justify-center p-4 font-sans">
+            <div className="min-h-screen bg-brand-bg flex items-center justify-center p-6 selection:bg-brand-primary selection:text-brand-secondary">
+                <div className="absolute inset-0 cloud-grid opacity-[0.05] pointer-events-none" />
+                
                 <motion.div 
-                    initial={{ opacity: 0, scale: 0.95 }}
+                    initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="w-full max-w-md bg-brand-surface rounded-[2.5rem] shadow-2xl border border-brand-border p-10 relative overflow-hidden"
+                    className="w-full max-w-lg bg-brand-surface rounded-[3rem] shadow-2xl border border-brand-border p-12 relative overflow-hidden z-10"
                 >
-                    <div className="absolute top-0 left-0 w-full h-2 bg-linear-to-r from-brand-primary to-amber-600" />
+                    <div className="absolute top-0 left-0 w-full h-2 bg-brand-primary" />
                     
-                    <div className="text-center mb-10">
-                        <div className="inline-flex items-center justify-center p-4 bg-brand-primary/10 rounded-2xl mb-6">
-                            <ShieldCheck className="w-10 h-10 text-brand-primary" />
+                    <div className="flex flex-col items-center text-center mb-12">
+                        <div className="w-20 h-20 bg-brand-secondary text-brand-primary rounded-[2.5rem] flex items-center justify-center shadow-2xl mb-8">
+                            <ShieldCheck className="w-10 h-10" />
                         </div>
-                        <h1 className="text-4xl font-black text-brand-secondary tracking-tighter mb-2 italic">Verify Identity</h1>
-                        <p className="text-brand-muted font-bold">Secure OTP sent to <span className="text-brand-secondary">{formData.email}</span></p>
+                        <h1 className="text-5xl font-bold text-brand-secondary tracking-tight mb-3">Verify</h1>
+                        <p className="text-brand-muted font-medium tracking-tight">Security verification in progress. Verification code sent to:</p>
+                        <p className="text-brand-primary font-semibold uppercase tracking-widest text-xs mt-2">{formData.email}</p>
                     </div>
 
-                    <form onSubmit={handleVerifyAndRegister} className="space-y-8">
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-muted ml-1">Authentication Code</label>
-                            <input
-                                type="text"
-                                value={otp}
-                                onChange={(e) => setOtp(e.target.value)}
-                                className="w-full bg-brand-bg border border-brand-border rounded-2xl py-5 text-center text-4xl font-black tracking-[0.5em] text-brand-secondary focus:outline-none focus:ring-4 focus:ring-brand-primary/20 focus:border-brand-primary transition-all placeholder:text-brand-muted/20"
-                                placeholder="000000"
-                                maxLength={6}
-                                required
-                            />
+                    <form onSubmit={handleVerifyAndRegister} className="space-y-10">
+                        <div className="space-y-3">
+                            <label className="text-[10px] font-medium uppercase tracking-[0.3em] text-brand-muted ml-1 block text-center">Verification Code</label>
+                                <input
+                                    type="text"
+                                    value={otp}
+                                    onChange={(e) => setOtp(e.target.value)}
+                                    className="w-full bg-white border-2 border-brand-border rounded-3xl py-8 text-center text-5xl font-semibold tracking-[0.4em] text-brand-secondary focus:outline-none focus:border-brand-primary transition-all placeholder:text-brand-muted/10 shadow-inner"
+                                    placeholder="******"
+                                    maxLength={6}
+                                    required
+                                />
                         </div>
 
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="w-full bg-brand-secondary text-brand-primary font-black py-5 rounded-3xl shadow-2xl hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-3 transition-all disabled:opacity-70 text-lg uppercase tracking-widest"
+                            className="w-full bg-brand-secondary text-brand-primary font-semibold py-6 rounded-4xl shadow-2xl hover:bg-neutral-800 active:scale-[0.98] flex items-center justify-center gap-4 transition-all disabled:opacity-70 text-xl uppercase tracking-widest"
                         >
-                            {isLoading ? <Loader2 className="w-6 h-6 animate-spin" /> : 'Complete Registration'}
+                            {isLoading ? <Loader2 className="w-8 h-8 animate-spin" /> : (
+                                <>Verify OTP <ChevronRight className="w-6 h-6" /></>
+                            )}
                         </button>
                     </form>
+                    
+                    <button 
+                        onClick={() => setOtpSent(false)}
+                        className="w-full mt-8 text-brand-muted font-black text-[10px] uppercase tracking-widest hover:text-brand-primary transition-colors italic"
+                    >
+                        Back to secure entry
+                    </button>
                 </motion.div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2 bg-brand-bg font-sans selection:bg-brand-primary selection:text-brand-secondary">
+        <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2 bg-brand-bg font-sans selection:bg-brand-primary selection:text-brand-secondary overflow-hidden">
             {/* Left Column: Form Section */}
-            <div className="flex flex-col justify-start px-8 lg:px-20 py-12 relative overflow-y-auto max-h-screen custom-scrollbar">
-                <div className="mb-12">
-                     <Link to="/" className="flex items-center gap-3 group">
-                        <div className="w-12 h-12 bg-brand-secondary rounded-2xl flex items-center justify-center group-hover:bg-brand-primary/10 transition-all shadow-sm">
-                            <Building2 className="w-7 h-7 text-brand-primary" />
+            <div className="flex flex-col justify-start px-8 lg:px-24 py-16 relative overflow-y-auto max-h-screen custom-scrollbar z-10">
+                <div className="absolute inset-0 cloud-grid opacity-[0.03] pointer-events-none" />
+                
+                <div className="mb-16 relative">
+                     <Link to="/" className="flex items-center gap-4 group">
+                        <div className="w-14 h-14 bg-brand-secondary rounded-[1.5rem] flex items-center justify-center group-hover:bg-brand-primary group-hover:text-brand-secondary transition-all shadow-xl">
+                            <Building2 className="w-8 h-8 text-brand-primary group-hover:text-brand-secondary transition-colors" />
                         </div>
                         <div className="flex flex-col">
-                            <span className="text-2xl font-bold tracking-tight text-brand-secondary uppercase leading-none">TrustHire</span>
-                            <span className="text-[10px] font-black text-brand-muted uppercase tracking-[0.2em] mt-1">Enterprise Solution</span>
+                            <span className="text-3xl font-bold tracking-tight text-neutral-900 uppercase leading-none">TrustHire</span>
+                            <span className="text-[10px] font-medium text-brand-primary uppercase tracking-[0.3em] mt-1.5">Business Network</span>
                         </div>
                     </Link>
                 </div>
 
-                <div className="max-w-xl w-full mx-auto lg:mx-0">
+                <div className="max-w-xl w-full mx-auto lg:mx-0 relative">
                     <motion.div 
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="mb-10"
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        className="mb-12"
                     >
-                        <h1 className="text-5xl font-black text-brand-secondary tracking-tighter leading-tight mb-4">
-                            Build Your Team <br />
-                            <span className="text-brand-primary text-4xl">With Confidence.</span>
+                        <h1 className="text-6xl font-bold text-neural-900 tracking-tight leading-[1.1] mb-6">
+                            Hire your next <br />
+                            <span className="text-brand-primary font-bold">professional.</span>
                         </h1>
-                        <p className="text-brand-muted font-bold text-lg max-w-md leading-relaxed">
-                            The trusted talent infrastructure for modern enterprises to scale and secure operations.
+                        <p className="text-brand-muted font-medium text-lg max-w-sm leading-relaxed">
+                            Access the most verified talent network in the region.
                         </p>
                     </motion.div>
 
@@ -150,11 +164,9 @@ export const SignUpPage = () => {
                         <motion.div 
                             initial={{ opacity: 0, y: -10 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="mb-8 p-4 bg-brand-accent/5 border border-brand-accent/20 text-brand-accent font-bold text-sm rounded-2xl flex items-center gap-3"
+                            className="mb-8 p-5 bg-brand-accent/5 border-l-4 border-brand-accent text-brand-accent font-black text-xs rounded-r-2xl flex items-center gap-4 uppercase tracking-widest"
                         >
-                            <div className="w-5 h-5 rounded-full bg-brand-accent/20 flex items-center justify-center shrink-0">
-                                <span className="text-[10px]">!</span>
-                            </div>
+                            <ShieldCheck className="w-5 h-5 shrink-0" />
                             {error}
                         </motion.div>
                     )}
@@ -162,16 +174,16 @@ export const SignUpPage = () => {
                     <form onSubmit={handleSendOtp} className="space-y-6">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black uppercase tracking-[0.15em] text-brand-muted ml-1">First Name</label>
+                                <label className="text-[10px] font-medium uppercase tracking-[0.2em] text-brand-muted ml-1">First Name</label>
                                 <div className="relative group">
-                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
                                         <User className="w-5 h-5 text-brand-muted/30 group-focus-within:text-brand-primary transition-colors" />
                                     </div>
                                     <input
                                         type="text"
                                         value={formData.firstName}
                                         onChange={(e) => setFormData({...formData, firstName: e.target.value})}
-                                        className="w-full bg-brand-surface border border-brand-border rounded-xl py-4 pl-12 pr-4 text-brand-secondary font-bold focus:outline-none focus:ring-4 focus:ring-brand-primary/5 focus:border-brand-primary transition-all placeholder:text-brand-muted/20"
+                                        className="w-full bg-white border border-brand-border rounded-2xl py-5 pl-14 pr-5 text-brand-secondary font-medium focus:outline-none focus:border-brand-primary transition-all placeholder:text-brand-muted/20 text-sm"
                                         placeholder="Enter first name"
                                         required
                                     />
@@ -179,16 +191,16 @@ export const SignUpPage = () => {
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black uppercase tracking-[0.15em] text-brand-muted ml-1">Last Name</label>
+                                <label className="text-[10px] font-medium uppercase tracking-[0.2em] text-brand-muted ml-1">Last Name</label>
                                 <div className="relative group">
-                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
                                         <User className="w-5 h-5 text-brand-muted/30 group-focus-within:text-brand-primary transition-colors" />
                                     </div>
                                     <input
                                         type="text"
                                         value={formData.lastName}
                                         onChange={(e) => setFormData({...formData, lastName: e.target.value})}
-                                        className="w-full bg-brand-surface border border-brand-border rounded-xl py-4 pl-12 pr-4 text-brand-secondary font-bold focus:outline-none focus:ring-4 focus:ring-brand-primary/5 focus:border-brand-primary transition-all placeholder:text-brand-muted/20"
+                                        className="w-full bg-white border border-brand-border rounded-2xl py-5 pl-14 pr-5 text-brand-secondary font-medium focus:outline-none focus:border-brand-primary transition-all placeholder:text-brand-muted/20 text-sm"
                                         placeholder="Enter last name"
                                         required
                                     />
@@ -197,17 +209,17 @@ export const SignUpPage = () => {
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black uppercase tracking-[0.15em] text-brand-muted ml-1">Professional Email</label>
+                            <label className="text-[10px] font-medium uppercase tracking-[0.2em] text-brand-muted ml-1">Work Email</label>
                             <div className="relative group">
-                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
                                     <Mail className="w-5 h-5 text-brand-muted/30 group-focus-within:text-brand-primary transition-colors" />
                                 </div>
                                 <input
                                     type="email"
                                     value={formData.email}
                                     onChange={(e) => setFormData({...formData, email: e.target.value})}
-                                    className="w-full bg-brand-surface border border-brand-border rounded-xl py-4 pl-12 pr-4 text-brand-secondary font-bold focus:outline-none focus:ring-4 focus:ring-brand-primary/5 focus:border-brand-primary transition-all placeholder:text-brand-muted/20"
-                                    placeholder="name@company.com"
+                                    className="w-full bg-white border border-brand-border rounded-2xl py-5 pl-14 pr-5 text-brand-secondary font-medium focus:outline-none focus:border-brand-primary transition-all placeholder:text-brand-muted/20 text-sm"
+                                    placeholder="your@company.com"
                                     required
                                 />
                             </div>
@@ -215,7 +227,7 @@ export const SignUpPage = () => {
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-start">
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black uppercase tracking-[0.15em] text-brand-muted ml-1">Phone Number</label>
+                                <label className="text-[10px] font-medium uppercase tracking-[0.2em] text-brand-muted ml-1">Phone Number</label>
                                 <div className="relative phone-input-container group">
                                     <PhoneInput
                                         country={'in'}
@@ -230,9 +242,9 @@ export const SignUpPage = () => {
                                         }}
                                         inputProps={{ name: 'phone', required: true }}
                                         containerClass="!w-full"
-                                        inputClass="!w-full !h-[3.75rem] !bg-brand-surface !border-brand-border !rounded-xl !pl-14 !pr-4 !text-brand-secondary !font-bold !text-base focus:!ring-4 focus:!ring-brand-primary/5 focus:!border-brand-primary !transition-all"
-                                        buttonClass="!bg-transparent !border-none !rounded-l-xl !pl-4"
-                                        dropdownClass="!rounded-xl !shadow-2xl !border-brand-border !bg-brand-surface"
+                                        inputClass="!w-full !h-[3.75rem] !bg-white !border-brand-border !rounded-2xl !pl-14 !pr-5 !text-brand-secondary !font-medium !text-sm focus:!border-brand-primary !transition-all"
+                                        buttonClass="!bg-transparent !border-none !rounded-l-2xl !pl-4"
+                                        dropdownClass="!rounded-2xl !shadow-2xl !border-brand-border !bg-white"
                                         searchClass="!rounded-lg !bg-brand-bg !border-brand-border"
                                         enableSearch={true}
                                         disableDropdown={false}
@@ -249,24 +261,24 @@ export const SignUpPage = () => {
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black uppercase tracking-[0.15em] text-brand-muted ml-1">Password</label>
+                                <label className="text-[10px] font-medium uppercase tracking-[0.2em] text-brand-muted ml-1">Password</label>
                                 <div className="relative group">
-                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
                                         <Lock className="w-5 h-5 text-brand-muted/30 group-focus-within:text-brand-primary transition-colors" />
                                     </div>
                                     <input
                                         type="password"
                                         value={formData.password}
                                         onChange={(e) => setFormData({...formData, password: e.target.value})}
-                                        className="w-full bg-brand-surface border border-brand-border rounded-xl py-4 pl-12 pr-4 text-brand-secondary font-bold focus:outline-none focus:ring-4 focus:ring-brand-primary/5 focus:border-brand-primary transition-all placeholder:text-brand-muted/20"
-                                        placeholder="••••••••"
+                                        className="w-full bg-white border border-brand-border rounded-2xl py-5 pl-14 pr-5 text-brand-secondary font-medium focus:outline-none focus:border-brand-primary transition-all placeholder:text-brand-muted/20 text-sm"
+                                        placeholder="Min. 8 characters"
                                         required
                                     />
                                 </div>
                             </div>
                         </div>
 
-                        <div className="pt-2">
+                        <div className="pt-4">
                              <ImageUpload 
                                 onUploadSuccess={(url) => setFormData({...formData, profile_image_url: url})}
                                 currentImage={formData.profile_image_url}
@@ -276,21 +288,21 @@ export const SignUpPage = () => {
                         <button
                             type="submit"
                             disabled={isLoading || !isFormValid}
-                            className="w-full bg-brand-secondary text-brand-primary font-black py-5 rounded-2xl shadow-lg hover:shadow-brand-secondary/20 hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-3 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-lg uppercase tracking-wide mt-4"
+                            className="w-full bg-brand-secondary text-brand-primary font-semibold py-6 rounded-4xl shadow-2xl hover:bg-neutral-800 active:scale-[0.99] flex items-center justify-center gap-4 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-xl uppercase tracking-widest mt-6"
                         >
                             {isLoading ? (
-                                <Loader2 className="w-6 h-6 animate-spin" />
+                                <Loader2 className="w-8 h-8 animate-spin" />
                             ) : (
-                                <>Get Started <ArrowRight className="w-6 h-6" /></>
+                                <>Create Account <ArrowRight className="w-6 h-6" /></>
                             )}
                         </button>
                     </form>
 
-                    <div className="mt-12 pt-8 border-t border-brand-border/50 text-center lg:text-left">
-                        <p className="text-brand-muted font-bold text-sm">
-                            Already have an account?{' '}
-                            <Link to="/sign-in" className="text-brand-secondary hover:text-brand-primary transition-colors ml-1 border-b border-brand-primary/20 hover:border-brand-primary">
-                                Sign In
+                    <div className="mt-12 pt-8 border-t border-brand-border/30 text-center lg:text-left">
+                        <p className="text-brand-muted font-black text-xs uppercase tracking-widest">
+                            Authorized personnel already?{' '}
+                            <Link to="/sign-in" className="text-brand-secondary hover:text-brand-primary transition-colors ml-2 border-b-2 border-brand-primary">
+                                Secure Login
                             </Link>
                         </p>
                     </div>
@@ -302,45 +314,50 @@ export const SignUpPage = () => {
                 <div className="absolute inset-0">
                     <img 
                         src="/images/auth_hero.png" 
-                        alt="Join the Network" 
-                        className="w-full h-full object-cover brightness-[0.5] grayscale-30"
+                        alt="Security Infrastructure" 
+                        className="w-full h-full object-cover brightness-[0.4] grayscale-[0.2] scale-105"
                     />
                 </div>
                 
                 {/* Decorative overlay */}
-                <div className="absolute inset-0 bg-linear-to-b from-brand-secondary/20 via-brand-secondary/40 to-brand-secondary/80" />
-                <div className="absolute inset-0 cloud-grid opacity-20" />
+                <div className="absolute inset-0 bg-linear-to-b from-brand-secondary/0 via-brand-secondary/20 to-brand-secondary/90" />
+                <div className="absolute inset-0 cloud-grid opacity-30" />
+                
+                {/* Premium Amber Glow */}
+                <div className="absolute -top-[20%] -right-[20%] w-[80%] h-[80%] bg-brand-primary/10 blur-[150px] rounded-full" />
 
-                <div className="relative h-full flex flex-col justify-center p-20 z-10">
+                <div className="relative h-full flex flex-col justify-end p-24 z-10">
                     <motion.div 
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        className="space-y-10"
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 }}
+                        className="space-y-12"
                     >
-                        <div className="space-y-4 max-w-lg">
-                            <h3 className="text-6xl font-black text-white tracking-tighter leading-[1.1]">
-                                Empower Your <br />
-                                <span className="text-brand-primary">Workforce.</span>
+                        <div className="space-y-6 max-w-xl">
+                            <div className="w-24 h-1 bg-brand-primary rounded-full mb-8" />
+                            <h3 className="text-7xl font-bold text-white tracking-tight leading-[1] mb-6">
+                                Verified <br />
+                                <span className="text-brand-primary">Talent.</span>
                             </h3>
-                            <p className="text-xl text-white/60 font-medium leading-relaxed">
-                                Join over 15,000 top-tier organizations using India's most advanced verified talent network.
+                            <p className="text-xl text-white/50 font-medium leading-relaxed">
+                                Connect with billions of verified data points and professional insights with ease.
                             </p>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-6 pt-10">
-                            <div className="glass-card p-8 rounded-3xl border-white/5 bg-white/5">
-                                <div className="w-12 h-12 bg-brand-primary/10 rounded-xl flex items-center justify-center mb-4">
-                                    <ShieldCheck className="w-6 h-6 text-brand-primary" />
+                        <div className="grid grid-cols-2 gap-8 pt-6">
+                            <div className="p-8 rounded-[2.5rem] bg-white/5 backdrop-blur-3xl border border-white/10 group hover:border-brand-primary/30 transition-all">
+                                <div className="w-14 h-14 bg-brand-primary rounded-2xl flex items-center justify-center mb-6 shadow-xl shadow-brand-primary/10 group-hover:scale-110 transition-transform">
+                                    <ShieldCheck className="w-7 h-7 text-brand-secondary" />
                                 </div>
-                                <div className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-1">Security</div>
-                                <div className="text-xl font-bold text-white">Full Verification</div>
+                                 <div className="text-[10px] font-medium text-brand-primary uppercase tracking-[0.3em] mb-2">Verification</div>
+                                <div className="text-2xl font-bold text-white uppercase tracking-tight">Verified</div>
                             </div>
-                            <div className="glass-card p-8 rounded-3xl border-white/5 bg-white/5">
-                                <div className="w-12 h-12 bg-brand-primary/10 rounded-xl flex items-center justify-center mb-4">
-                                    <Building2 className="w-6 h-6 text-brand-primary" />
+                            <div className="p-8 rounded-[2.5rem] bg-white/5 backdrop-blur-3xl border border-white/10 group hover:border-brand-primary/30 transition-all">
+                                <div className="w-14 h-14 bg-brand-primary/10 border border-brand-primary/20 rounded-2xl flex items-center justify-center mb-6 shadow-xl group-hover:scale-110 transition-transform">
+                                    <Building2 className="w-7 h-7 text-brand-primary" />
                                 </div>
-                                <div className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-1">Scale</div>
-                                <div className="text-xl font-bold text-white">Global Reach</div>
+                                <div className="text-[10px] font-medium text-brand-primary uppercase tracking-[0.3em] mb-2">Reach</div>
+                                <div className="text-2xl font-bold text-white uppercase tracking-tight">Global</div>
                             </div>
                         </div>
                     </motion.div>

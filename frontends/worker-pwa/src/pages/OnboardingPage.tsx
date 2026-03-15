@@ -10,15 +10,25 @@ import {
   Zap,
   Hammer,
   ShieldCheck,
-  Navigation
+  Navigation,
+  CheckCircle2,
+  Briefcase,
+  Star,
+  Globe
 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "../hooks/useLanguage";
-
-
 
 const SKILL_OPTIONS = [
   "Carpentry", "Plumbing", "Electrical", "Masonry", "Painting",
   "Cleaning", "Gardening", "Cooking", "Driving", "General Labor"
+];
+
+const STEPS = [
+  { id: 1, title: "Identity", icon: User },
+  { id: 2, title: "Expertise", icon: Star },
+  { id: 3, title: "Narrative", icon: Briefcase },
+  { id: 4, title: "Base", icon: MapPin },
 ];
 
 export default function OnboardingPage() {
@@ -45,7 +55,7 @@ export default function OnboardingPage() {
 
   const nextStep = () => {
     if (step === 2 && (formData.experienceYears === "" || formData.hourlyRate === "")) {
-      alert("Please enter both your Experience Years and Hourly Rate to continue.");
+      alert("Please specify experience and rate to continue.");
       return;
     }
     setStep(s => s + 1);
@@ -108,7 +118,6 @@ export default function OnboardingPage() {
   const handleSubmit = async () => {
     setIsSubmitting(true);
     try {
-      // 1. Update Worker Profile
       await apiClient.put(
         '/api/worker/profile',
         {
@@ -137,188 +146,280 @@ export default function OnboardingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 pb-12">
-      {/* Progress Bar */}
-      <div className="max-w-md w-full mb-8 flex gap-2">
-        {[1, 2, 3, 4].map((i) => (
-          <div 
-            key={i} 
-            className={`h-2 flex-1 rounded-full transition-all duration-500 ${
-              step >= i ? "bg-indigo-600 shadow-sm" : "bg-slate-200"
-            }`} 
-          />
-        ))}
+    <div className="min-h-screen bg-brand-bg flex flex-col items-center justify-center p-6 lg:p-12 relative overflow-hidden selection:bg-brand-primary selection:text-brand-secondary">
+       {/* Background Elements */}
+      <div className="absolute inset-0 cloud-grid opacity-[0.05] pointer-events-none" />
+      <div className="absolute top-0 left-0 w-full h-1.5 bg-brand-primary/20">
+        <motion.div 
+            className="h-full bg-brand-primary shadow-[0_0_15px_rgba(250,204,21,0.5)]"
+            initial={{ width: "0%" }}
+            animate={{ width: `${(step / STEPS.length) * 100}%` }}
+            transition={{ duration: 0.5 }}
+        />
       </div>
 
-      <div className="max-w-md w-full bg-white rounded-[40px] shadow-2xl shadow-indigo-100 border border-slate-100 p-8 space-y-6">
-        
-        {step === 1 && (
-          <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="w-16 h-16 bg-indigo-50 text-indigo-600 rounded-3xl flex items-center justify-center">
-              <User className="w-8 h-8" />
+      <div className="max-w-2xl w-full z-10">
+        <div className="flex justify-between items-center mb-16 px-4">
+             <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-brand-secondary rounded-xl flex items-center justify-center shadow-lg">
+                    <Briefcase className="w-6 h-6 text-brand-primary" />
+                </div>
+                <div className="flex flex-col">
+                    <span className="text-xl font-bold tracking-tight text-neutral-900 uppercase leading-none">TrustPro</span>
+                    <span className="text-[8px] font-medium text-brand-primary uppercase tracking-[0.3em] mt-1">Verification</span>
+                </div>
             </div>
-            <div className="space-y-2">
-              <h1 className="text-3xl font-black tracking-tight text-slate-900">{t('onboarding.step1.title')}</h1>
-              <p className="text-slate-500 font-medium">{t('onboarding.step1.subtitle')}</p>
-            </div>
-            <div className="space-y-4">
-               <div>
-                <label className="text-xs font-black uppercase tracking-widest text-slate-400 mb-2 block">{t('onboarding.step1.fullName')}</label>
-                <input 
-                  type="text" 
-                  value={formData.fullName}
-                  onChange={(e) => setFormData({...formData, fullName: e.target.value})}
-                  className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-4 font-bold focus:border-indigo-500 focus:outline-none transition-all"
-                  placeholder="e.g. Rahul Sharma"
-                />
-               </div>
-            </div>
-          </div>
-        )}
-
-        {step === 2 && (
-          <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
-            <div className="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-3xl flex items-center justify-center">
-              <Zap className="w-8 h-8" />
-            </div>
-            <div className="space-y-2">
-              <h1 className="text-3xl font-black tracking-tight text-slate-900">{t('onboarding.step2.title')}</h1>
-              <p className="text-slate-500 font-medium">{t('onboarding.step2.subtitle')}</p>
-            </div>
-            <div className="space-y-4">
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400 mb-2 block">{t('onboarding.step2.chooseSkills')}</label>
-              <div className="flex flex-wrap gap-2">
-                {SKILL_OPTIONS.map(skill => (
-                  <button
-                    key={skill}
-                    onClick={() => toggleSkill(skill)}
-                    className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${
-                      formData.skills.includes(skill)
-                        ? "bg-indigo-600 text-white shadow-lg shadow-indigo-200 border-indigo-600"
-                        : "bg-slate-50 text-slate-600 border-2 border-slate-100 hover:border-slate-200"
-                    }`}
-                  >
-                    {skill}
-                  </button>
+            
+            <div className="flex gap-4">
+                {STEPS.map((s) => (
+                    <div 
+                        key={s.id}
+                        className={`transition-all duration-500 rounded-lg flex items-center gap-2 px-3 py-1.5 ${
+                            step === s.id 
+                            ? "bg-brand-secondary text-brand-primary shadow-lg" 
+                            : step > s.id 
+                                ? "bg-emerald-500/10 text-emerald-500"
+                                : "bg-neutral-100 text-neutral-400"
+                        }`}
+                    >
+                        <s.icon className="w-4 h-4" />
+                        <span className={`text-[10px] font-bold uppercase tracking-widest hidden md:block`}>
+                            {s.title}
+                        </span>
+                        {step > s.id && <CheckCircle2 className="w-3 h-3 ml-1" />}
+                    </div>
                 ))}
-              </div>
-              <div className="grid grid-cols-2 gap-4 mt-4">
-                <div>
-                  <label className="text-xs font-black uppercase tracking-widest text-slate-400 mb-2 block">{t('onboarding.step2.experience')}</label>
-                  <input 
-                    type="number" 
-                    value={formData.experienceYears}
-                    onChange={(e) => setFormData({...formData, experienceYears: e.target.value})}
-                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-4 font-bold focus:border-indigo-500 focus:outline-none transition-all"
-                    placeholder="e.g. 5"
-                    min="0"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-black uppercase tracking-widest text-slate-400 mb-2 block">Hourly Rate (₹)</label>
-                  <input 
-                    type="number" 
-                    value={formData.hourlyRate}
-                    onChange={(e) => setFormData({...formData, hourlyRate: e.target.value})}
-                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-4 font-bold focus:border-indigo-500 focus:outline-none transition-all"
-                    placeholder="e.g. 500"
-                    min="1"
-                  />
-                </div>
-              </div>
-              <div className="mt-4">
-                <label className="text-xs font-black uppercase tracking-widest text-slate-400 mb-2 block">Experience Level</label>
-                <select 
-                  value={formData.level}
-                  onChange={(e) => setFormData({...formData, level: e.target.value})}
-                  className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-4 font-bold focus:border-indigo-500 focus:outline-none transition-all appearance-none"
-                >
-                  <option value="L1">L1 - Beginner</option>
-                  <option value="L2">L2 - Intermediate</option>
-                  <option value="L3">L3 - Expert</option>
-                  <option value="L4">L4 - Master</option>
-                </select>
-              </div>
             </div>
-          </div>
-        )}
-
-        {step === 3 && (
-          <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
-            <div className="w-16 h-16 bg-amber-50 text-amber-600 rounded-3xl flex items-center justify-center">
-              <Hammer className="w-8 h-8" />
-            </div>
-            <div className="space-y-2">
-              <h1 className="text-3xl font-black tracking-tight text-slate-900">{t('onboarding.step3.title')}</h1>
-              <p className="text-slate-500 font-medium">{t('onboarding.step3.subtitle')}</p>
-            </div>
-            <div className="space-y-4">
-              <textarea 
-                rows={4}
-                value={formData.bio}
-                onChange={(e) => setFormData({...formData, bio: e.target.value})}
-                className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-4 font-bold focus:border-indigo-500 focus:outline-none transition-all"
-                placeholder="e.g. Master carpenter with 10 years experience in modular kitchen design..."
-              />
-            </div>
-          </div>
-        )}
-
-        {step === 4 && (
-          <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
-            <div className="w-16 h-16 bg-rose-50 text-rose-600 rounded-3xl flex items-center justify-center">
-              <MapPin className="w-8 h-8" />
-            </div>
-            <div className="space-y-2">
-              <h1 className="text-3xl font-black tracking-tight text-slate-900">{t('onboarding.step4.title')}</h1>
-              <p className="text-slate-500 font-medium">{t('onboarding.step4.subtitle')}</p>
-            </div>
-            <div className="space-y-4">
-              <button 
-                onClick={detectLocation}
-                className="w-full bg-indigo-50 text-indigo-600 font-black p-4 rounded-2xl flex items-center justify-center gap-2 border-2 border-indigo-100 hover:bg-indigo-100 transition-all"
-              >
-                <Navigation className="w-5 h-5" /> {t('onboarding.step4.useCurrent')}
-              </button>
-              <div className="text-center text-xs font-bold text-slate-300">OR</div>
-              <input 
-                type="text" 
-                value={formData.location}
-                onChange={(e) => setFormData({...formData, location: e.target.value})}
-                className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-4 font-bold focus:border-indigo-500 focus:outline-none transition-all"
-                placeholder="Type your city/area..."
-              />
-              {locationError && <p className="text-rose-500 text-xs font-bold">{locationError}</p>}
-            </div>
-          </div>
-        )}
-
-        {/* Navigation Buttons */}
-        <div className="flex gap-3 pt-6">
-          {step > 1 && (
-            <button 
-              onClick={prevStep}
-              className="flex-1 bg-slate-100 text-slate-600 font-black p-4 rounded-2xl flex items-center justify-center gap-2 border-2 border-slate-100 active:scale-95 transition-all"
-            >
-              <ChevronLeft className="w-5 h-5" /> {t('onboarding.nav.back')}
-            </button>
-          )}
-          
-          <button 
-            onClick={step < 4 ? nextStep : handleSubmit}
-            disabled={isSubmitting}
-            className={`flex-2 bg-indigo-600 text-white font-black p-4 rounded-2xl flex items-center justify-center gap-2 shadow-xl shadow-indigo-200 active:scale-95 transition-all ${
-              isSubmitting ? "opacity-70" : ""
-            }`}
-          >
-            {isSubmitting ? t('onboarding.nav.finish') : (step < 4 ? <>{t('onboarding.nav.continue')} <ChevronRight className="w-5 h-5" /></> : t('onboarding.nav.getStarted'))}
-          </button>
         </div>
 
-      </div>
+        <motion.div 
+            layout
+            className="bg-white rounded-[3rem] shadow-2xl border border-brand-border p-10 lg:p-16 relative overflow-hidden"
+        >
+          <AnimatePresence mode="wait">
+            {step === 1 && (
+              <motion.div 
+                key="step1"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                className="space-y-10"
+              >
+                <div className="space-y-4">
+                  <div className="w-16 h-1 bg-brand-primary rounded-full" />
+                  <h1 className="text-5xl font-bold tracking-tighter text-neutral-900 uppercase">Identity</h1>
+                  <p className="text-brand-muted font-medium text-lg leading-relaxed">Let's start by confirming your professional identity on the network.</p>
+                </div>
+                <div className="space-y-6">
+                   <div className="space-y-2">
+                    <label className="text-[10px] font-medium uppercase tracking-[0.3em] text-brand-muted ml-1">Full Name</label>
+                    <div className="relative group">
+                        <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
+                            <User className="w-6 h-6 text-brand-muted/30 group-focus-within:text-brand-primary transition-colors" />
+                        </div>
+                        <input 
+                            type="text" 
+                            value={formData.fullName}
+                            onChange={(e) => setFormData({...formData, fullName: e.target.value})}
+                            className="w-full bg-brand-surface border border-brand-border rounded-2xl py-6 pl-16 pr-6 text-brand-secondary font-semibold focus:outline-none focus:border-brand-primary transition-all placeholder:text-brand-muted/20 shadow-inner"
+                            placeholder="e.g. Rahul Sharma"
+                        />
+                    </div>
+                   </div>
+                </div>
+              </motion.div>
+            )}
 
-      <div className="mt-8 flex items-center gap-2 text-slate-400 font-bold text-sm">
-        <ShieldCheck className="w-4 h-4 text-emerald-500" /> {t('onboarding.secure')}
+            {step === 2 && (
+              <motion.div 
+                key="step2"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                className="space-y-10"
+              >
+                <div className="space-y-4">
+                  <div className="w-16 h-1 bg-brand-primary rounded-full" />
+                  <h1 className="text-5xl font-bold tracking-tighter text-neutral-900 uppercase">Expertise</h1>
+                  <p className="text-brand-muted font-medium text-lg leading-relaxed">Highlight your core skills and market value.</p>
+                </div>
+                <div className="space-y-8 text-left">
+                  <div className="space-y-4">
+                    <label className="text-[10px] font-medium uppercase tracking-[0.3em] text-brand-muted ml-1 block">Verify Your Skills</label>
+                    <div className="flex flex-wrap gap-3">
+                        {SKILL_OPTIONS.map(skill => (
+                        <button
+                            key={skill}
+                            onClick={() => toggleSkill(skill)}
+                            className={`px-6 py-3 rounded-2xl text-xs font-bold transition-all uppercase tracking-widest ${
+                            formData.skills.includes(skill)
+                                ? "bg-brand-secondary text-brand-primary shadow-xl border-brand-secondary"
+                                : "bg-brand-surface text-brand-muted border border-brand-border hover:border-brand-primary"
+                            }`}
+                        >
+                            {skill}
+                        </button>
+                        ))}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+                    <div className="space-y-2">
+                        <label className="text-[10px] font-medium uppercase tracking-[0.3em] text-brand-muted ml-1">Experience (Years)</label>
+                        <input 
+                            type="number" 
+                            value={formData.experienceYears}
+                            onChange={(e) => setFormData({...formData, experienceYears: e.target.value})}
+                            className="w-full bg-brand-surface border border-brand-border rounded-2xl py-6 px-6 text-brand-secondary font-semibold focus:outline-none focus:border-brand-primary transition-all shadow-inner"
+                            placeholder="Years"
+                            min="0"
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <label className="text-[10px] font-medium uppercase tracking-[0.3em] text-brand-muted ml-1 text-left block">Expected Hourly Rate (₹)</label>
+                        <div className="relative group">
+                            <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none text-brand-muted/30 font-bold">₹</div>
+                            <input 
+                                type="number" 
+                                value={formData.hourlyRate}
+                                onChange={(e) => setFormData({...formData, hourlyRate: e.target.value})}
+                                className="w-full bg-brand-surface border border-brand-border rounded-2xl py-6 pl-12 pr-6 text-brand-secondary font-semibold focus:outline-none focus:border-brand-primary transition-all shadow-inner"
+                                placeholder="Rate"
+                                min="1"
+                            />
+                        </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-medium uppercase tracking-[0.3em] text-brand-muted ml-1 block">Professional Tier</label>
+                    <select 
+                      value={formData.level}
+                      onChange={(e) => setFormData({...formData, level: e.target.value})}
+                      className="w-full bg-brand-surface border border-brand-border rounded-2xl py-6 px-6 text-brand-secondary font-semibold focus:outline-none focus:border-brand-primary transition-all appearance-none cursor-pointer"
+                    >
+                      <option value="L1">Level 1 - Foundational</option>
+                      <option value="L2">Level 2 - Professional</option>
+                      <option value="L3">Level 3 - Expert</option>
+                      <option value="L4">Level 4 - Master / Specialist</option>
+                    </select>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {step === 3 && (
+              <motion.div 
+                key="step3"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                className="space-y-10"
+              >
+                <div className="space-y-4">
+                  <div className="w-16 h-1 bg-brand-primary rounded-full" />
+                  <h1 className="text-5xl font-bold tracking-tighter text-neutral-900 uppercase">Narrative</h1>
+                  <p className="text-brand-muted font-medium text-lg leading-relaxed">Briefly describe your professional background and work ethics.</p>
+                </div>
+                <div className="space-y-6">
+                   <div className="space-y-2">
+                    <label className="text-[10px] font-medium uppercase tracking-[0.3em] text-brand-muted ml-1 block">Professional Summary</label>
+                    <textarea 
+                        rows={6}
+                        value={formData.bio}
+                        onChange={(e) => setFormData({...formData, bio: e.target.value})}
+                        className="w-full bg-brand-surface border border-brand-border rounded-[2rem] p-8 text-brand-secondary font-semibold focus:outline-none focus:border-brand-primary transition-all placeholder:text-brand-muted/20 shadow-inner resize-none text-lg"
+                        placeholder="Describe your expertise and what makes you a trusted professional..."
+                    />
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {step === 4 && (
+              <motion.div 
+                key="step4"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                className="space-y-10"
+              >
+                <div className="space-y-4">
+                  <div className="w-16 h-1 bg-brand-primary rounded-full" />
+                  <h1 className="text-5xl font-bold tracking-tighter text-neutral-900 uppercase">Base</h1>
+                  <p className="text-brand-muted font-medium text-lg leading-relaxed">Where should we look for opportunities near you?</p>
+                </div>
+                <div className="space-y-6">
+                  <button 
+                    onClick={detectLocation}
+                    className="w-full bg-brand-secondary text-brand-primary font-bold py-6 rounded-2xl flex items-center justify-center gap-4 border border-brand-secondary shadow-xl active:scale-95 transition-all text-sm uppercase tracking-widest"
+                  >
+                    <Navigation className="w-6 h-6" /> Sync Live Location
+                  </button>
+                  <div className="flex items-center gap-6">
+                    <div className="h-px bg-brand-border flex-1" />
+                    <span className="text-[10px] font-bold text-brand-muted uppercase tracking-[0.3em]">Manual Entry</span>
+                    <div className="h-px bg-brand-border flex-1" />
+                  </div>
+                  <div className="space-y-2 relative group">
+                     <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
+                            <MapPin className="w-6 h-6 text-brand-muted/30 group-focus-within:text-brand-primary transition-colors" />
+                     </div>
+                    <input 
+                        type="text" 
+                        value={formData.location}
+                        onChange={(e) => setFormData({...formData, location: e.target.value})}
+                        className="w-full bg-brand-surface border border-brand-border rounded-2xl py-6 pl-16 pr-6 text-brand-secondary font-semibold focus:outline-none focus:border-brand-primary transition-all placeholder:text-brand-muted/20 shadow-inner"
+                        placeholder="Search your city or area..."
+                    />
+                  </div>
+                  {locationError && (
+                     <div className="p-3 bg-brand-accent/5 border border-brand-accent/10 rounded-xl text-brand-accent text-xs font-bold uppercase tracking-wider text-center">
+                        {locationError}
+                     </div>
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Navigation Buttons */}
+          <div className="flex flex-col sm:flex-row gap-6 pt-12">
+            {step > 1 && (
+              <button 
+                onClick={prevStep}
+                className="flex-1 bg-neutral-100 text-neutral-500 font-bold py-6 rounded-3xl flex items-center justify-center gap-3 hover:bg-neutral-200 active:scale-95 transition-all uppercase tracking-widest text-xs"
+              >
+                <ChevronLeft className="w-5 h-5" /> Back
+              </button>
+            )}
+            
+            <button 
+              onClick={step < 4 ? nextStep : handleSubmit}
+              disabled={isSubmitting}
+              className={`flex-[2] bg-brand-secondary text-brand-primary font-bold py-6 rounded-3xl flex items-center justify-center gap-4 shadow-2xl active:scale-[0.98] transition-all uppercase tracking-widest text-lg ${
+                isSubmitting ? "opacity-70 grayscale" : "hover:bg-neutral-800"
+              }`}
+            >
+              {isSubmitting ? (
+                  <Loader2 className="w-8 h-8 animate-spin" />
+              ) : (
+                step < 4 ? (
+                    <>Next Step <ChevronRight className="w-6 h-6" /></>
+                ) : (
+                    <>Complete Integration <CheckCircle2 className="w-6 h-6" /></>
+                )
+              )}
+            </button>
+          </div>
+        </motion.div>
+
+        <div className="mt-12 flex flex-col items-center gap-3">
+             <div className="flex items-center gap-2 text-brand-muted font-bold text-[10px] uppercase tracking-[0.2em] bg-white border border-brand-border px-4 py-2 rounded-full shadow-sm">
+                <ShieldCheck className="w-4 h-4 text-emerald-500" /> Professional Grade Encryption Active
+            </div>
+            <p className="text-brand-muted/40 font-medium text-[9px] uppercase tracking-[0.1em]">© 2026 TrustHire Enterprise • Professional Network Integration</p>
+        </div>
       </div>
     </div>
   );
