@@ -8,6 +8,7 @@ import java.util.UUID;
 public interface JobService {
     Job createJob(Job job);
     List<Job> getAllJobs();
+    List<Job> getJobsByIds(List<UUID> ids);
     Optional<Job> getJobById(UUID id);
     List<Job> getJobsByEmployer(String employerId);
     Job updateJob(Job job);

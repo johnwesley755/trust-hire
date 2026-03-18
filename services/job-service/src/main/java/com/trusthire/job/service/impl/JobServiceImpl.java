@@ -42,6 +42,14 @@ public class JobServiceImpl implements JobService {
     }
 
     @Override
+    public List<Job> getJobsByIds(List<UUID> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return List.of();
+        }
+        return repository.findByIdIn(ids);
+    }
+
+    @Override
     public Optional<Job> getJobById(UUID id) {
         return repository.findById(id);
     }

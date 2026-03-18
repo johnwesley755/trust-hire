@@ -1,9 +1,10 @@
-import { Users, Briefcase, LayoutDashboard, PlusCircle, Clock, Building2, ChevronRight, Loader2, ShieldCheck } from 'lucide-react';
+import { Users, Briefcase, LayoutDashboard, PlusCircle, Clock, Building2, ChevronRight, Loader2, ShieldCheck, User, Mail } from 'lucide-react';
 import { useUser } from "../../providers/AuthContext";
 import { UserButton } from "../../components/UserButton";
 import { useQuery } from '@tanstack/react-query';
 import { jobService } from '../../api/job.service';
 import { applicationService } from '../../api/application.service';
+import { workerService } from '../../api/worker.service';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { NotificationCenter } from '../notifications/NotificationCenter';
 
@@ -20,7 +21,7 @@ export const DashboardSidebar = () => {
     ];
 
     return (
-        <aside className="w-64 border-r border-brand-border p-6 space-y-10 flex flex-col bg-white">
+        <aside className="hidden md:flex w-64 border-r border-brand-border p-6 space-y-10 flex-col bg-white">
             <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-brand-secondary rounded-xl flex items-center justify-center p-2 shadow-sm">
                     <Building2 className="w-full h-full text-brand-primary" />
@@ -72,15 +73,75 @@ export const DashboardSidebar = () => {
     );
 };
 
+export const MobileNav = () => {
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    const menuItems = [
+        { name: 'Dashboard', path: '/dashboard' },
+        { name: 'Search Workers', path: '/find-workers' },
+        { name: 'Post a Job', path: '/post-job' },
+        { name: 'My Active Jobs', path: '/jobs' },
+        { name: 'Applications', path: '/applications' },
+        { name: 'Profile', path: '/profile' },
+    ];
+
+    return (
+        <div className="md:hidden sticky top-0 z-40 bg-white/90 backdrop-blur-2xl border-b border-brand-border">
+            <div className="px-4 py-3 flex items-center justify-between">
+                <button
+                    onClick={() => navigate('/dashboard')}
+                    className="flex items-center gap-2 font-black tracking-tight text-neutral-900 uppercase"
+                >
+                    <span className="w-8 h-8 bg-brand-secondary rounded-xl text-brand-primary flex items-center justify-center text-sm shadow-sm">
+                        TH
+                    </span>
+                    TrustHire
+                </button>
+
+                <details className="relative">
+                    <summary className="list-none cursor-pointer select-none px-4 py-2 rounded-2xl border border-brand-border bg-white shadow-sm text-xs font-semibold uppercase tracking-widest text-brand-secondary">
+                        Menu
+                    </summary>
+                    <div className="absolute right-0 mt-2 w-56 bg-white border border-brand-border rounded-3xl shadow-2xl p-2">
+                        {menuItems.map((item) => {
+                            const isActive = location.pathname === item.path;
+                            return (
+                                <button
+                                    key={item.path}
+                                    onClick={() => navigate(item.path)}
+                                    className={`w-full text-left px-4 py-3 rounded-2xl text-xs font-semibold uppercase tracking-widest transition-colors ${
+                                        isActive ? 'bg-brand-secondary text-brand-primary' : 'text-brand-secondary hover:bg-brand-primary/5'
+                                    }`}
+                                >
+                                    {item.name}
+                                </button>
+                            );
+                        })}
+                    </div>
+                </details>
+            </div>
+        </div>
+    );
+};
+
 export const StatsGrid = () => {
     const { data: jobs } = useQuery({ queryKey: ['employerJobs'], queryFn: jobService.getEmployerJobs });
+    const jobIds = jobs?.map(j => j.id).filter((id): id is string => !!id) || [];
+    const { data: applications = [], isError: applicationsIsError } = useQuery({
+        queryKey: ['employerJobApplications', jobIds],
+        queryFn: () => applicationService.getApplicationsForEmployerJobs(jobIds),
+        enabled: jobIds.length > 0,
+        staleTime: 0,
+        refetchOnMount: 'always'
+    });
     
     return (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
             {[
                 { label: 'Active Jobs', value: jobs?.filter(j => j.status === 'OPEN').length || 0, trend: 'Jobs currently live', icon: <Briefcase className="w-5 h-5" /> },
                 { label: 'Total Postings', value: jobs?.length || 0, trend: 'Lifetime listings', icon: <Users className="w-5 h-5" /> },
-                { label: 'Pending Reviews', value: '0', trend: 'Awaiting action', icon: <Clock className="w-5 h-5" /> },
+                { label: 'Pending Reviews', value: applicationsIsError ? 0 : applications.filter(app => app.status === 'PENDING').length, trend: 'Awaiting action', icon: <Clock className="w-5 h-5" /> },
             ].map((stat) => (
                 <div key={stat.label} className="p-8 rounded-[2.5rem] bg-white border border-brand-border shadow-sm flex flex-col justify-between hover:border-brand-primary hover:shadow-2xl hover:shadow-brand-primary/5 transition-all group active:scale-[0.98]">
                     <div className="flex justify-between items-start mb-6">
@@ -104,11 +165,23 @@ export const RecentApplicants = () => {
     const { data: jobs } = useQuery({ queryKey: ['employerJobs'], queryFn: jobService.getEmployerJobs });
     const jobIds = jobs?.map(j => j.id).filter((id): id is string => !!id) || [];
     
-    const { data: applications, isLoading } = useQuery({
+    const { data: applications, isLoading, isError, error } = useQuery({
         queryKey: ['recentApplications', jobIds],
-        queryFn: () => applicationService.getApplicationsByJobs(jobIds),
-        enabled: jobIds.length > 0
+        queryFn: () => applicationService.getApplicationsForEmployerJobs(jobIds),
+        enabled: jobIds.length > 0,
+        staleTime: 0,
+        refetchOnMount: 'always'
     });
+
+    const workerIds = applications?.map((application) => application.workerId) || [];
+    const { data: workers = [] } = useQuery({
+        queryKey: ['applicationWorkers', workerIds],
+        queryFn: () => workerService.getProfilesByUserIds(workerIds),
+        enabled: workerIds.length > 0
+    });
+
+    const workersById = new Map(workers.map((worker) => [worker.userId, worker]));
+    const jobsById = new Map((jobs || []).filter((job) => job.id).map((job) => [job.id!, job]));
 
     return (
         <section className="space-y-8">
@@ -122,16 +195,46 @@ export const RecentApplicants = () => {
             <div className="space-y-4">
                 {isLoading ? (
                     <div className="text-center py-20"><Loader2 className="w-12 h-12 text-brand-primary animate-spin mx-auto" /></div>
+                ) : isError ? (
+                    <div className="text-center py-20 bg-white rounded-4xl border border-brand-border shadow-sm">
+                        <h4 className="text-xl font-semibold text-brand-secondary tracking-tight mb-2">Couldn’t load applications</h4>
+                        <p className="text-brand-muted font-medium text-sm max-w-xl mx-auto">
+                            {String((error as any)?.response?.data?.message || (error as any)?.message || 'Request failed')}
+                        </p>
+                    </div>
                 ) : applications?.length ? (
                     applications.slice(0, 5).map((app) => (
                         <div key={app.id} className="flex items-center justify-between p-6 rounded-3xl bg-white border border-brand-border hover:border-brand-primary hover:shadow-xl hover:shadow-brand-primary/5 transition-all group shadow-sm active:scale-[0.99] cursor-pointer" onClick={() => navigate('/applications')}>
                             <div className="flex items-center gap-6">
-                                <div className="w-16 h-16 rounded-3xl bg-brand-surface border border-brand-border flex items-center justify-center font-semibold text-brand-secondary text-xl overflow-hidden group-hover:bg-brand-primary transition-colors">
-                                    {app.status[0]}
+                                <div className="w-16 h-16 rounded-3xl bg-brand-surface border border-brand-border overflow-hidden shrink-0">
+                                    {workersById.get(app.workerId)?.profileImageUrl ? (
+                                        <img
+                                            src={workersById.get(app.workerId)?.profileImageUrl}
+                                            alt={workersById.get(app.workerId)?.fullName || 'Applicant'}
+                                            className="w-full h-full object-cover"
+                                        />
+                                    ) : (
+                                        <div className="w-full h-full flex items-center justify-center text-brand-secondary group-hover:bg-brand-primary transition-colors">
+                                            <User className="w-6 h-6" />
+                                        </div>
+                                    )}
                                 </div>
                                 <div className="space-y-1">
-                                    <p className="text-xl font-semibold text-brand-secondary tracking-tight">Applicant #{app.workerId.substring(0, 6).toUpperCase()}</p>
-                                    <p className="text-sm text-brand-muted font-medium truncate max-w-sm">{app.coverLetter || "View application details."}</p>
+                                    <p className="text-xl font-semibold text-brand-secondary tracking-tight">
+                                        {workersById.get(app.workerId)?.fullName || `Applicant #${app.workerId.substring(0, 6).toUpperCase()}`}
+                                    </p>
+                                    <p className="text-[10px] text-brand-primary/70 font-semibold uppercase tracking-widest">
+                                        {jobsById.get(app.jobId)?.title || 'Job application'}
+                                    </p>
+                                    <p className="text-sm text-brand-muted font-medium truncate max-w-sm">
+                                        {workersById.get(app.workerId)?.city || workersById.get(app.workerId)?.address || app.coverLetter || "View application details."}
+                                    </p>
+                                    {workersById.get(app.workerId)?.email && (
+                                        <p className="text-[10px] text-brand-muted font-semibold uppercase tracking-widest flex items-center gap-2">
+                                            <Mail className="w-3 h-3 text-brand-primary" />
+                                            {workersById.get(app.workerId)?.email}
+                                        </p>
+                                    )}
                                 </div>
                             </div>
                             <div className="flex gap-6 items-center">

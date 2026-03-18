@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { workerService } from '../api/worker.service';
-import { ShieldCheck, MapPin, Award, Star, Briefcase, ChevronLeft, Calendar, Loader2 } from 'lucide-react';
+import { ShieldCheck, MapPin, Award, Star, Briefcase, ChevronLeft, Calendar, Loader2, Mail, Phone } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 // Defining it here since it's cleaner for now
@@ -79,8 +79,12 @@ export const WorkerProfilePage = () => {
                     <ShieldCheck className="w-64 h-64 text-brand-primary" />
                 </div>
 
-                <div className="h-40 w-40 rounded-4xl bg-brand-secondary text-brand-primary flex items-center justify-center text-6xl font-bold shadow-2xl border border-brand-secondary shrink-0 relative z-10">
-                    {worker?.name[0]}
+                <div className="h-40 w-40 rounded-4xl bg-brand-secondary text-brand-primary flex items-center justify-center text-6xl font-bold shadow-2xl border border-brand-secondary shrink-0 relative z-10 overflow-hidden">
+                    {worker?.profilePhoto ? (
+                        <img src={worker.profilePhoto} alt={worker.name} className="w-full h-full object-cover" />
+                    ) : (
+                        worker?.name[0]
+                    )}
                 </div>
                 
                 <div className="flex-1 space-y-6 relative z-10 pt-2">
@@ -89,10 +93,22 @@ export const WorkerProfilePage = () => {
                             <h1 className="text-5xl font-bold text-neutral-900 tracking-tight leading-tight mb-4">{worker?.name}</h1>
                             <div className="flex flex-wrap items-center justify-center md:justify-start gap-4">
                                 <span className="text-brand-muted flex items-center gap-2 text-[10px] font-semibold uppercase tracking-widest">
-                                    <MapPin className="h-4 w-4 text-brand-primary" /> {worker?.location}
+                                    <MapPin className="h-4 w-4 text-brand-primary" /> {worker?.city || worker?.address || worker?.location}
                                 </span>
                                 <span className="w-1.5 h-1.5 rounded-full bg-brand-border" />
                                 <span className="text-brand-muted text-[10px] font-semibold uppercase tracking-widest">Joined Jan 2026</span>
+                            </div>
+                            <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 mt-4">
+                                {worker?.email && (
+                                    <span className="text-brand-muted flex items-center gap-2 text-[10px] font-semibold uppercase tracking-widest">
+                                        <Mail className="h-4 w-4 text-brand-primary" /> {worker.email}
+                                    </span>
+                                )}
+                                {worker?.phoneNumber && (
+                                    <span className="text-brand-muted flex items-center gap-2 text-[10px] font-semibold uppercase tracking-widest">
+                                        <Phone className="h-4 w-4 text-brand-primary" /> {worker.phoneNumber}
+                                    </span>
+                                )}
                             </div>
                         </div>
                         <div className="bg-brand-secondary px-8 py-5 rounded-4xl flex items-center gap-4 shadow-2xl border border-brand-secondary">

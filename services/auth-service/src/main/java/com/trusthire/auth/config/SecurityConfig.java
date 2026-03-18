@@ -23,6 +23,7 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/health").permitAll()
+                .requestMatchers("/api/auth/internal/**").permitAll()
                 .requestMatchers("/api/auth/webhooks/**").permitAll()
                 .requestMatchers("/api/auth/send-otp").permitAll()
                 .requestMatchers("/api/auth/register").permitAll()

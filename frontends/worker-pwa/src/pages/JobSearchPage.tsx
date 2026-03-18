@@ -3,11 +3,15 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { searchJobs, type JobSearch } from '../api/search.service';
 import { jobService, type Job } from '../api/job.service';
 import { applicationService } from '../api/application.service';
+import { profileService, type WorkerProfile } from '../api/profile.service';
 import { Search, MapPin, Briefcase, CheckCircle, Navigation, Globe, ShieldCheck, ChevronRight, Loader2 } from 'lucide-react';
 import { DashboardSidebar } from '../features/dashboard/DashboardSidebar';
 import { motion, AnimatePresence } from 'framer-motion';
+import { formatMissingProfileFields, getMissingProfileFields } from '../utils/profileCompletion';
+import { useNavigate } from 'react-router-dom';
 
 export default function JobSearchPage() {
+  const navigate = useNavigate();
   const [query, setQuery] = useState('');
   const [location, setLocation] = useState('');
   const [coords, setCoords] = useState<{lat: number, lon: number} | null>(null);
@@ -54,17 +58,28 @@ export default function JobSearchPage() {
     enabled: !query && !coords && (!location || location === "Detected Location"),
   });
 
+  const { data: profile } = useQuery({
+    queryKey: ['workerProfile'],
+    queryFn: profileService.getProfile,
+  });
+
+  const { data: myApplications = [], refetch: refetchApplications } = useQuery({
+    queryKey: ['myApplications'],
+    queryFn: applicationService.getMyApplications,
+  });
+
   const jobs = (query || coords || (location && location !== "Detected Location")) ? searchResults : allJobs;
   const isLoading = isSearching || isLoadingAll;
+  const appliedJobIds = new Set(myApplications.map((application) => application.jobId));
 
   return (
     <div className="min-h-screen bg-brand-bg flex text-brand-secondary selection:bg-brand-primary selection:text-brand-secondary">
       <DashboardSidebar />
       
-      <div className="flex-1 flex flex-col min-h-screen relative overflow-x-hidden">
+      <div className="flex-1 flex flex-col min-h-screen relative overflow-x-hidden pt-20 md:pt-0">
         <div className="absolute inset-0 cloud-grid opacity-[0.05] pointer-events-none" />
         
-        <header className="p-8 lg:p-12 border-b border-brand-border bg-brand-bg/80 backdrop-blur-3xl sticky top-0 z-40">
+        <header className="p-8 lg:p-12 border-b border-brand-border bg-brand-bg/80 backdrop-blur-3xl sticky top-[72px] md:top-0 z-40">
             <div className="max-w-5xl mx-auto space-y-10">
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                     <div className="space-y-1">
@@ -137,7 +152,15 @@ export default function JobSearchPage() {
                 <div className="grid grid-cols-1 gap-8 mb-12">
                     <AnimatePresence mode="popLayout">
                         {jobs?.map((job, i) => (
-                            <JobCard key={'jobId' in job ? job.jobId : job.id} job={job} index={i} />
+                            <JobCard
+                              key={'jobId' in job ? job.jobId : job.id}
+                              job={job}
+                              index={i}
+                              profile={profile}
+                              applied={Boolean(('jobId' in job ? job.jobId : job.id) && appliedJobIds.has(('jobId' in job ? job.jobId : job.id)!))}
+                              onApplicationSaved={refetchApplications}
+                              onRequireProfileCompletion={() => navigate('/profile')}
+                            />
                         ))}
                     </AnimatePresence>
                     
@@ -164,16 +187,45 @@ export default function JobSearchPage() {
   );
 }
 
-function JobCard({ job, index }: { job: JobSearch | Job, index: number }) {
-  const [applied, setApplied] = useState(false);
+function JobCard({
+  job,
+  index,
+  profile,
+  applied,
+  onApplicationSaved,
+  onRequireProfileCompletion,
+}: {
+  job: JobSearch | Job;
+  index: number;
+  profile?: WorkerProfile;
+  applied: boolean;
+  onApplicationSaved: () => Promise<unknown>;
+  onRequireProfileCompletion: () => void;
+}) {
   const jobId = 'jobId' in job ? job.jobId : job.id;
   
   const mutation = useMutation({
     mutationFn: (data: Parameters<typeof applicationService.applyForJob>[0]) => applicationService.applyForJob(data),
-    onSuccess: () => setApplied(true)
+    onSuccess: async () => {
+      await onApplicationSaved();
+    },
+    onError: async (error: any) => {
+      const message = error?.response?.data?.message || error?.message || 'Failed to submit application.';
+      if (String(message).toLowerCase().includes('already applied')) {
+        await onApplicationSaved();
+        return;
+      }
+      alert(message);
+    }
   });
 
   const handleApply = () => {
+    const missingFields = getMissingProfileFields(profile);
+    if (missingFields.length > 0) {
+      alert(`Complete your profile before applying. Missing: ${formatMissingProfileFields(missingFields)}.`);
+      onRequireProfileCompletion();
+      return;
+    }
     if (jobId) {
         mutation.mutate({ jobId: jobId, coverLetter: "Professional application for the specified position." });
     }

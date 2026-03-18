@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import { 
   ArrowRight, 
-  Play, 
   ShieldCheck, 
   TrendingUp, 
   Users, 
@@ -218,10 +217,12 @@ export function LandingHero() {
               Get Started Now
               <ArrowRight className="w-6 h-6 group-hover:translate-x-1.5 transition-transform" />
             </Link>
-            <button className="flex items-center justify-center gap-4 px-10 py-5 lg:px-12 text-brand-secondary bg-white border border-brand-border rounded-3xl font-semibold text-lg hover:border-brand-primary hover:text-brand-primary transition-all active:scale-95 shadow-lg group">
-              <Play className="w-6 h-6 fill-brand-primary text-brand-primary group-hover:scale-110 transition-transform" />
-              Watch Video
-            </button>
+            <Link
+              to="/sign-in"
+              className="flex items-center justify-center gap-4 px-10 py-5 lg:px-12 text-brand-secondary bg-white border border-brand-border rounded-3xl font-semibold text-lg hover:border-brand-primary hover:text-brand-primary transition-all active:scale-95 shadow-lg group"
+            >
+              Sign In
+            </Link>
           </motion.div>
           
           {/* Trust stats below buttons */}

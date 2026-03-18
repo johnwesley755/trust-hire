@@ -2,9 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../providers/AuthContext';
 import apiClient from '../api/apiClient';
-import { Mail, Lock, Loader2, ArrowRight, User, ShieldCheck, Briefcase, ChevronRight, Globe } from 'lucide-react';
-import { motion } from 'framer-motion';
-import { useLanguage } from '../hooks/useLanguage';
+import { Mail, Lock, Loader2, User, Briefcase, ShieldCheck } from 'lucide-react';
 import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
 import { ImageUpload } from '../components/ImageUpload';
@@ -19,7 +17,6 @@ export const SignUpPage = () => {
         profile_image_url: '',
         role: 'WORKER'
     });
-    const { t } = useLanguage();
     const [otp, setOtp] = useState('');
     const [otpSent, setOtpSent] = useState(false);
     const [error, setError] = useState('');
@@ -64,292 +61,212 @@ export const SignUpPage = () => {
 
     if (otpSent) {
         return (
-            <div className="min-h-screen bg-brand-bg flex items-center justify-center p-6 selection:bg-brand-primary selection:text-brand-secondary">
-                <div className="absolute inset-0 cloud-grid opacity-[0.05] pointer-events-none" />
-                
-                <motion.div 
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="w-full max-w-lg bg-white rounded-[3rem] shadow-2xl border border-brand-border p-12 relative overflow-hidden z-10"
-                >
-                    <div className="absolute top-0 left-0 w-full h-2 bg-brand-primary" />
-                    
-                    <div className="flex flex-col items-center text-center mb-12">
-                        <div className="w-20 h-20 bg-brand-secondary text-brand-primary rounded-[2.5rem] flex items-center justify-center shadow-2xl mb-8">
-                            <ShieldCheck className="w-10 h-10" />
-                        </div>
-                        <h1 className="text-5xl font-semibold text-brand-secondary tracking-tight mb-3">Verify</h1>
-                        <p className="text-brand-muted font-medium tracking-tight">Security verification in progress. Verification code sent to:</p>
-                        <p className="text-brand-primary font-semibold tracking-wide text-[11px] bg-brand-secondary px-4 py-1.5 rounded-full mt-4">{formData.email}</p>
-                    </div>
+            <div className="min-h-screen bg-brand-bg px-4 py-8 selection:bg-brand-primary selection:text-brand-secondary">
+                <div className="absolute inset-0 cloud-grid opacity-[0.04] pointer-events-none" />
 
-                    <form onSubmit={handleVerifyAndRegister} className="space-y-10">
-                        <div className="space-y-3 text-center">
-                            <label className="text-[10px] font-semibold tracking-widest text-brand-secondary/40 block">Verification protocol</label>
+                <div className="relative max-w-md mx-auto">
+                    <Link to="/" className="inline-flex items-center gap-3 mb-8">
+                        <div className="w-12 h-12 bg-brand-secondary rounded-2xl flex items-center justify-center shadow-sm">
+                            <Briefcase className="w-6 h-6 text-brand-primary" />
+                        </div>
+                        <div>
+                            <div className="text-2xl font-semibold tracking-tight text-brand-secondary">TrustPro</div>
+                            <div className="text-[10px] font-semibold tracking-widest text-brand-primary mt-1">Verify account</div>
+                        </div>
+                    </Link>
+
+                    <div className="bg-white border border-brand-border rounded-[2rem] shadow-sm p-6 sm:p-8">
+                        <div className="mb-8">
+                            <div className="w-12 h-12 rounded-2xl bg-brand-secondary text-brand-primary flex items-center justify-center mb-4">
+                                <ShieldCheck className="w-6 h-6" />
+                            </div>
+                            <h1 className="text-3xl font-semibold tracking-tight text-brand-secondary">Enter OTP</h1>
+                            <p className="text-sm text-brand-muted mt-2">We sent a verification code to {formData.email}.</p>
+                        </div>
+
+                        {error && (
+                            <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-600">
+                                {error}
+                            </div>
+                        )}
+
+                        <form onSubmit={handleVerifyAndRegister} className="space-y-5">
+                            <div className="space-y-2">
+                                <label className="text-xs font-semibold text-brand-secondary">OTP code</label>
                                 <input
                                     type="text"
                                     value={otp}
                                     onChange={(e) => setOtp(e.target.value)}
-                                    className="w-full bg-brand-bg border-4 border-brand-border rounded-[2rem] py-8 text-center text-5xl font-semibold tracking-[0.4em] text-brand-secondary focus:outline-none focus:border-brand-primary transition-all placeholder:text-brand-secondary/5 shadow-inner"
-                                    placeholder="******"
+                                    className="w-full rounded-2xl border border-brand-border bg-brand-bg py-4 px-4 text-center text-2xl tracking-[0.35em] text-brand-secondary focus:outline-none focus:border-brand-primary"
+                                    placeholder="123456"
                                     maxLength={6}
                                     required
                                 />
-                        </div>
+                            </div>
+
+                            <button
+                                type="submit"
+                                disabled={isLoading}
+                                className="w-full rounded-2xl bg-brand-secondary px-4 py-3.5 text-sm font-semibold text-brand-primary transition-all hover:bg-neutral-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {isLoading ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : 'Verify and continue'}
+                            </button>
+                        </form>
 
                         <button
-                            type="submit"
-                            disabled={isLoading}
-                            className="w-full bg-brand-secondary text-brand-primary font-semibold py-6 rounded-[2rem] shadow-2xl hover:bg-neutral-800 active:scale-[0.98] flex items-center justify-center gap-4 transition-all disabled:opacity-70 text-xl tracking-widest"
+                            onClick={() => setOtpSent(false)}
+                            className="mt-6 text-sm font-medium text-brand-muted hover:text-brand-secondary"
                         >
-                            {isLoading ? <Loader2 className="w-8 h-8 animate-spin" /> : (
-                                <>Authorize Access <ChevronRight className="w-6 h-6" /></>
-                            )}
+                            Back to sign up
                         </button>
-                    </form>
-                    
-                    <button 
-                        onClick={() => setOtpSent(false)}
-                        className="w-full mt-8 text-brand-secondary/40 font-semibold text-[10px] tracking-widest hover:text-brand-primary transition-colors cursor-pointer"
-                    >
-                        Back to secure entry
-                    </button>
-                </motion.div>
+                    </div>
+                </div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2 bg-brand-bg selection:bg-brand-primary selection:text-brand-secondary overflow-hidden">
-            {/* Left Column: Form Section */}
-            <div className="flex flex-col justify-start px-8 lg:px-24 py-16 relative overflow-y-auto max-h-screen custom-scrollbar z-10">
-                <div className="absolute inset-0 cloud-grid opacity-[0.03] pointer-events-none" />
-                
-                <div className="mb-16 relative">
-                     <Link to="/" className="flex items-center gap-4 group">
-                        <div className="w-14 h-14 bg-brand-secondary rounded-[1.5rem] flex items-center justify-center group-hover:scale-105 transition-all shadow-xl">
-                            <Briefcase className="w-8 h-8 text-brand-primary" />
-                        </div>
-                        <div className="flex flex-col">
-                            <span className="text-3xl font-semibold tracking-tight text-brand-secondary leading-none">TrustPro</span>
-                            <span className="text-[10px] font-semibold text-brand-primary tracking-widest mt-1.5">Verified network</span>
-                        </div>
-                    </Link>
-                </div>
+        <div className="min-h-screen bg-brand-bg px-4 py-8 selection:bg-brand-primary selection:text-brand-secondary">
+            <div className="absolute inset-0 cloud-grid opacity-[0.04] pointer-events-none" />
 
-                <div className="max-w-xl w-full mx-auto lg:mx-0 relative text-left">
-                    <motion.div 
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        className="mb-12"
-                    >
-                        <div className="flex items-center gap-2 text-brand-secondary/40 font-semibold tracking-widest text-[10px] mb-4">
-                            <Globe className="w-3.5 h-3.5 text-brand-primary" /> Onboarding protocol
-                        </div>
-                        <h1 className="text-6xl font-semibold text-brand-secondary tracking-tighter leading-[0.9] mb-6">
-                            Initiate your <br />
-                            <span className="text-brand-primary">Professional</span> <br />
-                            Stand.
-                        </h1>
-                        <p className="text-brand-muted font-medium text-lg max-w-sm leading-relaxed opacity-60">
-                            Join India's most clinical verified talent network for enterprise opportunities.
-                        </p>
-                    </motion.div>
+            <div className="relative max-w-lg mx-auto">
+                <Link to="/" className="inline-flex items-center gap-3 mb-8">
+                    <div className="w-12 h-12 bg-brand-secondary rounded-2xl flex items-center justify-center shadow-sm">
+                        <Briefcase className="w-6 h-6 text-brand-primary" />
+                    </div>
+                    <div>
+                        <div className="text-2xl font-semibold tracking-tight text-brand-secondary">TrustPro</div>
+                        <div className="text-[10px] font-semibold tracking-widest text-brand-primary mt-1">Worker sign up</div>
+                    </div>
+                </Link>
+
+                <div className="bg-white border border-brand-border rounded-[2rem] shadow-sm p-6 sm:p-8">
+                    <div className="mb-8">
+                        <h1 className="text-3xl font-semibold tracking-tight text-brand-secondary">Create your account</h1>
+                        <p className="text-sm text-brand-muted mt-2">Start with basic details. You can complete the full worker profile after sign up.</p>
+                    </div>
 
                     {error && (
-                        <motion.div 
-                            initial={{ opacity: 0, y: -10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            className="mb-8 p-5 bg-brand-accent/5 border-l-4 border-brand-accent text-brand-accent font-semibold text-xs rounded-r-2xl flex items-center gap-4 tracking-widest"
-                        >
-                            <ShieldCheck className="w-5 h-5 shrink-0" />
+                        <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-600">
                             {error}
-                        </motion.div>
+                        </div>
                     )}
 
-                    <form onSubmit={handleSendOtp} className="space-y-6">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                            <div className="space-y-2 text-left">
-                                <label className="text-[10px] font-semibold tracking-widest text-brand-secondary/40 ml-1">Identity: Given name</label>
-                                <div className="relative group">
-                                    <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
-                                        <User className="w-5 h-5 text-brand-secondary/20 group-focus-within:text-brand-primary transition-colors" />
-                                    </div>
+                    <form onSubmit={handleSendOtp} className="space-y-5">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <label className="text-xs font-semibold text-brand-secondary">First name</label>
+                                <div className="relative">
+                                    <User className="w-4 h-4 text-brand-muted absolute left-4 top-1/2 -translate-y-1/2" />
                                     <input
                                         type="text"
                                         value={formData.firstName}
-                                        onChange={(e) => setFormData({...formData, firstName: e.target.value})}
-                                        className="w-full bg-white border border-brand-border rounded-2xl py-5 pl-14 pr-5 text-brand-secondary font-semibold focus:outline-none focus:border-brand-primary transition-all placeholder:text-brand-secondary/10 text-sm shadow-sm"
-                                        placeholder="First Name"
+                                        onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                                        className="w-full rounded-2xl border border-brand-border bg-brand-bg py-3.5 pl-11 pr-4 text-sm text-brand-secondary focus:outline-none focus:border-brand-primary"
+                                        placeholder="First name"
                                         required
                                     />
                                 </div>
                             </div>
 
-                            <div className="space-y-2 text-left">
-                                <label className="text-[10px] font-semibold tracking-widest text-brand-secondary/40 ml-1">Identity: Surname</label>
-                                <div className="relative group">
-                                    <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
-                                        <User className="w-5 h-5 text-brand-secondary/20 group-focus-within:text-brand-primary transition-colors" />
-                                    </div>
+                            <div className="space-y-2">
+                                <label className="text-xs font-semibold text-brand-secondary">Last name</label>
+                                <div className="relative">
+                                    <User className="w-4 h-4 text-brand-muted absolute left-4 top-1/2 -translate-y-1/2" />
                                     <input
                                         type="text"
                                         value={formData.lastName}
-                                        onChange={(e) => setFormData({...formData, lastName: e.target.value})}
-                                        className="w-full bg-white border border-brand-border rounded-2xl py-5 pl-14 pr-5 text-brand-secondary font-semibold focus:outline-none focus:border-brand-primary transition-all placeholder:text-brand-secondary/10 text-sm shadow-sm"
-                                        placeholder="Last Name"
+                                        onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                                        className="w-full rounded-2xl border border-brand-border bg-brand-bg py-3.5 pl-11 pr-4 text-sm text-brand-secondary focus:outline-none focus:border-brand-primary"
+                                        placeholder="Last name"
                                         required
                                     />
                                 </div>
                             </div>
                         </div>
 
-                        <div className="space-y-2 text-left">
-                            <label className="text-[10px] font-semibold tracking-widest text-brand-secondary/40 ml-1">Communication: Digital mail</label>
-                            <div className="relative group">
-                                <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
-                                    <Mail className="w-5 h-5 text-brand-secondary/20 group-focus-within:text-brand-primary transition-colors" />
-                                </div>
+                        <div className="space-y-2">
+                            <label className="text-xs font-semibold text-brand-secondary">Email</label>
+                            <div className="relative">
+                                <Mail className="w-4 h-4 text-brand-muted absolute left-4 top-1/2 -translate-y-1/2" />
                                 <input
                                     type="email"
                                     value={formData.email}
-                                    onChange={(e) => setFormData({...formData, email: e.target.value})}
-                                    className="w-full bg-white border border-brand-border rounded-2xl py-5 pl-14 pr-5 text-brand-secondary font-semibold focus:outline-none focus:border-brand-primary transition-all placeholder:text-brand-secondary/10 text-sm shadow-sm"
-                                    placeholder="email@company.com"
+                                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                    className="w-full rounded-2xl border border-brand-border bg-brand-bg py-3.5 pl-11 pr-4 text-sm text-brand-secondary focus:outline-none focus:border-brand-primary"
+                                    placeholder="Enter your email"
                                     required
                                 />
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-start">
-                            <div className="space-y-2 text-left">
-                                <label className="text-[10px] font-semibold tracking-widest text-brand-secondary/40 ml-1">Communication: Mobile</label>
-                                <div className="relative phone-input-container group">
-                                    <PhoneInput
-                                        country={'in'}
-                                        value={formData.phoneNumber}
-                                        onChange={(value: string, data: { dialCode?: string }) => {
-                                            const digits = value.replace(/\D/g, '');
-                                            const dialCode = data.dialCode || '';
-                                            const subscriber = digits.slice(dialCode.length);
-                                            if (subscriber.length <= 10) {
-                                                setFormData({...formData, phoneNumber: value});
-                                            }
-                                        }}
-                                        inputProps={{ name: 'phone', required: true }}
-                                        containerClass="!w-full"
-                                        inputClass="!w-full !h-[3.75rem] !bg-white !border-brand-border !rounded-2xl !pl-14 !pr-5 !text-brand-secondary !font-semibold !text-sm focus:!border-brand-primary !transition-all !shadow-sm"
-                                        buttonClass="!bg-transparent !border-none !rounded-l-2xl !pl-4"
-                                        dropdownClass="!rounded-2xl !shadow-2xl !border-brand-border !bg-white"
-                                        searchClass="!rounded-lg !bg-brand-bg !border-brand-border"
-                                        enableSearch={true}
-                                        disableDropdown={false}
-                                        countryCodeEditable={false}
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="space-y-2 text-left">
-                                <label className="text-[10px] font-semibold tracking-widest text-brand-secondary/40 ml-1">Security: Password</label>
-                                <div className="relative group">
-                                    <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
-                                        <Lock className="w-5 h-5 text-brand-secondary/20 group-focus-within:text-brand-primary transition-colors" />
-                                    </div>
-                                    <input
-                                        type="password"
-                                        value={formData.password}
-                                        onChange={(e) => setFormData({...formData, password: e.target.value})}
-                                        className="w-full bg-white border border-brand-border rounded-2xl py-5 pl-14 pr-5 text-brand-secondary font-semibold focus:outline-none focus:border-brand-primary transition-all placeholder:text-brand-secondary/10 text-sm shadow-sm"
-                                        placeholder="Min. 8 characters"
-                                        required
-                                    />
-                                </div>
+                        <div className="space-y-2">
+                            <label className="text-xs font-semibold text-brand-secondary">Phone number</label>
+                            <div className="phone-input-container">
+                                <PhoneInput
+                                    country={'in'}
+                                    value={formData.phoneNumber}
+                                    onChange={(value: string, data: { dialCode?: string }) => {
+                                        const digits = value.replace(/\D/g, '');
+                                        const dialCode = data.dialCode || '';
+                                        const subscriber = digits.slice(dialCode.length);
+                                        if (subscriber.length <= 10) {
+                                            setFormData({ ...formData, phoneNumber: value });
+                                        }
+                                    }}
+                                    inputProps={{ name: 'phone', required: true }}
+                                    containerClass="!w-full"
+                                    inputClass="!w-full !h-[3.5rem] !bg-[#f8f7f2] !border-brand-border !rounded-2xl !pl-14 !pr-4 !text-brand-secondary !text-sm"
+                                    buttonClass="!bg-transparent !border-none !rounded-l-2xl !pl-4"
+                                    dropdownClass="!rounded-2xl !shadow-xl !border-brand-border !bg-white"
+                                    searchClass="!rounded-lg !bg-brand-bg !border-brand-border"
+                                    enableSearch={true}
+                                    disableDropdown={false}
+                                    countryCodeEditable={false}
+                                />
                             </div>
                         </div>
 
-                        <div className="pt-4 text-left">
-                             <ImageUpload 
-                                onUploadSuccess={(url) => setFormData({...formData, profile_image_url: url})}
-                                currentImage={formData.profile_image_url}
-                             />
+                        <div className="space-y-2">
+                            <label className="text-xs font-semibold text-brand-secondary">Password</label>
+                            <div className="relative">
+                                <Lock className="w-4 h-4 text-brand-muted absolute left-4 top-1/2 -translate-y-1/2" />
+                                <input
+                                    type="password"
+                                    value={formData.password}
+                                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                                    className="w-full rounded-2xl border border-brand-border bg-brand-bg py-3.5 pl-11 pr-4 text-sm text-brand-secondary focus:outline-none focus:border-brand-primary"
+                                    placeholder="Create a password"
+                                    required
+                                />
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-xs font-semibold text-brand-secondary">Profile image</label>
+                            <div className="rounded-2xl border border-brand-border bg-brand-bg p-4">
+                                <ImageUpload
+                                    onUploadSuccess={(url) => setFormData({ ...formData, profile_image_url: url })}
+                                    currentImage={formData.profile_image_url}
+                                />
+                            </div>
                         </div>
 
                         <button
                             type="submit"
                             disabled={isLoading || !isFormValid}
-                            className="w-full bg-brand-secondary text-brand-primary font-semibold py-6 rounded-[2rem] shadow-2xl hover:bg-neutral-800 active:scale-[0.99] flex items-center justify-center gap-4 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-xl tracking-widest mt-6"
+                            className="w-full rounded-2xl bg-brand-secondary px-4 py-3.5 text-sm font-semibold text-brand-primary transition-all hover:bg-neutral-800 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            {isLoading ? (
-                                <Loader2 className="w-8 h-8 animate-spin" />
-                            ) : (
-                                <>Get OTP Code <ArrowRight className="w-6 h-6" /></>
-                            )}
+                            {isLoading ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : 'Send OTP'}
                         </button>
                     </form>
 
-                    <div className="mt-12 pt-8 border-t border-brand-border/30 text-center lg:text-left">
-                        <p className="text-brand-secondary/60 font-semibold text-[10px] tracking-widest leading-relaxed">
-                            Already part of the network?{' '}
-                            <Link to="/sign-in" className="text-brand-secondary hover:text-brand-primary transition-colors ml-2 border-b-2 border-brand-primary px-1">
-                                Secure Entry
-                            </Link>
-                        </p>
+                    <div className="mt-6 border-t border-brand-border pt-6 text-sm text-brand-muted">
+                        Already have an account?{' '}
+                        <Link to="/sign-in" className="font-semibold text-brand-secondary hover:text-brand-primary">
+                            Sign in
+                        </Link>
                     </div>
-                </div>
-            </div>
-
-            {/* Right Column: Hero Section */}
-            <div className="hidden lg:block relative bg-brand-secondary overflow-hidden">
-                <div className="absolute inset-0">
-                    <img 
-                        src="/images/auth_hero_worker.png" 
-                        alt="Join the Professional Network" 
-                        className="w-full h-full object-cover brightness-[0.5] grayscale-[0.3] scale-105"
-                    />
-                </div>
-                
-                {/* Decorative overlay */}
-                <div className="absolute inset-0 bg-linear-to-b from-brand-secondary/0 via-brand-secondary/40 to-brand-secondary/90" />
-                <div className="absolute inset-0 cloud-grid opacity-20" />
-                
-                {/* Premium Amber Glow */}
-                <div className="absolute -top-[20%] -right-[20%] w-[80%] h-[80%] bg-brand-primary/10 blur-[150px] rounded-full" />
-
-                <div className="relative h-full flex flex-col justify-end p-24 z-10 text-left">
-                    <motion.div 
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.2 }}
-                        className="space-y-12"
-                    >
-                        <div className="space-y-6 max-w-xl">
-                            <div className="w-24 h-1 bg-brand-primary rounded-full mb-8 shadow-[0_0_15px_rgba(250,204,21,0.5)]" />
-                            <h3 className="text-7xl font-semibold text-white tracking-tighter leading-[0.9] mb-6">
-                                Professional <br />
-                                <span className="text-brand-primary">Excellence.</span>
-                            </h3>
-                            <p className="text-xl text-white/50 font-medium leading-relaxed">
-                                Build your digital reputation, get verified, and connect with India's Safest enterprise opportunities.
-                            </p>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-8 pt-6">
-                            <div className="p-8 rounded-[2.5rem] bg-white/5 backdrop-blur-3xl border border-white/10 group hover:border-brand-primary/30 transition-all text-left">
-                                <div className="w-14 h-14 bg-brand-primary rounded-2xl flex items-center justify-center mb-6 shadow-2xl shadow-brand-primary/20 group-hover:rotate-6 transition-transform">
-                                    <ShieldCheck className="w-7 h-7 text-brand-secondary" />
-                                </div>
-                                 <div className="text-[10px] font-semibold text-brand-primary tracking-widest mb-2">Standard</div>
-                                <div className="text-2xl font-semibold text-white tracking-tighter">Verified</div>
-                            </div>
-                            <div className="p-8 rounded-[2.5rem] bg-white/5 backdrop-blur-3xl border border-white/10 group hover:border-brand-primary/30 transition-all text-left">
-                                <div className="w-14 h-14 bg-brand-primary/10 border border-brand-primary/20 rounded-2xl flex items-center justify-center mb-6 shadow-xl group-hover:rotate-[-6deg] transition-transform">
-                                    <Briefcase className="w-7 h-7 text-brand-primary" />
-                                </div>
-                                <div className="text-[10px] font-semibold text-brand-primary tracking-widest mb-2">Engagement</div>
-                                <div className="text-2xl font-semibold text-white tracking-tighter">Enterprise</div>
-                            </div>
-                        </div>
-                    </motion.div>
                 </div>
             </div>
         </div>

@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { applicationService } from "../api/application.service";
-import { Clock, CheckCircle, XCircle, ChevronRight, Globe, ShieldCheck, FileText } from "lucide-react";
+import { jobService } from "../api/job.service";
+import { Clock, XCircle, ChevronRight, Globe, ShieldCheck, FileText } from "lucide-react";
 import { DashboardSidebar } from "../features/dashboard/DashboardSidebar";
 import { motion } from "framer-motion";
 
@@ -10,14 +11,23 @@ export default function HistoryPage() {
     queryFn: applicationService.getMyApplications,
   });
 
+  const jobIds = Array.from(new Set(applications?.map((app) => app.jobId) || []));
+  const { data: jobs = [], isLoading: jobsLoading } = useQuery({
+    queryKey: ['appliedJobs', jobIds],
+    queryFn: () => jobService.getJobsByIds(jobIds),
+    enabled: jobIds.length > 0,
+  });
+
+  const jobsById = new Map(jobs.filter((job) => job.id).map((job) => [job.id!, job]));
+
   return (
     <div className="min-h-screen bg-brand-bg flex text-brand-secondary selection:bg-brand-primary selection:text-brand-secondary">
       <DashboardSidebar />
       
-      <div className="flex-1 flex flex-col min-h-screen relative overflow-x-hidden">
+      <div className="flex-1 flex flex-col min-h-screen relative overflow-x-hidden pt-20 md:pt-0">
         <div className="absolute inset-0 cloud-grid opacity-[0.05] pointer-events-none" />
         
-        <header className="p-8 lg:p-12 border-b border-brand-border bg-brand-bg/80 backdrop-blur-3xl sticky top-0 z-40">
+        <header className="p-8 lg:p-12 border-b border-brand-border bg-brand-bg/80 backdrop-blur-3xl sticky top-[72px] md:top-0 z-40">
             <div className="max-w-4xl mx-auto space-y-2">
                 <div className="flex items-center gap-2 text-brand-secondary/40 font-semibold tracking-widest text-[10px]">
                     <Globe className="w-3.5 h-3.5 text-brand-primary" /> Engagement log
@@ -28,7 +38,7 @@ export default function HistoryPage() {
         </header>
 
         <main className="max-w-4xl mx-auto p-8 lg:p-12 w-full space-y-8 relative z-10 pb-32 md:pb-12">
-            {isLoading ? (
+            {isLoading || jobsLoading ? (
                 <div className="flex flex-col items-center justify-center py-32 space-y-6">
                     <div className="w-16 h-16 border-4 border-brand-primary border-t-brand-secondary rounded-full animate-spin" />
                     <p className="text-brand-muted font-semibold tracking-widest text-[10px] animate-pulse">Retrieving Records...</p>
@@ -51,7 +61,12 @@ export default function HistoryPage() {
                                         <FileText className="w-7 h-7" />
                                     </div>
                                     <div className="space-y-1 text-left">
-                                        <h4 className="font-bold text-xl text-brand-secondary tracking-tight group-hover:text-brand-primary transition-colors leading-none">Job ID: {app.jobId.substring(0, 8)}</h4>
+                                        <h4 className="font-bold text-xl text-brand-secondary tracking-tight group-hover:text-brand-primary transition-colors leading-none">
+                                          {jobsById.get(app.jobId)?.title || `Job ID: ${app.jobId.substring(0, 8)}`}
+                                        </h4>
+                                        <p className="text-[10px] font-semibold tracking-widest text-brand-primary/70 uppercase">
+                                          {jobsById.get(app.jobId)?.city || jobsById.get(app.jobId)?.address || jobsById.get(app.jobId)?.location || 'Location not available'}
+                                        </p>
                                         <div className="flex items-center gap-2 text-brand-muted font-semibold tracking-widest text-[9px]">
                                             <Clock className="w-3 h-3 text-brand-primary" /> Logged on {new Date(app.appliedAt).toLocaleDateString()}
                                         </div>

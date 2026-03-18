@@ -1,7 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { applicationService, type JobApplication } from '../api/application.service';
 import { jobService } from '../api/job.service';
-import { ArrowLeft, CheckCircle, XCircle, Clock, User, FileText, ChevronRight, Loader2, ShieldCheck } from 'lucide-react';
+import { workerService } from '../api/worker.service';
+import { ArrowLeft, CheckCircle, XCircle, Clock, User, FileText, ChevronRight, Loader2, ShieldCheck, Mail, Phone, MapPin, BadgeCheck } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
@@ -14,9 +15,21 @@ export default function ApplicationManagementPage() {
   
   const { data: applications, isLoading } = useQuery({
       queryKey: ['allEmployerApplications', jobIds],
-      queryFn: () => applicationService.getApplicationsByJobs(jobIds),
-      enabled: jobIds.length > 0
+      queryFn: () => applicationService.getApplicationsForEmployerJobs(jobIds),
+      enabled: jobIds.length > 0,
+      staleTime: 0,
+      refetchOnMount: 'always'
   });
+
+  const workerIds = applications?.map((app) => app.workerId) || [];
+  const { data: workers = [] } = useQuery({
+    queryKey: ['employerApplicationWorkers', workerIds],
+    queryFn: () => workerService.getProfilesByUserIds(workerIds),
+    enabled: workerIds.length > 0,
+  });
+
+  const workersById = new Map(workers.map((worker) => [worker.userId, worker]));
+  const jobsById = new Map((jobs || []).filter((job) => job.id).map((job) => [job.id!, job]));
 
   const mutation = useMutation({
     mutationFn: ({ id, status }: { id: string, status: JobApplication['status'] }) => 
@@ -65,20 +78,81 @@ export default function ApplicationManagementPage() {
 
                 <div className="flex-1 space-y-6 relative z-10">
                   <div className="flex items-center gap-6">
-                    <div className="w-20 h-20 rounded-[1.5rem] bg-brand-secondary flex items-center justify-center border border-brand-secondary text-brand-primary shadow-2xl group-hover:scale-105 transition-transform">
-                      <User className="w-10 h-10" />
+                    <div className="w-24 h-24 rounded-[1.75rem] overflow-hidden bg-brand-secondary border border-brand-secondary shadow-2xl group-hover:scale-105 transition-transform shrink-0">
+                      {workersById.get(app.workerId)?.profileImageUrl ? (
+                        <img
+                          src={workersById.get(app.workerId)?.profileImageUrl}
+                          alt={workersById.get(app.workerId)?.fullName || 'Applicant'}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-brand-primary">
+                          <User className="w-10 h-10" />
+                        </div>
+                      )}
                     </div>
-                    <div>
-                      <h3 className="text-3xl font-bold text-brand-secondary tracking-tight leading-tight mb-2">Applicant #{app.workerId.substring(0, 8)}</h3>
+                    <div className="space-y-2">
+                      <h3 className="text-3xl font-bold text-brand-secondary tracking-tight leading-tight mb-2">
+                        {workersById.get(app.workerId)?.fullName || `Applicant #${app.workerId.substring(0, 8)}`}
+                      </h3>
+                      <p className="text-[10px] font-semibold uppercase tracking-widest text-brand-primary/70 mb-2">
+                        {jobsById.get(app.jobId)?.title || 'Job application'}
+                      </p>
                       <p className="text-brand-primary text-[10px] font-semibold flex items-center gap-2 uppercase tracking-widest">
                         <Clock className="w-4 h-4" /> Applied {new Date(app.appliedAt).toLocaleDateString()}
                       </p>
+                      <div className="flex flex-wrap gap-3 text-xs font-medium text-brand-muted">
+                        <span className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-2 border border-brand-border">
+                          <MapPin className="w-3.5 h-3.5 text-brand-primary" />
+                          {workersById.get(app.workerId)?.city || workersById.get(app.workerId)?.address || 'Location not provided'}
+                        </span>
+                        {workersById.get(app.workerId)?.email && (
+                          <span className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-2 border border-brand-border">
+                            <Mail className="w-3.5 h-3.5 text-brand-primary" />
+                            {workersById.get(app.workerId)?.email}
+                          </span>
+                        )}
+                        {workersById.get(app.workerId)?.phoneNumber && (
+                          <span className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-2 border border-brand-border">
+                            <Phone className="w-3.5 h-3.5 text-brand-primary" />
+                            {workersById.get(app.workerId)?.phoneNumber}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
                   
-                  <div className="bg-white p-8 rounded-4xl border border-brand-border text-brand-muted font-medium text-lg leading-relaxed relative shadow-inner">
-                    <FileText className="absolute top-6 right-6 w-6 h-6 text-brand-primary/10" />
-                    <p className="line-clamp-3">"{app.coverLetter || "No cover letter provided."}"</p>
+                  <div className="grid grid-cols-1 xl:grid-cols-[1.4fr,0.8fr] gap-6">
+                    <div className="bg-white p-8 rounded-4xl border border-brand-border text-brand-muted font-medium text-lg leading-relaxed relative shadow-inner">
+                      <FileText className="absolute top-6 right-6 w-6 h-6 text-brand-primary/10" />
+                      <p className="line-clamp-4">
+                        "{workersById.get(app.workerId)?.bio || app.coverLetter || "No profile summary provided."}"
+                      </p>
+                    </div>
+
+                    <div className="bg-white p-8 rounded-4xl border border-brand-border shadow-inner space-y-4">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] uppercase tracking-widest text-brand-muted font-semibold">Applicant Snapshot</span>
+                        <BadgeCheck className="w-5 h-5 text-brand-primary" />
+                      </div>
+                      <div className="space-y-3 text-sm text-brand-secondary">
+                        <p><span className="text-brand-muted">Experience:</span> {workersById.get(app.workerId)?.experienceYears ?? 0} years</p>
+                        <p><span className="text-brand-muted">Level:</span> {workersById.get(app.workerId)?.level || 'L1'}</p>
+                        <p><span className="text-brand-muted">Address:</span> {workersById.get(app.workerId)?.address || 'Not provided'}</p>
+                      </div>
+                      {workersById.get(app.workerId)?.skills && (
+                        <div className="flex flex-wrap gap-2 pt-2">
+                          {workersById.get(app.workerId)!.skills!.split(',').map((skill) => (
+                            <span
+                              key={`${app.workerId}-${skill.trim()}`}
+                              className="px-3 py-2 rounded-full bg-brand-primary/10 text-brand-primary text-[10px] font-semibold uppercase tracking-widest border border-brand-primary/20"
+                            >
+                              {skill.trim()}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
 

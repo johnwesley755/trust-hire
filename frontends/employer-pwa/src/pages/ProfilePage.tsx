@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { profileService, type EmployerProfile } from "../api/profile.service";
 import apiClient from "../api/apiClient";
 import { User, Mail, MapPin, Building2, LogOut, ShieldCheck, Camera, Loader2, Globe } from "lucide-react";
-import { DashboardSidebar } from '../features/dashboard/DashboardComponents';
+import { DashboardSidebar, MobileNav } from '../features/dashboard/DashboardComponents';
 
 export default function ProfilePage() {
   const { logout } = useAuth();
@@ -79,8 +79,9 @@ export default function ProfilePage() {
       <DashboardSidebar />
 
       <main className="flex-1 overflow-auto">
+        <MobileNav />
         {/* Profile Header */}
-        <div className="bg-white border-b border-slate-200 p-8 pt-12">
+        <div className="bg-white border-b border-slate-200 p-4 md:p-8 pt-8 md:pt-12">
           <div className="max-w-3xl mx-auto flex flex-col items-center text-center space-y-4">
             <div className="relative group cursor-pointer">
               <input 
@@ -132,7 +133,7 @@ export default function ProfilePage() {
         </div>
 
         {/* Profile Content */}
-        <div className="max-w-3xl mx-auto p-8 space-y-8 pb-32">
+        <div className="max-w-3xl mx-auto p-4 md:p-8 space-y-8 pb-32">
           {/* Company Info Card */}
           <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="p-6 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">

@@ -29,6 +29,11 @@ public class JobController {
         return ResponseEntity.ok(jobService.getAllJobs());
     }
 
+    @PostMapping("/by-ids")
+    public ResponseEntity<List<Job>> getJobsByIds(@RequestBody List<UUID> ids) {
+        return ResponseEntity.ok(jobService.getJobsByIds(ids));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<Job> getJob(@PathVariable UUID id) {
         return jobService.getJobById(id)

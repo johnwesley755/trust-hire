@@ -1,14 +1,13 @@
-import { UserButton } from "../components/UserButton";
-import { ProfileCard, ActionGrid, BottomNav } from '../features/dashboard/DashboardComponents';
+import { ProfileCard, ActionGrid } from '../features/dashboard/DashboardComponents';
 import { DashboardSidebar } from '../features/dashboard/DashboardSidebar';
 import { useQuery } from '@tanstack/react-query';
 import { searchJobs } from '../api/search.service';
 import { profileService } from '../api/profile.service';
+import { jobService } from '../api/job.service';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../hooks/useLanguage';
 import { motion } from 'framer-motion';
-import { NotificationCenter } from '../features/notifications/NotificationCenter';
-import { BriefcaseIcon, MapPin, Search, Globe, ShieldCheck } from 'lucide-react';
+import { MapPin, Search, Globe, ShieldCheck } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 export default function DashboardPage() {
@@ -30,36 +29,46 @@ export default function DashboardPage() {
     queryFn: profileService.getProfile,
   });
 
+  const searchLocation = profile?.city || profile?.address || profile?.location || '';
+
   const { data: jobs } = useQuery({ 
-    queryKey: ['nearbyJobs', profile?.location, coords], 
-    queryFn: () => searchJobs('', '', profile?.location || '', coords?.lat, coords?.lon, 50),
+    queryKey: ['nearbyJobs', searchLocation, coords], 
+    queryFn: () => searchJobs('', '', searchLocation, coords?.lat, coords?.lon, 50),
+    enabled: !!profile,
     staleTime: 60000 
   });
+
+  const { data: allJobs = [] } = useQuery({
+    queryKey: ['allOpenJobs'],
+    queryFn: jobService.getAllJobs,
+    staleTime: 60000,
+  });
+
+  const visibleJobs = (jobs && jobs.length > 0)
+    ? jobs.map((job) => ({
+        id: job.jobId,
+        title: job.title,
+        location: job.location,
+        budget: job.budget,
+        industry: job.industry,
+      }))
+    : allJobs
+        .filter((job) => job.status === 'OPEN')
+        .slice(0, 4)
+        .map((job) => ({
+          id: job.id || '',
+          title: job.title,
+          location: job.city || job.address || job.location,
+          budget: job.budget,
+          industry: job.industry,
+        }));
 
   return (
     <div className="min-h-screen w-full bg-brand-bg text-brand-secondary flex selection:bg-brand-primary selection:text-brand-secondary">
       <DashboardSidebar />
 
-      <div className="flex-1 flex flex-col min-h-screen relative overflow-x-hidden">
+      <div className="flex-1 flex flex-col min-h-screen relative overflow-x-hidden pt-20 md:pt-0">
         <div className="absolute inset-0 cloud-grid opacity-[0.05] pointer-events-none" />
-        
-        <header className="p-8 flex justify-between items-center border-b border-brand-border sticky top-0 bg-brand-bg/80 backdrop-blur-2xl z-40 md:hidden">
-          <div className="flex items-center gap-3">
-             <div className="w-10 h-10 bg-brand-secondary rounded-xl flex items-center justify-center">
-                <BriefcaseIcon className="w-6 h-6 text-brand-primary" />
-             </div>
-             <span className="text-xl font-semibold tracking-tight text-brand-secondary">TrustPro</span>
-          </div>
-          <div className="flex items-center gap-4">
-            <NotificationCenter />
-            <div className="relative">
-                <UserButton />
-                <div className="absolute -bottom-1 -right-1 bg-emerald-500 text-white rounded-full p-0.5 border-2 border-brand-bg shadow-sm">
-                    <ShieldCheck className="w-2.5 h-2.5" />
-                </div>
-            </div>
-          </div>
-        </header>
 
         <main className="p-8 md:p-16 max-w-7xl mx-auto w-full space-y-12 pb-32 md:pb-16 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
@@ -98,9 +107,9 @@ export default function DashboardPage() {
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-4">
-                {jobs?.slice(0, 4).map((job, i) => (
+                {visibleJobs.map((job, i) => (
                   <motion.div 
-                    key={job.jobId} 
+                    key={job.id} 
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.1 }}
@@ -130,7 +139,7 @@ export default function DashboardPage() {
                     </div>
 
                     <button 
-                      onClick={() => navigate(`/job/${job.jobId}`)}
+                      onClick={() => navigate(`/job/${job.id}`)}
                       className="w-full py-4 bg-brand-secondary text-brand-primary rounded-[1.5rem] font-semibold active:scale-95 transition-all text-xs cursor-pointer shadow-xl shadow-brand-secondary/10 hover:bg-neutral-800 tracking-widest group-hover:translate-y-[-2px]"
                     >
                       {t('dashboard.quickApply')}
@@ -138,7 +147,7 @@ export default function DashboardPage() {
                   </motion.div>
                 ))}
                 
-                {(!jobs || jobs.length === 0) && (
+                {visibleJobs.length === 0 && (
                   <div className="col-span-full p-20 rounded-[3rem] bg-white border border-dashed border-brand-border text-center space-y-4">
                     <div className="w-16 h-16 bg-brand-bg rounded-full flex items-center justify-center mx-auto opacity-20">
                         <Search className="w-8 h-8 text-brand-secondary" />
@@ -151,9 +160,6 @@ export default function DashboardPage() {
           </div>
         </main>
 
-        <div className="md:hidden">
-          <BottomNav />
-        </div>
       </div>
     </div>
   );

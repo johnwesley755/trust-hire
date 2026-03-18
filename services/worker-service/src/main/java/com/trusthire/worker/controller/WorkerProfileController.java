@@ -1,5 +1,7 @@
 package com.trusthire.worker.controller;
 
+import com.trusthire.worker.dto.ProfileCompletionStatus;
+import com.trusthire.worker.dto.WorkerProfileSummary;
 import com.trusthire.worker.entity.WorkerProfile;
 import com.trusthire.worker.service.WorkerProfileService;
 import lombok.Builder;
@@ -24,6 +26,16 @@ public class WorkerProfileController {
         return profileService.getProfileByUserId(userId)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.ok(profileService.createProfile(userId)));
+    }
+
+    @GetMapping("/internal/profiles/{userId}/completion")
+    public ResponseEntity<ProfileCompletionStatus> getProfileCompletion(@PathVariable String userId) {
+        return ResponseEntity.ok(profileService.getProfileCompletionStatus(userId));
+    }
+
+    @PostMapping("/profiles/by-user-ids")
+    public ResponseEntity<java.util.List<WorkerProfileSummary>> getProfilesByUserIds(@RequestBody java.util.List<String> userIds) {
+        return ResponseEntity.ok(profileService.getProfileSummariesByUserIds(userIds));
     }
 
     @PutMapping("/profile")

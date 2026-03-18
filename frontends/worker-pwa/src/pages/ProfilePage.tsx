@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth, useUser } from "../providers/AuthContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { profileService, type WorkerProfile } from "../api/profile.service";
@@ -13,12 +13,34 @@ export default function ProfilePage() {
   const [isEditingLocation, setIsEditingLocation] = useState(false);
   const [locationInput, setLocationInput] = useState("");
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [profileForm, setProfileForm] = useState({
+    fullName: "",
+    bio: "",
+    skills: "",
+    experienceYears: "",
+    hourlyRate: "",
+    address: "",
+    city: "",
+  });
   const queryClient = useQueryClient();
 
-  const { data: profile, isLoading } = useQuery({
+  const { data: profile } = useQuery({
     queryKey: ['workerProfile'],
     queryFn: profileService.getProfile,
   });
+
+  useEffect(() => {
+    if (!profile) return;
+    setProfileForm({
+      fullName: profile.fullName || `${user?.firstName || ''} ${user?.lastName || ''}`.trim(),
+      bio: profile.bio || "",
+      skills: profile.skills || "",
+      experienceYears: profile.experienceYears?.toString() || "",
+      hourlyRate: profile.hourlyRate?.toString() || "",
+      address: profile.address || "",
+      city: profile.city || "",
+    });
+  }, [profile, user]);
 
   const updateMutation = useMutation({
     mutationFn: (updates: Partial<WorkerProfile>) => profileService.updateProfile({ ...profile!, ...updates }),
@@ -68,6 +90,19 @@ export default function ProfilePage() {
     updateMutation.mutate({ location: locationInput, address: locationInput });
   };
 
+  const handleSaveProfileDetails = () => {
+    updateMutation.mutate({
+      fullName: profileForm.fullName,
+      bio: profileForm.bio,
+      skills: profileForm.skills,
+      experienceYears: profileForm.experienceYears === "" ? undefined : Number(profileForm.experienceYears),
+      hourlyRate: profileForm.hourlyRate === "" ? undefined : Number(profileForm.hourlyRate),
+      address: profileForm.address,
+      city: profileForm.city,
+      location: profileForm.address || profileForm.city,
+    });
+  };
+
   const useCurrentLocation = () => {
     if (navigator.geolocation) {
       setIsEditingLocation(true);
@@ -110,10 +145,10 @@ export default function ProfilePage() {
     <div className="min-h-screen bg-brand-bg flex text-brand-secondary selection:bg-brand-primary selection:text-brand-secondary">
       <DashboardSidebar />
       
-      <div className="flex-1 flex flex-col min-h-screen relative overflow-x-hidden">
+      <div className="flex-1 flex flex-col min-h-screen relative overflow-x-hidden pt-20 md:pt-0">
         <div className="absolute inset-0 cloud-grid opacity-[0.05] pointer-events-none" />
         
-        <header className="p-8 lg:p-12 border-b border-brand-border bg-brand-bg/80 backdrop-blur-3xl sticky top-0 z-40">
+        <header className="p-8 lg:p-12 border-b border-brand-border bg-brand-bg/80 backdrop-blur-3xl sticky top-[72px] md:top-0 z-40">
             <div className="max-w-3xl mx-auto space-y-2">
                 <div className="flex items-center gap-2 text-brand-secondary/40 font-semibold tracking-widest text-[10px]">
                     <Globe className="w-3.5 h-3.5 text-brand-primary" /> Identity & Integrity
@@ -171,7 +206,9 @@ export default function ProfilePage() {
 
                     <div className="text-center space-y-4">
                         <div className="space-y-1">
-                            <h2 className="text-4xl font-semibold tracking-tight text-brand-secondary">{user?.firstName} {user?.lastName}</h2>
+                            <h2 className="text-4xl font-semibold tracking-tight text-brand-secondary">
+                              {profile?.fullName || `${user?.firstName || ''} ${user?.lastName || ''}`.trim()}
+                            </h2>
                             <div className="flex items-center justify-center gap-3">
                                 <span className="text-[10px] font-semibold text-brand-primary tracking-widest bg-brand-secondary px-4 py-1 rounded-full">Verified professional</span>
                                 <div className="w-1.5 h-1.5 bg-brand-primary rounded-full animate-pulse" />
@@ -218,13 +255,13 @@ export default function ProfilePage() {
                                 ) : (
                                     <button 
                                         onClick={() => {
-                                            setLocationInput(profile?.location || "");
+                                            setLocationInput(profile?.address || profile?.city || profile?.location || "");
                                             setIsEditingLocation(true);
                                         }}
                                         className="flex items-center gap-2 px-6 py-2 bg-brand-bg rounded-full border border-brand-border text-brand-secondary hover:text-brand-secondary hover:border-brand-primary transition-all text-sm font-medium group"
                                     >
                                         <MapPin className="w-4 h-4 text-brand-primary group-hover:scale-110 transition-transform" /> 
-                                        {profile?.location || "No Operating Base Defined"}
+                                        {profile?.address || profile?.city || profile?.location || "No Operating Base Defined"}
                                     </button>
                                 )}
                             </AnimatePresence>
@@ -247,7 +284,9 @@ export default function ProfilePage() {
                             </div>
                             <div className="space-y-0.5">
                                 <p className="text-[8px] text-brand-muted font-semibold tracking-widest">Full name</p>
-                                <p className="font-semibold text-brand-secondary tracking-tight">{user?.firstName} {user?.lastName}</p>
+                                <p className="font-semibold text-brand-secondary tracking-tight">
+                                  {profile?.fullName || `${user?.firstName || ''} ${user?.lastName || ''}`.trim()}
+                                </p>
                             </div>
                         </div>
                         <div className="flex items-center gap-5">
@@ -290,6 +329,88 @@ export default function ProfilePage() {
                         </div>
                         <span className="text-xl font-semibold text-brand-secondary tracking-tight">{profile?.experienceYears || 0} YRS</span>
                     </div>
+                </div>
+            </section>
+
+            <section className="bg-white border border-brand-border rounded-[3rem] p-12 space-y-8 shadow-sm">
+                <div className="space-y-1">
+                    <h3 className="text-2xl font-bold text-brand-secondary tracking-tighter">Application profile</h3>
+                    <p className="text-[10px] font-semibold text-brand-secondary/40 tracking-widest">These fields are required before applying for jobs</p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <label className="space-y-2">
+                        <span className="text-[10px] font-semibold tracking-widest text-brand-secondary/40 ml-1 block">Full name</span>
+                        <input
+                            value={profileForm.fullName}
+                            onChange={(e) => setProfileForm((current) => ({ ...current, fullName: e.target.value }))}
+                            className="w-full bg-brand-bg border border-brand-border rounded-2xl py-4 px-5 text-brand-secondary font-semibold focus:outline-none focus:border-brand-primary"
+                        />
+                    </label>
+                    <label className="space-y-2">
+                        <span className="text-[10px] font-semibold tracking-widest text-brand-secondary/40 ml-1 block">City</span>
+                        <input
+                            value={profileForm.city}
+                            onChange={(e) => setProfileForm((current) => ({ ...current, city: e.target.value }))}
+                            className="w-full bg-brand-bg border border-brand-border rounded-2xl py-4 px-5 text-brand-secondary font-semibold focus:outline-none focus:border-brand-primary"
+                        />
+                    </label>
+                    <label className="space-y-2 md:col-span-2">
+                        <span className="text-[10px] font-semibold tracking-widest text-brand-secondary/40 ml-1 block">Address</span>
+                        <input
+                            value={profileForm.address}
+                            onChange={(e) => setProfileForm((current) => ({ ...current, address: e.target.value }))}
+                            className="w-full bg-brand-bg border border-brand-border rounded-2xl py-4 px-5 text-brand-secondary font-semibold focus:outline-none focus:border-brand-primary"
+                        />
+                    </label>
+                    <label className="space-y-2">
+                        <span className="text-[10px] font-semibold tracking-widest text-brand-secondary/40 ml-1 block">Experience years</span>
+                        <input
+                            type="number"
+                            min="0"
+                            value={profileForm.experienceYears}
+                            onChange={(e) => setProfileForm((current) => ({ ...current, experienceYears: e.target.value }))}
+                            className="w-full bg-brand-bg border border-brand-border rounded-2xl py-4 px-5 text-brand-secondary font-semibold focus:outline-none focus:border-brand-primary"
+                        />
+                    </label>
+                    <label className="space-y-2">
+                        <span className="text-[10px] font-semibold tracking-widest text-brand-secondary/40 ml-1 block">Hourly rate</span>
+                        <input
+                            type="number"
+                            min="0"
+                            value={profileForm.hourlyRate}
+                            onChange={(e) => setProfileForm((current) => ({ ...current, hourlyRate: e.target.value }))}
+                            className="w-full bg-brand-bg border border-brand-border rounded-2xl py-4 px-5 text-brand-secondary font-semibold focus:outline-none focus:border-brand-primary"
+                        />
+                    </label>
+                    <label className="space-y-2 md:col-span-2">
+                        <span className="text-[10px] font-semibold tracking-widest text-brand-secondary/40 ml-1 block">Skills</span>
+                        <input
+                            value={profileForm.skills}
+                            onChange={(e) => setProfileForm((current) => ({ ...current, skills: e.target.value }))}
+                            placeholder="Plumbing, Electrical, Carpentry"
+                            className="w-full bg-brand-bg border border-brand-border rounded-2xl py-4 px-5 text-brand-secondary font-semibold focus:outline-none focus:border-brand-primary"
+                        />
+                    </label>
+                    <label className="space-y-2 md:col-span-2">
+                        <span className="text-[10px] font-semibold tracking-widest text-brand-secondary/40 ml-1 block">Bio</span>
+                        <textarea
+                            rows={5}
+                            value={profileForm.bio}
+                            onChange={(e) => setProfileForm((current) => ({ ...current, bio: e.target.value }))}
+                            className="w-full bg-brand-bg border border-brand-border rounded-[2rem] p-5 text-brand-secondary font-semibold focus:outline-none focus:border-brand-primary resize-none"
+                        />
+                    </label>
+                </div>
+
+                <div className="flex justify-end">
+                    <button
+                        onClick={handleSaveProfileDetails}
+                        disabled={updateMutation.isPending}
+                        className="px-8 py-4 bg-brand-secondary text-brand-primary rounded-2xl font-semibold tracking-widest text-[10px] hover:bg-neutral-800 transition-all disabled:opacity-60"
+                    >
+                        {updateMutation.isPending ? "Saving..." : "Save Profile"}
+                    </button>
                 </div>
             </section>
 

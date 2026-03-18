@@ -2,13 +2,15 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { jobService } from '../api/job.service';
 import { applicationService } from '../api/application.service';
+import { profileService } from '../api/profile.service';
 import { useState } from 'react';
 import { ArrowLeft, MapPin, IndianRupee, Send, CheckCircle, ShieldCheck, Clock } from 'lucide-react';
+import { formatMissingProfileFields, getMissingProfileFields } from '../utils/profileCompletion';
 
 export default function JobDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [applied, setApplied] = useState(false);
+  const [hasJustApplied, setHasJustApplied] = useState(false);
   const [coverLetter, setCoverLetter] = useState('');
 
   const { data: job, isLoading } = useQuery({
@@ -17,14 +19,44 @@ export default function JobDetailPage() {
     enabled: !!id
   });
 
+  const { data: profile } = useQuery({
+    queryKey: ['workerProfile'],
+    queryFn: profileService.getProfile,
+  });
+
+  const { data: myApplications = [], refetch: refetchApplications } = useQuery({
+    queryKey: ['myApplications'],
+    queryFn: applicationService.getMyApplications,
+  });
+
   const mutation = useMutation({
     mutationFn: (data: Parameters<typeof applicationService.applyForJob>[0]) => applicationService.applyForJob(data),
-    onSuccess: () => setApplied(true)
+    onSuccess: async () => {
+      setHasJustApplied(true);
+      await refetchApplications();
+    },
+    onError: async (error: any) => {
+      const message = error?.response?.data?.message || error?.message || 'Failed to submit application.';
+      if (String(message).toLowerCase().includes('already applied')) {
+        setHasJustApplied(true);
+        await refetchApplications();
+        return;
+      }
+      alert(message);
+    }
   });
 
   const handleApply = () => {
+    const missingFields = getMissingProfileFields(profile);
+    if (missingFields.length > 0) {
+      alert(`Complete your profile before applying. Missing: ${formatMissingProfileFields(missingFields)}.`);
+      navigate('/profile');
+      return;
+    }
     mutation.mutate({ jobId: id!, coverLetter });
   };
+
+  const alreadyApplied = hasJustApplied || myApplications.some((application) => application.jobId === id);
 
   if (isLoading) return <div className="min-h-screen bg-slate-50 flex items-center justify-center"><div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" /></div>;
   if (!job) return <div className="min-h-screen bg-slate-50 text-slate-900 p-8">Job not found.</div>;
@@ -84,7 +116,7 @@ export default function JobDetailPage() {
           </p>
         </section>
 
-        {!applied ? (
+        {!alreadyApplied ? (
           <section className="space-y-6 p-8 rounded-3xl bg-white border border-slate-200 shadow-sm">
             <div className="space-y-2">
               <h3 className="text-xl font-semibold">Interested?</h3>

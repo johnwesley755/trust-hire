@@ -11,6 +11,7 @@ import { SignInPage } from '../pages/SignInPage.tsx';
 import { SignUpPage } from '../pages/SignUpPage.tsx';
 import ProfilePage from '../pages/ProfilePage.tsx';
 import HistoryPage from '../pages/HistoryPage.tsx';
+import AppliedJobsPage from '../pages/AppliedJobsPage.tsx';
 import OnboardingPage from '../pages/OnboardingPage.tsx';
 import { AuthOnboardingGuard } from '../components/AuthOnboardingGuard.tsx';
 
@@ -90,6 +91,14 @@ export const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <HistoryPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/applied-jobs',
+    element: (
+      <ProtectedRoute>
+        <AppliedJobsPage />
       </ProtectedRoute>
     ),
   },

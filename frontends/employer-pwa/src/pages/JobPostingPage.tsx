@@ -25,6 +25,10 @@ export const JobPostingPage = () => {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
+
+    const address = String(formData.get('address') ?? '').trim();
+    const city = String(formData.get('city') ?? '').trim();
+
     const jobData: Partial<import('../api/job.service').Job> = {
       title: formData.get('title') as string,
       description: formData.get('description') as string,
@@ -36,8 +40,8 @@ export const JobPostingPage = () => {
         ? Number(formData.get('experienceYearsRequired'))
         : undefined,
       budget: Number(formData.get('budget')),
-      address: formData.get('address') as string | null ?? undefined,
-      city: formData.get('city') as string | null ?? undefined,
+      address,
+      city,
       requiredSkills: skills,
       status: 'OPEN',
     };
@@ -203,6 +207,7 @@ export const JobPostingPage = () => {
               </label>
               <input
                 name="address"
+                required
                 placeholder="Street address"
                 className="w-full bg-white border border-brand-border rounded-2xl py-5 px-5 focus:outline-none focus:border-brand-primary text-brand-secondary font-medium"
               />
@@ -214,6 +219,7 @@ export const JobPostingPage = () => {
               </label>
               <input
                 name="city"
+                required
                 placeholder="City"
                 className="w-full bg-white border border-brand-border rounded-2xl py-5 px-5 focus:outline-none focus:border-brand-primary text-brand-secondary font-medium"
               />

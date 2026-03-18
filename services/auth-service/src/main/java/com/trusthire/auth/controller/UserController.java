@@ -1,5 +1,6 @@
 package com.trusthire.auth.controller;
 
+import com.trusthire.auth.dto.UserSummary;
 import com.trusthire.auth.entity.UserMetadata;
 import com.trusthire.auth.repository.UserMetadataRepository;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +33,27 @@ public class UserController {
         return repository.findById(java.util.UUID.fromString(userId))
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PostMapping("/internal/users/by-ids")
+    public ResponseEntity<List<UserSummary>> getUsersByIds(@org.springframework.web.bind.annotation.RequestBody List<String> userIds) {
+        List<UUID> ids = userIds.stream()
+                .distinct()
+                .map(UUID::fromString)
+                .toList();
+
+        return ResponseEntity.ok(
+                repository.findByIdIn(ids).stream()
+                        .map(user -> UserSummary.builder()
+                                .userId(user.getId().toString())
+                                .firstName(user.getFirstName())
+                                .lastName(user.getLastName())
+                                .email(user.getEmail())
+                                .phoneNumber(user.getPhoneNumber())
+                                .profileImageUrl(user.getProfileImageUrl())
+                                .build())
+                        .toList()
+        );
     }
 
     @PostMapping("/send-otp")
