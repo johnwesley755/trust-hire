@@ -42,20 +42,20 @@ export default function JobDetailPage() {
         <section className="space-y-6">
           <div className="flex justify-between items-start">
             <div className="space-y-2">
-              <span className="px-3 py-1 bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase tracking-widest rounded-full">
+              <span className="px-3 py-1 bg-indigo-50 text-indigo-600 text-[10px] font-semibold tracking-widest rounded-full">
                 {job.industry}
               </span>
-              <h2 className="text-3xl font-black italic uppercase leading-none">{job.title}</h2>
+              <h2 className="text-3xl font-bold leading-none">{job.title}</h2>
               <p className="text-slate-500 flex items-center gap-2 font-medium">
                 <MapPin className="w-4 h-4" /> {job.location}
               </p>
             </div>
             <div className="text-right">
-              <div className="text-3xl font-black text-emerald-400 flex items-center justify-end gap-1">
+              <div className="text-3xl font-semibold text-emerald-400 flex items-center justify-end gap-1">
                 <IndianRupee className="w-6 h-6" />
                 {job.budget?.toLocaleString()}
               </div>
-              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Project Budget</p>
+              <p className="text-[10px] text-slate-400 font-semibold tracking-widest">Project budget</p>
             </div>
           </div>
 
@@ -63,22 +63,22 @@ export default function JobDetailPage() {
             <div className="p-4 rounded-2xl bg-white border border-slate-200 flex items-center gap-3 shadow-sm">
               <ShieldCheck className="w-5 h-5 text-indigo-400" />
               <div>
-                <p className="text-[10px] text-slate-500 font-bold uppercase">Client Status</p>
-                <p className="text-sm font-bold">Verified</p>
+                <p className="text-[10px] text-slate-500 font-semibold">Client status</p>
+                <p className="text-sm font-semibold">Verified</p>
               </div>
             </div>
             <div className="p-4 rounded-2xl bg-white border border-slate-200 flex items-center gap-3 shadow-sm">
               <Clock className="w-5 h-5 text-indigo-400" />
               <div>
-                <p className="text-[10px] text-slate-500 font-bold uppercase">Posted</p>
-                <p className="text-sm font-bold">Today</p>
+                <p className="text-[10px] text-slate-500 font-semibold">Posted</p>
+                <p className="text-sm font-semibold">Today</p>
               </div>
             </div>
           </div>
         </section>
 
         <section className="space-y-4">
-          <h3 className="text-sm font-black uppercase tracking-widest text-slate-500">Job Description</h3>
+          <h3 className="text-sm font-semibold tracking-widest text-slate-500">Job description</h3>
           <p className="text-slate-600 leading-relaxed text-lg font-medium">
             {job.description}
           </p>
@@ -87,8 +87,8 @@ export default function JobDetailPage() {
         {!applied ? (
           <section className="space-y-6 p-8 rounded-3xl bg-white border border-slate-200 shadow-sm">
             <div className="space-y-2">
-              <h3 className="text-xl font-bold">Interested?</h3>
-              <p className="text-slate-500 text-sm italic">Tell the employer why you're a good fit for this job.</p>
+              <h3 className="text-xl font-semibold">Interested?</h3>
+              <p className="text-slate-500 text-sm">Tell the employer why you're a good fit for this job.</p>
             </div>
               <textarea 
               placeholder="Enter your cover letter or introduction..." 
@@ -99,7 +99,7 @@ export default function JobDetailPage() {
             <button 
               onClick={handleApply}
               disabled={mutation.isPending}
-              className="w-full py-5 bg-indigo-600 text-white rounded-2xl font-black text-lg hover:bg-indigo-700 transition-all active:scale-[0.98] shadow-lg disabled:opacity-50 flex items-center justify-center gap-3 cursor-pointer"
+              className="w-full py-5 bg-indigo-600 text-white rounded-2xl font-semibold text-lg hover:bg-indigo-700 transition-all active:scale-[0.98] shadow-lg disabled:opacity-50 flex items-center justify-center gap-3 cursor-pointer"
             >
               {mutation.isPending ? 'Processing...' : <><Send className="w-6 h-6" /> Apply Now</>}
             </button>
@@ -109,9 +109,9 @@ export default function JobDetailPage() {
             <div className="w-20 h-20 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
               <CheckCircle className="w-10 h-10 text-emerald-500" />
             </div>
-            <h3 className="text-2xl font-black italic uppercase">Application Sent!</h3>
+            <h3 className="text-2xl font-semibold">Application sent!</h3>
             <p className="text-slate-400 text-sm font-medium">The employer will contact you if they're interested.</p>
-            <button onClick={() => navigate('/dashboard')} className="px-8 py-3 bg-white/5 hover:bg-white/10 rounded-2xl font-bold transition-all cursor-pointer">Back to Dashboard</button>
+            <button onClick={() => navigate('/dashboard')} className="px-8 py-3 bg-white/5 hover:bg-white/10 rounded-2xl font-semibold transition-all cursor-pointer">Back to Dashboard</button>
           </div>
         )}
       </main>

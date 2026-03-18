@@ -35,7 +35,7 @@ export const SignInPage = () => {
     };
 
     return (
-        <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2 bg-brand-bg font-sans selection:bg-brand-primary selection:text-brand-secondary">
+        <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2 bg-brand-bg selection:bg-brand-primary selection:text-brand-secondary">
             {/* Left Column: Form Section */}
             <div className="flex flex-col justify-start px-8 lg:px-20 py-12 relative overflow-y-auto max-h-screen custom-scrollbar">
                 <div className="mb-12">

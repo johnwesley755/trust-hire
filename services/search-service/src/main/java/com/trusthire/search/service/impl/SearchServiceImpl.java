@@ -22,12 +22,9 @@ public class SearchServiceImpl implements SearchService {
     private final WorkerSearchRepository workerRepository;
 
     @Override
-    public List<JobSearch> searchJobs(String query, String category, String location, Double lat, Double lon, Double radius) {
-        log.info("Searching jobs: query={}, category={}, location={}, lat={}, lon={}, radius={}", query, category, location, lat, lon, radius);
-        Double safeLat = lat != null ? lat : -999.0;
-        Double safeLon = lon != null ? lon : -999.0;
-        Double safeRadius = radius != null ? radius : -999.0;
-        return jobRepository.searchJobs(query, category, location, safeLat, safeLon, safeRadius);
+    public List<JobSearch> searchJobs(String query, String category, String location) {
+        log.info("Searching jobs: query={}, category={}, location={}", query, category, location);
+        return jobRepository.searchJobs(query, category, location);
     }
 
     @Override

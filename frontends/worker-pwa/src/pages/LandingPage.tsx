@@ -12,16 +12,16 @@ import { ReactLenis } from 'lenis/react';
 export default function LandingPage() {
   return (
     <ReactLenis root options={{ lerp: 0.1, duration: 1.5, smoothWheel: true }}>
-      <div className="min-h-screen bg-[#f5f4ef] font-['Outfit'] overflow-x-hidden">
+      <div className="min-h-screen bg-brand-bg overflow-x-hidden">
         <LandingNavbar />
-        <main className="bg-black">
+        <main className="bg-brand-secondary">
           {/* Wrap Hero and Benefits in a relative container so the sticky hero doesn't bleed into lower sections */}
-          <div id="hero-benefits-wrapper" className="relative z-10 bg-[#f5f4ef]">
+          <div id="hero-benefits-wrapper" className="relative z-10 bg-brand-bg">
             <LandingHero />
             <LandingBenefits />
           </div>
           <LandingCinematic />
-          <div className="relative z-10 bg-brand-cream">
+          <div className="relative z-10 bg-brand-bg">
             <LandingEarnings />
             <LandingTrust />
             <LandingTestimonials />

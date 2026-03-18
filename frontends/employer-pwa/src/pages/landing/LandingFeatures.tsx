@@ -47,11 +47,11 @@ export function LandingFeatures() {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="text-sm font-black text-brand-accent uppercase tracking-widest bg-brand-accent/10 px-6 py-2 rounded-full inline-block"
+                className="text-sm font-bold text-brand-accent uppercase tracking-widest bg-brand-accent/10 px-6 py-2 rounded-full inline-block"
             >
                 Core Infrastructure
             </motion.div>
-            <h3 className="text-4xl lg:text-8xl font-black tracking-tighter text-brand-secondary leading-[0.9]">
+            <h3 className="text-4xl lg:text-8xl font-extrabold tracking-tight text-brand-secondary leading-[0.9]">
                 Enterprise Tools for <br />
                 <span className="text-brand-primary">Bulletproof Ops.</span>
             </h3>
@@ -70,7 +70,7 @@ export function LandingFeatures() {
               <div className={`w-20 h-20 ${feature.color} rounded-[32px] flex items-center justify-center mb-10 shadow-xl group-hover:rotate-12 transition-all`}>
                 <feature.icon className={`w-10 h-10 ${feature.textColor}`} />
               </div>
-              <h4 className="text-3xl font-black text-brand-secondary mb-4 tracking-tight leading-tight">{feature.title}</h4>
+              <h4 className="text-3xl font-bold text-brand-secondary mb-4 tracking-tight leading-tight">{feature.title}</h4>
               <p className="text-sm text-brand-muted font-bold leading-relaxed">{feature.desc}</p>
             </motion.div>
           ))}

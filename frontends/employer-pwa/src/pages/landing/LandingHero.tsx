@@ -1,115 +1,171 @@
 import { motion } from "framer-motion";
-import { ArrowRight, Shield, ShieldCheck } from 'lucide-react';
+import { ArrowRight, Play, Star, CheckCircle2, ShieldCheck } from 'lucide-react';
 import { Link } from "react-router-dom";
 
 export function LandingHero() {
   return (
-    <section className="relative min-h-screen flex items-center pt-20 overflow-hidden bg-white">
-      {/* Background patterns */}
-      <div className="absolute inset-0 cloud-grid opacity-[0.05] pointer-events-none" />
-      <div className="absolute top-0 right-0 w-2/3 h-full bg-linear-to-l from-brand-primary/10 to-transparent blur-3xl pointer-events-none" />
+    <section className="relative min-h-screen flex items-center pt-24 pb-12 overflow-hidden bg-brand-surface">
+      {/* 3D-like Soft Lighting Background */}
+      <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-brand-primary/10 rounded-full blur-[120px] pointer-events-none translate-x-1/3 -translate-y-1/3" />
+      <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-blue-100/40 rounded-full blur-[100px] pointer-events-none -translate-x-1/3 translate-y-1/3" />
+      <div className="absolute inset-0 bg-white/40 backdrop-blur-[1px] pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center relative z-10">
-        <div className="space-y-10">
+      <div className="max-w-7xl mx-auto px-6 relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center w-full">
+        
+        {/* Left Column: Content */}
+        <div className="flex flex-col items-start text-left">
+          
+          {/* Launch Special Badge */}
           <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="inline-flex items-center gap-3 px-6 py-2 bg-brand-primary/10 border border-brand-primary/20 rounded-full text-brand-primary text-xs font-black tracking-widest uppercase"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="inline-flex items-center gap-3 px-4 py-1.5 bg-white border border-brand-border/50 rounded-full text-brand-muted text-[10px] font-bold tracking-widest uppercase mb-8 shadow-sm"
           >
-            <Shield className="w-4 h-4" />
-            Blockchain-Verified Talent Infrastructure
+            <span className="bg-brand-primary text-brand-secondary px-2 py-0.5 rounded-full font-bold">Verified Fleet</span>
+            <span>Aadhaar-Verified Talent</span>
           </motion.div>
 
-          <div className="space-y-6">
-            <motion.h1 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="text-6xl lg:text-8xl font-black tracking-tighter leading-[0.9] text-brand-secondary"
-            >
-              Secure Your <br />
-              <span className="text-brand-primary">Verified Fleet</span> <br />
-              in Seconds.
-            </motion.h1>
-            <motion.p 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="text-xl text-brand-muted max-w-lg font-bold leading-relaxed"
-            >
-              TrustHire is India's leading enterprise talent cloud. We use AI and blockchain 
-              to provide 100% verified professionals for your critical operations.
-            </motion.p>
-          </div>
+          {/* Hero Heading */}
+          <motion.h1 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-5xl md:text-7xl font-extrabold tracking-tight leading-[1.1] text-brand-secondary mb-6 text-balance"
+          >
+            Secure Your <br/>
+            <span className="text-brand-primary">Verified Fleet</span><br/>
+            in Seconds.
+          </motion.h1>
 
+          {/* Subtext */}
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="text-lg md:text-xl text-brand-muted max-w-lg font-medium leading-relaxed mb-10 text-balance"
+          >
+            India's #1 Aadhaar-Verified talent cloud. 
+            Eliminate risk, automate background checks, and scale your operations with total peace of mind.
+          </motion.p>
+
+          {/* Pill CTA Input-like styling */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="flex flex-wrap gap-6"
+            className="w-full sm:w-auto"
           >
-            <Link
-              to="/sign-up"
-              className="px-12 py-6 bg-brand-secondary text-brand-primary rounded-2xl font-black text-lg shadow-2xl hover:scale-105 active:scale-95 transition-all flex items-center gap-3"
-            >
-              Start Scouting
-              <ArrowRight className="w-6 h-6" />
-            </Link>
-            <div className="flex -space-x-4 items-center">
+            <div className="flex items-center bg-white p-2 rounded-full border border-brand-border/40 shadow-xl shadow-brand-primary/5 max-w-md w-full">
+              <div className="flex items-center px-4 gap-2 text-brand-muted font-medium w-full truncate">
+                <ShieldCheck className="w-5 h-5 text-brand-primary shrink-0" />
+                <span className="truncate">Ready to scale your workforce?</span>
+              </div>
+              <Link
+                to="/sign-up"
+                className="shrink-0 px-6 py-3 bg-brand-primary text-brand-secondary rounded-full font-bold shadow-md hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 group"
+              >
+                Start Now
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </div>
+          </motion.div>
+
+          {/* Social Proof */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="mt-12 flex items-center gap-4"
+          >
+            <div className="flex -space-x-3">
               {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="w-12 h-12 rounded-full border-4 border-white bg-slate-200 overflow-hidden">
-                  <img src={`https://i.pravatar.cc/150?u=${i}`} alt="user" />
+                <div key={i} className="w-8 h-8 rounded-full border-2 border-white bg-slate-200 overflow-hidden shadow-sm">
+                  <img src={`https://i.pravatar.cc/100?u=employer${i}`} alt="user" loading="lazy" />
                 </div>
               ))}
-              <div className="pl-8 text-sm font-black text-brand-secondary">
-                <div className="text-brand-primary">15,000+</div>
-                Partner Companies
+            </div>
+            <div className="flex flex-col">
+              <div className="flex gap-0.5 text-brand-primary">
+                {[1,2,3,4,5].map(s => <Star key={s} className="w-3.5 h-3.5 fill-current" />)}
+              </div>
+              <div className="text-[10px] font-bold text-brand-muted">
+                Trusted by 15,000+ Leaders
               </div>
             </div>
           </motion.div>
         </div>
 
-        <div className="relative">
+        {/* Right Column: Floating 3D/Media Composition */}
+        <div className="relative w-full h-full min-h-[500px] flex justify-center items-center">
+          
+          {/* Main Video Layer */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            className="relative z-10 rounded-[80px] overflow-hidden border-8 border-white shadow-2xl bg-brand-surface group"
+            initial={{ opacity: 0, scale: 0.9, rotateY: -15, rotateX: 5 }}
+            animate={{ 
+              opacity: 1, 
+              scale: 1, 
+              rotateY: 0, 
+              rotateX: 0,
+              y: [-10, 10, -10]
+            }}
+            transition={{
+              opacity: { duration: 0.8 },
+              scale: { duration: 0.8 },
+              y: { repeat: Infinity, duration: 6, ease: "easeInOut" }
+            }}
+            className="relative z-20 w-full max-w-lg aspect-4/3 rounded-3xl overflow-hidden bg-white p-3 shadow-2xl shadow-brand-primary/20 border border-white/60 backdrop-blur-sm"
           >
-            <img 
-              src="/images/indi_electrician.png" 
-              alt="Professional Indian Workforce" 
-              className="w-full h-auto transform group-hover:scale-105 transition-transform duration-1000"
-            />
-            {/* Real-time verification badge */}
-            <motion.div 
-                className="absolute top-10 right-10 p-6 glass-card rounded-3xl z-20 border-2 border-emerald-500/20 shadow-2xl"
-                initial={{ x: 20, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ delay: 0.5 }}
-            >
-                <div className="flex items-center gap-3 mb-2">
-                    <div className="w-4 h-4 rounded-full bg-emerald-500 animate-pulse" />
-                    <span className="text-[10px] font-black text-brand-secondary tracking-widest uppercase">Verified Sync</span>
-                </div>
-                <div className="text-2xl font-black text-brand-secondary">On-Chain ID</div>
-            </motion.div>
+            <div className="w-full h-full rounded-2xl overflow-hidden relative bg-black">
+              <video 
+                src="/assets/landing/worker-pwa.mp4" 
+                autoPlay 
+                loop 
+                muted 
+                playsInline 
+                className="w-full h-full object-cover opacity-90"
+              />
+              <div className="absolute inset-x-0 bottom-0 p-6 bg-linear-to-t from-black/80 via-black/40 to-transparent flex items-end justify-between">
+                  <div className="text-left">
+                      <div className="text-brand-primary font-bold uppercase tracking-widest text-[10px] mb-1">Live Worker Demo</div>
+                      <div className="text-lg font-extrabold text-white leading-tight">TrustHire App</div>
+                  </div>
+                  <div className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center">
+                      <Play className="text-white fill-white w-4 h-4 ml-0.5" />
+                  </div>
+              </div>
+            </div>
           </motion.div>
 
-          {/* Floating Feature Card */}
+          {/* Floating Element 1 - Stats */}
           <motion.div
-            animate={{ y: [0, -20, 0] }}
-            transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
-            className="absolute -bottom-10 -left-10 p-8 bg-brand-primary rounded-[40px] shadow-2xl z-20 hidden lg:block"
+            animate={{ y: [10, -10, 10], rotate: [-2, 2, -2] }}
+            transition={{ repeat: Infinity, duration: 5, ease: "easeInOut", delay: 1 }}
+            className="absolute top-[10%] -left-8 z-30 bg-white p-4 rounded-2xl shadow-xl border border-brand-border/30 flex items-center gap-3 backdrop-blur-md"
           >
-            <div className="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center mb-6">
-                <ShieldCheck className="w-6 h-6 text-emerald-500" />
+            <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center shrink-0">
+              <CheckCircle2 className="w-5 h-5 text-green-600" />
             </div>
             <div>
-                <div className="text-[10px] font-black uppercase tracking-widest opacity-60">Success Rate</div>
-                <div className="text-3xl font-black">99.2%</div>
+              <div className="text-xs font-bold text-brand-muted uppercase">Verification</div>
+              <div className="text-sm font-extrabold text-brand-secondary">100% Aadhaar</div>
             </div>
           </motion.div>
+
+          {/* Floating Element 2 - Profile App */}
+          <motion.div
+            animate={{ y: [-15, 15, -15], rotate: [2, -2, 2] }}
+            transition={{ repeat: Infinity, duration: 7, ease: "easeInOut", delay: 0.5 }}
+            className="absolute bottom-[10%] -right-4 z-30 bg-white p-3 rounded-2xl shadow-2xl border border-brand-border/30 flex items-center gap-4 backdrop-blur-md max-w-[200px]"
+          >
+             <div className="w-12 h-12 rounded-xl overflow-hidden shrink-0 border border-brand-border/50">
+                <img src="/assets/landing/hero-professional.png" alt="Worker" className="w-full h-full object-cover" />
+             </div>
+             <div>
+                <div className="text-sm font-bold text-brand-secondary line-clamp-1">Rahul S.</div>
+                <div className="text-[10px] text-brand-muted font-medium">Electrician • 4.9★</div>
+             </div>
+          </motion.div>
+
         </div>
       </div>
     </section>

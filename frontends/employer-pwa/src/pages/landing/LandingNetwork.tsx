@@ -21,7 +21,7 @@ export function LandingNetwork() {
                 className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-[2000ms]"
             />
             {/* Overlay badge */}
-            <div className="absolute bottom-10 left-10 z-20 bg-brand-secondary text-brand-primary px-6 py-4 rounded-2xl font-black text-sm flex items-center gap-3 shadow-2xl border border-white/10">
+            <div className="absolute bottom-10 left-10 z-20 bg-brand-secondary text-brand-primary px-6 py-4 rounded-2xl font-bold text-sm flex items-center gap-3 shadow-2xl border border-white/10">
                 <Globe2 className="w-5 h-5" />
                 PAN-INDIA VERIFICATION
             </div>
@@ -34,11 +34,11 @@ export function LandingNetwork() {
                 initial={{ opacity: 0, x: -20 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
-                className="text-sm font-black text-brand-accent uppercase tracking-widest"
+                className="text-sm font-bold text-brand-accent uppercase tracking-widest"
             >
                 Global Reach, Local Trust
             </motion.div>
-            <h3 className="text-4xl lg:text-7xl font-black text-brand-secondary leading-[1] tracking-tighter">
+            <h3 className="text-4xl lg:text-7xl font-extrabold text-brand-secondary leading-[1] tracking-tight">
               Nationwide Force, <br />
               <span className="text-brand-primary">Verified by Truth.</span>
             </h3>
@@ -53,7 +53,7 @@ export function LandingNetwork() {
             {VERIFICATION_STEPS.map((item, i) => (
               <li
                 key={i}
-                className="flex items-center gap-4 font-black text-brand-secondary group text-sm"
+                className="flex items-center gap-4 font-bold text-brand-secondary group text-sm"
               >
                 <div className="w-10 h-10 bg-brand-primary/10 text-brand-primary rounded-2xl flex items-center justify-center group-hover:bg-brand-primary group-hover:text-brand-secondary transition-all">
                   <CheckCircle2 className="w-6 h-6 stroke-[3px]" />
@@ -66,7 +66,7 @@ export function LandingNetwork() {
           <div className="pt-6">
             <Link
                 to="/sign-up"
-                className="inline-block px-12 py-6 bg-brand-secondary text-brand-primary rounded-2xl font-black text-lg transition-all shadow-2xl hover:scale-105 active:scale-95"
+                className="inline-block px-12 py-6 bg-brand-secondary text-brand-primary rounded-2xl font-bold text-lg transition-all shadow-2xl hover:scale-105 active:scale-95"
             >
                 Join the Network
             </Link>

@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../hooks/useLanguage';
 import { motion } from 'framer-motion';
 import { NotificationCenter } from '../features/notifications/NotificationCenter';
-import { BriefcaseIcon, MapPin, Search, ChevronRight, Globe, ShieldCheck } from 'lucide-react';
+import { BriefcaseIcon, MapPin, Search, Globe, ShieldCheck } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 export default function DashboardPage() {
@@ -41,20 +41,20 @@ export default function DashboardPage() {
       <DashboardSidebar />
 
       <div className="flex-1 flex flex-col min-h-screen relative overflow-x-hidden">
-        <div className="absolute inset-0 cloud-grid opacity-[0.02] pointer-events-none" />
+        <div className="absolute inset-0 cloud-grid opacity-[0.05] pointer-events-none" />
         
-        <header className="p-8 flex justify-between items-center border-b border-brand-border sticky top-0 bg-white/80 backdrop-blur-2xl z-40 md:hidden">
+        <header className="p-8 flex justify-between items-center border-b border-brand-border sticky top-0 bg-brand-bg/80 backdrop-blur-2xl z-40 md:hidden">
           <div className="flex items-center gap-3">
              <div className="w-10 h-10 bg-brand-secondary rounded-xl flex items-center justify-center">
                 <BriefcaseIcon className="w-6 h-6 text-brand-primary" />
              </div>
-             <span className="text-xl font-bold tracking-tight text-neutral-900 uppercase">TrustPro</span>
+             <span className="text-xl font-semibold tracking-tight text-brand-secondary">TrustPro</span>
           </div>
           <div className="flex items-center gap-4">
             <NotificationCenter />
             <div className="relative">
                 <UserButton />
-                <div className="absolute -bottom-1 -right-1 bg-emerald-500 text-white rounded-full p-0.5 border-2 border-white shadow-sm">
+                <div className="absolute -bottom-1 -right-1 bg-emerald-500 text-white rounded-full p-0.5 border-2 border-brand-bg shadow-sm">
                     <ShieldCheck className="w-2.5 h-2.5" />
                 </div>
             </div>
@@ -70,11 +70,11 @@ export default function DashboardPage() {
                 animate={{ opacity: 1, x: 0 }}
                 className="space-y-2 hidden md:block"
                >
-                 <div className="flex items-center gap-2 text-brand-muted font-bold uppercase tracking-[0.3em] text-[10px]">
-                    <Globe className="w-3 h-3" /> Professional Repository
+                 <div className="flex items-center gap-2 text-brand-secondary/40 font-semibold tracking-widest text-[10px]">
+                    <Globe className="w-3 h-3 text-brand-primary" /> Professional repository
                  </div>
-                 <h1 className="text-6xl font-black tracking-tighter text-neutral-900 uppercase">{t('dashboard.title')}</h1>
-                 <p className="text-brand-muted font-medium text-lg italic opacity-60">{t('dashboard.welcome')}</p>
+                 <h1 className="text-6xl font-semibold tracking-tighter text-brand-secondary leading-[0.9]">{t('dashboard.title')}</h1>
+                 <p className="text-brand-muted font-medium text-lg opacity-60">{t('dashboard.welcome')}</p>
                </motion.div>
             </div>
             
@@ -86,12 +86,12 @@ export default function DashboardPage() {
             <section className="lg:col-span-8 space-y-10">
               <div className="flex justify-between items-end border-b border-brand-border pb-6">
                 <div className="space-y-1">
-                    <h3 className="text-3xl font-bold tracking-tight text-neutral-900 uppercase">Opportunities</h3>
-                    <p className="text-brand-muted font-medium text-xs uppercase tracking-widest">{t('dashboard.jobsNearYou')}</p>
+                    <h3 className="text-3xl font-semibold tracking-tight text-brand-secondary">Opportunities</h3>
+                    <p className="text-brand-muted font-semibold text-[10px] tracking-widest">{t('dashboard.jobsNearYou')}</p>
                 </div>
                 <button 
                   onClick={() => navigate('/search')}
-                  className="px-6 py-2 bg-brand-surface border border-brand-border text-[9px] text-brand-muted font-bold uppercase tracking-widest cursor-pointer hover:bg-brand-secondary hover:text-brand-primary transition-all rounded-full"
+                  className="px-6 py-2 bg-white border border-brand-border text-[9px] text-brand-secondary font-semibold tracking-widest cursor-pointer hover:bg-brand-secondary hover:text-brand-primary transition-all rounded-full"
                 >
                   {t('dashboard.viewAll')}
                 </button>
@@ -106,24 +106,24 @@ export default function DashboardPage() {
                     transition={{ delay: i * 0.1 }}
                     className="p-8 rounded-[2.5rem] bg-white border border-brand-border space-y-6 shadow-sm hover:shadow-2xl hover:border-brand-primary transition-all group relative overflow-hidden"
                   >
-                    <div className="absolute top-0 right-0 w-24 h-24 bg-brand-primary/5 rounded-bl-full pointer-events-none group-hover:bg-brand-primary/10 transition-colors" />
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-brand-primary/10 rounded-bl-full pointer-events-none group-hover:bg-brand-primary/[0.15] transition-colors" />
                     
                     <div className="space-y-4">
                       <div className="flex justify-between items-start">
                         <div className="space-y-1 flex-1">
-                            <h4 className="font-bold text-xl text-neutral-900 group-hover:text-brand-primary transition-colors line-clamp-1 uppercase tracking-tight">{job.title}</h4>
-                            <div className="flex items-center gap-2 text-brand-muted/60 font-medium text-xs italic">
+                            <h4 className="font-semibold text-xl text-brand-secondary group-hover:text-brand-primary transition-colors line-clamp-1 tracking-tight">{job.title}</h4>
+                            <div className="flex items-center gap-2 text-brand-muted/60 font-medium text-xs">
                                 <MapPin className="w-3.5 h-3.5" /> {job.location}
                             </div>
                         </div>
-                         <div className="bg-brand-surface px-4 py-2 rounded-xl text-emerald-600 font-bold text-sm shadow-sm border border-brand-border">
+                         <div className="bg-brand-bg px-4 py-2 rounded-xl text-emerald-600 font-semibold text-sm shadow-sm border border-brand-border">
                             ₹{job.budget?.toLocaleString()}
                         </div>
                       </div>
 
                       <div className="flex flex-wrap gap-2">
-                        <span className="px-3 py-1 bg-brand-surface border border-brand-border rounded-lg text-[9px] font-bold uppercase tracking-widest text-brand-muted">{job.industry}</span>
-                        <div className="flex items-center gap-1.5 ml-auto text-[9px] font-bold text-brand-primary py-1 px-3 bg-brand-primary/5 border border-brand-primary/10 rounded-lg uppercase tracking-widest">
+                        <span className="px-3 py-1 bg-brand-bg border border-brand-border rounded-lg text-[9px] font-semibold tracking-widest text-brand-muted">{job.industry}</span>
+                        <div className="flex items-center gap-1.5 ml-auto text-[9px] font-semibold text-brand-primary py-1 px-3 bg-brand-secondary border border-brand-secondary rounded-lg tracking-widest">
                             <ShieldCheck className="w-3 h-3" /> TrustVerified
                         </div>
                       </div>
@@ -131,7 +131,7 @@ export default function DashboardPage() {
 
                     <button 
                       onClick={() => navigate(`/job/${job.jobId}`)}
-                      className="w-full py-4 bg-brand-secondary text-brand-primary rounded-[1.5rem] font-bold active:scale-95 transition-all text-xs cursor-pointer shadow-xl shadow-brand-secondary/10 hover:bg-neutral-800 uppercase tracking-widest group-hover:translate-y-[-2px]"
+                      className="w-full py-4 bg-brand-secondary text-brand-primary rounded-[1.5rem] font-semibold active:scale-95 transition-all text-xs cursor-pointer shadow-xl shadow-brand-secondary/10 hover:bg-neutral-800 tracking-widest group-hover:translate-y-[-2px]"
                     >
                       {t('dashboard.quickApply')}
                     </button>
@@ -140,10 +140,10 @@ export default function DashboardPage() {
                 
                 {(!jobs || jobs.length === 0) && (
                   <div className="col-span-full p-20 rounded-[3rem] bg-white border border-dashed border-brand-border text-center space-y-4">
-                    <div className="w-16 h-16 bg-brand-surface rounded-full flex items-center justify-center mx-auto opacity-20">
-                        <Search className="w-8 h-8 text-brand-muted" />
+                    <div className="w-16 h-16 bg-brand-bg rounded-full flex items-center justify-center mx-auto opacity-20">
+                        <Search className="w-8 h-8 text-brand-secondary" />
                     </div>
-                    <p className="text-brand-muted italic font-medium">{t('dashboard.noJobs')}</p>
+                    <p className="text-brand-muted font-medium">{t('dashboard.noJobs')}</p>
                   </div>
                 )}
               </div>

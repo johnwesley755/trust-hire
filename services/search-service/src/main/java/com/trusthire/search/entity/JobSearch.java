@@ -27,10 +27,7 @@ public class JobSearch {
     @Column(name = "category")
     private String industry;
     private String location;
-    private Double latitude;
-    private Double longitude;
     private Double budget;
-    private String requiredSkills; // Comma separated for indexing
     private String employerId;
     private String status;
 

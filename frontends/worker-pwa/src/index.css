@@ -1,16 +1,17 @@
 @import "tailwindcss";
 
 @theme {
-  /* Brand Colors - Illustrative Enterprise Theme */
-  --color-brand-primary: #facc15;     /* Vibrant Amber */
+  /* Brand Colors - Restored Green & Amber Theme */
+  --color-brand-primary: #facd15;     /* Vibrant Amber */
   --color-brand-primary-dark: #eab308;
-  --color-brand-secondary: #111111;   /* Deep Black */
+  --color-brand-secondary: #1F3F34;   /* Deep Teal/Green */
   --color-brand-accent: #ef4444;      /* Energetic Red */
-  --color-brand-bg: #ffffff;          /* Pure White */
-  --color-brand-surface: #f8fafc;
+  --color-brand-bg: #f5f4ef;          /* Warm Beige */
+  --color-brand-surface: #ffffff;
   --color-brand-border: #e2e8f0;
-  --color-brand-text: #111111;
+  --color-brand-text: #1F3F34;
   --color-brand-muted: #64748b;
+  --font-sans: "Bricolage Grotesque", ui-sans-serif, system-ui;
 
   @keyframes fade-in-up {
     from {
@@ -85,13 +86,13 @@
 }
 
 :root {
-  font-family: 'Outfit', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: "Bricolage Grotesque", sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
   color-scheme: light;
-  color: #111111;
-  background-color: #f5f4ef;
+  color: var(--color-brand-text);
+  background-color: var(--color-brand-bg);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -103,5 +104,6 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background-color: #f5f4ef;
+  background-color: var(--color-brand-bg);
+  font-family: "Bricolage Grotesque", sans-serif;
 }

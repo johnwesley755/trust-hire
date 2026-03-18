@@ -17,7 +17,7 @@ export function LandingFooter() {
       <div className="max-w-7xl mx-auto px-6 pt-24 pb-16 border-b border-white/5 relative z-10">
         <div className="bg-brand-primary p-12 lg:p-20 rounded-[60px] flex flex-col lg:flex-row items-center justify-between gap-12 text-brand-secondary shadow-[0_50px_100px_-20px_rgba(250,204,21,0.3)]">
           <div className="space-y-6 text-center lg:text-left">
-            <h3 className="text-4xl lg:text-6xl font-black tracking-tighter leading-none">
+            <h3 className="text-4xl lg:text-6xl font-extrabold tracking-tight leading-none">
               Ready to Secure <br />
               <span className="opacity-60">Your Global Workforce?</span>
             </h3>
@@ -28,13 +28,13 @@ export function LandingFooter() {
           <div className="flex flex-col sm:flex-row gap-6 w-full lg:w-auto">
             <Link
               to="/sign-up"
-              className="px-10 py-5 bg-brand-secondary text-brand-primary rounded-2xl font-black text-lg text-center hover:scale-105 transition-all shadow-2xl"
+              className="px-10 py-5 bg-brand-secondary text-brand-primary rounded-2xl font-bold text-lg text-center hover:scale-105 transition-all shadow-2xl"
             >
               Start Hiring Now
             </Link>
             <Link
               to="/contact"
-              className="px-10 py-5 bg-white text-brand-secondary rounded-2xl font-black text-lg text-center hover:scale-105 transition-all"
+              className="px-10 py-5 bg-white text-brand-secondary rounded-2xl font-bold text-lg text-center hover:scale-105 transition-all"
             >
               Contact Sales
             </Link>
@@ -52,8 +52,8 @@ export function LandingFooter() {
                 <ShieldCheck className="text-brand-secondary w-7 h-7" />
               </div>
               <div className="flex flex-col leading-none">
-                <span className="text-3xl font-black tracking-tighter">TrustHire</span>
-                <span className="text-[10px] font-black text-brand-primary uppercase tracking-widest mt-1">Enterprise Grade</span>
+                <span className="text-3xl font-extrabold tracking-tight">TrustHire</span>
+                <span className="text-[10px] font-bold text-brand-primary uppercase tracking-widest mt-1">Enterprise Grade</span>
               </div>
             </Link>
             <p className="text-white/50 font-bold leading-relaxed max-w-sm">
@@ -71,7 +71,7 @@ export function LandingFooter() {
           {/* Links Grid */}
           {Object.entries(LINKS).map(([heading, items]) => (
             <div key={heading} className="space-y-8">
-              <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-white/30">{heading}</h4>
+              <h4 className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/30">{heading}</h4>
               <ul className="space-y-4">
                 {items.map((item) => (
                   <li key={item}>
@@ -85,7 +85,7 @@ export function LandingFooter() {
 
         {/* Bottom Bar */}
         <div className="mt-24 pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8">
-          <div className="flex flex-wrap justify-center gap-8 text-[10px] font-black uppercase tracking-widest text-white/30">
+          <div className="flex flex-wrap justify-center gap-8 text-[10px] font-bold uppercase tracking-widest text-white/30">
             <a href="#" className="hover:text-brand-primary transition-colors flex items-center gap-2">
                 <Mail className="w-3 h-3" /> hello@trusthire.io
             </a>
@@ -98,10 +98,10 @@ export function LandingFooter() {
           </div>
 
           <div className="flex items-center gap-8">
-            <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-white/30 border border-white/5 px-4 py-2 rounded-xl">
+            <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-white/30 border border-white/5 px-4 py-2 rounded-xl">
                 <Globe className="w-3 h-3" /> English (IN)
             </div>
-            <p className="text-[10px] font-black text-white/20 uppercase tracking-widest">
+            <p className="text-[10px] font-bold text-white/20 uppercase tracking-widest">
               © 2026 TrustHire. All Rights Reserved.
             </p>
           </div>

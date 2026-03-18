@@ -7,7 +7,7 @@ import java.util.UUID;
 
 public interface SearchService {
     // Jobs
-    List<JobSearch> searchJobs(String query, String category, String location, Double lat, Double lon, Double radius);
+    List<JobSearch> searchJobs(String query, String category, String location);
     JobSearch indexJob(JobSearch jobSearch);
     void deleteJob(UUID jobId);
 

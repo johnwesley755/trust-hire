@@ -11,6 +11,8 @@
   --color-brand-border: #e2e8f0;
   --color-brand-text: #111111;
   --color-brand-muted: #64748b;
+  --font-sans: "Bricolage Grotesque", ui-sans-serif, system-ui;
+
 
   @keyframes fade-in-up {
     from {
@@ -106,7 +108,8 @@
 }
 
 :root {
-  font-family: 'Outfit', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: "Bricolage Grotesque", sans-serif;
+
   line-height: 1.5;
   font-weight: 400;
 
@@ -125,4 +128,5 @@ body {
   min-width: 320px;
   min-height: 100vh;
   background-color: var(--color-brand-bg);
+  font-family: "Bricolage Grotesque", sans-serif;
 }

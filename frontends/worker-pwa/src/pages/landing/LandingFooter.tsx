@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
 import { useLanguage } from "../../hooks/useLanguage";
+import { Briefcase, Globe, Twitter, Linkedin, Instagram } from "lucide-react";
 
 export function LandingFooter() {
   const { t } = useLanguage();
@@ -12,86 +12,62 @@ export function LandingFooter() {
   };
 
   return (
-    <footer className="bg-[#111] text-white">
-      {/* CTA Banner */}
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.6 }}
-        className="bg-brand-amber py-16 px-6"
-      >
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
-          <div>
-            <h3 className="text-2xl sm:text-3xl md:text-4xl font-black text-[#111] leading-tight text-center md:text-left">
-              {t('footer.cta.title').split('more,').map((text: string, i: number, arr: string[]) => (
-                <span key={i}>
-                  {text}{i < arr.length - 1 && <span className="text-brand-teal">more,</span>}
-                </span>
-              ))}
-            </h3>
-            <p className="text-[#111]/70 font-semibold mt-2 text-center md:text-left text-sm sm:text-base">
-              {t('footer.cta.subtitle')}
-            </p>
-          </div>
-          <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
-            <Link
-              to="/sign-up"
-              className="px-7 py-4 bg-brand-teal text-white rounded-2xl font-black hover:bg-brand-teal-light transition-all hover:shadow-xl hover:-translate-y-1 text-center"
-            >
-              {t('footer.cta.getStarted')}
-            </Link>
-            <Link
-              to="/sign-in"
-              className="px-7 py-4 bg-white text-[#111] rounded-2xl font-black hover:bg-brand-cream transition-all hover:-translate-y-1 text-center"
-            >
-              {t('footer.cta.signIn')}
-            </Link>
-          </div>
-        </div>
-      </motion.div>
+    <footer className="bg-black/90 text-white selection:bg-brand-primary selection:text-brand-secondary relative overflow-hidden">
+      
+      {/* Background patterns */}
+      <div className="absolute inset-0 cloud-grid opacity-[0.03] pointer-events-none" />
+      <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-brand-primary/5 rounded-full blur-[120px] -ml-40 -mt-40 pointer-events-none" />
 
-      {/* Main footer */}
-      <div className="max-w-7xl mx-auto px-6 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
-          {/* Brand */}
-          <div className="space-y-5">
-            <div className="flex items-center gap-2">
-              <div className="w-9 h-9 bg-brand-amber rounded-xl flex items-center justify-center">
-                <span className="text-brand-teal font-black text-lg leading-none">T</span>
+      {/* Main footer content */}
+      <div className="max-w-7xl mx-auto px-6 pt-24 pb-12 relative z-10 text-left">
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-16 mb-20">
+          
+          {/* Brand & Mission */}
+          <div className="lg:col-span-2 space-y-8">
+            <Link to="/" className="flex items-center gap-4 group w-fit">
+              <div className="w-12 h-12 bg-brand-primary rounded-xl flex items-center justify-center shadow-xl group-hover:rotate-6 transition-transform">
+                <Briefcase className="text-brand-secondary w-7 h-7" />
               </div>
-              <span className="text-xl font-black">
-                Trust<span className="text-brand-amber">Hire</span> Pro
-              </span>
-            </div>
-            <p className="text-white/50 font-medium leading-relaxed text-sm">
-              {t('footer.brand.desc')}
+              <div className="flex flex-col">
+                <span className="text-2xl font-semibold tracking-tight leading-none group-hover:text-brand-primary transition-colors">Trust Hire</span>
+                <span className="text-[10px] font-medium text-brand-primary tracking-tight mt-0.5">India's Safest Hub</span>
+              </div>
+            </Link>
+            
+            <p className="text-white/50 font-medium leading-relaxed text-sm max-w-sm">
+                {t('footer.brand.desc')}
             </p>
-            <div className="flex gap-3">
-              {["𝕏", "in", "ig"].map((s, i) => (
+            
+            <div className="flex gap-4">
+              {[
+                { icon: <Twitter size={18} />, label: "Twitter" },
+                { icon: <Linkedin size={18} />, label: "LinkedIn" },
+                { icon: <Instagram size={18} />, label: "Instagram" }
+              ].map((s, i) => (
                 <a
                   key={i}
                   href="#"
-                  className="w-9 h-9 rounded-xl bg-white/10 hover:bg-brand-amber hover:text-brand-teal transition-all flex items-center justify-center text-sm font-bold"
+                  className="w-10 h-10 rounded-xl bg-white/5 hover:bg-brand-primary hover:text-brand-secondary transition-all flex items-center justify-center text-white/50 border border-white/5 shadow-lg"
                 >
-                  {s}
+                  {s.icon}
                 </a>
               ))}
             </div>
           </div>
 
-          {/* Links */}
+          {/* Links Grid */}
           {Object.entries(LINKS).map(([heading, items]) => (
-            <div key={heading} className="space-y-4">
-              <h6 className="font-black uppercase text-xs tracking-[0.2em] text-white/40">
+            <div key={heading} className="space-y-8">
+              <h6 className="font-semibold text-[10px] tracking-[0.2em] text-white/20">
                 {heading}
               </h6>
-              <ul className="space-y-3">
+              <ul className="space-y-4">
                 {items.map((item, i) => (
                   <li key={i}>
                     <a
                       href="#"
-                      className="text-white/60 hover:text-brand-amber font-semibold text-sm transition-colors"
+                      className="text-white/40 hover:text-brand-primary font-medium text-sm transition-colors block"
                     >
                       {item}
                     </a>
@@ -100,18 +76,23 @@ export function LandingFooter() {
               </ul>
             </div>
           ))}
+
         </div>
 
-        <div className="mt-16 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-white/30 text-sm font-medium">
+        {/* Bottom Bar */}
+        <div className="pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="flex items-center gap-3 text-white/20 text-[11px] font-medium">
+            <Globe className="w-4 h-4" />
             {t('footer.copyright')}
-          </p>
-          <div className="flex gap-6 text-white/30 text-xs font-semibold">
-            <a href="#" className="hover:text-white/60 transition-colors">Privacy</a>
-            <a href="#" className="hover:text-white/60 transition-colors">Terms</a>
-            <a href="#" className="hover:text-white/60 transition-colors">Cookies</a>
+          </div>
+          
+          <div className="flex flex-wrap justify-center gap-x-8 gap-y-4 text-white/20 text-[10px] font-semibold tracking-widest">
+            <a href="#" className="hover:text-brand-primary transition-colors">Privacy</a>
+            <a href="#" className="hover:text-brand-primary transition-colors">Terms</a>
+            <a href="#" className="hover:text-brand-primary transition-colors">Cookies</a>
           </div>
         </div>
+
       </div>
     </footer>
   );

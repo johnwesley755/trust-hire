@@ -7,14 +7,13 @@ import {
   MapPin, 
   ChevronRight, 
   ChevronLeft, 
-  Zap,
-  Hammer,
   ShieldCheck,
   Navigation,
   CheckCircle2,
   Briefcase,
   Star,
-  Globe
+  Globe,
+  Loader2
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "../hooks/useLanguage";
@@ -149,7 +148,7 @@ export default function OnboardingPage() {
     <div className="min-h-screen bg-brand-bg flex flex-col items-center justify-center p-6 lg:p-12 relative overflow-hidden selection:bg-brand-primary selection:text-brand-secondary">
        {/* Background Elements */}
       <div className="absolute inset-0 cloud-grid opacity-[0.05] pointer-events-none" />
-      <div className="absolute top-0 left-0 w-full h-1.5 bg-brand-primary/20">
+      <div className="absolute top-0 left-0 w-full h-2 bg-brand-secondary">
         <motion.div 
             className="h-full bg-brand-primary shadow-[0_0_15px_rgba(250,204,21,0.5)]"
             initial={{ width: "0%" }}
@@ -164,9 +163,9 @@ export default function OnboardingPage() {
                 <div className="w-10 h-10 bg-brand-secondary rounded-xl flex items-center justify-center shadow-lg">
                     <Briefcase className="w-6 h-6 text-brand-primary" />
                 </div>
-                <div className="flex flex-col">
-                    <span className="text-xl font-bold tracking-tight text-neutral-900 uppercase leading-none">TrustPro</span>
-                    <span className="text-[8px] font-medium text-brand-primary uppercase tracking-[0.3em] mt-1">Verification</span>
+                <div className="flex flex-col text-left">
+                    <span className="text-xl font-semibold tracking-tight text-brand-secondary leading-none">TrustPro</span>
+                    <span className="text-[8px] font-semibold text-brand-primary tracking-widest mt-1">Onboarding</span>
                 </div>
             </div>
             
@@ -176,14 +175,14 @@ export default function OnboardingPage() {
                         key={s.id}
                         className={`transition-all duration-500 rounded-lg flex items-center gap-2 px-3 py-1.5 ${
                             step === s.id 
-                            ? "bg-brand-secondary text-brand-primary shadow-lg" 
+                            ? "bg-brand-secondary text-brand-primary shadow-lg scale-105" 
                             : step > s.id 
                                 ? "bg-emerald-500/10 text-emerald-500"
-                                : "bg-neutral-100 text-neutral-400"
+                                : "bg-white/50 text-brand-secondary/20 border border-brand-border"
                         }`}
                     >
                         <s.icon className="w-4 h-4" />
-                        <span className={`text-[10px] font-bold uppercase tracking-widest hidden md:block`}>
+                        <span className={`text-[10px] font-semibold tracking-widest hidden md:block`}>
                             {s.title}
                         </span>
                         {step > s.id && <CheckCircle2 className="w-3 h-3 ml-1" />}
@@ -194,8 +193,10 @@ export default function OnboardingPage() {
 
         <motion.div 
             layout
-            className="bg-white rounded-[3rem] shadow-2xl border border-brand-border p-10 lg:p-16 relative overflow-hidden"
+            className="bg-white rounded-[3rem] shadow-2xl border border-brand-border p-10 lg:p-16 relative overflow-hidden text-left"
         >
+          <div className="absolute top-0 right-0 w-32 h-32 bg-brand-primary opacity-[0.03] rounded-bl-full pointer-events-none" />
+          
           <AnimatePresence mode="wait">
             {step === 1 && (
               <motion.div 
@@ -206,22 +207,22 @@ export default function OnboardingPage() {
                 className="space-y-10"
               >
                 <div className="space-y-4">
-                  <div className="w-16 h-1 bg-brand-primary rounded-full" />
-                  <h1 className="text-5xl font-bold tracking-tighter text-neutral-900 uppercase">Identity</h1>
-                  <p className="text-brand-muted font-medium text-lg leading-relaxed">Let's start by confirming your professional identity on the network.</p>
+                  <div className="w-16 h-1 bg-brand-primary rounded-full shadow-[0_0_10px_rgba(250,204,21,0.5)]" />
+                  <h1 className="text-5xl font-semibold tracking-tighter text-brand-secondary leading-none">Identity</h1>
+                  <p className="text-brand-muted font-medium text-lg leading-relaxed opacity-60">Confirm your professional presence on the global grid.</p>
                 </div>
                 <div className="space-y-6">
                    <div className="space-y-2">
-                    <label className="text-[10px] font-medium uppercase tracking-[0.3em] text-brand-muted ml-1">Full Name</label>
+                    <label className="text-[10px] font-semibold tracking-widest text-brand-secondary/40 ml-1">Dossier: Full name</label>
                     <div className="relative group">
                         <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
-                            <User className="w-6 h-6 text-brand-muted/30 group-focus-within:text-brand-primary transition-colors" />
+                            <User className="w-6 h-6 text-brand-secondary/20 group-focus-within:text-brand-primary transition-colors" />
                         </div>
                         <input 
                             type="text" 
                             value={formData.fullName}
                             onChange={(e) => setFormData({...formData, fullName: e.target.value})}
-                            className="w-full bg-brand-surface border border-brand-border rounded-2xl py-6 pl-16 pr-6 text-brand-secondary font-semibold focus:outline-none focus:border-brand-primary transition-all placeholder:text-brand-muted/20 shadow-inner"
+                            className="w-full bg-brand-bg border border-brand-border rounded-[2rem] py-6 pl-16 pr-6 text-brand-secondary font-semibold focus:outline-none focus:border-brand-primary transition-all placeholder:text-brand-secondary/10 shadow-inner text-lg"
                             placeholder="e.g. Rahul Sharma"
                         />
                     </div>
@@ -240,21 +241,21 @@ export default function OnboardingPage() {
               >
                 <div className="space-y-4">
                   <div className="w-16 h-1 bg-brand-primary rounded-full" />
-                  <h1 className="text-5xl font-bold tracking-tighter text-neutral-900 uppercase">Expertise</h1>
-                  <p className="text-brand-muted font-medium text-lg leading-relaxed">Highlight your core skills and market value.</p>
+                  <h1 className="text-5xl font-semibold tracking-tighter text-brand-secondary leading-none">Expertise</h1>
+                  <p className="text-brand-muted font-medium text-lg leading-relaxed opacity-60">Highlight your core tactical skills and market value.</p>
                 </div>
-                <div className="space-y-8 text-left">
+                <div className="space-y-8">
                   <div className="space-y-4">
-                    <label className="text-[10px] font-medium uppercase tracking-[0.3em] text-brand-muted ml-1 block">Verify Your Skills</label>
+                    <label className="text-[10px] font-semibold tracking-widest text-brand-secondary/40 ml-1 block">Skill matrix verification</label>
                     <div className="flex flex-wrap gap-3">
                         {SKILL_OPTIONS.map(skill => (
                         <button
                             key={skill}
                             onClick={() => toggleSkill(skill)}
-                            className={`px-6 py-3 rounded-2xl text-xs font-bold transition-all uppercase tracking-widest ${
+                            className={`px-6 py-3 rounded-2xl text-[10px] font-semibold transition-all tracking-widest border ${
                             formData.skills.includes(skill)
-                                ? "bg-brand-secondary text-brand-primary shadow-xl border-brand-secondary"
-                                : "bg-brand-surface text-brand-muted border border-brand-border hover:border-brand-primary"
+                                ? "bg-brand-secondary text-brand-primary shadow-xl border-brand-secondary scale-105"
+                                : "bg-brand-bg text-brand-secondary/40 border-brand-border hover:border-brand-primary hover:text-brand-secondary"
                             }`}
                         >
                             {skill}
@@ -265,25 +266,25 @@ export default function OnboardingPage() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
                     <div className="space-y-2">
-                        <label className="text-[10px] font-medium uppercase tracking-[0.3em] text-brand-muted ml-1">Experience (Years)</label>
+                        <label className="text-[10px] font-semibold tracking-widest text-brand-secondary/40 ml-1">Experience cycle (Years)</label>
                         <input 
                             type="number" 
                             value={formData.experienceYears}
                             onChange={(e) => setFormData({...formData, experienceYears: e.target.value})}
-                            className="w-full bg-brand-surface border border-brand-border rounded-2xl py-6 px-6 text-brand-secondary font-semibold focus:outline-none focus:border-brand-primary transition-all shadow-inner"
+                            className="w-full bg-brand-bg border border-brand-border rounded-2xl py-6 px-6 text-brand-secondary font-semibold focus:outline-none focus:border-brand-primary transition-all shadow-inner text-lg"
                             placeholder="Years"
                             min="0"
                         />
                     </div>
                     <div className="space-y-2">
-                        <label className="text-[10px] font-medium uppercase tracking-[0.3em] text-brand-muted ml-1 text-left block">Expected Hourly Rate (₹)</label>
+                        <label className="text-[10px] font-semibold tracking-widest text-brand-secondary/40 ml-1 block">Market rate (₹/HR)</label>
                         <div className="relative group">
-                            <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none text-brand-muted/30 font-bold">₹</div>
+                            <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none text-brand-primary font-semibold">₹</div>
                             <input 
                                 type="number" 
                                 value={formData.hourlyRate}
                                 onChange={(e) => setFormData({...formData, hourlyRate: e.target.value})}
-                                className="w-full bg-brand-surface border border-brand-border rounded-2xl py-6 pl-12 pr-6 text-brand-secondary font-semibold focus:outline-none focus:border-brand-primary transition-all shadow-inner"
+                                className="w-full bg-brand-bg border border-brand-border rounded-2xl py-6 pl-12 pr-6 text-brand-secondary font-semibold focus:outline-none focus:border-brand-primary transition-all shadow-inner text-lg"
                                 placeholder="Rate"
                                 min="1"
                             />
@@ -292,17 +293,22 @@ export default function OnboardingPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-[10px] font-medium uppercase tracking-[0.3em] text-brand-muted ml-1 block">Professional Tier</label>
-                    <select 
-                      value={formData.level}
-                      onChange={(e) => setFormData({...formData, level: e.target.value})}
-                      className="w-full bg-brand-surface border border-brand-border rounded-2xl py-6 px-6 text-brand-secondary font-semibold focus:outline-none focus:border-brand-primary transition-all appearance-none cursor-pointer"
-                    >
-                      <option value="L1">Level 1 - Foundational</option>
-                      <option value="L2">Level 2 - Professional</option>
-                      <option value="L3">Level 3 - Expert</option>
-                      <option value="L4">Level 4 - Master / Specialist</option>
-                    </select>
+                    <label className="text-[10px] font-semibold tracking-widest text-brand-secondary/40 ml-1 block">Professional tier</label>
+                    <div className="relative">
+                        <select 
+                        value={formData.level}
+                        onChange={(e) => setFormData({...formData, level: e.target.value})}
+                        className="w-full bg-brand-bg border border-brand-border rounded-2xl py-6 px-6 text-brand-secondary font-semibold focus:outline-none focus:border-brand-primary transition-all appearance-none cursor-pointer text-lg"
+                        >
+                        <option value="L1">Level 1 - Foundational</option>
+                        <option value="L2">Level 2 - Professional</option>
+                        <option value="L3">Level 3 - Expert</option>
+                        <option value="L4">Level 4 - Master / Specialist</option>
+                        </select>
+                        <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-brand-primary">
+                            <Star className="w-5 h-5 fill-brand-primary" />
+                        </div>
+                    </div>
                   </div>
                 </div>
               </motion.div>
@@ -318,18 +324,18 @@ export default function OnboardingPage() {
               >
                 <div className="space-y-4">
                   <div className="w-16 h-1 bg-brand-primary rounded-full" />
-                  <h1 className="text-5xl font-bold tracking-tighter text-neutral-900 uppercase">Narrative</h1>
-                  <p className="text-brand-muted font-medium text-lg leading-relaxed">Briefly describe your professional background and work ethics.</p>
+                  <h1 className="text-5xl font-semibold tracking-tighter text-brand-secondary leading-none">Narrative</h1>
+                  <p className="text-brand-muted font-medium text-lg leading-relaxed opacity-60">Codify your professional background and work ethics.</p>
                 </div>
                 <div className="space-y-6">
                    <div className="space-y-2">
-                    <label className="text-[10px] font-medium uppercase tracking-[0.3em] text-brand-muted ml-1 block">Professional Summary</label>
+                    <label className="text-[10px] font-semibold tracking-widest text-brand-secondary/40 ml-1 block">Operational summary</label>
                     <textarea 
                         rows={6}
                         value={formData.bio}
                         onChange={(e) => setFormData({...formData, bio: e.target.value})}
-                        className="w-full bg-brand-surface border border-brand-border rounded-[2rem] p-8 text-brand-secondary font-semibold focus:outline-none focus:border-brand-primary transition-all placeholder:text-brand-muted/20 shadow-inner resize-none text-lg"
-                        placeholder="Describe your expertise and what makes you a trusted professional..."
+                        className="w-full bg-brand-bg border border-brand-border rounded-[2.5rem] p-8 text-brand-secondary font-semibold focus:outline-none focus:border-brand-primary transition-all placeholder:text-brand-secondary/10 shadow-inner resize-none text-xl"
+                        placeholder="Describe your tactical expertise and network value..."
                     />
                   </div>
                 </div>
@@ -346,35 +352,35 @@ export default function OnboardingPage() {
               >
                 <div className="space-y-4">
                   <div className="w-16 h-1 bg-brand-primary rounded-full" />
-                  <h1 className="text-5xl font-bold tracking-tighter text-neutral-900 uppercase">Base</h1>
-                  <p className="text-brand-muted font-medium text-lg leading-relaxed">Where should we look for opportunities near you?</p>
+                  <h1 className="text-5xl font-semibold tracking-tighter text-brand-secondary leading-none">Base</h1>
+                  <p className="text-brand-muted font-medium text-lg leading-relaxed opacity-60">Synchronize your operational range for nearby opportunities.</p>
                 </div>
                 <div className="space-y-6">
                   <button 
                     onClick={detectLocation}
-                    className="w-full bg-brand-secondary text-brand-primary font-bold py-6 rounded-2xl flex items-center justify-center gap-4 border border-brand-secondary shadow-xl active:scale-95 transition-all text-sm uppercase tracking-widest"
+                    className="w-full bg-brand-secondary text-brand-primary font-semibold py-6 rounded-2xl flex items-center justify-center gap-4 border border-brand-secondary shadow-2xl active:scale-95 transition-all text-sm tracking-widest hover:bg-neutral-800"
                   >
-                    <Navigation className="w-6 h-6" /> Sync Live Location
+                    <Navigation className="w-6 h-6" /> Sync GPS Coordinates
                   </button>
                   <div className="flex items-center gap-6">
                     <div className="h-px bg-brand-border flex-1" />
-                    <span className="text-[10px] font-bold text-brand-muted uppercase tracking-[0.3em]">Manual Entry</span>
+                    <span className="text-[10px] font-semibold text-brand-secondary/20 tracking-widest">Manual override</span>
                     <div className="h-px bg-brand-border flex-1" />
                   </div>
                   <div className="space-y-2 relative group">
                      <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
-                            <MapPin className="w-6 h-6 text-brand-muted/30 group-focus-within:text-brand-primary transition-colors" />
+                            <MapPin className="w-6 h-6 text-brand-secondary/20 group-focus-within:text-brand-primary transition-colors" />
                      </div>
                     <input 
                         type="text" 
                         value={formData.location}
                         onChange={(e) => setFormData({...formData, location: e.target.value})}
-                        className="w-full bg-brand-surface border border-brand-border rounded-2xl py-6 pl-16 pr-6 text-brand-secondary font-semibold focus:outline-none focus:border-brand-primary transition-all placeholder:text-brand-muted/20 shadow-inner"
-                        placeholder="Search your city or area..."
+                        className="w-full bg-brand-bg border border-brand-border rounded-[2rem] py-6 pl-16 pr-6 text-brand-secondary font-semibold focus:outline-none focus:border-brand-primary transition-all placeholder:text-brand-secondary/10 shadow-inner text-lg"
+                        placeholder="Define operational base..."
                     />
                   </div>
                   {locationError && (
-                     <div className="p-3 bg-brand-accent/5 border border-brand-accent/10 rounded-xl text-brand-accent text-xs font-bold uppercase tracking-wider text-center">
+                     <div className="p-4 bg-brand-accent/5 border border-brand-accent/20 rounded-2xl text-brand-accent text-[10px] font-semibold tracking-widest text-center">
                         {locationError}
                      </div>
                   )}
@@ -388,7 +394,7 @@ export default function OnboardingPage() {
             {step > 1 && (
               <button 
                 onClick={prevStep}
-                className="flex-1 bg-neutral-100 text-neutral-500 font-bold py-6 rounded-3xl flex items-center justify-center gap-3 hover:bg-neutral-200 active:scale-95 transition-all uppercase tracking-widest text-xs"
+                className="flex-1 bg-brand-bg text-brand-secondary/40 font-semibold py-6 rounded-[2rem] flex items-center justify-center gap-3 hover:bg-white border border-brand-border active:scale-95 transition-all tracking-widest text-xs"
               >
                 <ChevronLeft className="w-5 h-5" /> Back
               </button>
@@ -397,7 +403,7 @@ export default function OnboardingPage() {
             <button 
               onClick={step < 4 ? nextStep : handleSubmit}
               disabled={isSubmitting}
-              className={`flex-[2] bg-brand-secondary text-brand-primary font-bold py-6 rounded-3xl flex items-center justify-center gap-4 shadow-2xl active:scale-[0.98] transition-all uppercase tracking-widest text-lg ${
+              className={`flex-[2] bg-brand-secondary text-brand-primary font-semibold py-6 rounded-[2rem] flex items-center justify-center gap-4 shadow-2xl active:scale-[0.98] transition-all tracking-widest text-xl ${
                 isSubmitting ? "opacity-70 grayscale" : "hover:bg-neutral-800"
               }`}
             >
@@ -405,7 +411,7 @@ export default function OnboardingPage() {
                   <Loader2 className="w-8 h-8 animate-spin" />
               ) : (
                 step < 4 ? (
-                    <>Next Step <ChevronRight className="w-6 h-6" /></>
+                    <>Next Protocol <ChevronRight className="w-6 h-6" /></>
                 ) : (
                     <>Complete Integration <CheckCircle2 className="w-6 h-6" /></>
                 )
@@ -414,11 +420,11 @@ export default function OnboardingPage() {
           </div>
         </motion.div>
 
-        <div className="mt-12 flex flex-col items-center gap-3">
-             <div className="flex items-center gap-2 text-brand-muted font-bold text-[10px] uppercase tracking-[0.2em] bg-white border border-brand-border px-4 py-2 rounded-full shadow-sm">
-                <ShieldCheck className="w-4 h-4 text-emerald-500" /> Professional Grade Encryption Active
+        <div className="mt-12 flex flex-col items-center gap-4">
+             <div className="flex items-center gap-2 text-brand-secondary/40 font-semibold text-[10px] tracking-widest bg-white/50 border border-brand-border px-6 py-2.5 rounded-full shadow-sm">
+                <ShieldCheck className="w-4 h-4 text-emerald-500" /> Grade AAA Encryption • India's Safest
             </div>
-            <p className="text-brand-muted/40 font-medium text-[9px] uppercase tracking-[0.1em]">© 2026 TrustHire Enterprise • Professional Network Integration</p>
+            <p className="text-brand-secondary/20 font-semibold text-[9px] tracking-widest">© 2026 TrustPro • Enterprise integration system</p>
         </div>
       </div>
     </div>

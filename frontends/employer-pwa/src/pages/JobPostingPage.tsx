@@ -14,8 +14,9 @@ export const JobPostingPage = () => {
   const [isDetecting, setIsDetecting] = useState(false);
 
   const mutation = useMutation({
-    mutationFn: (job: import('../api/job.service').Job) => jobService.createJob(job),
+    mutationFn: (job: Partial<import('../api/job.service').Job>) => jobService.createJob(job),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['employerJobs'] });
       queryClient.invalidateQueries({ queryKey: ['jobs'] });
       navigate('/dashboard');
     },
@@ -24,15 +25,21 @@ export const JobPostingPage = () => {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    const jobData = {
+    const jobData: Partial<import('../api/job.service').Job> = {
       title: formData.get('title') as string,
       description: formData.get('description') as string,
       industry: formData.get('industry') as string,
       location: locationName,
       latitude: coords?.lat,
       longitude: coords?.lon,
+      experienceYearsRequired: formData.get('experienceYearsRequired')
+        ? Number(formData.get('experienceYearsRequired'))
+        : undefined,
       budget: Number(formData.get('budget')),
+      address: formData.get('address') as string | null ?? undefined,
+      city: formData.get('city') as string | null ?? undefined,
       requiredSkills: skills,
+      status: 'OPEN',
     };
     mutation.mutate(jobData);
   };
@@ -91,7 +98,7 @@ export const JobPostingPage = () => {
         <div className="absolute top-0 left-0 w-full h-2 bg-brand-primary/20" />
         
         <header className="mb-12 flex items-center gap-6">
-            <div className="w-16 h-16 bg-brand-secondary text-brand-primary rounded-[2rem] flex items-center justify-center shadow-xl">
+            <div className="w-16 h-16 bg-brand-secondary text-brand-primary rounded-4xl flex items-center justify-center shadow-xl">
                 <Plus className="w-8 h-8" />
             </div>
             <div>
@@ -173,6 +180,43 @@ export const JobPostingPage = () => {
             <div className="relative group">
               <DollarSign className="absolute left-5 top-1/2 -translate-y-1/2 text-brand-muted/30 group-focus-within:text-brand-primary h-5 w-5 transition-colors" />
               <input name="budget" type="number" required placeholder="Enter amount" className="w-full bg-white border border-brand-border rounded-2xl py-5 pl-14 pr-5 focus:outline-none focus:border-brand-primary text-brand-secondary font-medium" />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="space-y-3">
+              <label className="text-[10px] font-medium uppercase tracking-[0.2em] text-brand-muted ml-1">
+                Experience Required (Years)
+              </label>
+              <input
+                name="experienceYearsRequired"
+                type="number"
+                min={0}
+                placeholder="e.g. 3"
+                className="w-full bg-white border border-brand-border rounded-2xl py-5 px-5 focus:outline-none focus:border-brand-primary text-brand-secondary font-medium"
+              />
+            </div>
+
+            <div className="space-y-3">
+              <label className="text-[10px] font-medium uppercase tracking-[0.2em] text-brand-muted ml-1">
+                Address
+              </label>
+              <input
+                name="address"
+                placeholder="Street address"
+                className="w-full bg-white border border-brand-border rounded-2xl py-5 px-5 focus:outline-none focus:border-brand-primary text-brand-secondary font-medium"
+              />
+            </div>
+
+            <div className="space-y-3">
+              <label className="text-[10px] font-medium uppercase tracking-[0.2em] text-brand-muted ml-1">
+                City
+              </label>
+              <input
+                name="city"
+                placeholder="City"
+                className="w-full bg-white border border-brand-border rounded-2xl py-5 px-5 focus:outline-none focus:border-brand-primary text-brand-secondary font-medium"
+              />
             </div>
           </div>
 

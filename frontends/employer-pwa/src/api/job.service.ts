@@ -12,6 +12,8 @@ export interface Job {
   location: string;
   latitude?: number;
   longitude?: number;
+  address?: string;
+  city?: string;
   status?: 'OPEN' | 'CLOSED' | 'IN_PROGRESS' | 'COMPLETED';
   createdAt?: string;
   updatedAt?: string;

@@ -1,123 +1,105 @@
 import { motion } from "framer-motion";
-import { ShieldCheck, Globe, Star } from "lucide-react";
+import { Star, TrendingUp, Award } from "lucide-react";
 
-// const PROFESSIONALS = [
-//   { name: "Arjun K.", role: "Lead Electrician", rating: 4.9, location: "Bangalore", image: "/images/indi_electrician.png" },
-//   { name: "Priya S.", role: "Site Supervisor", rating: 4.8, location: "Mumbai", image: "/images/indi_supervisor.png" },
-//   { name: "Rajesh M.", role: "HVAC Specialist", rating: 5.0, location: "Delhi", image: "/images/indi_group.png" },
-// ];
+const LEVELS = [
+    { lv: "L4", title: "Expert", desc: "Project Leaders", color: "bg-brand-primary" },
+    { lv: "L3", title: "Specialist", desc: "Top Performance", color: "bg-brand-secondary" },
+    { lv: "L2", title: "Verified", desc: "Proven Quality", color: "bg-brand-muted" },
+    { lv: "L1", title: "Ready", desc: "Aadhaar-Verified", color: "bg-slate-200" }
+];
 
 export function LandingTalentCloud() {
   return (
-    <section id="verification" className="py-32 bg-white relative overflow-hidden">
+    <section className="py-32 bg-white relative overflow-hidden flex items-center min-h-[90vh]">
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex flex-col lg:flex-row gap-20 items-center">
-          <div className="w-full lg:w-1/2 space-y-10">
-            <div className="space-y-4">
+          {/* Left: Content */}
+          <div className="w-full lg:w-1/2 space-y-12">
+            <div className="space-y-6">
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 10 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                className="text-xs font-black text-brand-primary uppercase tracking-[0.4em]"
-              >
-                The Talent Protocol
-              </motion.div>
-              <h2 className="text-5xl lg:text-7xl font-black text-brand-secondary tracking-tighter leading-none">
-                India's First <br />
-                <span className="text-brand-primary">Immutable</span> <br />
-                Talent Cloud.
+                className="w-16 h-1 bg-brand-primary rounded-full"
+              />
+              <h2 className="text-5xl lg:text-8xl font-extrabold tracking-tight leading-[0.85]">
+                Standardized <br />
+                <span className="text-brand-primary text-glow">Quality.</span>
               </h2>
+              <p className="text-xl text-brand-muted font-bold leading-relaxed max-w-lg">
+                Scale your fleet with predictable quality. Our L1-L4 system ensures you hire exactly what you need.
+              </p>
             </div>
-            
-            <p className="text-xl text-brand-muted font-bold leading-relaxed max-w-lg">
-              We've digitized trust. Every professional on our platform has a 
-              government-verified biometric profile and a blockchain-backed work history.
-            </p>
 
-            <div className="grid grid-cols-2 gap-8 pt-4">
-              <div className="space-y-2">
-                <div className="text-5xl font-black text-brand-secondary">100%</div>
-                <div className="text-xs font-black uppercase text-brand-muted tracking-widest">Biometric Proof</div>
-              </div>
-              <div className="space-y-2">
-                <div className="text-5xl font-black text-brand-secondary">0</div>
-                <div className="text-xs font-black uppercase text-brand-muted tracking-widest">Identity Fraud</div>
-              </div>
+            {/* Visual Level Ladder */}
+            <div className="space-y-4">
+              {LEVELS.map((level, i) => (
+                <motion.div
+                    key={level.lv}
+                    initial={{ opacity: 0, x: -30 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.1 }}
+                    className="flex items-center gap-6 group"
+                >
+                    <div className={`w-20 h-14 ${level.color} rounded-lg flex items-center justify-center font-bold text-white text-xl shadow-lg transition-transform group-hover:scale-110`}>
+                        {level.lv}
+                    </div>
+                    <div>
+                        <div className="flex items-center gap-2">
+                            <h4 className="text-2xl font-bold text-brand-secondary">{level.title}</h4>
+                            <div className="flex text-emerald-500">
+                                {[...Array(4-i)].map((_, s) => <Star key={s} className="w-3 h-3 fill-current" />)}
+                            </div>
+                        </div>
+                        <p className="text-brand-muted font-bold italic">{level.desc}</p>
+                    </div>
+                </motion.div>
+              ))}
             </div>
           </div>
 
+          {/* Right: Visual Proof */}
           <div className="w-full lg:w-1/2 relative">
-            <div className="grid grid-cols-2 gap-6 p-4">
-              {/* Feature Professional */}
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                className="col-span-2 relative aspect-video rounded-[60px] overflow-hidden border-4 border-white shadow-2xl group"
-              >
-                <img 
-                    src="/images/indi_group.png" 
-                    alt="Verified Pro" 
-                    className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-[2000ms]" 
-                />
-                <div className="absolute inset-0 bg-linear-to-t from-brand-secondary/80 to-transparent" />
-                <div className="absolute bottom-10 left-10 text-white">
-                    <div className="flex items-center gap-2 mb-2">
-                        <ShieldCheck className="w-5 h-5 text-brand-primary" />
-                        <span className="text-xs font-black uppercase tracking-widest">Verified Core Team</span>
+            <div className="relative group">
+                <motion.div 
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    className="rounded-lg overflow-hidden border-8 border-brand-bg shadow-2xl aspect-square"
+                >
+                    <img 
+                        src="/images/indi_group.png" 
+                        alt="Quality Teams" 
+                        className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-1000" 
+                    />
+                    <div className="absolute inset-0 bg-brand-secondary/20 group-hover:bg-transparent transition-all" />
+                </motion.div>
+
+                {/* Performance Badge */}
+                <motion.div 
+                    animate={{ y: [0, -20, 0] }}
+                    transition={{ repeat: Infinity, duration: 5, ease: "easeInOut" }}
+                    className="absolute -bottom-10 -right-10 p-10 bg-brand-secondary rounded-lg shadow-2xl z-20"
+                >
+                    <div className="flex items-center gap-6">
+                        <div className="w-20 h-20 bg-brand-primary rounded-lg flex items-center justify-center shadow-lg">
+                            <TrendingUp className="text-brand-secondary w-10 h-10" />
+                        </div>
+                        <div>
+                            <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-primary mb-2">Efficiency Boost</div>
+                            <div className="text-4xl font-extrabold text-white leading-none tracking-tight">+40%</div>
+                        </div>
                     </div>
-                    <div className="text-3xl font-black">Industrial Deployments</div>
-                </div>
-              </motion.div>
+                </motion.div>
 
-              {/* Smaller Cards */}
-              <motion.div 
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                className="p-8 glass-card rounded-[40px] border-2 border-brand-primary/10 shadow-xl"
-              >
-                <div className="w-12 h-12 rounded-2xl bg-brand-primary/10 text-brand-primary flex items-center justify-center mb-6">
-                    <Globe className="w-6 h-6" />
-                </div>
-                <div className="text-2xl font-black text-brand-secondary mb-2">Pan-India</div>
-                <p className="text-[10px] font-black text-brand-muted uppercase">Network Presence</p>
-              </motion.div>
-
-              <motion.div 
-                initial={{ opacity: 0, x: 20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                className="p-8 bg-brand-secondary rounded-[40px] text-white shadow-xl"
-              >
-                <div className="w-12 h-12 rounded-2xl bg-white/10 text-brand-primary flex items-center justify-center mb-6">
-                    <Star className="w-6 h-6 fill-brand-primary" />
-                </div>
-                <div className="text-2xl font-black text-white mb-2">4.9/5</div>
-                <p className="text-[10px] font-black text-white/40 uppercase">Avg. Talent Rating</p>
-              </motion.div>
+                {/* Level Tag Overlay */}
+                <motion.div 
+                    initial={{ opacity: 0, x: 20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    className="absolute top-10 left-10 py-3 px-6 bg-white rounded-full shadow-2xl flex items-center gap-4 border border-brand-border"
+                >
+                    <Award className="w-6 h-6 text-brand-primary" />
+                    <span className="font-bold text-brand-secondary uppercase tracking-widest text-xs">Certified L4 Fleet</span>
+                </motion.div>
             </div>
-
-            {/* Floating Talent Tag */}
-            <motion.div 
-                animate={{ x: [0, 20, 0] }}
-                transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
-                className="absolute -top-10 -right-10 p-6 glass-card rounded-3xl border border-brand-primary/20 shadow-2xl z-20"
-            >
-                <div 
-                    className="absolute -inset-1 bg-linear-to-r from-brand-primary to-amber-600 rounded-full blur-[2px] opacity-30 duration-2000"
-                    style={{ transition: 'opacity 2s ease-in-out' }} // Added for the duration-2000 to have an effect
-                ></div>
-                <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-brand-primary">
-                        <img src="/images/indi_supervisor.png" alt="pro" className="w-full h-full object-cover" />
-                    </div>
-                    <div>
-                        <div className="text-sm font-black text-brand-secondary">Priya S.</div>
-                        <div className="text-[10px] font-black text-emerald-600">Site Supervisor</div>
-                    </div>
-                </div>
-            </motion.div>
           </div>
         </div>
       </div>

@@ -34,8 +34,8 @@ export function LandingHowItWorks() {
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex flex-col lg:flex-row items-center justify-between gap-16 mb-20">
           <div className="space-y-4 max-w-2xl text-center lg:text-left">
-            <h2 className="text-sm font-black text-brand-accent uppercase tracking-[0.3em]">Seamless Onboarding</h2>
-            <h3 className="text-4xl lg:text-6xl font-black tracking-tighter leading-none text-brand-secondary">
+            <h2 className="text-sm font-bold text-brand-accent uppercase tracking-[0.3em]">Seamless Onboarding</h2>
+            <h3 className="text-4xl lg:text-6xl font-extrabold tracking-tight leading-none text-brand-secondary">
               How TrustHire <br />
               <span className="text-brand-primary">Empowers Your Business.</span>
             </h3>
@@ -61,10 +61,10 @@ export function LandingHowItWorks() {
               <div className={`w-20 h-20 ${step.color} rounded-3xl flex items-center justify-center mb-8 shadow-xl group-hover:scale-110 transition-transform`}>
                 <step.icon className="w-10 h-10 text-white" />
               </div>
-              <div className="absolute top-10 right-10 text-4xl font-black text-brand-secondary/5 group-hover:text-brand-primary/20 transition-colors">
+              <div className="absolute top-10 right-10 text-4xl font-bold text-brand-secondary/5 group-hover:text-brand-primary/20 transition-colors">
                 0{i + 1}
               </div>
-              <h4 className="text-2xl font-black text-brand-secondary mb-4">{step.title}</h4>
+              <h4 className="text-2xl font-bold text-brand-secondary mb-4">{step.title}</h4>
               <p className="text-sm text-brand-muted font-bold leading-relaxed">{step.desc}</p>
             </motion.div>
           ))}

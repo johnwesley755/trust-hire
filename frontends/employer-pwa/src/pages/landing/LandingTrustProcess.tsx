@@ -36,8 +36,8 @@ export function LandingTrustProcess() {
       
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center space-y-4 mb-20">
-          <h2 className="text-sm font-black text-brand-primary uppercase tracking-[0.3em]">The Trust Infrastructure</h2>
-          <h3 className="text-4xl lg:text-6xl font-black tracking-tighter leading-none">
+          <h2 className="text-sm font-bold text-brand-primary uppercase tracking-[0.3em]">The Trust Infrastructure</h2>
+          <h3 className="text-4xl lg:text-6xl font-extrabold tracking-tight leading-none">
             Verified Talent, <br />
             <span className="text-brand-primary">Powered by Truth.</span>
           </h3>
@@ -59,7 +59,7 @@ export function LandingTrustProcess() {
               <div className="w-16 h-16 rounded-3xl bg-white/10 flex items-center justify-center mb-6 group-hover:bg-brand-primary transition-all">
                 <step.icon className={`w-8 h-8 ${step.color} group-hover:text-brand-secondary transition-colors`} />
               </div>
-              <h4 className="text-2xl font-black mb-3">{step.title}</h4>
+              <h4 className="text-2xl font-bold mb-3">{step.title}</h4>
               <p className="text-sm text-white/50 font-bold leading-relaxed">{step.desc}</p>
             </motion.div>
           ))}
@@ -73,11 +73,11 @@ export function LandingTrustProcess() {
             viewport={{ once: true }}
         >
             <div className="space-y-4 text-center lg:text-left">
-                <h4 className="text-3xl font-black text-brand-secondary tracking-tighter">Ready to Scout Your Dream Team?</h4>
+                <h4 className="text-3xl font-extrabold tracking-tight text-brand-secondary">Ready to Scout Your Dream Team?</h4>
                 <p className="text-brand-secondary/70 font-bold max-w-lg leading-relaxed">Join 15,000+ companies that trust our AI-verified workforce for their most critical projects.</p>
             </div>
             <div className="flex gap-4">
-                <button className="px-10 py-5 bg-brand-secondary text-brand-primary rounded-2xl font-black shadow-2xl hover:scale-105 active:scale-95 transition-all">
+                <button className="px-10 py-5 bg-brand-secondary text-brand-primary rounded-2xl font-bold shadow-2xl hover:scale-105 active:scale-95 transition-all">
                     Start Scouting
                 </button>
             </div>

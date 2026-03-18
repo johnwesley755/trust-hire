@@ -3,7 +3,7 @@ import { useAuth, useUser } from "../providers/AuthContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { profileService, type WorkerProfile } from "../api/profile.service";
 import apiClient from "../api/apiClient";
-import { User, Mail, MapPin, Award, LogOut, ChevronRight, ShieldCheck, Navigation, Camera, Loader2, Globe, Star, Clock, Briefcase } from "lucide-react";
+import { User, Mail, MapPin, Award, LogOut, ChevronRight, ShieldCheck, Navigation, Camera, Loader2, Globe, Star, Clock } from "lucide-react";
 import { DashboardSidebar } from "../features/dashboard/DashboardSidebar";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -55,7 +55,6 @@ export default function ProfilePage() {
         localStorage.setItem('user', JSON.stringify(userObj));
       }
       queryClient.invalidateQueries({ queryKey: ['workerProfile'] });
-      // Trigger a re-render by updating local state if necessary or just reload
       window.location.reload();
     } catch (err: any) {
       console.error("Failed to upload image:", err);
@@ -112,15 +111,15 @@ export default function ProfilePage() {
       <DashboardSidebar />
       
       <div className="flex-1 flex flex-col min-h-screen relative overflow-x-hidden">
-        <div className="absolute inset-0 cloud-grid opacity-[0.02] pointer-events-none" />
+        <div className="absolute inset-0 cloud-grid opacity-[0.05] pointer-events-none" />
         
-        <header className="p-8 lg:p-12 border-b border-brand-border bg-white/80 backdrop-blur-3xl sticky top-0 z-40">
+        <header className="p-8 lg:p-12 border-b border-brand-border bg-brand-bg/80 backdrop-blur-3xl sticky top-0 z-40">
             <div className="max-w-3xl mx-auto space-y-2">
-                <div className="flex items-center gap-2 text-brand-muted font-bold uppercase tracking-[0.3em] text-[10px]">
-                    <Globe className="w-3.5 h-3.5" /> Identity & Integrity
+                <div className="flex items-center gap-2 text-brand-secondary/40 font-semibold tracking-widest text-[10px]">
+                    <Globe className="w-3.5 h-3.5 text-brand-primary" /> Identity & Integrity
                 </div>
-                <h1 className="text-5xl font-black tracking-tighter text-neutral-900 uppercase">Professional Dossier</h1>
-                <p className="text-brand-muted font-medium text-lg italic opacity-60">Management of your verified credentials and network presence.</p>
+                <h1 className="text-5xl font-semibold tracking-tighter text-brand-secondary leading-[0.9]">Professional dossier</h1>
+                <p className="text-brand-muted font-medium text-lg opacity-60">Management of your verified credentials and network presence.</p>
             </div>
         </header>
 
@@ -142,7 +141,7 @@ export default function ProfilePage() {
                             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-30"
                             title="Update Profile Image"
                         />
-                         <div className="w-32 h-32 rounded-[2.5rem] overflow-hidden border-8 border-brand-surface shadow-2xl relative group-hover/photo:scale-105 transition-all">
+                         <div className="w-32 h-32 rounded-[2.5rem] overflow-hidden border-8 border-brand-bg shadow-2xl relative group-hover/photo:scale-105 transition-all bg-brand-bg">
                             {user?.profileImageUrl ? (
                                 <img 
                                     src={user.profileImageUrl} 
@@ -150,8 +149,8 @@ export default function ProfilePage() {
                                     className={`w-full h-full object-cover grayscale-[0.1] transition-opacity ${isUploadingImage ? 'opacity-50' : ''}`}
                                 />
                             ) : (
-                                <div className="w-full h-full bg-brand-surface flex items-center justify-center">
-                                    <User className="w-16 h-16 text-brand-muted/20" />
+                                <div className="w-full h-full bg-brand-bg flex items-center justify-center">
+                                    <User className="w-16 h-16 text-brand-secondary/10" />
                                 </div>
                             )}
                             <div className="absolute inset-0 bg-brand-secondary/40 flex items-center justify-center opacity-0 group-hover/photo:opacity-100 transition-opacity backdrop-blur-sm">
@@ -172,9 +171,9 @@ export default function ProfilePage() {
 
                     <div className="text-center space-y-4">
                         <div className="space-y-1">
-                            <h2 className="text-4xl font-bold tracking-tight text-neutral-900 uppercase">{user?.firstName} {user?.lastName}</h2>
+                            <h2 className="text-4xl font-semibold tracking-tight text-brand-secondary">{user?.firstName} {user?.lastName}</h2>
                             <div className="flex items-center justify-center gap-3">
-                                <span className="text-[10px] font-bold text-brand-primary uppercase tracking-[0.4em] italic">Verified Professional</span>
+                                <span className="text-[10px] font-semibold text-brand-primary tracking-widest bg-brand-secondary px-4 py-1 rounded-full">Verified professional</span>
                                 <div className="w-1.5 h-1.5 bg-brand-primary rounded-full animate-pulse" />
                             </div>
                         </div>
@@ -186,31 +185,31 @@ export default function ProfilePage() {
                                         key="location-edit"
                                         initial={{ opacity: 0, scale: 0.95 }}
                                         animate={{ opacity: 1, scale: 1 }}
-                                        className="flex flex-col sm:flex-row gap-3 bg-brand-surface p-3 rounded-2xl border border-brand-border"
+                                        className="flex flex-col sm:flex-row gap-3 bg-brand-bg p-3 rounded-2xl border border-brand-border"
                                     >
                                         <input 
                                             type="text" 
                                             value={locationInput} 
                                             onChange={(e) => setLocationInput(e.target.value)}
                                             placeholder="Enter operating base..."
-                                            className="bg-white border border-brand-border rounded-xl px-4 py-2 text-xs font-semibold focus:outline-none focus:border-brand-primary"
+                                            className="bg-white border border-brand-border rounded-xl px-4 py-2 text-xs font-semibold focus:outline-none focus:border-brand-primary text-brand-secondary"
                                         />
                                         <div className="flex gap-2">
-                                            <button 
+                                             <button 
                                                 onClick={useCurrentLocation}
-                                                className="bg-brand-secondary text-brand-primary px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 hover:bg-neutral-800 transition-colors"
+                                                className="bg-brand-secondary text-brand-primary px-4 py-2 rounded-xl text-[10px] font-semibold tracking-widest flex items-center gap-2 hover:bg-neutral-800 transition-colors"
                                             >
                                                 <Navigation className="w-3 h-3" /> GPS
                                             </button>
                                             <button 
                                                 onClick={handleUpdateLocation}
-                                                className="bg-brand-primary text-brand-secondary px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-amber-500 transition-colors"
+                                                className="bg-brand-primary text-brand-secondary px-4 py-2 rounded-xl text-[10px] font-semibold tracking-widest hover:bg-amber-500 transition-colors"
                                             >
                                                 Save
                                             </button>
                                             <button 
                                                 onClick={() => setIsEditingLocation(false)}
-                                                className="bg-white text-brand-muted px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest border border-brand-border hover:bg-brand-surface transition-colors"
+                                                className="bg-white text-brand-muted px-4 py-2 rounded-xl text-[10px] font-semibold tracking-widest border border-brand-border hover:bg-brand-bg transition-colors"
                                             >
                                                 Exit
                                             </button>
@@ -222,7 +221,7 @@ export default function ProfilePage() {
                                             setLocationInput(profile?.location || "");
                                             setIsEditingLocation(true);
                                         }}
-                                        className="flex items-center gap-2 px-6 py-2 bg-brand-surface rounded-full border border-brand-border text-brand-muted hover:text-brand-secondary hover:border-brand-primary transition-all text-sm font-medium italic group"
+                                        className="flex items-center gap-2 px-6 py-2 bg-brand-bg rounded-full border border-brand-border text-brand-secondary hover:text-brand-secondary hover:border-brand-primary transition-all text-sm font-medium group"
                                     >
                                         <MapPin className="w-4 h-4 text-brand-primary group-hover:scale-110 transition-transform" /> 
                                         {profile?.location || "No Operating Base Defined"}
@@ -238,26 +237,26 @@ export default function ProfilePage() {
             <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="bg-white border border-brand-border rounded-[2.5rem] p-10 space-y-8 shadow-sm">
                     <div className="space-y-1">
-                         <h3 className="text-xl font-bold text-neutral-900 uppercase tracking-tighter">Core Account</h3>
-                         <p className="text-[9px] font-bold text-brand-muted/40 uppercase tracking-widest">Digital Identity Details</p>
+                         <h3 className="text-xl font-bold text-brand-secondary tracking-tighter">Core account</h3>
+                         <p className="text-[9px] font-semibold text-brand-secondary/40 tracking-widest">Digital identity details</p>
                     </div>
                     <div className="space-y-6">
                         <div className="flex items-center gap-5">
-                            <div className="w-12 h-12 rounded-2xl bg-brand-surface flex items-center justify-center text-brand-muted/40 border border-brand-border shadow-inner">
+                            <div className="w-12 h-12 rounded-2xl bg-brand-bg flex items-center justify-center text-brand-secondary/20 border border-brand-border shadow-inner">
                                 <User className="w-6 h-6" />
                             </div>
                             <div className="space-y-0.5">
-                                <p className="text-[8px] text-brand-muted font-bold uppercase tracking-[0.2em]">Full Name</p>
-                                <p className="font-bold text-brand-secondary uppercase tracking-tight">{user?.firstName} {user?.lastName}</p>
+                                <p className="text-[8px] text-brand-muted font-semibold tracking-widest">Full name</p>
+                                <p className="font-semibold text-brand-secondary tracking-tight">{user?.firstName} {user?.lastName}</p>
                             </div>
                         </div>
                         <div className="flex items-center gap-5">
-                            <div className="w-12 h-12 rounded-2xl bg-brand-surface flex items-center justify-center text-brand-muted/40 border border-brand-border shadow-inner">
+                            <div className="w-12 h-12 rounded-2xl bg-brand-bg flex items-center justify-center text-brand-secondary/20 border border-brand-border shadow-inner">
                                 <Mail className="w-6 h-6" />
                             </div>
                             <div className="space-y-0.5">
-                                <p className="text-[8px] text-brand-muted font-bold uppercase tracking-[0.2em]">Verified Email</p>
-                                <p className="font-bold text-brand-secondary tracking-tight">{user?.email}</p>
+                                <p className="text-[8px] text-brand-muted font-semibold tracking-widest">Verified email</p>
+                                <p className="font-semibold text-brand-secondary tracking-tight">{user?.email}</p>
                             </div>
                         </div>
                     </div>
@@ -265,31 +264,31 @@ export default function ProfilePage() {
 
                 <div className="bg-white border border-brand-border rounded-[2.5rem] p-10 space-y-8 shadow-sm">
                     <div className="space-y-1">
-                         <h3 className="text-xl font-bold text-neutral-900 uppercase tracking-tighter">Market Value</h3>
-                         <p className="text-[9px] font-bold text-brand-muted/40 uppercase tracking-widest">Professional Standing</p>
+                         <h3 className="text-xl font-bold text-brand-secondary tracking-tighter">Market value</h3>
+                         <p className="text-[9px] font-semibold text-brand-secondary/40 tracking-widest">Professional standing</p>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
-                        <div className="p-6 bg-brand-surface rounded-2xl border border-brand-border flex flex-col gap-2">
+                        <div className="p-6 bg-brand-bg rounded-2xl border border-brand-border flex flex-col gap-2">
                              <div className="flex items-center gap-2">
                                 <Award className="w-4 h-4 text-brand-primary" />
-                                <span className="text-[10px] text-brand-muted font-bold uppercase tracking-tighter">Ranking</span>
+                                <span className="text-[10px] text-brand-muted font-semibold tracking-tighter">Ranking</span>
                              </div>
-                             <p className="text-3xl font-black text-brand-secondary tracking-tighter uppercase italic">Lv {profile?.level || '1'}</p>
+                             <p className="text-3xl font-bold text-brand-secondary tracking-tighter">Lv {profile?.level || '1'}</p>
                         </div>
                         <div className="p-6 bg-brand-secondary rounded-2xl border border-brand-secondary flex flex-col gap-2 shadow-xl shadow-brand-secondary/10">
                              <div className="flex items-center gap-2">
                                 <Star className="w-4 h-4 text-brand-primary fill-brand-primary" />
-                                <span className="text-[10px] text-brand-primary/60 font-bold uppercase tracking-tighter">Reputation</span>
+                                <span className="text-[10px] text-brand-primary/60 font-semibold tracking-tighter">Reputation</span>
                              </div>
-                             <p className="text-3xl font-black text-brand-primary tracking-tighter uppercase italic">4.9</p>
+                             <p className="text-3xl font-bold text-brand-primary tracking-tighter">4.9</p>
                         </div>
                     </div>
-                    <div className="flex items-center justify-between p-6 bg-brand-surface rounded-2xl border border-brand-border">
+                    <div className="flex items-center justify-between p-6 bg-brand-bg rounded-2xl border border-brand-border">
                         <div className="flex items-center gap-3">
                              <Clock className="w-5 h-5 text-brand-primary" />
-                             <span className="text-xs font-bold text-brand-muted uppercase tracking-widest">History</span>
+                             <span className="text-xs font-semibold text-brand-muted tracking-widest">History</span>
                         </div>
-                        <span className="text-xl font-black text-brand-secondary tracking-tight uppercase italic">{profile?.experienceYears || 0} YRS</span>
+                        <span className="text-xl font-semibold text-brand-secondary tracking-tight">{profile?.experienceYears || 0} YRS</span>
                     </div>
                 </div>
             </section>
@@ -299,8 +298,8 @@ export default function ProfilePage() {
                 <div className="absolute bottom-0 right-0 w-32 h-32 bg-brand-secondary opacity-[0.02] rounded-tl-full pointer-events-none" />
                 
                 <div className="space-y-1">
-                    <h3 className="text-2xl font-bold text-neutral-900 uppercase tracking-tighter">Expertise Matrix</h3>
-                    <p className="text-[10px] font-bold text-brand-muted/40 uppercase tracking-widest">Skill sets & Domain experience</p>
+                    <h3 className="text-2xl font-bold text-brand-secondary tracking-tighter">Expertise matrix</h3>
+                    <p className="text-[10px] font-semibold text-brand-secondary/40 tracking-widest">Skill sets & Domain experience</p>
                 </div>
                 
                 <div className="flex flex-wrap gap-4">
@@ -310,13 +309,13 @@ export default function ProfilePage() {
                             initial={{ opacity: 0, scale: 0.9 }}
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ delay: i * 0.05 }}
-                            className="px-6 py-2.5 bg-brand-surface border border-brand-border rounded-xl text-[10px] font-bold uppercase tracking-[0.2em] text-brand-secondary shadow-sm hover:border-brand-primary transition-colors hover:bg-white"
+                            className="px-6 py-2.5 bg-brand-bg border border-brand-border rounded-xl text-[10px] font-semibold tracking-widest text-brand-secondary shadow-sm hover:border-brand-primary transition-colors hover:bg-white"
                         >
                             {skill.trim()}
                         </motion.span>
                     ))}
                     {!profile?.skills && (
-                        <p className="text-brand-muted italic text-sm">No expertise defined. Update your protocol.</p>
+                        <p className="text-brand-muted text-sm">No expertise defined. Update your protocol.</p>
                     )}
                 </div>
             </section>
@@ -329,11 +328,11 @@ export default function ProfilePage() {
                             <Award className="w-7 h-7" />
                         </div>
                         <div className="text-left space-y-1">
-                            <span className="text-xl font-bold text-brand-secondary uppercase tracking-tighter">Certification Vault</span>
-                            <p className="text-[9px] text-brand-muted font-bold uppercase tracking-widest">Verify additional credentials</p>
+                            <span className="text-xl font-bold text-brand-secondary tracking-tighter">Certification vault</span>
+                            <p className="text-[9px] text-brand-muted font-semibold tracking-widest">Verify additional credentials</p>
                         </div>
                     </div>
-                    <div className="p-3 bg-brand-surface rounded-xl group-hover:bg-brand-secondary group-hover:text-brand-primary transition-all">
+                    <div className="p-3 bg-brand-bg rounded-xl group-hover:bg-brand-secondary group-hover:text-brand-primary transition-all">
                         <ChevronRight className="w-5 h-5 text-brand-muted" />
                     </div>
                 </button>
@@ -347,8 +346,8 @@ export default function ProfilePage() {
                             <LogOut className="w-7 h-7" />
                         </div>
                          <div className="text-left space-y-1">
-                            <span className="text-xl font-bold text-brand-accent group-hover:text-white uppercase tracking-tighter transition-colors">Terminate Session</span>
-                            <p className="text-[9px] text-brand-accent/50 group-hover:text-white/60 font-bold uppercase tracking-widest transition-colors">Close all professional interfaces</p>
+                            <span className="text-xl font-bold text-brand-accent group-hover:text-white tracking-tighter transition-colors">Terminate session</span>
+                            <p className="text-[9px] text-brand-accent/50 group-hover:text-white/60 font-semibold tracking-widest transition-colors">Close all professional interfaces</p>
                         </div>
                     </div>
                     <div className="p-3 bg-brand-accent/10 rounded-xl group-hover:bg-white/20 transition-all">
@@ -358,7 +357,7 @@ export default function ProfilePage() {
             </div>
             
             <div className="text-center pt-8">
-                <p className="text-[10px] font-bold text-brand-muted/20 uppercase tracking-[0.5em]">TrustPro Dossier System v2.1.0 • Verified Network</p>
+                <p className="text-[10px] font-semibold text-brand-secondary/20 tracking-widest">TrustPro Dossier System v2.1.0 • Verified Network</p>
             </div>
         </main>
       </div>

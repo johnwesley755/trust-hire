@@ -17,10 +17,10 @@ export const LevelDetailsPage = () => {
     <div className="min-h-screen bg-slate-50 text-slate-900 p-6 pb-32">
       <header className="mb-10 flex justify-between items-end">
         <div>
-          <h1 className="text-4xl font-bold tracking-tight">Level {details?.currentLevel} Professional</h1>
+          <h1 className="text-4xl font-bold tracking-tight">Level {details?.currentLevel} professional</h1>
           <p className="text-slate-500 mt-2 text-lg">Your standing in the TrustHire ecosystem.</p>
         </div>
-        <div className="bg-indigo-50 border border-indigo-100 px-4 py-2 rounded-2xl text-indigo-600 font-bold shadow-sm">
+        <div className="bg-indigo-50 border border-indigo-100 px-4 py-2 rounded-2xl text-indigo-600 font-semibold shadow-sm">
           {details?.levelScore} PTS
         </div>
       </header>
@@ -38,7 +38,7 @@ export const LevelDetailsPage = () => {
               <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center">
                 {comp.icon}
               </div>
-              <span className="text-2xl font-black text-slate-900">{comp.score}</span>
+              <span className="text-2xl font-semibold text-slate-900">{comp.score}</span>
             </div>
             <h3 className="text-lg font-bold text-slate-600">{comp.label}</h3>
           </div>
@@ -49,19 +49,19 @@ export const LevelDetailsPage = () => {
       <section className="bg-white border border-slate-200 rounded-4xl p-8 mb-10 shadow-sm">
         <div className="flex items-center gap-3 mb-6">
           <ArrowUpCircle className="text-indigo-600 h-6 w-6" />
-          <h2 className="text-2xl font-bold">The Road to L{details?.nextLevel}</h2>
+          <h2 className="text-2xl font-bold">The road to L{details?.nextLevel}</h2>
         </div>
         <div className="space-y-6">
           <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100 flex items-start gap-4">
             <Info className="h-6 w-6 text-indigo-600 mt-1" />
             <div>
-              <h4 className="font-bold">Estimated Earnings Increase</h4>
+              <h4 className="font-bold">Estimated earnings increase</h4>
               <p className="text-slate-500 text-sm mt-1">Reaching Level {details?.nextLevel} typically unlocks jobs with pay ranges of {details?.salaryRange}.</p>
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
             {details?.achievements.map((ach, i) => (
-              <span key={i} className="px-4 py-2 bg-indigo-50 border border-indigo-100 text-indigo-600 rounded-xl text-xs font-bold uppercase tracking-wider">
+              <span key={i} className="px-4 py-2 bg-indigo-50 border border-indigo-100 text-indigo-600 rounded-xl text-xs font-semibold tracking-wider">
                 {ach}
               </span>
             ))}

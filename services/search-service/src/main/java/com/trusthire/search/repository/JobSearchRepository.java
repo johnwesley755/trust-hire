@@ -15,14 +15,9 @@ public interface JobSearchRepository extends JpaRepository<JobSearch, UUID> {
     @Query("SELECT j FROM JobSearch j WHERE " +
            "(:query IS NULL OR :query = '' OR LOWER(j.title) LIKE LOWER(CONCAT('%', :query, '%')) OR LOWER(j.description) LIKE LOWER(CONCAT('%', :query, '%'))) AND " +
            "(:category IS NULL OR :category = '' OR LOWER(j.industry) = LOWER(:category)) AND " +
-           "(:location IS NULL OR :location = '' OR LOWER(j.location) LIKE LOWER(CONCAT('%', :location, '%'))) AND " +
-           "(:lat IS NULL OR :lon IS NULL OR :radius IS NULL OR " +
-           "(6371 * acos(cos(radians(cast(:lat as double))) * cos(radians(j.latitude)) * cos(radians(j.longitude) - radians(cast(:lon as double))) + sin(radians(cast(:lat as double))) * sin(radians(j.latitude))) <= cast(:radius as double)))")
+           "(:location IS NULL OR :location = '' OR LOWER(j.location) LIKE LOWER(CONCAT('%', :location, '%')))")
     List<JobSearch> searchJobs(
             @Param("query") String query, 
             @Param("category") String category, 
-            @Param("location") String location,
-            @Param("lat") Double lat,
-            @Param("lon") Double lon,
-            @Param("radius") Double radius);
+            @Param("location") String location);
 }

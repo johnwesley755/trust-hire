@@ -33,17 +33,17 @@ export const SkillTestsPage = () => {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-              <span className="block text-xs font-bold text-slate-400 uppercase tracking-widest">Duration</span>
-              <span className="text-xl font-bold text-slate-900">{activeTest.durationMinutes}m</span>
+              <span className="block text-xs font-semibold text-slate-400 tracking-widest">Duration</span>
+              <span className="text-xl font-semibold text-slate-900">{activeTest.durationMinutes}m</span>
             </div>
             <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-              <span className="block text-xs font-bold text-slate-400 uppercase tracking-widest">Points</span>
-              <span className="text-xl font-bold text-slate-900">+{activeTest.points}</span>
+              <span className="block text-xs font-semibold text-slate-400 tracking-widest">Points</span>
+              <span className="text-xl font-semibold text-slate-900">+{activeTest.points}</span>
             </div>
           </div>
           <button 
             onClick={() => setActiveTest(null)} // Mocking start
-            className="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-4 rounded-2xl font-bold transition-all shadow-lg"
+            className="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-4 rounded-2xl font-semibold transition-all shadow-lg"
           >
             Start Assessment
           </button>
@@ -65,7 +65,7 @@ export const SkillTestsPage = () => {
           <button
             key={cat}
             onClick={() => setSelectedCategory(cat === 'All' ? undefined : cat)}
-            className={`px-6 py-3 rounded-full font-bold whitespace-nowrap border transition-all ${
+            className={`px-6 py-3 rounded-full font-semibold whitespace-nowrap border transition-all ${
               (selectedCategory === cat || (cat === 'All' && !selectedCategory))
                 ? 'bg-indigo-600 border-indigo-500 text-white shadow-lg'
                 : 'bg-white border-slate-200 text-slate-500'
@@ -100,7 +100,7 @@ export const SkillTestsPage = () => {
                   <h3 className="text-xl font-bold">{test.title}</h3>
                   <div className="flex items-center gap-4 mt-1 text-sm text-slate-400">
                     <span className="flex items-center gap-1"><Clock className="h-4 w-4" /> {test.durationMinutes}m</span>
-                    <span className="flex items-center gap-1 font-black text-indigo-600">+{test.points} PTS</span>
+                    <span className="flex items-center gap-1 font-semibold text-indigo-600">+{test.points} PTS</span>
                   </div>
                 </div>
               </div>

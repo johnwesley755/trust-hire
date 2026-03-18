@@ -128,7 +128,7 @@ export const SignUpPage = () => {
     }
 
     return (
-        <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2 bg-brand-bg font-sans selection:bg-brand-primary selection:text-brand-secondary overflow-hidden">
+        <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2 bg-brand-bg selection:bg-brand-primary selection:text-brand-secondary overflow-hidden">
             {/* Left Column: Form Section */}
             <div className="flex flex-col justify-start px-8 lg:px-24 py-16 relative overflow-y-auto max-h-screen custom-scrollbar z-10">
                 <div className="absolute inset-0 cloud-grid opacity-[0.03] pointer-events-none" />

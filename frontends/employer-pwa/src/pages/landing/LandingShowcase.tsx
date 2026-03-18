@@ -14,11 +14,11 @@ export function LandingShowcase() {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="text-xs font-black text-brand-primary uppercase tracking-[0.3em]"
+                className="text-xs font-bold text-brand-primary uppercase tracking-[0.3em]"
             >
                 Mission Control
             </motion.div>
-            <h3 className="text-4xl lg:text-7xl font-black leading-[1] tracking-tighter">
+            <h3 className="text-4xl lg:text-7xl font-extrabold leading-[1] tracking-tight">
                 Manage Your <br className="hidden md:block" />
                 Verified Fleet <br />
                 <span className="text-brand-primary">from One Hub.</span>
@@ -41,7 +41,7 @@ export function LandingShowcase() {
             ))}
           </div>
 
-          <button className="px-12 py-6 bg-brand-primary text-brand-secondary rounded-2xl font-black text-xl transition-all shadow-2xl hover:scale-105 active:scale-95 flex items-center gap-4">
+          <button className="px-12 py-6 bg-brand-primary text-brand-secondary rounded-2xl font-bold text-xl transition-all shadow-2xl hover:scale-105 active:scale-95 flex items-center gap-4">
             Explore Dashboard
             <LayoutDashboard className="w-6 h-6" />
           </button>
@@ -63,11 +63,11 @@ export function LandingShowcase() {
             animate={{ y: [0, -20, 0] }}
             transition={{ repeat: Infinity, duration: 5, ease: "easeInOut" }}
           >
-            <div className="text-[10px] font-black uppercase tracking-widest text-brand-muted mb-2">Fleet Reliability</div>
-            <div className="text-4xl font-black text-brand-secondary">99.8%</div>
+            <div className="text-[10px] font-bold uppercase tracking-widest text-brand-muted mb-2">Fleet Reliability</div>
+            <div className="text-4xl font-extrabold text-brand-secondary">99.8%</div>
             <div className="mt-4 flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="text-[10px] font-black text-emerald-600 uppercase">Real-time Verified</span>
+                <span className="text-[10px] font-bold text-emerald-600 uppercase">Real-time Verified</span>
             </div>
           </motion.div>
         </div>

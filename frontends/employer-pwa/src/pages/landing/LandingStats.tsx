@@ -44,10 +44,10 @@ export function LandingStats() {
                 <stat.icon className={`${stat.textColor} w-12 h-12 stroke-[2.5px]`} />
               </div>
               <div>
-                <div className={`text-6xl font-black ${stat.textColor} tracking-tight leading-none mb-2`}>
+                <div className={`text-6xl font-extrabold ${stat.textColor} tracking-tight leading-none mb-2`}>
                   {stat.value}
                 </div>
-                <div className={`text-xs font-black uppercase tracking-widest ${stat.textColor} opacity-60`}>
+                <div className={`text-xs font-bold uppercase tracking-widest ${stat.textColor} opacity-60`}>
                   {stat.label}
                 </div>
               </div>

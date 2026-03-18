@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { applicationService } from "../api/application.service";
-import { Briefcase, Clock, CheckCircle, XCircle, ChevronRight, Globe, ShieldCheck, FileText } from "lucide-react";
+import { Clock, CheckCircle, XCircle, ChevronRight, Globe, ShieldCheck, FileText } from "lucide-react";
 import { DashboardSidebar } from "../features/dashboard/DashboardSidebar";
 import { motion } from "framer-motion";
 
@@ -15,15 +15,15 @@ export default function HistoryPage() {
       <DashboardSidebar />
       
       <div className="flex-1 flex flex-col min-h-screen relative overflow-x-hidden">
-        <div className="absolute inset-0 cloud-grid opacity-[0.02] pointer-events-none" />
+        <div className="absolute inset-0 cloud-grid opacity-[0.05] pointer-events-none" />
         
-        <header className="p-8 lg:p-12 border-b border-brand-border bg-white/80 backdrop-blur-3xl sticky top-0 z-40">
+        <header className="p-8 lg:p-12 border-b border-brand-border bg-brand-bg/80 backdrop-blur-3xl sticky top-0 z-40">
             <div className="max-w-4xl mx-auto space-y-2">
-                <div className="flex items-center gap-2 text-brand-muted font-bold uppercase tracking-[0.3em] text-[10px]">
-                    <Globe className="w-3.5 h-3.5" /> Engagement Log
+                <div className="flex items-center gap-2 text-brand-secondary/40 font-semibold tracking-widest text-[10px]">
+                    <Globe className="w-3.5 h-3.5 text-brand-primary" /> Engagement log
                 </div>
-                <h1 className="text-5xl font-black tracking-tighter text-neutral-900 uppercase">Experience Repository</h1>
-                <p className="text-brand-muted font-medium text-lg italic opacity-60">Chronicle of your professional integrations and performance.</p>
+                <h1 className="text-5xl font-bold tracking-tighter text-brand-secondary leading-[0.9]">Experience repository</h1>
+                <p className="text-brand-muted font-medium text-lg opacity-60">Chronicle of your professional integrations and performance.</p>
             </div>
         </header>
 
@@ -31,7 +31,7 @@ export default function HistoryPage() {
             {isLoading ? (
                 <div className="flex flex-col items-center justify-center py-32 space-y-6">
                     <div className="w-16 h-16 border-4 border-brand-primary border-t-brand-secondary rounded-full animate-spin" />
-                    <p className="text-brand-muted font-bold uppercase tracking-[0.3em] text-[10px] animate-pulse">Retrieving Records...</p>
+                    <p className="text-brand-muted font-semibold tracking-widest text-[10px] animate-pulse">Retrieving Records...</p>
                 </div>
             ) : (
                 <div className="space-y-6">
@@ -47,28 +47,28 @@ export default function HistoryPage() {
                             
                             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
                                 <div className="flex items-center gap-5">
-                                    <div className="w-14 h-14 rounded-2xl bg-brand-secondary flex items-center justify-center text-brand-primary shadow-lg group-hover:scale-110 transition-transform">
+                                    <div className="w-14 h-14 rounded-2xl bg-brand-secondary text-brand-primary flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
                                         <FileText className="w-7 h-7" />
                                     </div>
                                     <div className="space-y-1 text-left">
-                                        <h4 className="font-bold text-xl text-neutral-900 uppercase tracking-tight group-hover:text-brand-primary transition-colors">Job ID: {app.jobId.substring(0, 8)}</h4>
-                                        <div className="flex items-center gap-2 text-brand-muted font-bold uppercase tracking-widest text-[9px] italic">
-                                            <Clock className="w-3 h-3" /> Logged on {new Date(app.appliedAt).toLocaleDateString()}
+                                        <h4 className="font-bold text-xl text-brand-secondary tracking-tight group-hover:text-brand-primary transition-colors leading-none">Job ID: {app.jobId.substring(0, 8)}</h4>
+                                        <div className="flex items-center gap-2 text-brand-muted font-semibold tracking-widest text-[9px]">
+                                            <Clock className="w-3 h-3 text-brand-primary" /> Logged on {new Date(app.appliedAt).toLocaleDateString()}
                                         </div>
                                     </div>
                                 </div>
                                 <StatusBadge status={app.status || 'PENDING'} />
                             </div>
                             
-                            <div className="bg-brand-surface border border-brand-border/50 rounded-2xl p-6 mb-8 text-left">
-                                <p className="text-brand-muted font-medium italic text-sm leading-relaxed truncate">
+                            <div className="bg-brand-bg/50 border border-brand-border/50 rounded-2xl p-6 mb-8 text-left">
+                                <p className="text-brand-muted font-medium text-sm leading-relaxed truncate">
                                     "{app.coverLetter}"
                                 </p>
                             </div>
 
-                            <button className="w-full flex items-center justify-between text-[10px] font-bold text-brand-muted uppercase tracking-[0.3em] pt-6 border-t border-brand-border/50 group-hover:text-brand-secondary transition-colors group/btn">
-                                Access Full Dossier
-                                <div className="p-2 bg-brand-surface rounded-lg group-hover/btn:bg-brand-secondary group-hover/btn:text-brand-primary transition-all">
+                            <button className="w-full flex items-center justify-between text-[10px] font-semibold text-brand-secondary/40 tracking-widest pt-6 border-t border-brand-border/50 group-hover:text-brand-secondary transition-colors group/btn">
+                                Access full dossier
+                                <div className="p-2 bg-brand-bg rounded-lg group-hover/btn:bg-brand-secondary group-hover/btn:text-brand-primary transition-all">
                                     <ChevronRight className="w-4 h-4" />
                                 </div>
                             </button>
@@ -81,12 +81,12 @@ export default function HistoryPage() {
                             animate={{ opacity: 1 }}
                             className="text-center py-32 bg-white border border-dashed border-brand-border rounded-[3rem] space-y-6 shadow-inner"
                         >
-                            <div className="w-20 h-20 bg-brand-surface rounded-full flex items-center justify-center mx-auto opacity-30">
-                                <Clock className="w-10 h-10 text-brand-muted" />
+                            <div className="w-20 h-20 bg-brand-bg rounded-full flex items-center justify-center mx-auto opacity-30">
+                                <Clock className="w-10 h-10 text-brand-secondary" />
                             </div>
                             <div className="space-y-2">
-                                <p className="text-brand-secondary font-bold text-xl uppercase tracking-tight">Empty Repository</p>
-                                <p className="text-brand-muted font-medium italic">No professional engagements recorded on this profile yet.</p>
+                                <p className="text-brand-secondary font-semibold text-xl tracking-tight">Empty repository</p>
+                                <p className="text-brand-muted font-medium">No professional engagements recorded on this profile yet.</p>
                             </div>
                         </motion.div>
                     )}
@@ -112,7 +112,7 @@ function StatusBadge({ status }: { status: string }) {
   } as const;
 
   return (
-    <span className={`px-4 py-2 rounded-xl text-[9px] font-bold uppercase tracking-widest border flex items-center gap-2 transition-all ${styles[status as keyof typeof styles] || styles.PENDING}`}>
+    <span className={`px-4 py-2 rounded-xl text-[9px] font-semibold tracking-widest border flex items-center gap-2 transition-all ${styles[status as keyof typeof styles] || styles.PENDING}`}>
       {icons[status as keyof typeof icons] || icons.PENDING}
       {status}
     </span>
