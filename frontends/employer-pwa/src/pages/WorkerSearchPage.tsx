@@ -20,11 +20,11 @@ export const WorkerSearchPage = () => {
   });
 
   return (
-    <div className="min-h-screen bg-brand-bg text-brand-secondary selection:bg-brand-primary selection:text-brand-secondary">
+    <>
       <div className="absolute inset-0 cloud-grid opacity-[0.03] pointer-events-none" />
       
       {/* Search Header Section */}
-      <div className="bg-white border-b border-brand-border sticky top-0 z-30 px-6 py-8 md:px-12 shadow-2xl backdrop-blur-3xl bg-white/80">
+      <div className="bg-white border-b border-brand-border sticky top-0 md:top-0 z-30 px-6 py-8 md:px-12 shadow-2xl backdrop-blur-3xl bg-white/80">
         <div className="max-w-7xl mx-auto space-y-8">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                 <div>
@@ -167,6 +167,6 @@ export const WorkerSearchPage = () => {
           </div>
         )}
       </div>
-    </div>
+    </>
   );
 };

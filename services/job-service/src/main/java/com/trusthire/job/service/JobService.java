@@ -14,4 +14,5 @@ public interface JobService {
     Job updateJob(Job job);
     void deleteJob(UUID id);
     Double calculateMatchScore(UUID jobId, String workerProfile, java.util.List<String> workerSkills);
+    com.trusthire.job.dto.StatsDTO getGlobalStats();
 }

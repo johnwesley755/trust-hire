@@ -14,6 +14,7 @@ import HistoryPage from '../pages/HistoryPage.tsx';
 import AppliedJobsPage from '../pages/AppliedJobsPage.tsx';
 import OnboardingPage from '../pages/OnboardingPage.tsx';
 import { AuthOnboardingGuard } from '../components/AuthOnboardingGuard.tsx';
+import AppLayout from '../components/AppLayout.tsx';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => (
   <AuthOnboardingGuard>
@@ -35,12 +36,49 @@ export const router = createBrowserRouter([
     element: <SignUpPage />,
   },
   {
-    path: '/dashboard',
     element: (
       <ProtectedRoute>
-        <DashboardPage />
+        <AppLayout />
       </ProtectedRoute>
     ),
+    children: [
+      {
+        path: '/dashboard',
+        element: <DashboardPage />,
+      },
+      {
+        path: '/verify-identity',
+        element: <IdentityVerificationPage />,
+      },
+      {
+        path: '/tests',
+        element: <SkillTestsPage />,
+      },
+      {
+        path: '/level',
+        element: <LevelDetailsPage />,
+      },
+      {
+        path: '/search',
+        element: <JobSearchPage />,
+      },
+      {
+        path: '/history',
+        element: <HistoryPage />,
+      },
+      {
+        path: '/applied-jobs',
+        element: <AppliedJobsPage />,
+      },
+      {
+        path: '/job/:id',
+        element: <JobDetailPage />,
+      },
+      {
+        path: '/profile',
+        element: <ProfilePage />,
+      },
+    ]
   },
   {
     path: '/onboarding',
@@ -51,71 +89,7 @@ export const router = createBrowserRouter([
     ),
   },
   {
-    path: '/verify-identity',
-    element: (
-      <ProtectedRoute>
-        <IdentityVerificationPage />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: '/tests',
-    element: (
-      <ProtectedRoute>
-        <SkillTestsPage />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: '/level',
-    element: (
-      <ProtectedRoute>
-        <LevelDetailsPage />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: '/search',
-    element: (
-      <ProtectedRoute>
-        <JobSearchPage />
-      </ProtectedRoute>
-    ),
-  },
-  {
     path: '/jobs',
     element: <Navigate to="/search" replace />,
-  },
-  {
-    path: '/history',
-    element: (
-      <ProtectedRoute>
-        <HistoryPage />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: '/applied-jobs',
-    element: (
-      <ProtectedRoute>
-        <AppliedJobsPage />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: '/job/:id',
-    element: (
-      <ProtectedRoute>
-        <JobDetailPage />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: '/profile',
-    element: (
-      <ProtectedRoute>
-        <ProfilePage />
-      </ProtectedRoute>
-    ),
   },
 ]);

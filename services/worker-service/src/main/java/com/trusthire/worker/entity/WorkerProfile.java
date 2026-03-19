@@ -42,6 +42,8 @@ public class WorkerProfile {
     @Column(precision = 10, scale = 2)
     private BigDecimal hourlyRate;
 
+    private Long profileViews;
+
     private Boolean isAvailable;
 
     @Column(updatable = false)
@@ -54,6 +56,7 @@ public class WorkerProfile {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
         if (isAvailable == null) isAvailable = true;
+        if (profileViews == null) profileViews = 0L;
     }
 
     @PreUpdate

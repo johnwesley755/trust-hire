@@ -164,7 +164,7 @@ export default function OnboardingPage() {
                     <Briefcase className="w-6 h-6 text-brand-primary" />
                 </div>
                 <div className="flex flex-col text-left">
-                    <span className="text-xl font-semibold tracking-tight text-brand-secondary leading-none">TrustPro</span>
+                    <span className="text-xl font-semibold tracking-tight text-brand-secondary leading-none">TrustHire</span>
                     <span className="text-[8px] font-semibold text-brand-primary tracking-widest mt-1">Onboarding</span>
                 </div>
             </div>
@@ -424,7 +424,7 @@ export default function OnboardingPage() {
              <div className="flex items-center gap-2 text-brand-secondary/40 font-semibold text-[10px] tracking-widest bg-white/50 border border-brand-border px-6 py-2.5 rounded-full shadow-sm">
                 <ShieldCheck className="w-4 h-4 text-emerald-500" /> Grade AAA Encryption • India's Safest
             </div>
-            <p className="text-brand-secondary/20 font-semibold text-[9px] tracking-widest">© 2026 TrustPro • Enterprise integration system</p>
+            <p className="text-brand-secondary/20 font-semibold text-[9px] tracking-widest">© 2026 TrustHire • Enterprise integration system</p>
         </div>
       </div>
     </div>

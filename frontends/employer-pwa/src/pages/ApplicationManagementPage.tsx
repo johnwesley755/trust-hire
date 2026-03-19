@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { applicationService, type JobApplication } from '../api/application.service';
 import { jobService } from '../api/job.service';
 import { workerService } from '../api/worker.service';
-import { ArrowLeft, CheckCircle, XCircle, Clock, User, FileText, ChevronRight, Loader2, ShieldCheck, Mail, Phone, MapPin, BadgeCheck } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, User, FileText, ChevronRight, Loader2, ShieldCheck, Mail, Phone, MapPin, BadgeCheck } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
@@ -40,16 +40,10 @@ export default function ApplicationManagementPage() {
   });
 
   return (
-    <div className="min-h-screen bg-brand-bg text-brand-secondary selection:bg-brand-primary selection:text-brand-secondary">
+    <>
       <div className="absolute inset-0 cloud-grid opacity-[0.03] pointer-events-none" />
       
       <header className="max-w-7xl mx-auto px-6 py-12 flex flex-col md:flex-row items-start md:items-center gap-8 relative z-10">
-        <button 
-            onClick={() => navigate('/dashboard')} 
-            className="w-14 h-14 bg-white border border-brand-border rounded-2xl flex items-center justify-center hover:bg-brand-primary/10 transition-all shadow-xl active:scale-90 group"
-        >
-          <ArrowLeft className="w-6 h-6 group-hover:-translate-x-1 transition-transform" />
-        </button>
         <div>
           <h1 className="text-5xl font-bold tracking-tight text-neutral-900 leading-tight">Applications</h1>
           <p className="text-brand-primary text-[10px] font-semibold uppercase tracking-widest mt-2">Review and manage job applications</p>
@@ -208,6 +202,6 @@ export default function ApplicationManagementPage() {
           </div>
         )}
       </main>
-    </div>
+    </>
   );
 }

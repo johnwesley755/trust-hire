@@ -3,11 +3,13 @@ package com.trusthire.job.service.impl;
 import com.trusthire.job.entity.Job;
 import com.trusthire.job.repository.JobRepository;
 import com.trusthire.job.service.JobService;
+import com.trusthire.job.dto.StatsDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -73,7 +75,6 @@ public class JobServiceImpl implements JobService {
     public void deleteJob(UUID id) {
         log.info("Deleting job: {}", id);
         repository.deleteById(id);
-        // Add delete from search index if needed, for now focus on indexing
     }
 
     private void indexJobInSearch(Job job) {
@@ -125,5 +126,15 @@ public class JobServiceImpl implements JobService {
             log.error("Error calling scoring engine: {}", e.getMessage());
         }
         return 0.0;
+    }
+
+    @Override
+    public StatsDTO getGlobalStats() {
+        long totalJobs = repository.count();
+        long jobsToday = repository.countByCreatedAtAfter(LocalDateTime.now().minusDays(1));
+        return StatsDTO.builder()
+                .totalJobs(totalJobs)
+                .jobsToday(jobsToday)
+                .build();
     }
 }

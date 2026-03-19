@@ -14,6 +14,8 @@ import { AuthOnboardingGuard } from '../components/AuthOnboardingGuard.tsx';
 import { ActiveJobsPage } from '../pages/ActiveJobsPage.tsx';
 import ProfilePage from '../pages/ProfilePage.tsx';
 
+import AppLayout from '../components/AppLayout.tsx';
+
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => (
   <AuthOnboardingGuard>
     {children}
@@ -34,14 +36,6 @@ export const router = createBrowserRouter([
     element: <SignUpPage />,
   },
   {
-    path: '/dashboard',
-    element: (
-      <ProtectedRoute>
-        <DashboardPage />
-      </ProtectedRoute>
-    ),
-  },
-  {
     path: '/onboarding',
     element: (
       <SignedIn>
@@ -50,51 +44,40 @@ export const router = createBrowserRouter([
     ),
   },
   {
-    path: '/post-job',
     element: (
       <ProtectedRoute>
-        <JobPostingPage />
+        <AppLayout />
       </ProtectedRoute>
     ),
-  },
-  {
-    path: '/jobs',
-    element: (
-      <ProtectedRoute>
-        <ActiveJobsPage />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: '/find-workers',
-    element: (
-      <ProtectedRoute>
-        <WorkerSearchPage />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: '/worker/:id',
-    element: (
-      <ProtectedRoute>
-        <WorkerProfilePage />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: '/applications',
-    element: (
-      <ProtectedRoute>
-        <ApplicationManagementPage />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: '/profile',
-    element: (
-      <ProtectedRoute>
-        <ProfilePage />
-      </ProtectedRoute>
-    ),
+    children: [
+      {
+        path: '/dashboard',
+        element: <DashboardPage />,
+      },
+      {
+        path: '/post-job',
+        element: <JobPostingPage />,
+      },
+      {
+        path: '/jobs',
+        element: <ActiveJobsPage />,
+      },
+      {
+        path: '/find-workers',
+        element: <WorkerSearchPage />,
+      },
+      {
+        path: '/worker/:id',
+        element: <WorkerProfilePage />,
+      },
+      {
+        path: '/applications',
+        element: <ApplicationManagementPage />,
+      },
+      {
+        path: '/profile',
+        element: <ProfilePage />,
+      },
+    ],
   },
 ]);

@@ -80,4 +80,9 @@ public class JobController {
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
+
+    @GetMapping("/stats")
+    public ResponseEntity<com.trusthire.job.dto.StatsDTO> getGlobalStats() {
+        return ResponseEntity.ok(jobService.getGlobalStats());
+    }
 }

@@ -10,6 +10,7 @@ interface User {
   firstName?: string;
   lastName?: string;
   profileImageUrl?: string;
+  level?: number;
 }
 
 interface AuthContextType {

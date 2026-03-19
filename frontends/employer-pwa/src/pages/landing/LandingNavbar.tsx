@@ -22,14 +22,12 @@ export function LandingNavbar() {
   ];
 
   return (
-    <div className="fixed top-6 left-0 right-0 z-[100] px-6 flex justify-center pointer-events-none">
-      <motion.nav
-        initial={{ y: -100, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        className={`pointer-events-auto flex items-center justify-between gap-8 px-6 py-3 rounded-lg border border-brand-border shadow-2xl transition-all duration-500 max-w-4xl w-full ${
+    <div className="fixed top-0 left-0 right-0 z-[100] transition-all duration-300">
+      <nav
+        className={`flex items-center justify-between px-6 py-4 md:px-12 transition-all duration-500 ${
           isScrolled 
-            ? "bg-white/95 backdrop-blur-xl scale-95" 
-            : "bg-white/80 backdrop-blur-md"
+            ? "glass-header shadow-lg" 
+            : "bg-transparent"
         }`}
       >
         {/* Logo */}
@@ -37,7 +35,7 @@ export function LandingNavbar() {
           <div className="w-8 h-8 bg-brand-primary rounded-lg flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
             <ShieldCheck className="text-brand-secondary w-5 h-5" />
           </div>
-          <span className="text-xl font-bold text-brand-secondary tracking-tight hidden sm:block">
+          <span className="text-xl font-bold text-brand-secondary tracking-tight">
             TrustHire
           </span>
         </Link>
@@ -48,7 +46,7 @@ export function LandingNavbar() {
             <a
               key={link.name}
               href={link.href}
-              className="text-xs font-bold text-brand-secondary/60 hover:text-brand-primary transition-colors uppercase tracking-[0.2em]"
+              className="text-sm font-semibold text-brand-secondary/70 hover:text-brand-primary transition-colors tracking-tight"
             >
               {link.name}
             </a>
@@ -104,7 +102,7 @@ export function LandingNavbar() {
                   <a
                     key={link.name}
                     href={link.href}
-                    className="text-xl font-black text-brand-secondary"
+                    className="text-lg font-bold text-brand-secondary"
                     onClick={() => setIsOpen(false)}
                   >
                     {link.name}
@@ -113,14 +111,14 @@ export function LandingNavbar() {
                 <div className="h-px bg-brand-border" />
                 <Link
                   to="/login"
-                  className="text-xl font-black text-brand-secondary"
+                  className="text-lg font-bold text-brand-secondary"
                   onClick={() => setIsOpen(false)}
                 >
                   Partner Login
                 </Link>
                 <Link
                   to="/sign-up"
-                  className="w-full py-4 bg-brand-primary text-brand-secondary rounded-lg font-black text-center shadow-xl"
+                  className="w-full py-3 bg-brand-primary text-brand-secondary rounded-xl font-bold text-center shadow-lg"
                   onClick={() => setIsOpen(false)}
                 >
                   Get Started
@@ -129,7 +127,7 @@ export function LandingNavbar() {
             </motion.div>
           )}
         </AnimatePresence>
-      </motion.nav>
+      </nav>
     </div>
   );
 }

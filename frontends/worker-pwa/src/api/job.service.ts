@@ -29,5 +29,15 @@ export const jobService = {
   getAllJobs: async (): Promise<Job[]> => {
     const response = await apiClient.get<Job[]>('/api/jobs');
     return response.data;
+  },
+  
+  getStats: async (): Promise<{ totalJobs: number, jobsToday: number }> => {
+    const response = await apiClient.get<{ totalJobs: number, jobsToday: number }>('/api/jobs/stats');
+    return response.data;
+  },
+
+  getApplicationCounts: async (jobIds: string[]): Promise<Record<string, number>> => {
+    const response = await apiClient.post<Record<string, number>>('/api/jobs/applications/counts/by-jobs', jobIds);
+    return response.data;
   }
 };

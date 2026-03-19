@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ShieldCheck, Mail, Phone, MapPin, Globe, Twitter, Linkedin, Instagram } from "lucide-react";
+import { ShieldCheck, Mail, Phone, MapPin, Twitter, Linkedin, Instagram } from "lucide-react";
 
 export function LandingFooter() {
   const LINKS = {
@@ -9,32 +9,32 @@ export function LandingFooter() {
   };
 
   return (
-    <footer className="bg-brand-secondary text-white relative overflow-hidden">
-      {/* Background patterns for dark theme */}
+    <footer className="bg-black/90 text-white relative overflow-hidden">
+      {/* Background patterns */}
       <div className="absolute inset-0 cloud-grid opacity-[0.03] pointer-events-none" />
       
       {/* CTA Section */}
-      <div className="max-w-7xl mx-auto px-6 pt-24 pb-16 border-b border-white/5 relative z-10">
-        <div className="bg-brand-primary p-12 lg:p-20 rounded-[60px] flex flex-col lg:flex-row items-center justify-between gap-12 text-brand-secondary shadow-[0_50px_100px_-20px_rgba(250,204,21,0.3)]">
-          <div className="space-y-6 text-center lg:text-left">
-            <h3 className="text-4xl lg:text-6xl font-extrabold tracking-tight leading-none">
-              Ready to Secure <br />
-              <span className="opacity-60">Your Global Workforce?</span>
+      <div className="max-w-7xl mx-auto px-6 pt-24 pb-12 relative z-10 border-b border-white/5">
+        <div className="bg-brand-primary p-12 lg:p-16 rounded-3xl flex flex-col lg:flex-row items-center justify-between gap-12 text-brand-secondary shadow-2xl">
+          <div className="space-y-4 text-center lg:text-left">
+            <h3 className="text-4xl lg:text-5xl font-bold tracking-tight leading-none">
+                Ready to Scale Your <br />
+                <span className="opacity-60">Verified Team?</span>
             </h3>
-            <p className="text-lg font-bold opacity-80 max-w-xl">
+            <p className="text-lg font-semibold opacity-80 max-w-xl">
               Join leading enterprises using TrustHire to eliminate hiring risk and scale with verified professional talent.
             </p>
           </div>
-          <div className="flex flex-col sm:flex-row gap-6 w-full lg:w-auto">
+          <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
             <Link
               to="/sign-up"
-              className="px-10 py-5 bg-brand-secondary text-brand-primary rounded-2xl font-bold text-lg text-center hover:scale-105 transition-all shadow-2xl"
+              className="px-8 py-4 bg-brand-secondary text-brand-primary rounded-xl font-bold text-lg hover:scale-105 active:scale-95 transition-all shadow-xl text-center"
             >
-              Start Hiring Now
+              Start Hiring
             </Link>
             <Link
               to="/contact"
-              className="px-10 py-5 bg-white text-brand-secondary rounded-2xl font-bold text-lg text-center hover:scale-105 transition-all"
+              className="px-8 py-4 bg-white text-brand-secondary rounded-xl font-bold text-lg hover:scale-105 transition-all text-center"
             >
               Contact Sales
             </Link>
@@ -43,25 +43,25 @@ export function LandingFooter() {
       </div>
 
       {/* Main Footer Content */}
-      <div className="max-w-7xl mx-auto px-6 py-20 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-16 lg:gap-8">
+      <div className="max-w-7xl mx-auto px-6 py-16 relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-16">
           {/* Brand Info */}
           <div className="lg:col-span-2 space-y-8">
-            <Link to="/" className="flex items-center gap-2.5 group">
-              <div className="w-12 h-12 bg-brand-primary rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-all duration-300">
+            <Link to="/" className="flex items-center gap-3 group">
+              <div className="w-12 h-12 bg-brand-primary rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-all duration-300">
                 <ShieldCheck className="text-brand-secondary w-7 h-7" />
               </div>
               <div className="flex flex-col leading-none">
-                <span className="text-3xl font-extrabold tracking-tight">TrustHire</span>
-                <span className="text-[10px] font-bold text-brand-primary uppercase tracking-widest mt-1">Enterprise Grade</span>
+                <span className="text-2xl font-bold tracking-tight text-white">TrustHire</span>
+                <span className="text-[10px] font-bold text-brand-primary uppercase tracking-widest mt-1">Enterprise Cloud</span>
               </div>
             </Link>
-            <p className="text-white/50 font-bold leading-relaxed max-w-sm">
-              The world's first blockchain-verified talent ecosystem, dedicated to empowering skilled Indian professionals and secure global enterprise growth.
+            <p className="text-white/40 font-semibold leading-relaxed max-w-sm">
+              The world's first blockchain-verified talent ecosystem, dedicated to empowering skilled professionals and secure global enterprise growth.
             </p>
             <div className="flex items-center gap-4">
-              {[Twitter, Linkedin, Instagram].map((Icon, i) => (
-                <a key={i} href="#" className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center hover:bg-brand-primary hover:text-brand-secondary transition-all">
+              {[Linkedin, Twitter, Instagram].map((Icon, i) => (
+                <a key={i} href="#" className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center hover:bg-brand-primary hover:text-brand-secondary transition-all shadow-sm text-white/50">
                   <Icon className="w-5 h-5" />
                 </a>
               ))}
@@ -70,12 +70,12 @@ export function LandingFooter() {
 
           {/* Links Grid */}
           {Object.entries(LINKS).map(([heading, items]) => (
-            <div key={heading} className="space-y-8">
-              <h4 className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/30">{heading}</h4>
-              <ul className="space-y-4">
+            <div key={heading} className="space-y-6">
+              <h4 className="text-[10px] font-bold uppercase tracking-widest text-white/30">{heading}</h4>
+              <ul className="space-y-3">
                 {items.map((item) => (
                   <li key={item}>
-                    <a href="#" className="text-sm font-bold text-white/60 hover:text-brand-primary transition-colors">{item}</a>
+                    <a href="#" className="text-base font-semibold text-white/50 hover:text-brand-primary transition-colors">{item}</a>
                   </li>
                 ))}
               </ul>
@@ -84,29 +84,25 @@ export function LandingFooter() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-24 pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8">
-          <div className="flex flex-wrap justify-center gap-8 text-[10px] font-bold uppercase tracking-widest text-white/30">
+        <div className="mt-20 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8 text-white/20">
+          <div className="flex flex-wrap justify-center gap-8 text-[10px] font-bold uppercase tracking-widest">
             <a href="#" className="hover:text-brand-primary transition-colors flex items-center gap-2">
-                <Mail className="w-3 h-3" /> hello@trusthire.io
+                <Mail className="w-3.5 h-3.5" /> hello@trusthire.io
             </a>
             <a href="#" className="hover:text-brand-primary transition-colors flex items-center gap-2">
-                <Phone className="w-3 h-3" /> +91 (800) 123-4567
+                <Phone className="w-3.5 h-3.5" /> +91 (800) 123-4567
             </a>
             <span className="flex items-center gap-2">
-                <MapPin className="w-3 h-3" /> Bengaluru, IN
+                <MapPin className="w-3.5 h-3.5" /> Bengaluru, IN
             </span>
           </div>
 
-          <div className="flex items-center gap-8">
-            <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-white/30 border border-white/5 px-4 py-2 rounded-xl">
-                <Globe className="w-3 h-3" /> English (IN)
-            </div>
-            <p className="text-[10px] font-bold text-white/20 uppercase tracking-widest">
-              © 2026 TrustHire. All Rights Reserved.
-            </p>
-          </div>
+          <p className="text-[10px] font-bold uppercase tracking-widest">
+            © 2026 TrustHire. All Rights Reserved.
+          </p>
         </div>
       </div>
     </footer>
   );
 }
+

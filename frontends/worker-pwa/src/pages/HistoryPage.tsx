@@ -2,7 +2,6 @@ import { useQuery } from "@tanstack/react-query";
 import { applicationService } from "../api/application.service";
 import { jobService } from "../api/job.service";
 import { Clock, XCircle, ChevronRight, Globe, ShieldCheck, FileText } from "lucide-react";
-import { DashboardSidebar } from "../features/dashboard/DashboardSidebar";
 import { motion } from "framer-motion";
 
 export default function HistoryPage() {
@@ -21,13 +20,10 @@ export default function HistoryPage() {
   const jobsById = new Map(jobs.filter((job) => job.id).map((job) => [job.id!, job]));
 
   return (
-    <div className="min-h-screen bg-brand-bg flex text-brand-secondary selection:bg-brand-primary selection:text-brand-secondary">
-      <DashboardSidebar />
-      
-      <div className="flex-1 flex flex-col min-h-screen relative overflow-x-hidden pt-20 md:pt-0">
+    <>
         <div className="absolute inset-0 cloud-grid opacity-[0.05] pointer-events-none" />
         
-        <header className="p-8 lg:p-12 border-b border-brand-border bg-brand-bg/80 backdrop-blur-3xl sticky top-[72px] md:top-0 z-40">
+        <header className="p-8 lg:p-12 border-b border-brand-border bg-brand-bg/80 backdrop-blur-3xl sticky top-0 z-40">
             <div className="max-w-4xl mx-auto space-y-2">
                 <div className="flex items-center gap-2 text-brand-secondary/40 font-semibold tracking-widest text-[10px]">
                     <Globe className="w-3.5 h-3.5 text-brand-primary" /> Engagement log
@@ -108,9 +104,8 @@ export default function HistoryPage() {
                 </div>
             )}
         </main>
-      </div>
-    </div>
-  );
+      </>
+    );
 }
 
 function StatusBadge({ status }: { status: string }) {

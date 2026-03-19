@@ -12,4 +12,5 @@ public interface JobApplicationService {
     List<JobApplication> getApplicationsByWorker(String workerId);
     JobApplication updateApplicationStatus(UUID id, JobApplication.ApplicationStatus status);
     Optional<JobApplication> getApplicationById(UUID id);
+    java.util.Map<UUID, Long> getApplicationCountsByJobIds(List<UUID> jobIds);
 }

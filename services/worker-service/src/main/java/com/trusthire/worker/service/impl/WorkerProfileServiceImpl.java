@@ -129,6 +129,20 @@ public class WorkerProfileServiceImpl implements WorkerProfileService {
                 .toList();
     }
 
+    @Override
+    public long getTotalWorkersCount() {
+        return repository.count();
+    }
+
+    @Override
+    @Transactional
+    public void incrementProfileViews(String userId) {
+        repository.findByUserId(userId).ifPresent(profile -> {
+            profile.setProfileViews(profile.getProfileViews() + 1);
+            repository.save(profile);
+        });
+    }
+
     private String resolveFullName(String profileName, com.trusthire.worker.client.AuthUserClient.UserSummary authUser) {
         if (!isBlank(profileName)) {
             return profileName;

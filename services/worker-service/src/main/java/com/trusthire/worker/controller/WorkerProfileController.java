@@ -61,6 +61,12 @@ public class WorkerProfileController {
         return ResponseEntity.ok(profileService.updateProfile(profile));
     }
 
+    @PostMapping("/profile/{userId}/view")
+    public ResponseEntity<Void> incrementProfileView(@PathVariable String userId) {
+        profileService.incrementProfileViews(userId);
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping("/trust-score/{userId}")
     public ResponseEntity<TrustScoreResponse> getTrustScore(@PathVariable String userId) {
         return ResponseEntity.ok(TrustScoreResponse.builder()
@@ -71,6 +77,18 @@ public class WorkerProfileController {
                 .reliabilityRate(0.85)
                 .lastUpdated(java.time.LocalDateTime.now().toString())
                 .build());
+    }
+
+    @GetMapping("/stats")
+    public ResponseEntity<WorkerStats> getGlobalStats() {
+        return ResponseEntity.ok(WorkerStats.builder()
+                .totalWorkers(profileService.getTotalWorkersCount())
+                .build());
+    }
+
+    @Data @Builder
+    public static class WorkerStats {
+        private long totalWorkers;
     }
 
     @Data @Builder

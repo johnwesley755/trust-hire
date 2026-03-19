@@ -12,4 +12,6 @@ public interface WorkerProfileService {
     WorkerProfile createProfile(String userId);
     ProfileCompletionStatus getProfileCompletionStatus(String userId);
     List<WorkerProfileSummary> getProfileSummariesByUserIds(List<String> userIds);
+    long getTotalWorkersCount();
+    void incrementProfileViews(String userId);
 }

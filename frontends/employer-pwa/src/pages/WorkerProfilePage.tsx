@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { workerService } from '../api/worker.service';
 import { ShieldCheck, MapPin, Award, Star, Briefcase, ChevronLeft, Calendar, Loader2, Mail, Phone } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useEffect } from 'react';
 
 // Defining it here since it's cleaner for now
 export interface TrustScoreResponse {
@@ -17,6 +18,12 @@ export interface TrustScoreResponse {
 export const WorkerProfilePage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (id) {
+        workerService.incrementProfileView(id).catch(err => console.error("Failed to increment profile view:", err));
+    }
+  }, [id]);
 
   const { data: worker, isLoading: isLoadingWorker } = useQuery({
     queryKey: ['worker', id],
@@ -57,7 +64,7 @@ export const WorkerProfilePage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-brand-bg text-brand-secondary selection:bg-brand-primary selection:text-brand-secondary">
+    <>
       <div className="absolute inset-0 cloud-grid opacity-[0.03] pointer-events-none" />
       
       <div className="max-w-5xl mx-auto px-6 py-12 pb-32 relative z-10">
@@ -189,6 +196,6 @@ export const WorkerProfilePage = () => {
             </motion.button>
         </div>
       </div>
-    </div>
+    </>
   );
 };

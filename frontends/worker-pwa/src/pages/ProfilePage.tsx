@@ -4,7 +4,6 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { profileService, type WorkerProfile } from "../api/profile.service";
 import apiClient from "../api/apiClient";
 import { User, Mail, MapPin, Award, LogOut, ChevronRight, ShieldCheck, Navigation, Camera, Loader2, Globe, Star, Clock } from "lucide-react";
-import { DashboardSidebar } from "../features/dashboard/DashboardSidebar";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function ProfilePage() {
@@ -142,13 +141,10 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bg-brand-bg flex text-brand-secondary selection:bg-brand-primary selection:text-brand-secondary">
-      <DashboardSidebar />
-      
-      <div className="flex-1 flex flex-col min-h-screen relative overflow-x-hidden pt-20 md:pt-0">
+    <>
         <div className="absolute inset-0 cloud-grid opacity-[0.05] pointer-events-none" />
         
-        <header className="p-8 lg:p-12 border-b border-brand-border bg-brand-bg/80 backdrop-blur-3xl sticky top-[72px] md:top-0 z-40">
+        <header className="p-8 lg:p-12 border-b border-brand-border bg-brand-bg/80 backdrop-blur-3xl sticky top-0 z-40">
             <div className="max-w-3xl mx-auto space-y-2">
                 <div className="flex items-center gap-2 text-brand-secondary/40 font-semibold tracking-widest text-[10px]">
                     <Globe className="w-3.5 h-3.5 text-brand-primary" /> Identity & Integrity
@@ -478,10 +474,9 @@ export default function ProfilePage() {
             </div>
             
             <div className="text-center pt-8">
-                <p className="text-[10px] font-semibold text-brand-secondary/20 tracking-widest">TrustPro Dossier System v2.1.0 • Verified Network</p>
+                <p className="text-[10px] font-semibold text-brand-secondary/20 tracking-widest">TrustHire Dossier System v2.1.0 • Verified Network</p>
             </div>
         </main>
-      </div>
-    </div>
-  );
+      </>
+    );
 }

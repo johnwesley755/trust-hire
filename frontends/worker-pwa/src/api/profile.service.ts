@@ -14,6 +14,7 @@ export interface WorkerProfile {
   experienceYears: number;
   hourlyRate: number;
   isAvailable: boolean;
+  profileViews?: number;
 }
 
 export const profileService = {
@@ -24,6 +25,15 @@ export const profileService = {
 
   updateProfile: async (updates: Partial<WorkerProfile>): Promise<WorkerProfile> => {
     const response = await apiClient.put<WorkerProfile>('/api/worker/profile', updates);
+    return response.data;
+  },
+
+  incrementProfileView: async (userId: string): Promise<void> => {
+    await apiClient.post(`/api/worker/profile/${userId}/view`);
+  },
+
+  getGlobalStats: async (): Promise<{ totalWorkers: number }> => {
+    const response = await apiClient.get<{ totalWorkers: number }>('/api/worker/stats');
     return response.data;
   }
 };

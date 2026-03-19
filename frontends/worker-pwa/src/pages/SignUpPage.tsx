@@ -70,7 +70,7 @@ export const SignUpPage = () => {
                             <Briefcase className="w-6 h-6 text-brand-primary" />
                         </div>
                         <div>
-                            <div className="text-2xl font-semibold tracking-tight text-brand-secondary">TrustPro</div>
+                            <div className="text-2xl font-semibold tracking-tight text-brand-secondary">TrustHire</div>
                             <div className="text-[10px] font-semibold tracking-widest text-brand-primary mt-1">Verify account</div>
                         </div>
                     </Link>
@@ -135,7 +135,7 @@ export const SignUpPage = () => {
                         <Briefcase className="w-6 h-6 text-brand-primary" />
                     </div>
                     <div>
-                        <div className="text-2xl font-semibold tracking-tight text-brand-secondary">TrustPro</div>
+                        <div className="text-2xl font-semibold tracking-tight text-brand-secondary">TrustHire</div>
                         <div className="text-[10px] font-semibold tracking-widest text-brand-primary mt-1">Worker sign up</div>
                     </div>
                 </Link>

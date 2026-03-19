@@ -296,7 +296,7 @@ export const IdentityVerificationPage = () => {
         <div className="flex justify-center gap-8 text-[9px] font-semibold text-brand-secondary/20 tracking-widest">
             <span className="flex items-center gap-1.5"><Globe className="w-3 h-3" /> Global Standard</span>
             <span className="flex items-center gap-1.5"><ShieldCheck className="w-3 h-3 text-brand-primary" /> Verified Protocol</span>
-            <span className="flex items-center gap-1.5">© 2026 TrustPro</span>
+            <span className="flex items-center gap-1.5">© 2026 TrustHire</span>
         </div>
       </div>
     </div>

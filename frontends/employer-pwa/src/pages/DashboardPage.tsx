@@ -1,6 +1,6 @@
 import { useUser } from "../providers/AuthContext";
 import { PlusCircle } from 'lucide-react';
-import { DashboardSidebar, MobileNav, StatsGrid, RecentApplicants } from '../features/dashboard/DashboardComponents';
+import { StatsGrid, RecentApplicants } from '../features/dashboard/DashboardComponents';
 import { useNavigate } from 'react-router-dom';
 
 export default function DashboardPage() {
@@ -8,11 +8,8 @@ export default function DashboardPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen w-full bg-brand-surface text-brand-secondary flex selection:bg-brand-primary selection:text-brand-secondary">
-      <DashboardSidebar />
-
+    <>
       <main className="flex-1 p-4 md:p-12 overflow-auto relative">
-        <MobileNav />
         <div className="absolute top-0 right-0 w-1/3 h-1/2 bg-linear-to-bl from-brand-primary/5 to-transparent blur-3xl pointer-events-none" />
         
         <header className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 mb-16 relative z-10">
@@ -37,6 +34,6 @@ export default function DashboardPage() {
             <RecentApplicants />
         </div>
       </main>
-    </div>
+    </>
   );
 }

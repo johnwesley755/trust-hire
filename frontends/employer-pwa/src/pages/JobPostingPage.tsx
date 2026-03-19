@@ -95,10 +95,10 @@ export const JobPostingPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-brand-bg p-6 md:p-12 selection:bg-brand-primary selection:text-brand-secondary">
+    <>
       <div className="absolute inset-0 cloud-grid opacity-[0.05] pointer-events-none" />
       
-      <div className="max-w-3xl mx-auto bg-brand-surface rounded-[3rem] border border-brand-border p-8 md:p-14 shadow-2xl relative z-10 overflow-hidden">
+      <div className="max-w-3xl mx-auto my-12 bg-white rounded-[3rem] border border-brand-border p-8 md:p-14 shadow-2xl relative z-10 overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-2 bg-brand-primary/20" />
         
         <header className="mb-12 flex items-center gap-6">
@@ -268,6 +268,6 @@ export const JobPostingPage = () => {
           </button>
         </form>
       </div>
-    </div>
+    </>
   );
 };

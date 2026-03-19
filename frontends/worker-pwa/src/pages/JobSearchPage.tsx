@@ -5,10 +5,10 @@ import { jobService, type Job } from '../api/job.service';
 import { applicationService } from '../api/application.service';
 import { profileService, type WorkerProfile } from '../api/profile.service';
 import { Search, MapPin, Briefcase, CheckCircle, Navigation, Globe, ShieldCheck, ChevronRight, Loader2 } from 'lucide-react';
-import { DashboardSidebar } from '../features/dashboard/DashboardSidebar';
 import { motion, AnimatePresence } from 'framer-motion';
 import { formatMissingProfileFields, getMissingProfileFields } from '../utils/profileCompletion';
 import { useNavigate } from 'react-router-dom';
+import { useLanguage } from '../hooks/useLanguage';
 
 export default function JobSearchPage() {
   const navigate = useNavigate();
@@ -73,13 +73,10 @@ export default function JobSearchPage() {
   const appliedJobIds = new Set(myApplications.map((application) => application.jobId));
 
   return (
-    <div className="min-h-screen bg-brand-bg flex text-brand-secondary selection:bg-brand-primary selection:text-brand-secondary">
-      <DashboardSidebar />
-      
-      <div className="flex-1 flex flex-col min-h-screen relative overflow-x-hidden pt-20 md:pt-0">
+    <>
         <div className="absolute inset-0 cloud-grid opacity-[0.05] pointer-events-none" />
         
-        <header className="p-8 lg:p-12 border-b border-brand-border bg-brand-bg/80 backdrop-blur-3xl sticky top-[72px] md:top-0 z-40">
+        <header className="p-8 lg:p-12 border-b border-brand-border bg-brand-bg/80 backdrop-blur-3xl sticky top-0 z-40">
             <div className="max-w-5xl mx-auto space-y-10">
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                     <div className="space-y-1">
@@ -112,7 +109,7 @@ export default function JobSearchPage() {
                         <input 
                             type="text" 
                             placeholder="Search roles or expertise..." 
-                            className="w-full bg-white border border-brand-border rounded-[1.5rem] py-6 pl-16 pr-6 focus:outline-none focus:border-brand-primary transition-all shadow-sm font-semibold text-sm placeholder:text-brand-muted/20 text-brand-secondary"
+                            className="w-full bg-white border border-brand-border rounded-3xl py-6 pl-16 pr-6 focus:outline-none focus:border-brand-primary transition-all shadow-sm font-semibold text-sm placeholder:text-brand-muted/20 text-brand-secondary"
                             value={query}
                             onChange={(e) => setQuery(e.target.value)}
                         />
@@ -122,7 +119,7 @@ export default function JobSearchPage() {
                         <input 
                             type="text" 
                             placeholder="Location Filter" 
-                            className="w-full bg-white border border-brand-border rounded-[1.5rem] py-6 pl-16 pr-6 focus:outline-none focus:border-brand-primary transition-all shadow-sm font-semibold text-sm placeholder:text-brand-muted/20 text-brand-secondary"
+                            className="w-full bg-white border border-brand-border rounded-3xl py-6 pl-16 pr-6 focus:outline-none focus:border-brand-primary transition-all shadow-sm font-semibold text-sm placeholder:text-brand-muted/20 text-brand-secondary"
                             value={location}
                             onChange={(e) => {
                                 setLocation(e.target.value);
@@ -133,7 +130,7 @@ export default function JobSearchPage() {
                     <button 
                         onClick={detectLocation}
                         disabled={isDetecting}
-                        className="bg-brand-secondary text-brand-primary hover:bg-neutral-800 p-6 rounded-[1.5rem] transition-all shadow-xl active:scale-95 disabled:opacity-50 flex items-center justify-center gap-3 font-semibold text-[10px] tracking-widest"
+                        className="bg-brand-secondary text-brand-primary hover:bg-neutral-800 p-6 rounded-3xl transition-all shadow-xl active:scale-95 disabled:opacity-50 flex items-center justify-center gap-3 font-semibold text-[10px] tracking-widest"
                     >
                         <Navigation className={`w-5 h-5 ${isDetecting ? 'animate-pulse' : ''}`} />
                         <span className="hidden lg:inline">Sync GPS</span>
@@ -182,9 +179,8 @@ export default function JobSearchPage() {
                 </div>
             )}
         </main>
-      </div>
-    </div>
-  );
+      </>
+    );
 }
 
 function JobCard({
@@ -203,14 +199,15 @@ function JobCard({
   onRequireProfileCompletion: () => void;
 }) {
   const jobId = 'jobId' in job ? job.jobId : job.id;
+  const { t } = useLanguage();
   
   const mutation = useMutation({
     mutationFn: (data: Parameters<typeof applicationService.applyForJob>[0]) => applicationService.applyForJob(data),
     onSuccess: async () => {
       await onApplicationSaved();
     },
-    onError: async (error: any) => {
-      const message = error?.response?.data?.message || error?.message || 'Failed to submit application.';
+    onError: async (error: Error | any) => {
+      const message = (error as any)?.response?.data?.message || (error as any)?.message || 'Failed to submit application.';
       if (String(message).toLowerCase().includes('already applied')) {
         await onApplicationSaved();
         return;
@@ -287,14 +284,14 @@ function JobCard({
             <button 
                 onClick={handleApply}
                 disabled={applied || mutation.isPending}
-                className={`w-full sm:w-auto px-12 py-5 rounded-[2rem] font-semibold text-xs transition-all active:scale-[0.98] flex items-center justify-center gap-4 tracking-widest shadow-2xl ${
+                className={`w-full sm:w-auto px-12 py-5 rounded-4xl font-semibold text-xs transition-all active:scale-[0.98] flex items-center justify-center gap-4 tracking-widest shadow-2xl ${
                     applied 
                     ? 'bg-emerald-500 text-white cursor-default' 
                     : 'bg-brand-secondary text-brand-primary hover:bg-neutral-800 cursor-pointer shadow-brand-secondary/20'
                 }`}
             >
                 {applied ? (
-                    <><CheckCircle className="w-5 h-5" /> Applied</>
+                    <><CheckCircle className="w-5 h-5" /> {t('dashboard.applied')}</>
                 ) : mutation.isPending ? (
                     <Loader2 className="w-5 h-5 animate-spin" />
                 ) : (

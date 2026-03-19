@@ -66,4 +66,15 @@ public class JobApplicationServiceImpl implements JobApplicationService {
     public Optional<JobApplication> getApplicationById(UUID id) {
         return repository.findById(id);
     }
+
+    @Override
+    public java.util.Map<UUID, Long> getApplicationCountsByJobIds(List<UUID> jobIds) {
+        java.util.Map<UUID, Long> counts = new java.util.HashMap<>();
+        if (jobIds != null) {
+            for (UUID jobId : jobIds) {
+                counts.put(jobId, repository.countByJobId(jobId));
+            }
+        }
+        return counts;
+    }
 }

@@ -39,6 +39,11 @@ public class JobApplicationController {
         return ResponseEntity.ok(applicationService.getApplicationsByWorker(jwt.getSubject()));
     }
 
+    @PostMapping("/counts/by-jobs")
+    public ResponseEntity<java.util.Map<UUID, Long>> getCountsByJobs(@RequestBody List<UUID> jobIds) {
+        return ResponseEntity.ok(applicationService.getApplicationCountsByJobIds(jobIds));
+    }
+
     @PatchMapping("/{id}/status")
     public ResponseEntity<JobApplication> updateStatus(
             @PathVariable UUID id,

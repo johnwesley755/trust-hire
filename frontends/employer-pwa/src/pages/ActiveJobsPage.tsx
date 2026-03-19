@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { jobService } from '../api/job.service';
-import { Briefcase, ArrowLeft, MapPin, IndianRupee, Loader2, ChevronRight, Plus } from 'lucide-react';
+import { Briefcase, MapPin, IndianRupee, Loader2, ChevronRight, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
@@ -9,22 +9,14 @@ export function ActiveJobsPage() {
     const { data: jobs, isLoading } = useQuery({ queryKey: ['employerJobs'], queryFn: jobService.getEmployerJobs });
 
     return (
-        <div className="min-h-screen bg-brand-bg text-brand-secondary selection:bg-brand-primary selection:text-brand-secondary">
+        <>
             <div className="absolute inset-0 cloud-grid opacity-[0.03] pointer-events-none" />
             
             <div className="max-w-7xl mx-auto px-6 py-12 relative z-10">
                 <header className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-16">
-                    <div className="flex items-center gap-6">
-                        <button 
-                            onClick={() => navigate('/dashboard')} 
-                            className="w-14 h-14 bg-white border border-brand-border rounded-2xl flex items-center justify-center hover:bg-brand-primary/10 transition-all shadow-xl active:scale-90 group"
-                        >
-                            <ArrowLeft className="w-6 h-6 text-brand-secondary group-hover:-translate-x-1 transition-transform" />
-                        </button>
-                        <div>
-                            <h2 className="text-5xl font-bold tracking-tight text-neutral-900 leading-tight">Active Jobs</h2>
-                            <p className="text-brand-primary text-[10px] font-semibold uppercase tracking-widest mt-2">Manage your current listings</p>
-                        </div>
+                    <div>
+                        <h2 className="text-5xl font-bold tracking-tight text-neutral-900 leading-tight">Active Jobs</h2>
+                        <p className="text-brand-primary text-[10px] font-semibold uppercase tracking-widest mt-2">Manage your current listings</p>
                     </div>
                     
                     <button 
@@ -113,6 +105,6 @@ export function ActiveJobsPage() {
                     )}
                 </main>
             </div>
-        </div>
+        </>
     );
 }

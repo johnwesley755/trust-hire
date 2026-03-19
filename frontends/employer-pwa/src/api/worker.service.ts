@@ -85,4 +85,8 @@ export const workerService = {
     const response = await apiClient.post<WorkerProfileSummary[]>('/api/worker/profiles/by-user-ids', userIds);
     return response.data;
   },
+
+  incrementProfileView: async (userId: string): Promise<void> => {
+    await apiClient.post(`/api/worker/profile/${userId}/view`);
+  },
 };

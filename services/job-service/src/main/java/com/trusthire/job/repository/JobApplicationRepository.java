@@ -15,4 +15,5 @@ public interface JobApplicationRepository extends JpaRepository<JobApplication, 
     List<JobApplication> findByWorkerId(String workerId);
     Optional<JobApplication> findByJobIdAndWorkerId(UUID jobId, String workerId);
     boolean existsByJobIdAndWorkerId(UUID jobId, String workerId);
+    long countByJobId(UUID jobId);
 }

@@ -85,6 +85,14 @@
   border-bottom: 1px solid rgba(0, 0, 0, 0.06);
 }
 
+@utility no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 :root {
   font-family: "Bricolage Grotesque", sans-serif;
   line-height: 1.5;
