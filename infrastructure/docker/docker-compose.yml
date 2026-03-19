@@ -1,37 +1,143 @@
 version: '3.8'
 
 services:
-  # --- Core Services (Placeholders for now) ---
+  # --- INFRASTRUCTURE (Local Only) ---
+  postgres-dev:
+    image: postgres:15-alpine
+    container_name: trusthire-postgres-dev
+    environment:
+      - POSTGRES_USER=trusthire_user
+      - POSTGRES_PASSWORD=trusthire123
+      - POSTGRES_DB=trusthire_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - trusthire-network
+
+  # --- CORE SERVICES ---
   auth-service:
     build: ../../services/auth-service
     container_name: trusthire-auth
     ports:
       - "8081:8081"
-    env_file: ../env/.env
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-dev:5432/trusthire_db
+      - SPRING_DATASOURCE_USERNAME=trusthire_user
+      - SPRING_DATASOURCE_PASSWORD=trusthire123
     depends_on:
-      - n8n
+      - postgres-dev
+    networks:
+      - trusthire-network
 
   worker-service:
     build: ../../services/worker-service
     container_name: trusthire-worker
     ports:
       - "8082:8082"
-    env_file: ../env/.env
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-dev:5432/trusthire_db
+    depends_on:
+      - postgres-dev
+    networks:
+      - trusthire-network
 
   employer-service:
     build: ../../services/employer-service
     container_name: trusthire-employer
     ports:
       - "8083:8083"
-    env_file: ../env/.env
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-dev:5432/trusthire_db
+    depends_on:
+      - postgres-dev
+    networks:
+      - trusthire-network
 
-  # --- AI Services ---
-  scoring-engine:
-    build: ../../ai-services/scoring-engine
-    container_name: trusthire-scoring
+  job-service:
+    build: ../../services/job-service
+    container_name: trusthire-job
     ports:
-      - "5000:5000"
-    env_file: ../env/.env
+      - "8084:8084"
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-dev:5432/trusthire_db
+    depends_on:
+      - postgres-dev
+    networks:
+      - trusthire-network
+
+  verification-service:
+    build: ../../services/verification-service
+    container_name: trusthire-verification
+    ports:
+      - "8085:8085"
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-dev:5432/trusthire_db
+    depends_on:
+      - postgres-dev
+    networks:
+      - trusthire-network
+
+  rating-service:
+    build: ../../services/rating-service
+    container_name: trusthire-rating
+    ports:
+      - "8086:8086"
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-dev:5432/trusthire_db
+    depends_on:
+      - postgres-dev
+    networks:
+      - trusthire-network
+
+  notification-service:
+    build: ../../services/notification-service
+    container_name: trusthire-notification
+    ports:
+      - "8087:8087"
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-dev:5432/trusthire_db
+    depends_on:
+      - postgres-dev
+    networks:
+      - trusthire-network
+
+  search-service:
+    build: ../../services/search-service
+    container_name: trusthire-search
+    ports:
+      - "8088:8088"
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-dev:5432/trusthire_db
+    depends_on:
+      - postgres-dev
+    networks:
+      - trusthire-network
+
+  media-service:
+    build: ../../services/media-service
+    container_name: trusthire-media
+    ports:
+      - "8089:8089"
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-dev:5432/trusthire_db
+    depends_on:
+      - postgres-dev
+    networks:
+      - trusthire-network
+
+volumes:
+  postgres_data:
 
 networks:
   trusthire-network:

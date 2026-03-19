@@ -1,0 +1,124 @@
+version: '3.8'
+
+services:
+  # --- CORE SERVICES (Production) ---
+  auth-service:
+    image: trusthire-auth:latest
+    container_name: trusthire-auth-prod
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://ep-quiet-silence-amp7gek0-pooler.c-5.us-east-1.aws.neon.tech/neondb?sslmode=require
+      - SPRING_DATASOURCE_USERNAME=neondb_owner
+      - SPRING_DATASOURCE_PASSWORD=npg_adTswZO16UMm
+    networks:
+      - trusthire-network-prod
+
+  worker-service:
+    image: trusthire-worker:latest
+    container_name: trusthire-worker-prod
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://ep-quiet-silence-amp7gek0-pooler.c-5.us-east-1.aws.neon.tech/neondb?sslmode=require
+      - SPRING_DATASOURCE_USERNAME=neondb_owner
+      - SPRING_DATASOURCE_PASSWORD=npg_adTswZO16UMm
+    networks:
+      - trusthire-network-prod
+
+  employer-service:
+    image: trusthire-employer:latest
+    container_name: trusthire-employer-prod
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://ep-quiet-silence-amp7gek0-pooler.c-5.us-east-1.aws.neon.tech/neondb?sslmode=require
+      - SPRING_DATASOURCE_USERNAME=neondb_owner
+      - SPRING_DATASOURCE_PASSWORD=npg_adTswZO16UMm
+    networks:
+      - trusthire-network-prod
+
+  job-service:
+    image: trusthire-job:latest
+    container_name: trusthire-job-prod
+    ports:
+      - "8084:8084"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://ep-quiet-silence-amp7gek0-pooler.c-5.us-east-1.aws.neon.tech/neondb?sslmode=require
+      - SPRING_DATASOURCE_USERNAME=neondb_owner
+      - SPRING_DATASOURCE_PASSWORD=npg_adTswZO16UMm
+    networks:
+      - trusthire-network-prod
+
+  verification-service:
+    image: trusthire-verification:latest
+    container_name: trusthire-verification-prod
+    ports:
+      - "8085:8085"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://ep-quiet-silence-amp7gek0-pooler.c-5.us-east-1.aws.neon.tech/neondb?sslmode=require
+      - SPRING_DATASOURCE_USERNAME=neondb_owner
+      - SPRING_DATASOURCE_PASSWORD=npg_adTswZO16UMm
+    networks:
+      - trusthire-network-prod
+
+  rating-service:
+    image: trusthire-rating:latest
+    container_name: trusthire-rating-prod
+    ports:
+      - "8086:8086"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://ep-quiet-silence-amp7gek0-pooler.c-5.us-east-1.aws.neon.tech/neondb?sslmode=require
+      - SPRING_DATASOURCE_USERNAME=neondb_owner
+      - SPRING_DATASOURCE_PASSWORD=npg_adTswZO16UMm
+    networks:
+      - trusthire-network-prod
+
+  notification-service:
+    image: trusthire-notification:latest
+    container_name: trusthire-notification-prod
+    ports:
+      - "8087:8087"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://ep-quiet-silence-amp7gek0-pooler.c-5.us-east-1.aws.neon.tech/neondb?sslmode=require
+      - SPRING_DATASOURCE_USERNAME=neondb_owner
+      - SPRING_DATASOURCE_PASSWORD=npg_adTswZO16UMm
+    networks:
+      - trusthire-network-prod
+
+  search-service:
+    image: trusthire-search:latest
+    container_name: trusthire-search-prod
+    ports:
+      - "8088:8088"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://ep-quiet-silence-amp7gek0-pooler.c-5.us-east-1.aws.neon.tech/neondb?sslmode=require
+      - SPRING_DATASOURCE_USERNAME=neondb_owner
+      - SPRING_DATASOURCE_PASSWORD=npg_adTswZO16UMm
+    networks:
+      - trusthire-network-prod
+
+  media-service:
+    image: trusthire-media:latest
+    container_name: trusthire-media-prod
+    ports:
+      - "8089:8089"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://ep-quiet-silence-amp7gek0-pooler.c-5.us-east-1.aws.neon.tech/neondb?sslmode=require
+      - SPRING_DATASOURCE_USERNAME=neondb_owner
+      - SPRING_DATASOURCE_PASSWORD=npg_adTswZO16UMm
+    networks:
+      - trusthire-network-prod
+
+networks:
+  trusthire-network-prod:
+    driver: bridge
