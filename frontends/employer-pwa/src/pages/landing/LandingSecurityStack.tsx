@@ -15,6 +15,8 @@ const STEPS = [
     { title: "Risk Cover", desc: "100% Hire Insurance", icon: Shield }
 ];
 
+
+
 export function LandingSecurityStack() {
   return (
     <section className="py-24 bg-white relative overflow-hidden min-h-screen flex flex-col justify-center" id="security">
