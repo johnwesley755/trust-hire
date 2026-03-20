@@ -1,163 +1,60 @@
-import { motion } from "framer-motion";
-import { ArrowRight, Play, Star, ShieldCheck } from 'lucide-react';
 import { Link } from "react-router-dom";
 
 export function LandingHero() {
   return (
-    <section className="relative min-h-screen flex items-center pt-32 pb-20 overflow-hidden bg-brand-bg">
-      {/* Background Decor */}
-      <div className="absolute inset-0 cloud-grid opacity-[0.05] pointer-events-none" />
-      <div className="absolute top-0 right-0 w-[1000px] h-[1000px] bg-brand-primary/10 rounded-full blur-[150px] pointer-events-none translate-x-1/2 -translate-y-1/2" />
-      <div className="absolute bottom-0 left-0 w-[800px] h-[800px] bg-emerald-100/30 rounded-full blur-[120px] pointer-events-none -translate-x-1/2 translate-y-1/2" />
-
-      <div className="max-w-7xl mx-auto px-6 relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-20 items-center w-full">
-        
-        {/* Content Column */}
-        <div className="flex flex-col items-start text-left">
-          
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-3 px-5 py-2 bg-white/60 backdrop-blur-md border border-brand-border/30 rounded-2xl text-brand-muted text-[10px] font-bold tracking-tight mb-10 shadow-sm"
-          >
-            <span className="bg-brand-primary text-brand-secondary px-3 py-1 rounded-xl font-bold">Premium</span>
-            <span>Enterprise Talent Cloud</span>
-          </motion.div>
-
-          <motion.h1 
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-5xl md:text-7xl font-bold tracking-tight leading-tight text-brand-secondary mb-8 text-balance"
-          >
-            Scale Your <br/>
-            <span className="text-brand-primary text-glow">Verified Fleet</span><br/>
-            Instantly
-          </motion.h1>
-
-          <motion.p 
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="text-xl md:text-2xl text-brand-muted/80 max-w-xl font-bold leading-tight mb-12 text-balance italic"
-          >
-            India's #1 Aadhaar-Verified workforce solution. 
-            Eliminate operational risk with real-time verification and pre-screened professionals.
-          </motion.p>
-
-          <motion.div 
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="w-full sm:w-auto flex flex-col sm:flex-row gap-6 pt-4"
-          >
-              <Link
-                to="/sign-up"
-                className="px-10 py-5 bg-brand-secondary text-brand-primary rounded-2xl font-bold text-lg shadow-xl hover:bg-neutral-900 active:scale-[0.98] transition-all flex items-center justify-center gap-3 group"
-              >
-                Start Hiring
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </Link>
-              
-              <button className="px-8 py-5 bg-white border border-brand-border rounded-2xl font-bold text-lg text-brand-secondary hover:bg-brand-bg transition-all shadow-lg flex items-center justify-center gap-3">
-                 <Play className="w-4 h-4 fill-current" />
-                 Watch Demo
-              </button>
-          </motion.div>
-
-          {/* Trust Indicators */}
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            className="mt-16 pt-8 border-t border-brand-border/30 flex flex-wrap items-center gap-8"
-          >
-              <div className="flex -space-x-4">
-                {[1, 2, 3, 4, 5].map((i) => (
-                    <div key={i} className="w-12 h-12 rounded-2xl border-4 border-brand-bg bg-white overflow-hidden shadow-lg rotate-3 group-hover:rotate-0 transition-transform">
-                        <img src={`https://i.pravatar.cc/150?u=employer${i}`} alt="user" />
-                    </div>
-                ))}
-              </div>
-              <div>
-                <div className="flex gap-1 text-brand-primary mb-1">
-                    {[1,2,3,4,5].map(s => <Star key={s} className="w-4 h-4 fill-current" />)}
-                </div>
-                <div className="text-[10px] font-bold text-brand-muted capitalize tracking-widest">
-                    Trusted by <span className="text-brand-secondary">25,000+ Enterprises</span>
-                </div>
-              </div>
-          </motion.div>
+    <section className="relative min-h-[80vh] flex items-center pt-[72px] pb-8 overflow-hidden bg-brand-beige">
+      {/* Decorative Blobs */}
+      <div className="absolute -top-24 -left-24 w-96 h-96 bg-brand-amber/20 organic-blob blur-3xl opacity-50"></div>
+      <div className="absolute top-1/2 -right-48 w-[500px] h-[500px] bg-emerald-900/10 organic-blob-alt blur-3xl"></div>
+      
+      <div className="container mx-auto px-6 md:px-12 grid md:grid-cols-2 gap-8 items-center relative">
+        <div className="z-10">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-forest/5 text-brand-forest text-xs font-bold uppercase tracking-wider mb-6">
+            <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            Early Access Now Open
+          </div>
+          <h1 className="text-5xl md:text-[68px] font-extrabold leading-[0.95] text-brand-forest text-heavy mb-6">
+            Hire Verified Workers. <br/>
+            <span className="relative">
+              Zero Risk.
+              <span className="absolute bottom-1 left-0 w-full h-3 bg-brand-amber -z-10 opacity-60"></span>
+            </span>
+          </h1>
+          <p className="text-xl text-brand-forest/80 leading-snug mb-8 max-w-lg">
+            Be among the first employers to hire verified blue-collar talent. Secure your spot on India's most trusted hiring network.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4">
+            <Link to="/post-job" className="btn-primary px-10 py-4 uppercase text-lg shadow-[inset_0_-4px_0_rgba(0,0,0,0.1)] hover:translate-y-[-2px] flex items-center justify-center">
+              Post Your First Job
+            </Link>
+            <button className="btn-secondary px-8 py-4 flex items-center gap-3 hover:bg-white">
+              <span className="material-symbols-outlined">how_to_reg</span>
+              Join the Waitlist
+            </button>
+          </div>
+          <p className="mt-6 text-sm font-bold text-brand-forest/50 flex items-center gap-2">
+            <span className="material-symbols-outlined text-[18px]">verified</span>
+            Aadhaar-linked verification for every profile
+          </p>
         </div>
 
-        {/* Media Composition Column */}
-        <div className="relative w-full aspect-square flex justify-center items-center">
-          
-          <div className="absolute inset-0 bg-brand-primary/10 rounded-2xl rotate-6 scale-95 blur-3xl opacity-20" />
-          
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8, rotate: -5 }}
-            animate={{ 
-              opacity: 1, 
-              scale: 1, 
-              rotate: 0,
-              y: [0, -20, 0]
-            }}
-            transition={{
-              duration: 1,
-              y: { repeat: Infinity, duration: 6, ease: "easeInOut" }
-            }}
-            className="relative z-20 w-full max-w-xl aspect-[4/5] rounded-3xl overflow-hidden bg-white p-4 shadow-[0_40px_100px_rgba(0,0,0,0.2)] border border-white/50 backdrop-blur-xl"
-          >
-            <div className="w-full h-full rounded-[2.5rem] overflow-hidden relative bg-brand-secondary border border-white/20">
-               <video 
-                  autoPlay 
-                  muted 
-                  loop 
-                  playsInline
-                  className="w-full h-full object-cover opacity-60"
-               >
-                  <source src="/assets/landing/worker-pwa.mp4" type="video/mp4" />
-               </video>
-               <div className="absolute inset-0 bg-linear-to-t from-brand-secondary via-transparent to-transparent flex flex-col justify-end p-10">
-                   <div className="flex items-center gap-4 mb-4">
-                       <div className="w-12 h-0.5 bg-brand-primary rounded-full" />
-                       <span className="text-[10px] font-bold text-brand-primary tracking-widest">Live Demo</span>
-                   </div>
-                   <h3 className="text-3xl font-bold text-white leading-tight tracking-tight mb-4">Command Your Workforce.</h3>
-               </div>
+        <div className="relative">
+          <div className="organic-blob w-full aspect-square bg-brand-amber/10 absolute -top-4 -right-4 -z-20 scale-105"></div>
+          <div className="organic-blob w-full aspect-square overflow-hidden shadow-2xl relative">
+            <img 
+              alt="Professional Indian chef smiling in a kitchen" 
+              className="w-full h-full object-cover" 
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuCldjp9y2iCXzw_TYlraY2g4bgvYnLsdXCK4uUj52MODFpJXwuAoEAJUs2GPtD1s2d8lK67_7UHuTHJBg8_H8Ub1p2zW_hMcVHN0oOSiT-9XHZzZvyCx5seHxxo1px1mBmpmC0RNtcgWsKwhH4uo-qTRoPNFWfdfIGKGPhbSpOC8WiYsq1zInGDXDGphRTuZ70orcrHBI9YpgTIRJVfMeydtNINLuF5PZ9s0PSUIrZpHOUBi0Y2HB9vTSS_l2KgQ8zpGkLIP9keqZc" 
+            />
+          </div>
+          {/* Floating Card */}
+          <div className="absolute -bottom-4 -left-4 bg-white p-5 rounded-2xl shadow-xl border-l-4 border-brand-amber max-w-[240px]">
+            <div className="flex justify-between items-start mb-2">
+              <span className="bg-brand-forest text-brand-amber text-[10px] font-black px-2 py-0.5 rounded-full uppercase">Top 1% Talent</span>
             </div>
-          </motion.div>
-
-          {/* Floating Action Cards */}
-          <motion.div
-            animate={{ y: [15, -15, 15], rotate: [-2, 2, -2] }}
-            transition={{ repeat: Infinity, duration: 8, ease: "easeInOut" }}
-            className="absolute -top-10 -left-6 sm:top-20 sm:-left-12 z-30 glass-card p-3 sm:p-5 rounded-xl sm:rounded-2xl flex items-center gap-3 sm:gap-4 shadow-xl border border-white/40"
-          >
-            <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-lg sm:rounded-2xl bg-emerald-100 flex items-center justify-center shrink-0">
-              <ShieldCheck className="w-6 h-6 sm:w-8 sm:h-8 text-emerald-600" />
-            </div>
-            <div>
-              <div className="text-[8px] sm:text-[10px] font-bold text-brand-muted capitalize tracking-widest opacity-50 mb-0.5 sm:mb-1">Risk Profile</div>
-              <div className="text-sm sm:text-lg font-bold text-brand-secondary">0% Hazard</div>
-            </div>
-          </motion.div>
-
-          <motion.div
-            animate={{ y: [-20, 20, -20], rotate: [3, -3, 3] }}
-            transition={{ repeat: Infinity, duration: 7, ease: "easeInOut", delay: 1 }}
-            className="absolute -bottom-10 -right-6 sm:bottom-20 sm:-right-12 z-30 glass-card p-3 sm:p-5 rounded-xl sm:rounded-2xl flex items-center gap-3 sm:gap-4 shadow-xl border border-white/40"
-          >
-             <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-lg sm:rounded-2xl bg-brand-primary/20 flex items-center justify-center shrink-0">
-                <Star className="w-6 h-6 sm:w-8 sm:h-8 text-brand-primary fill-current" />
-             </div>
-             <div>
-                <div className="text-[8px] sm:text-[10px] font-bold text-brand-muted capitalize tracking-widest opacity-50 mb-0.5 sm:mb-1">Elite Talent</div>
-                <div className="text-sm sm:text-lg font-bold text-brand-secondary">Level 4 Certified</div>
-             </div>
-          </motion.div>
-
+            <h3 className="font-bold text-brand-forest">Verified Workforce</h3>
+            <p className="text-[12px] text-brand-forest/60">Ready to start within 24 hours.</p>
+          </div>
         </div>
       </div>
     </section>

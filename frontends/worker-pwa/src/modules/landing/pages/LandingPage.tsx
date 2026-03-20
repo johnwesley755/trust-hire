@@ -1,35 +1,50 @@
+import { useEffect } from "react";
+import Lenis from "@studio-freight/lenis";
 import { LandingNavbar } from "../components/LandingNavbar";
 import { LandingHero } from "../components/LandingHero";
+import { LandingMarquee } from "../components/LandingMarquee";
 import { LandingBenefits } from "../components/LandingBenefits";
+import { LandingVideoGuide } from "../components/LandingVideoGuide";
+import { LandingProcess } from "../components/LandingProcess";
+import { LandingCareerLevels } from "../components/LandingCareerLevels";
 import { LandingEarnings } from "../components/LandingEarnings";
 import { LandingTrust } from "../components/LandingTrust";
 import { LandingTestimonials } from "../components/LandingTestimonials";
-import { LandingCareerLevels } from "../components/LandingCareerLevels";
-import { LandingCinematic } from "../components/LandingCinematic";
+import { LandingFinalCTA } from "../components/LandingFinalCTA";
 import { LandingFooter } from "../components/LandingFooter";
-import { ReactLenis } from 'lenis/react';
 
 export default function LandingPage() {
+  useEffect(() => {
+    const lenis = new Lenis();
+
+    function raf(time: number) {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
+    }
+
+    requestAnimationFrame(raf);
+
+    return () => {
+      lenis.destroy();
+    };
+  }, []);
+
   return (
-    <ReactLenis root options={{ lerp: 0.1, duration: 1.5, smoothWheel: true }}>
-      <div className="min-h-screen bg-brand-bg overflow-x-hidden">
-        <LandingNavbar />
-        <main className="bg-brand-secondary">
-          {/* Wrap Hero and Benefits in a relative container so the sticky hero doesn't bleed into lower sections */}
-          <div id="hero-benefits-wrapper" className="relative z-10 bg-brand-bg">
-            <LandingHero />
-            <LandingBenefits />
-          </div>
-          <LandingCinematic />
-          <div className="relative z-10 bg-brand-bg">
-            <LandingEarnings />
-            <LandingTrust />
-            <LandingTestimonials />
-            <LandingCareerLevels />
-          </div>
-        </main>
-        <LandingFooter />
-      </div>
-    </ReactLenis>
+    <div className="min-h-screen bg-surface font-body text-on-surface antialiased selection:bg-primary-fixed selection:text-primary">
+      <LandingNavbar />
+      <main>
+        <LandingHero />
+        <LandingMarquee />
+        <LandingBenefits />
+        <LandingVideoGuide />
+        <LandingProcess />
+        <LandingCareerLevels />
+        <LandingEarnings />
+        <LandingTrust />
+        <LandingTestimonials />
+        <LandingFinalCTA />
+      </main>
+      <LandingFooter />
+    </div>
   );
 }

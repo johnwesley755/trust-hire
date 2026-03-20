@@ -1,73 +1,40 @@
-import { motion } from "framer-motion";
-import { UserPlus, Search, ShieldCheck, CheckCircle } from "lucide-react";
-
-const STEPS = [
-  {
-    title: "Define Your Needs",
-    desc: "Post your project requirements and the specific skills you need.",
-    icon: UserPlus,
-    color: "bg-brand-primary",
-  },
-  {
-    title: "AI Matches Talent",
-    desc: "Our engine filters the top 3% based on skill score and proximity.",
-    icon: Search,
-    color: "bg-brand-accent",
-  },
-  {
-    title: "Face-Match Verify",
-    desc: "Workers undergo biometric face-matching before they join.",
-    icon: ShieldCheck,
-    color: "bg-blue-500",
-  },
-  {
-    title: "Secure Deployment",
-    desc: "Talent arrives on-site or starts remotely with full trust.",
-    icon: CheckCircle,
-    color: "bg-emerald-500",
-  },
-];
-
 export function LandingHowItWorks() {
   return (
-    <section id="how-it-works" className="py-32 bg-white">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-16 mb-20">
-          <div className="space-y-4 max-w-2xl text-center lg:text-left">
-            <h2 className="text-sm font-bold text-brand-accent uppercase tracking-[0.3em]">Seamless Onboarding</h2>
-            <h3 className="text-4xl lg:text-6xl font-extrabold tracking-tight leading-none text-brand-secondary">
-              How TrustHire <br />
-              <span className="text-brand-primary">Empowers Your Business.</span>
-            </h3>
+    <section className="py-16 bg-brand-beige relative overflow-hidden" id="how-it-works">
+      <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-brand-amber/5 organic-blob opacity-50"></div>
+      <div className="absolute -bottom-20 -left-20 w-[300px] h-[300px] bg-emerald-100/30 organic-blob opacity-40"></div>
+      <div className="container mx-auto px-6 md:px-12 text-center mb-12">
+        <h2 className="text-3xl md:text-4xl font-extrabold text-brand-forest text-heavy">Three steps to peace of mind</h2>
+      </div>
+      <div className="container mx-auto px-6 md:px-12 relative">
+        <div className="grid md:grid-cols-3 gap-6">
+          {/* Step 1 */}
+          <div className="bg-white p-8 rounded-lg relative group hover:-translate-y-2 transition-transform shadow-sm">
+            <span className="absolute top-4 right-8 text-7xl font-black text-brand-forest/5 pointer-events-none">01</span>
+            <div className="w-14 h-14 bg-brand-amber rounded-DEFAULT flex items-center justify-center mb-6">
+              <span className="material-symbols-outlined text-brand-forest text-2xl">post_add</span>
+            </div>
+            <h3 className="text-xl font-bold text-brand-forest mb-3">Post Your Need</h3>
+            <p className="text-brand-forest/70 leading-relaxed text-sm">Describe the role, salary, and location. Our AI categorizes your job instantly.</p>
           </div>
-          <p className="text-lg text-brand-muted max-w-md font-bold text-center lg:text-left">
-            We've simplified the recruitment of verified labor. It only takes four steps to secure your elite work network.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 relative">
-          {/* Connecting Line (Desktop) */}
-          <div className="hidden lg:block absolute top-1/2 left-0 right-0 h-1 bg-brand-surface -z-10" />
-
-          {STEPS.map((step, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.1 }}
-              className="relative p-10 bg-brand-surface rounded-[50px] border-2 border-transparent hover:border-brand-primary hover:bg-white hover:shadow-2xl transition-all duration-500 group"
-            >
-              <div className={`w-20 h-20 ${step.color} rounded-3xl flex items-center justify-center mb-8 shadow-xl group-hover:scale-110 transition-transform`}>
-                <step.icon className="w-10 h-10 text-white" />
-              </div>
-              <div className="absolute top-10 right-10 text-4xl font-bold text-brand-secondary/5 group-hover:text-brand-primary/20 transition-colors">
-                0{i + 1}
-              </div>
-              <h4 className="text-2xl font-bold text-brand-secondary mb-4">{step.title}</h4>
-              <p className="text-sm text-brand-muted font-bold leading-relaxed">{step.desc}</p>
-            </motion.div>
-          ))}
+          {/* Step 2 */}
+          <div className="bg-white p-8 rounded-lg relative group hover:-translate-y-2 transition-transform shadow-sm">
+            <span className="absolute top-4 right-8 text-7xl font-black text-brand-forest/5 pointer-events-none">02</span>
+            <div className="w-14 h-14 bg-brand-amber rounded-DEFAULT flex items-center justify-center mb-6">
+              <span className="material-symbols-outlined text-brand-forest text-2xl">fact_check</span>
+            </div>
+            <h3 className="text-xl font-bold text-brand-forest mb-3">Review Verified</h3>
+            <p className="text-brand-forest/70 leading-relaxed text-sm">Choose from pre-screened, Aadhaar-verified workers with real past performance data.</p>
+          </div>
+          {/* Step 3 */}
+          <div className="bg-white p-8 rounded-lg relative group hover:-translate-y-2 transition-transform shadow-sm">
+            <span className="absolute top-4 right-8 text-7xl font-black text-brand-forest/5 pointer-events-none">03</span>
+            <div className="w-14 h-14 bg-brand-amber rounded-DEFAULT flex items-center justify-center mb-6">
+              <span className="material-symbols-outlined text-brand-forest text-2xl">handshake</span>
+            </div>
+            <h3 className="text-xl font-bold text-brand-forest mb-3">Hire & Start</h3>
+            <p className="text-brand-forest/70 leading-relaxed text-sm">Communicate directly via our platform and onboard with a single click.</p>
+          </div>
         </div>
       </div>
     </section>

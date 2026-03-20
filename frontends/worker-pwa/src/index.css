@@ -1,62 +1,42 @@
 @import "tailwindcss";
 
 @theme {
-  /* Brand Colors - Restored Green & Amber Theme */
-  --color-brand-primary: #facd15;     /* Vibrant Amber */
-  --color-brand-primary-dark: #eab308;
-  --color-brand-secondary: #1F3F34;   /* Deep Teal/Green */
-  --color-brand-accent: #ef4444;      /* Energetic Red */
-  --color-brand-bg: #f5f4ef;          /* Warm Beige */
-  --color-brand-surface: #ffffff;
-  --color-brand-border: #e2e8f0;
-  --color-brand-text: #1F3F34;
-  --color-brand-muted: #64748b;
-  --font-sans: "Bricolage Grotesque", ui-sans-serif, system-ui;
-
-  @keyframes fade-in-up {
-    from {
-      opacity: 0;
-      transform: translateY(30px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  @keyframes fade-in-left {
-    from {
-      opacity: 0;
-      transform: translateX(-30px);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
-  }
-
-  @keyframes float-slow {
-    0%, 100% {
-      transform: translateY(0) rotate(0deg);
-    }
-    50% {
-      transform: translateY(-12px) rotate(5deg);
-    }
-  }
-
-  @keyframes float-medium {
-    0%, 100% {
-      transform: translateY(0) rotate(0deg);
-    }
-    50% {
-      transform: translateY(-8px) rotate(-5deg);
-    }
-  }
+  /* M3 Color System - Worker Landing Design */
+  --color-primary: #1F3F34;
+  --color-primary-fixed: #FACD15;
+  --color-secondary: #456559;
+  --color-secondary-container: #c7ebdb;
+  --color-tertiary: #3a1b18;
+  --color-surface: #F5F4EF;
+  --color-surface-container: #efeee9;
+  --color-surface-container-low: #f5f4ef;
+  --color-surface-container-lowest: #ffffff;
+  --color-on-surface: #1F3F34;
+  --color-on-surface-variant: #414845;
+  
+  /* Brand Typography */
+  --font-headline: "Bricolage Grotesque", "Epilogue", sans-serif;
+  --font-body: "Bricolage Grotesque", "Be Vietnam Pro", sans-serif;
+  --font-label: "Bricolage Grotesque", "Be Vietnam Pro", sans-serif;
 
   @keyframes marquee {
     0% { transform: translateX(0); }
     100% { transform: translateX(-50%); }
   }
+}
+
+@utility text-heavy {
+  letter-spacing: -0.02em;
+}
+
+@utility blob-1 { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+@utility blob-2 { border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; }
+@utility blob-3 { border-radius: 50% 50% 20% 80% / 25% 80% 20% 75%; }
+@utility blob-4 { border-radius: 40% 60% 40% 60% / 70% 30% 70% 30%; }
+@utility blob-5 { border-radius: 80% 20% 60% 40% / 40% 60% 40% 60%; }
+
+@utility animate-marquee {
+  animation: marquee 30s linear infinite;
 }
 
 @utility animate-fade-in-up {

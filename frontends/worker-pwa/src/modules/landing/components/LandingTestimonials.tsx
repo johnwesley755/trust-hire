@@ -1,106 +1,50 @@
-import { motion } from "framer-motion";
-import { Star, Quote, Globe } from "lucide-react";
-import { useLanguage } from "../../../core/hooks/useLanguage";  
-
 export function LandingTestimonials() {
-  const { t } = useLanguage();
-
-  const TESTIMONIALS = [
+  const stories = [
     {
-      name: t('testimonials.1.name'),
-      role: t('testimonials.1.role'),
-      location: t('testimonials.1.location'),
-      quote: t('testimonials.1.quote'),
-      rating: 5,
-      image: "https://i.pravatar.cc/150?u=rajesh",
+      name: "Ramesh",
+      role: "Security Guard, Mumbai",
+      quote: "Pehle main naka par khada rehta tha. Ab TrustHire ki wajah se mere paas fixed naukri hai aur izzat bhi.",
+      img: "https://lh3.googleusercontent.com/aida-public/AB6AXuD07jGtFCwE_SXKto8Gkxd9WagrIE14rUvge0v97pWal6dbDRLYF3BFh-u3TPkACIT1Av93yKH4oLwWZNaWfYR2aeBy32rpaKv9M_OZB2vR12DPAt2yYNnyOCx8LNKMTvS5wylung0VogOYjef1R6NLlYa_3L9zvlKYxO6_ivOjAIQ8duGBbzcByzT8cpesLlhJqBOAoyFk5ug6aBl5VnHs9PPov1BkzM19pY8CmgenpKPy_Ucw0MQ5cfGkvNg5HEuYufA5an3aTOY",
+      blob: "blob-1"
     },
     {
-      name: t('testimonials.2.name'),
-      role: t('testimonials.2.role'),
-      location: t('testimonials.2.location'),
-      quote: t('testimonials.2.quote'),
-      rating: 5,
-      image: "https://i.pravatar.cc/150?u=anita",
+      name: "Priya",
+      role: "Professional Cook, Pune",
+      quote: "I got a 2.5x salary hike after reaching Level 4. The insurance helped me when my daughter was sick.",
+      img: "https://lh3.googleusercontent.com/aida-public/AB6AXuAwGfmPiOmqVyvirtH3PxKpgHCLVIkEaa4Pg3eLwwvDxolM9vISWK_6kPYLDWaj3L3ZM59pcvpoP52Cv3ic4KoYuvPMY7kKnWaqDVghcSILvY0k8Ec3LPXr-SrzzJi_Aiphmploxh61zViVaKKwbgdQmgEVrgHCJm3Ke-p8RBb4_IdVoNg2Z1z0jl98kEcc2uxh8qdzjy6ly-Txjar9OxR1zyUt8q1ELr_mDKNozLeO2VQPQgqYTyS8v5oyqIUjBhAN_mYuZ3C038U",
+      blob: "blob-2"
     },
     {
-      name: t('testimonials.3.name'),
-      role: t('testimonials.3.role'),
-      location: t('testimonials.3.location'),
-      quote: t('testimonials.3.quote'),
-      rating: 5,
-      image: "https://i.pravatar.cc/150?u=vikram",
-    },
+      name: "Suresh",
+      role: "Executive Driver, Delhi",
+      quote: "TrustHire is like my elder brother. They guide me on how to talk to clients and grow my skills.",
+      img: "https://lh3.googleusercontent.com/aida-public/AB6AXuCEP-lC3Zt1n3wf4ak99rvS9xFNBjKL1dIpqv7u4NQX3PFUAhbqQMUdyMaETxcGkYf5fAiwGyTYZPzWMHbBXJERcVvdpQNjN9VjQWi4T3I_PSbuca6ysLccR5u0U3tIh1H5YcpY40nTNuTAAr3m88yyF7-AaZsmNPv4M-YQpIlL8f8LZETz6kxWn7n6jngeMyqztFKvWlJapROU0HQeRJSLAD8fPTOSvZ8UF0mEOmWWPING7NDeXAtV8DxqSKgGTdj5MpMPRMrxVXw",
+      blob: "blob-3"
+    }
   ];
 
   return (
-    <section className="py-32 bg-brand-secondary text-white relative overflow-hidden selection:bg-brand-primary selection:text-brand-secondary">
-      {/* Background Decorative Pattern */}
-      <div className="absolute inset-0 opacity-[0.05]" style={{ backgroundImage: 'radial-gradient(circle at 5px 5px, rgba(255,255,255,0.8) 2px, transparent 2px)', backgroundSize: '40px 40px' }} />
-      <div className="absolute inset-0 cloud-grid opacity-[0.05] pointer-events-none" />
+    <section id="success-stories" className="py-24 px-6 md:px-12 max-w-[1440px] mx-auto relative overflow-hidden">
+      <div className="absolute top-1/2 left-0 w-64 h-64 bg-secondary-container/10 blob-3 -z-10"></div>
+      <div className="absolute bottom-10 right-10 w-48 h-48 bg-primary-fixed/10 blob-5 opacity-40 -z-10"></div>
       
-      {/* AMBER MIXED IN GREEN BG */}
-      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-brand-primary/10 rounded-full blur-[150px] -mr-40 -mt-40 pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-brand-primary/5 rounded-full blur-[120px] -ml-20 -mb-20 pointer-events-none" />
-
-      <div className="max-w-7xl mx-auto px-6 relative z-10">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-          className="text-center mb-16 sm:mb-24 px-4"
-        >
-          <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-white/5 border border-white/10 text-brand-primary text-[11px] font-semibold tracking-tight mb-10 shadow-2xl">
-            <Globe size={18} className="text-brand-primary animate-pulse" />
-            <span>{t('testimonials.badge')}</span>
+      <h2 className="text-[42px] font-extrabold text-primary text-heavy mb-16 text-center font-headline">Join 12,000+ Happy Workers</h2>
+      
+      <div className="grid md:grid-cols-3 gap-8">
+        {stories.map((story, i) => (
+          <div key={i} className="bg-white p-8 rounded-[40px] shadow-sm hover:shadow-xl transition-all border border-surface-container group hover:-translate-y-2">
+            <div className={`${story.blob} w-full h-56 overflow-hidden mb-6 group-hover:scale-105 transition-transform duration-500`}>
+              <img 
+                className="w-full h-full object-cover" 
+                alt={`${story.name} smiling`}
+                src={story.img}
+              />
+            </div>
+            <h4 className="text-2xl font-black text-primary mb-2 font-headline">{story.name}</h4>
+            <p className="text-primary/50 text-sm font-bold uppercase mb-4 font-label">{story.role}</p>
+            <p className="text-primary/80 italic font-body">"{story.quote}"</p>
           </div>
-          <h2 className="text-6xl sm:text-8xl lg:text-[100px] font-bold leading-[0.9] tracking-tight mb-10">
-            {t('testimonials.title')} <br />
-            <span className="text-brand-primary opacity-90">{t('testimonials.accent')}</span>
-          </h2>
-        </motion.div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-          {TESTIMONIALS.map((t, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.2, duration: 0.8 }}
-              className="bg-white/5 backdrop-blur-3xl rounded-[3rem] p-10 sm:p-12 border border-white/10 flex flex-col relative group hover:bg-white/10 transition-all duration-500 shadow-2xl"
-            >
-              <Quote className="absolute top-10 right-10 w-16 h-16 text-brand-primary/10 group-hover:scale-110 transition-transform" />
-              
-              <div className="flex gap-2 mb-10">
-                {[...Array(t.rating)].map((_, i) => (
-                  <Star key={i} className="w-5 h-5 fill-brand-primary text-brand-primary shadow-[0_0_12px_rgba(250,204,21,0.6)]" />
-                ))}
-              </div>
-              
-              <p className="text-white/80 text-xl font-medium leading-relaxed mb-12 grow">
-                "{t.quote}"
-              </p>
-              
-              <div className="flex items-center gap-6 mt-auto">
-                <div className="relative">
-                    <img 
-                    src={t.image} 
-                    alt={t.name}
-                    className="w-16 h-16 rounded-3xl border-2 border-brand-primary object-cover shadow-2xl brightness-110 group-hover:scale-105 transition-all"
-                    />
-                    <div className="absolute -bottom-2 -right-2 bg-brand-primary w-7 h-7 rounded-xl flex items-center justify-center shadow-lg border-2 border-brand-secondary">
-                        <Star className="w-4 h-4 text-brand-secondary fill-current" />
-                    </div>
-                </div>
-                <div className="text-left">
-                  <h4 className="font-bold text-white tracking-tight text-xl">{t.name}</h4>
-                  <p className="text-brand-primary text-xs font-semibold tracking-tight">{t.role} <span className="text-white/40 font-semibold ml-2">Â· {t.location}</span></p>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+        ))}
       </div>
     </section>
   );
