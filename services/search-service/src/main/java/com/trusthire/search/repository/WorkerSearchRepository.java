@@ -13,6 +13,7 @@ public interface WorkerSearchRepository extends JpaRepository<WorkerSearch, Stri
     
     @Query("SELECT w FROM WorkerSearch w WHERE " +
            "(:query IS NULL OR :query = '' OR LOWER(w.name) LIKE LOWER(CONCAT('%', :query, '%')) OR LOWER(w.skills) LIKE LOWER(CONCAT('%', :query, '%'))) AND " +
+           "(:city IS NULL OR :city = '' OR LOWER(w.city) = LOWER(:city)) AND " +
            "(:location IS NULL OR :location = '' OR LOWER(w.location) LIKE LOWER(CONCAT('%', :location, '%'))) AND " +
            "(:level IS NULL OR :level = '' OR w.level = :level) AND " +
            "(:lat = -999.0 OR :lon = -999.0 OR :radius = -999.0 OR " +
@@ -20,6 +21,7 @@ public interface WorkerSearchRepository extends JpaRepository<WorkerSearch, Stri
     List<WorkerSearch> searchWorkers(
             @Param("query") String query, 
             @Param("location") String location, 
+            @Param("city") String city,
             @Param("level") String level,
             @Param("lat") Double lat,
             @Param("lon") Double lon,

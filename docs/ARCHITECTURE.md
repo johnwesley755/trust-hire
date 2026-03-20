@@ -9,16 +9,16 @@ TrustHire implements a modern **microservices architecture** with **two independ
 ### **Two Independent Frontend Apps:**
 
 1. **TrustHire for Employers** 💼
-   - React PWA (Vite/Next.js)
+   - React PWA (Vite)
    - Business owners find and hire workers
-   - Clerk-based authentication with email verification
+   - Custom JWT-based authentication
    - Employer verification tiers (Basic → Verified → Premium)
    - Worker search and job posting features
 
 2. **TrustHire for Workers** 👷
-   - React PWA (Vite/Next.js)
+   - React PWA (Vite)
    - Service providers find jobs and build careers
-   - Clerk-based authentication with email verification
+   - Custom JWT-based authentication
    - Aadhaar verification integration
    - Level progression tracking (L1 → L4)
    - Skill tests and profile building
@@ -27,7 +27,7 @@ TrustHire implements a modern **microservices architecture** with **two independ
 - **Modular Services**: Separate microservices for Auth, Workers, Employers, Jobs, Ratings, and Verification.
 - **Polyglot Strategy**: Core services in Spring Boot (Java), AI services in FastAPI (Python), and workflows in **Make** (formerly Integromat).
 - **Communication**: REST APIs and Event-driven communication for cross-service updates.
-- **Data Persistence**: Shared **Prisma Postgres** (serverless PostgreSQL) instance with service-specific schemas.
+- **Data Persistence**: Service-specific PostgreSQL databases for isolated data management and scalability.
 
 ---
 
@@ -40,47 +40,41 @@ TrustHire implements a modern **microservices architecture** with **two independ
 │  ┌──────────────────────┐  ┌──────────────────────┐       │
 │  │  TrustHire for       │  │  TrustHire for       │       │
 │  │  Employers 💼        │  │  Workers 👷          │       │
-│  │  (React Native)      │  │  (React Native)      │       │
+│  │  (React PWA)         │  │  (React PWA)          │       │
 │  │                      │  │                      │       │
 │  │  - Worker search     │  │  - Job discovery     │       │
 │  │  - Job posting       │  │  - Level progress    │       │
 │  │  - Hire management   │  │  - Profile mgmt      │       │
 │  │  - Rating workers    │  │  - Verification      │       │
-│  │  - Google Sign-In    │  │  - Google Sign-In    │       │
 │  └──────────┬───────────┘  └──────────┬───────────┘       │
 │             │                         │                    │
 └─────────────┼─────────────────────────┼────────────────────┘
               │                         │
-              │    Google OAuth 2.0     │
-              │    HTTPS/WSS            │
+              │      API Gateway        │
+              │      (Port 9000)        │
               │                         │
               ▼                         ▼
 ┌─────────────────────────────────────────────────────────────┐
-│              SHARED BACKEND API (Single Instance)           │
+│              DISTRIBUTED MICROSERVICES LAYER                │
 │              Spring Boot 3.2 (Java 21)                      │
 │                                                             │
 │  ┌──────────────────────────────────────────────────────┐  │
-│  │  Authentication Service (Spring Security)             │  │
-│  │  - Google OAuth 2.0 integration                       │  │
-│  │  - JWT token generation (jjwt)                        │  │
+│  │  Authentication Service (Port 8081)                   │  │
+│  │  - Custom JWT token generation                        │  │
 │  │  - Role-based routing (OWNER/WORKER/ADMIN)            │  │
 │  └──────────────────────────────────────────────────────┘  │
 │                                                             │
 │  ┌──────────────────┐  ┌──────────────────────────────┐   │
-│  │  Employer API    │  │  Worker API                   │   │
+│  │  Employer Service │  │  Worker Service               │   │
+│  │  (Port 8083)     │  │  (Port 8082)                  │   │
 │  │  - Business mgmt │  │  - Profile management         │   │
-│  │  - Job posting   │  │  - Job applications           │   │
-│  │  - Worker search │  │  - Level calculation          │   │
-│  │  - Hiring        │  │  - Verification               │   │
 │  └──────────────────┘  └──────────────────────────────┘   │
 │                                                             │
-│  ┌──────────────────────────────────────────────────────┐  │
-│  │  Shared Services                                      │  │
-│  │  - WebSocket Server (Spring WebSocket + STOMP)        │  │
-│  │  - Level Calculation Engine                           │  │
-│  │  - Skill Test Management                              │  │
-│  │  - RBAC Enforcement (Spring Security)                 │  │
-│  └──────────────────────────────────────────────────────┘  │
+│  ┌──────────────────┐  ┌──────────────────────────────┐   │
+│  │  Job Service     │  │  Notification Service         │   │
+│  │  (Port 8084)     │  │  (Port 8087)                  │   │
+│  │  - Job Posting   │  │  - WebSocket Server (STOMP)   │   │
+│  └──────────────────┘  └──────────────────────────────┘   │
 └─────────────────────────────────────────────────────────────┘
       │              │              │              │
       │              │              │              │
@@ -128,10 +122,10 @@ TrustHire implements a modern **microservices architecture** with **two independ
 ### **Microservices Orchestration**
 
 ✅ **Distributed Backend Services**
--   **Auth Service**: Manages user identity via Clerk and role synchronization.
+-   **Auth Service**: Manages user identity via custom JWT and role synchronization.
 -   **Worker/Employer Services**: Manage domain-specific profile data.
 -   **Job Service**: Handles the job lifecycle and matching logic.
--   **Notification Service**: Orchestrates alerts via Brevo (Email/SMS) and Clerk.
+-   **Notification Service**: Orchestrates alerts via Brevo (Email/SMS) and WebSocket.
 
 ✅ **AI & Workflow Automation**
 -   **Make (formerly Integromat) Workflow Engine**: Orchestrates complex AI tasks and business workflows.
@@ -227,10 +221,10 @@ Each component has clear, independent responsibilities:
 - **Responsive UI**: Optimized for mobile and desktop browsers.
 
 **Responsibilities**:
-- User authentication via Clerk components.
+- User authentication via custom login/signup screens.
 - Profile management and onboarding.
 - Real-time job/worker tracking.
-- Media handling (Cloudinary upload widget/SDK).
+- Media handling (Cloudinary uploads).
 
 **Responsibilities**:
 - User authentication and onboarding

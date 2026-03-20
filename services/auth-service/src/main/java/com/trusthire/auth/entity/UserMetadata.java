@@ -46,6 +46,12 @@ public class UserMetadata {
     @Column(name = "onboarded")
     private Boolean onboarded = false;
 
+    @Column(name = "reset_token")
+    private String resetToken;
+
+    @Column(name = "reset_token_expiry")
+    private LocalDateTime resetTokenExpiry;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 

@@ -25,6 +25,7 @@ public class WorkerSearch {
 
     private String skills; // Comma separated skills e.g., "Plumbing, Electrician"
     private String location;
+    private String city;
     private Double latitude;
     private Double longitude;
     private String level; // L1, L2, L3, L4

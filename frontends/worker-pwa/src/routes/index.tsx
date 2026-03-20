@@ -1,22 +1,24 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
-import { SignedIn } from '../providers/AuthContext';
-import LandingPage from '../pages/LandingPage.tsx';
-import DashboardPage from '../pages/DashboardPage.tsx';
-import { IdentityVerificationPage } from '../pages/IdentityVerificationPage.tsx';
-import JobSearchPage from '../pages/JobSearchPage.tsx';
-import JobDetailPage from '../pages/JobDetailPage.tsx';
-import { SkillTestsPage } from '../pages/SkillTestsPage.tsx';
-import { LevelDetailsPage } from '../pages/LevelDetailsPage.tsx';
-import { SignInPage } from '../pages/SignInPage.tsx';
-import { SignUpPage } from '../pages/SignUpPage.tsx';
-import ProfilePage from '../pages/ProfilePage.tsx';
-import HistoryPage from '../pages/HistoryPage.tsx';
-import AppliedJobsPage from '../pages/AppliedJobsPage.tsx';
-import OnboardingPage from '../pages/OnboardingPage.tsx';
+import { SignedIn } from '../core/providers/AuthContext';
+import LandingPage from '../modules/landing/pages/LandingPage.tsx';
+import DashboardPage from '../modules/dashboard/pages/DashboardPage.tsx';
+import { IdentityVerificationPage } from '../modules/profile/pages/IdentityVerificationPage.tsx';
+import JobSearchPage from '../modules/jobs/pages/JobSearchPage.tsx';
+import JobDetailPage from '../modules/jobs/pages/JobDetailPage.tsx';
+import { SkillTestsPage } from '../modules/profile/pages/SkillTestsPage.tsx';
+import { LevelDetailsPage } from '../modules/profile/pages/LevelDetailsPage.tsx';
+import { SignInPage } from '../modules/auth/pages/SignInPage.tsx';
+import { SignUpPage } from '../modules/auth/pages/SignUpPage.tsx';
+import ForgotPasswordPage from '../modules/auth/pages/ForgotPasswordPage.tsx';
+import ResetPasswordPage from '../modules/auth/pages/ResetPasswordPage.tsx';
+import ProfilePage from '../modules/profile/pages/ProfilePage.tsx';
+import HistoryPage from '../modules/profile/pages/HistoryPage.tsx';
+import AppliedJobsPage from '../modules/jobs/pages/AppliedJobsPage.tsx';
+import OnboardingPage from '../modules/profile/pages/OnboardingPage.tsx';
 
-import AppLayout from '../components/AppLayout.tsx';
-import RootLayout from '../components/RootLayout.tsx';
-import ProtectedRoute from '../components/ProtectedRoute.tsx';
+import AppLayout from '../core/layouts/AppLayout.tsx';
+import RootLayout from '../core/layouts/RootLayout.tsx';
+import ProtectedRoute from '../core/layouts/ProtectedRoute.tsx';
 
 export const router = createBrowserRouter([
   {
@@ -33,6 +35,14 @@ export const router = createBrowserRouter([
       {
         path: '/sign-up/*',
         element: <SignUpPage />,
+      },
+      {
+        path: '/forgot-password',
+        element: <ForgotPasswordPage />,
+      },
+      {
+        path: '/reset-password',
+        element: <ResetPasswordPage />,
       },
       {
         element: (
@@ -94,3 +104,4 @@ export const router = createBrowserRouter([
     ],
   },
 ]);
+

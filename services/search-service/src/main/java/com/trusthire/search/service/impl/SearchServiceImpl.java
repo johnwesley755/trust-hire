@@ -22,9 +22,12 @@ public class SearchServiceImpl implements SearchService {
     private final WorkerSearchRepository workerRepository;
 
     @Override
-    public List<JobSearch> searchJobs(String query, String category, String location) {
-        log.info("Searching jobs: query={}, category={}, location={}", query, category, location);
-        return jobRepository.searchJobs(query, category, location);
+    public List<JobSearch> searchJobs(String query, String category, String location, String city, Double lat, Double lon, Double radius) {
+        log.info("Searching jobs: query={}, category={}, location={}, city={}, lat={}, lon={}, radius={}", query, category, location, city, lat, lon, radius);
+        Double safeLat = lat != null ? lat : -999.0;
+        Double safeLon = lon != null ? lon : -999.0;
+        Double safeRadius = radius != null ? radius : -999.0;
+        return jobRepository.searchJobs(query, category, location, city, safeLat, safeLon, safeRadius);
     }
 
     @Override
@@ -42,12 +45,12 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Override
-    public List<WorkerSearch> searchWorkers(String query, String location, String level, Double lat, Double lon, Double radius) {
-        log.info("Searching workers: query={}, location={}, level={}, lat={}, lon={}, radius={}", query, location, level, lat, lon, radius);
+    public List<WorkerSearch> searchWorkers(String query, String location, String city, String level, Double lat, Double lon, Double radius) {
+        log.info("Searching workers: query={}, location={}, city={}, level={}, lat={}, lon={}, radius={}", query, location, city, level, lat, lon, radius);
         Double safeLat = lat != null ? lat : -999.0;
         Double safeLon = lon != null ? lon : -999.0;
         Double safeRadius = radius != null ? radius : -999.0;
-        return workerRepository.searchWorkers(query, location, level, safeLat, safeLon, safeRadius);
+        return workerRepository.searchWorkers(query, location, city, level, safeLat, safeLon, safeRadius);
     }
 
     @Override

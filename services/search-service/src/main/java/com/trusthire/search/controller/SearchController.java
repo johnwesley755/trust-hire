@@ -21,8 +21,12 @@ public class SearchController {
     public ResponseEntity<List<JobSearch>> searchJobs(
             @RequestParam(required = false) String query,
             @RequestParam(required = false) String category,
-            @RequestParam(required = false) String location) {
-        return ResponseEntity.ok(searchService.searchJobs(query, category, location));
+            @RequestParam(required = false) String location,
+            @RequestParam(required = false) String city,
+            @RequestParam(required = false) Double lat,
+            @RequestParam(required = false) Double lon,
+            @RequestParam(required = false) Double radius) {
+        return ResponseEntity.ok(searchService.searchJobs(query, category, location, city, lat, lon, radius));
     }
 
     @PostMapping("/index/job")
@@ -41,11 +45,12 @@ public class SearchController {
     public ResponseEntity<List<WorkerSearch>> searchWorkers(
             @RequestParam(required = false) String query,
             @RequestParam(required = false) String location,
+            @RequestParam(required = false) String city,
             @RequestParam(required = false) String level,
             @RequestParam(required = false) Double lat,
             @RequestParam(required = false) Double lon,
             @RequestParam(required = false) Double radius) {
-        return ResponseEntity.ok(searchService.searchWorkers(query, location, level, lat, lon, radius));
+        return ResponseEntity.ok(searchService.searchWorkers(query, location, city, level, lat, lon, radius));
     }
 
     @PostMapping("/index/worker")

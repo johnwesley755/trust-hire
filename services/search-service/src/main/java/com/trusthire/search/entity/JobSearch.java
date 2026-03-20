@@ -27,8 +27,10 @@ public class JobSearch {
     @Column(name = "category")
     private String industry;
     private String location;
-    private Double budget;
-    private String employerId;
+    private String city;
+    private Double latitude;
+    private Double longitude;
+    private String level; // L1, L2, L3, L4
     private String status;
 
     @CreationTimestamp

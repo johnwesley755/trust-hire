@@ -4,26 +4,26 @@
 
 ```
 Production:  https://api.trusthire.in/api/v1
-Development: http://localhost:8080/api/v1
+Development: http://localhost:9000/api/v1
 ```
 
 ## 📱 Dual-App Architecture
 
 TrustHire uses a distributed microservices backend. Each service exposes its own set of REST endpoints. 
 
-## 🔑 Authentication (Clerk)
+## 🔑 Authentication (Custom JWT)
 
-All protected endpoints require a Clerk JWT token. Authentication is managed via Clerk's frontend components and backend SDKs.
+All protected endpoints require a Bearer JWT token. Authentication is managed via our local `auth-service`.
 
 ```http
-Authorization: Bearer <clerk_jwt_token>
+Authorization: Bearer <access_token>
 ```
 
 ### Authentication Flow
-1. User signs in via Clerk PWA components.
-2. Clerk provides a session token (JWT).
-3. The PWA includes this token in the header of all requests to backends.
-4. Each microservice validates the token using Clerk's public keys.
+1. User signs in via PWA login screens.
+2. `auth-service` provides an access token (JWT) and refresh token.
+3. The PWA includes this token in the `Authorization` header of all requests.
+4. The API Gateway (or individual microservices) validates the JWT signature and extracts user roles.
 
 ---
 
@@ -32,9 +32,10 @@ Authorization: Bearer <clerk_jwt_token>
 ## 📝 Microservices Endpoints
 
 ### Auth Service
-Manages Clerk users, role synchronization, and profile metadata.
+Manages users, authentication, and platform-wide profile metadata.
 
-- `POST /auth/sync`: Syncs Clerk user data into local service DB.
+- `POST /auth/login`: Authenticates user and returns JWT.
+- `POST /auth/register`: Creates new user account.
 - `GET /auth/profile`: Gets combined user and role-specific metadata.
 
 ---
@@ -532,7 +533,7 @@ import SockJS from 'sockjs-client';
 import { Client } from '@stomp/stompjs';
 
 const client = new Client({
-  webSocketFactory: () => new SockJS('https://api.trusthire.in/ws'),
+  webSocketFactory: () => new SockJS('http://localhost:9000/ws'),
   connectHeaders: {
     Authorization: `Bearer ${accessToken}`
   }

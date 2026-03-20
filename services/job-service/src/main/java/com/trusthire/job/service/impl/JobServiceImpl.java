@@ -85,6 +85,7 @@ public class JobServiceImpl implements JobService {
                     .description(job.getDescription())
                     .industry(job.getIndustry())
                     .location(job.getLocation())
+                    .city(job.getCity())
                     .latitude(job.getLatitude())
                     .longitude(job.getLongitude())
                     .budget(job.getBudget() != null ? job.getBudget().doubleValue() : null)

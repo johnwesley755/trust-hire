@@ -163,6 +163,7 @@ public class WorkerProfileServiceImpl implements WorkerProfileService {
                     .bio(profile.getBio())
                     .skills(profile.getSkills() != null ? String.join(", ", profile.getSkills()) : "")
                     .location(profile.getLocation())
+                    .city(profile.getCity())
                     .latitude(profile.getLatitude())
                     .longitude(profile.getLongitude())
                     .level(profile.getLevel())

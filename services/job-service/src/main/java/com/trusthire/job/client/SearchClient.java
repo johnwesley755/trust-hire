@@ -22,6 +22,7 @@ public interface SearchClient {
         private String description;
         private String industry;
         private String location;
+        private String city;
         private Double latitude;
         private Double longitude;
         private Double budget;

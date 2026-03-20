@@ -21,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class UserController {
-
+    private final com.trusthire.auth.service.UserService userService;
     private final UserMetadataRepository repository;
     private final com.trusthire.auth.service.impl.OtpService otpService;
     private final com.trusthire.auth.security.JwtService jwtService;
@@ -112,6 +112,31 @@ public class UserController {
                 return ResponseEntity.ok(new AuthResponse(token, user));
             })
             .orElse(ResponseEntity.status(401).build());
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@org.springframework.web.bind.annotation.RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        if (email == null) return ResponseEntity.badRequest().body("Email missing");
+        try {
+            userService.processForgotPassword(email);
+            return ResponseEntity.ok(Map.of("message", "Reset email sent successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@org.springframework.web.bind.annotation.RequestBody Map<String, String> request) {
+        String token = request.get("token");
+        String password = request.get("password");
+        if (token == null || password == null) return ResponseEntity.badRequest().body("Token or password missing");
+        try {
+            userService.updatePassword(token, password);
+            return ResponseEntity.ok(Map.of("message", "Password updated successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body(Map.of("error", e.getMessage()));
+        }
     }
 
     @PostMapping("/sync")

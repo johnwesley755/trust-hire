@@ -11,6 +11,7 @@ import java.util.UUID;
 public interface UserMetadataRepository extends JpaRepository<UserMetadata, UUID> {
     Optional<UserMetadata> findByEmail(String email);
     Optional<UserMetadata> findByPhoneNumber(String phoneNumber);
+    Optional<UserMetadata> findByResetToken(String resetToken);
     List<UserMetadata> findByIdIn(List<UUID> ids);
     boolean existsByEmail(String email);
     boolean existsByPhoneNumber(String phoneNumber);

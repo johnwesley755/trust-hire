@@ -1,21 +1,23 @@
 import { createBrowserRouter } from 'react-router-dom';
-import { SignedIn } from '../providers/AuthContext';
-import LandingPage from '../pages/LandingPage.tsx';
-import DashboardPage from '../pages/DashboardPage.tsx';
-import { JobPostingPage } from '../pages/JobPostingPage.tsx';
-import { WorkerSearchPage } from '../pages/WorkerSearchPage.tsx';
-import ApplicationManagementPage from '../pages/ApplicationManagementPage.tsx';
-import { WorkerProfilePage } from '../pages/WorkerProfilePage.tsx';
-import { SignInPage } from '../pages/SignInPage.tsx';
-import { SignUpPage } from '../pages/SignUpPage.tsx';
-import OnboardingPage from '../pages/OnboardingPage.tsx';
+import { SignedIn } from '../core/providers/AuthContext';
+import LandingPage from '../modules/landing/pages/LandingPage.tsx';
+import DashboardPage from '../modules/dashboard/pages/DashboardPage.tsx';
+import { JobPostingPage } from '../modules/jobs/pages/JobPostingPage.tsx';
+import { WorkerSearchPage } from '../modules/search/pages/WorkerSearchPage.tsx';
+import ApplicationManagementPage from '../modules/jobs/pages/ApplicationManagementPage.tsx';
+import { WorkerProfilePage } from '../modules/search/pages/WorkerProfilePage.tsx';
+import { SignInPage } from '../modules/auth/pages/SignInPage.tsx';
+import { SignUpPage } from '../modules/auth/pages/SignUpPage.tsx';
+import ForgotPasswordPage from '../modules/auth/pages/ForgotPasswordPage.tsx';
+import ResetPasswordPage from '../modules/auth/pages/ResetPasswordPage.tsx';
+import OnboardingPage from '../modules/profile/pages/OnboardingPage.tsx';
 
-import { ActiveJobsPage } from '../pages/ActiveJobsPage.tsx';
-import ProfilePage from '../pages/ProfilePage.tsx';
+import { ActiveJobsPage } from '../modules/jobs/pages/ActiveJobsPage.tsx';
+import ProfilePage from '../modules/profile/pages/ProfilePage.tsx';
 
-import AppLayout from '../components/AppLayout.tsx';
-import RootLayout from '../components/RootLayout.tsx';
-import ProtectedRoute from '../components/ProtectedRoute.tsx';
+import AppLayout from '../core/layouts/AppLayout.tsx';
+import RootLayout from '../core/layouts/RootLayout.tsx';
+import ProtectedRoute from '../core/layouts/ProtectedRoute.tsx';
 
 export const router = createBrowserRouter([
   {
@@ -32,6 +34,14 @@ export const router = createBrowserRouter([
       {
         path: '/sign-up/*',
         element: <SignUpPage />,
+      },
+      {
+        path: '/forgot-password',
+        element: <ForgotPasswordPage />,
+      },
+      {
+        path: '/reset-password',
+        element: <ResetPasswordPage />,
       },
       {
         path: '/onboarding',
@@ -81,3 +91,4 @@ export const router = createBrowserRouter([
     ],
   },
 ]);
+
