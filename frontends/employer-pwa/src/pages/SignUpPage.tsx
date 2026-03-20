@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../providers/AuthContext';
-import apiClient from '../api/apiClient';
+import { authService } from '../api/auth.service';
 import { Mail, Lock, Loader2, ArrowRight, User, ShieldCheck, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
-import { ImageUpload } from '../components/ImageUpload';
+import { AdvancedFileUpload } from '../components/AdvancedFileUpload';
 
 interface ApiError {
     response?: {
@@ -40,7 +40,7 @@ export const SignUpPage = () => {
         setIsLoading(true);
 
         try {
-            await apiClient.post('/api/auth/send-otp', { email: formData.email });
+            await authService.sendOtp(formData.email);
             setOtpSent(true);
         } catch (err) {
             console.error('OTP Send Error:', err);
@@ -56,11 +56,11 @@ export const SignUpPage = () => {
         setIsLoading(true);
 
         try {
-            const response = await apiClient.post('/api/auth/register', {
+            const data = await authService.register({
                 ...formData,
                 otp
             });
-            login(response.data.token, response.data.user);
+            login(data.token, data.user);
             navigate('/onboarding');
         } catch (err: unknown) {
             const apiError = err as ApiError;
@@ -279,9 +279,10 @@ export const SignUpPage = () => {
                         </div>
 
                         <div className="pt-4">
-                             <ImageUpload 
-                                onUploadSuccess={(url) => setFormData({...formData, profile_image_url: url})}
-                                currentImage={formData.profile_image_url}
+                             <AdvancedFileUpload 
+                                onUploadSuccess={(urls) => setFormData({...formData, profile_image_url: urls[0] || ''})}
+                                maxFiles={1}
+                                label="Profile Photo"
                              />
                         </div>
 

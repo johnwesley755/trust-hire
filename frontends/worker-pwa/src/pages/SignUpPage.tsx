@@ -1,11 +1,19 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../providers/AuthContext';
-import apiClient from '../api/apiClient';
+import { authService } from '../api/auth.service';
 import { Mail, Lock, Loader2, User, Briefcase, ShieldCheck } from 'lucide-react';
 import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
-import { ImageUpload } from '../components/ImageUpload';
+import { AdvancedFileUpload } from '../components/AdvancedFileUpload';
+
+interface ApiError {
+    response?: {
+        data?: {
+            message?: string;
+        } | string;
+    };
+}
 
 export const SignUpPage = () => {
     const [formData, setFormData] = useState({
@@ -29,10 +37,11 @@ export const SignUpPage = () => {
         setIsLoading(true);
         setError('');
         try {
-            await apiClient.post('/api/auth/send-otp', { email: formData.email });
+            await authService.sendOtp(formData.email);
             setOtpSent(true);
-        } catch (err: any) {
-            setError(err.response?.data?.message || 'Failed to send OTP. Please try again.');
+        } catch (err: unknown) {
+            const apiError = err as ApiError;
+            setError(apiError.response?.data && typeof apiError.response.data === 'object' ? apiError.response.data.message || 'Failed to send OTP' : 'Failed to send OTP. Please try again.');
         } finally {
             setIsLoading(false);
         }
@@ -44,14 +53,15 @@ export const SignUpPage = () => {
         setIsLoading(true);
 
         try {
-            const response = await apiClient.post('/api/auth/register', {
+            const data = await authService.register({
                 ...formData,
                 otp
             });
-            login(response.data.token, response.data.user);
+            login(data.token, data.user);
             navigate('/onboarding');
-        } catch (err: any) {
-            setError(err.response?.data?.message || 'Registration failed. Please check your details.');
+        } catch (err: unknown) {
+            const apiError = err as ApiError;
+            setError(apiError.response?.data && typeof apiError.response.data === 'object' ? apiError.response.data.message || 'Registration failed' : 'Registration failed. Please check your details.');
         } finally {
             setIsLoading(false);
         }
@@ -242,14 +252,13 @@ export const SignUpPage = () => {
                             </div>
                         </div>
 
-                        <div className="space-y-2">
-                            <label className="text-xs font-semibold text-brand-secondary">Profile image</label>
-                            <div className="rounded-2xl border border-brand-border bg-brand-bg p-4">
-                                <ImageUpload
-                                    onUploadSuccess={(url) => setFormData({ ...formData, profile_image_url: url })}
-                                    currentImage={formData.profile_image_url}
-                                />
-                            </div>
+                        <div className="space-y-4">
+                            <label className="text-xs font-semibold text-brand-secondary">Profile photo</label>
+                            <AdvancedFileUpload
+                                onUploadSuccess={(urls) => setFormData({ ...formData, profile_image_url: urls[0] || '' })}
+                                maxFiles={1}
+                                label="Profile Photo"
+                            />
                         </div>
 
                         <button

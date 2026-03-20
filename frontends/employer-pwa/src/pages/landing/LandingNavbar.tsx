@@ -65,7 +65,7 @@ export function LandingNavbar() {
           ) : (
             <>
               <Link
-                to="/login"
+                to="/sign-in"
                 className="hidden sm:block text-xs font-bold text-brand-secondary/80 hover:text-brand-primary transition-colors uppercase tracking-widest"
               >
                 Login

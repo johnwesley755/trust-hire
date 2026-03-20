@@ -13,83 +13,84 @@ import ProfilePage from '../pages/ProfilePage.tsx';
 import HistoryPage from '../pages/HistoryPage.tsx';
 import AppliedJobsPage from '../pages/AppliedJobsPage.tsx';
 import OnboardingPage from '../pages/OnboardingPage.tsx';
-import { AuthOnboardingGuard } from '../components/AuthOnboardingGuard.tsx';
-import AppLayout from '../components/AppLayout.tsx';
 
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => (
-  <AuthOnboardingGuard>
-    {children}
-  </AuthOnboardingGuard>
-);
+import AppLayout from '../components/AppLayout.tsx';
+import RootLayout from '../components/RootLayout.tsx';
+import ProtectedRoute from '../components/ProtectedRoute.tsx';
 
 export const router = createBrowserRouter([
   {
-    path: '/',
-    element: <LandingPage />,
-  },
-  {
-    path: '/sign-in/*',
-    element: <SignInPage />,
-  },
-  {
-    path: '/sign-up/*',
-    element: <SignUpPage />,
-  },
-  {
-    element: (
-      <ProtectedRoute>
-        <AppLayout />
-      </ProtectedRoute>
-    ),
+    element: <RootLayout />,
     children: [
       {
-        path: '/dashboard',
-        element: <DashboardPage />,
+        path: '/',
+        element: <LandingPage />,
       },
       {
-        path: '/verify-identity',
-        element: <IdentityVerificationPage />,
+        path: '/sign-in/*',
+        element: <SignInPage />,
       },
       {
-        path: '/tests',
-        element: <SkillTestsPage />,
+        path: '/sign-up/*',
+        element: <SignUpPage />,
       },
       {
-        path: '/level',
-        element: <LevelDetailsPage />,
+        element: (
+          <ProtectedRoute>
+            <AppLayout />
+          </ProtectedRoute>
+        ),
+        children: [
+          {
+            path: '/dashboard',
+            element: <DashboardPage />,
+          },
+          {
+            path: '/verify-identity',
+            element: <IdentityVerificationPage />,
+          },
+          {
+            path: '/tests',
+            element: <SkillTestsPage />,
+          },
+          {
+            path: '/level',
+            element: <LevelDetailsPage />,
+          },
+          {
+            path: '/search',
+            element: <JobSearchPage />,
+          },
+          {
+            path: '/history',
+            element: <HistoryPage />,
+          },
+          {
+            path: '/applied-jobs',
+            element: <AppliedJobsPage />,
+          },
+          {
+            path: '/job/:id',
+            element: <JobDetailPage />,
+          },
+          {
+            path: '/profile',
+            element: <ProfilePage />,
+          },
+        ]
       },
       {
-        path: '/search',
-        element: <JobSearchPage />,
+        path: '/onboarding',
+        element: (
+          <SignedIn>
+            <OnboardingPage />
+          </SignedIn>
+        ),
       },
       {
-        path: '/history',
-        element: <HistoryPage />,
+        path: '/jobs',
+        element: <Navigate to="/search" replace />,
       },
-      {
-        path: '/applied-jobs',
-        element: <AppliedJobsPage />,
-      },
-      {
-        path: '/job/:id',
-        element: <JobDetailPage />,
-      },
-      {
-        path: '/profile',
-        element: <ProfilePage />,
-      },
-    ]
-  },
-  {
-    path: '/onboarding',
-    element: (
-      <SignedIn>
-        <OnboardingPage />
-      </SignedIn>
-    ),
-  },
-  {
-    path: '/jobs',
-    element: <Navigate to="/search" replace />,
+    ],
   },
 ]);

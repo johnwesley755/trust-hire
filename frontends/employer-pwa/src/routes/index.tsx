@@ -9,74 +9,74 @@ import { WorkerProfilePage } from '../pages/WorkerProfilePage.tsx';
 import { SignInPage } from '../pages/SignInPage.tsx';
 import { SignUpPage } from '../pages/SignUpPage.tsx';
 import OnboardingPage from '../pages/OnboardingPage.tsx';
-import { AuthOnboardingGuard } from '../components/AuthOnboardingGuard.tsx';
 
 import { ActiveJobsPage } from '../pages/ActiveJobsPage.tsx';
 import ProfilePage from '../pages/ProfilePage.tsx';
 
 import AppLayout from '../components/AppLayout.tsx';
-
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => (
-  <AuthOnboardingGuard>
-    {children}
-  </AuthOnboardingGuard>
-);
+import RootLayout from '../components/RootLayout.tsx';
+import ProtectedRoute from '../components/ProtectedRoute.tsx';
 
 export const router = createBrowserRouter([
   {
-    path: '/',
-    element: <LandingPage />,
-  },
-  {
-    path: '/sign-in/*',
-    element: <SignInPage />,
-  },
-  {
-    path: '/sign-up/*',
-    element: <SignUpPage />,
-  },
-  {
-    path: '/onboarding',
-    element: (
-      <SignedIn>
-        <OnboardingPage />
-      </SignedIn>
-    ),
-  },
-  {
-    element: (
-      <ProtectedRoute>
-        <AppLayout />
-      </ProtectedRoute>
-    ),
+    element: <RootLayout />,
     children: [
       {
-        path: '/dashboard',
-        element: <DashboardPage />,
+        path: '/',
+        element: <LandingPage />,
       },
       {
-        path: '/post-job',
-        element: <JobPostingPage />,
+        path: '/sign-in/*',
+        element: <SignInPage />,
       },
       {
-        path: '/jobs',
-        element: <ActiveJobsPage />,
+        path: '/sign-up/*',
+        element: <SignUpPage />,
       },
       {
-        path: '/find-workers',
-        element: <WorkerSearchPage />,
+        path: '/onboarding',
+        element: (
+          <SignedIn>
+            <OnboardingPage />
+          </SignedIn>
+        ),
       },
       {
-        path: '/worker/:id',
-        element: <WorkerProfilePage />,
-      },
-      {
-        path: '/applications',
-        element: <ApplicationManagementPage />,
-      },
-      {
-        path: '/profile',
-        element: <ProfilePage />,
+        element: (
+          <ProtectedRoute>
+            <AppLayout />
+          </ProtectedRoute>
+        ),
+        children: [
+          {
+            path: '/dashboard',
+            element: <DashboardPage />,
+          },
+          {
+            path: '/post-job',
+            element: <JobPostingPage />,
+          },
+          {
+            path: '/jobs',
+            element: <ActiveJobsPage />,
+          },
+          {
+            path: '/find-workers',
+            element: <WorkerSearchPage />,
+          },
+          {
+            path: '/worker/:id',
+            element: <WorkerProfilePage />,
+          },
+          {
+            path: '/applications',
+            element: <ApplicationManagementPage />,
+          },
+          {
+            path: '/profile',
+            element: <ProfilePage />,
+          },
+        ],
       },
     ],
   },
