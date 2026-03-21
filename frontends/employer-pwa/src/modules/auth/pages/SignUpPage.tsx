@@ -33,7 +33,7 @@ export const SignUpPage = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        let timer: any;
+        let timer: ReturnType<typeof setInterval>;
         if (otpSent && timeLeft > 0) {
             timer = setInterval(() => {
                 setTimeLeft((prev) => prev - 1);
@@ -207,7 +207,7 @@ export const SignUpPage = () => {
                                 <img 
                                     alt="Confident Indian Business Owner" 
                                     className="w-full h-full object-cover scale-110" 
-                                    src="https://lh3.googleusercontent.com/aida-public/AB6AXu Ak7jFT3v3L52SZMUDlod-YxmK1Mos92VrWyd7XTbEoN5wS06Nfhv66B2gkCDVHLlWMpamgrTuCKMrOSCHeptO3mzh9eVA9ElgIN2hZxuCmelsJtdHvp8M5HEno4_s1VsZ-UQ5ijumQZjUsR3UKrcHRe_H6psnVxzrBlBbGvauV67YRxAWWW3DAy13JUKI8gtO3JHO3WDxwzo2DvC7-sTMuWGZ4MVYTqaidjNR_DYXJ6Bs4-BkaAUYjNlNx2-geCX6MtJ0PFxoi7Cs" 
+                                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuAk7jFT3v3L52SZMUDlod-YxmK1Mos92VrWyd7XTbEoN5wS06Nfhv66B2gkCDVHLlWMpamgrTuCKMrOSCHeptO3mzh9eVA9ElgIN2hZxuCmelsJtdHvp8M5HEno4_s1VsZ-UQ5ijumQZjUsR3UKrcHRe_H6psnVxzrBlBbGvauV67YRxAWWW3DAy13JUKI8gtO3JHO3WDxwzo2DvC7-sTMuWGZ4MVYTqaidjNR_DYXJ6Bs4-BkaAUYjNlNx2-geCX6MtJ0PFxoi7Cs" 
                                 />
                             </div>
 
