@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { UploadCloud, FileImage, Trash2, X } from 'lucide-react';
+import {  } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { mediaService } from '../api/media.service';
 
@@ -84,109 +84,95 @@ export const AdvancedFileUpload: React.FC<AdvancedFileUploadProps> = ({
 
     return (
         <div className="w-full">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10 items-start">
+            <div className="space-y-4">
+                <label className="block font-label text-xs font-bold text-primary uppercase tracking-wider">{label}</label>
                 <div 
                     onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
                     onDragLeave={() => setIsDragging(false)}
                     onDrop={(e) => { e.preventDefault(); setIsDragging(false); handleFiles(e.dataTransfer.files); }}
-                    className={`
-                        relative border-2 border-dashed rounded-4xl p-6 sm:p-8
-                        flex flex-col items-center justify-center text-center transition-all
-                        ${isDragging ? 'border-brand-primary bg-brand-primary/5' : 'border-brand-border bg-white'}
-                        group cursor-pointer
-                    `}
                     onClick={() => fileInputRef.current?.click()}
+                    className={`
+                        border-2 border-dashed rounded-lg p-10 flex flex-col items-center justify-center gap-4 transition-all cursor-pointer group
+                        ${isDragging ? 'border-primary-fixed bg-primary-fixed/10' : 'border-primary/10 bg-surface-container-low hover:bg-surface-container-high'}
+                    `}
                 >
                     <input 
                         type="file" 
                         ref={fileInputRef} 
                         onChange={(e) => handleFiles(e.target.files)} 
                         className="hidden" 
-                        multiple 
+                        multiple={maxFiles > 1}
                         accept=".png,.jpg,.webp"
                     />
                     
-                    <div className="w-14 h-14 bg-brand-primary/10 text-brand-primary rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                        <UploadCloud className="w-6 h-6" />
+                    <div className="w-14 h-14 bg-primary-fixed rounded-full flex items-center justify-center text-primary shadow-sm group-hover:scale-110 transition-transform">
+                        <span className="material-symbols-outlined text-3xl font-bold">add_a_photo</span>
                     </div>
 
-                    <button 
-                        type="button"
-                        className="bg-brand-primary text-brand-secondary px-8 py-2.5 rounded-full font-bold text-sm shadow-md shadow-brand-primary/20 hover:scale-105 active:scale-95 transition-all mb-4"
-                    >
-                        Browse
-                    </button>
-
-                    <p className="text-brand-muted font-medium text-xs mb-1">drop a file here</p>
-                    <p className="text-brand-muted/40 text-[10px] font-bold">
-                        <span className="text-brand-accent">*</span>File supported .png, .jpg & .webp
-                    </p>
+                    <div className="text-center">
+                        <p className="text-sm font-bold text-primary">Drag & drop photo here</p>
+                        <p className="text-xs text-primary/50 mt-1">
+                            or <span className="text-primary underline decoration-primary-fixed decoration-2">browse files</span>
+                        </p>
+                    </div>
                 </div>
 
-                <div className="space-y-4">
-                    <h3 className="text-brand-secondary font-bold text-sm uppercase tracking-wider opacity-60">{label}</h3>
-                    
-                    <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
-                        <AnimatePresence mode="popLayout">
-                            {files.length === 0 ? (
-                                <motion.div 
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    className="text-center py-8 border border-dashed border-brand-border/30 rounded-2xl bg-brand-bg/10"
-                                >
-                                    <p className="text-brand-muted/40 font-bold text-xs uppercase tracking-widest">No files uploaded yet</p>
-                                </motion.div>
-                            ) : files.map((file) => (
-                                <motion.div
-                                    key={file.id}
-                                    layout
-                                    initial={{ opacity: 0, x: 20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    exit={{ opacity: 0, x: -20 }}
-                                    className="flex items-center gap-4 group"
-                                >
-                                    <div className="w-10 h-10 bg-brand-primary/10 text-brand-primary rounded-xl flex items-center justify-center shrink-0">
-                                        <FileImage className="w-5 h-5" />
-                                    </div>
+                {/* Upload Status / File List */}
+                <div className="space-y-3 mt-4">
+                    <AnimatePresence mode="popLayout">
+                        {files.map((file) => (
+                            <motion.div
+                                key={file.id}
+                                layout
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.95 }}
+                                className="bg-surface-container-high p-4 rounded-xl flex items-center gap-4 group border border-primary/5"
+                            >
+                                <div className="w-10 h-10 bg-primary-fixed/20 text-primary rounded-lg flex items-center justify-center shrink-0">
+                                    <span className="material-symbols-outlined text-xl">image</span>
+                                </div>
 
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex items-center justify-between mb-1 gap-4">
-                                            <span className="text-brand-secondary font-bold text-sm truncate uppercase tracking-tight">
-                                                {file.name}
+                                <div className="flex-1 min-w-0">
+                                    <div className="flex items-center justify-between mb-1 gap-4">
+                                        <span className="text-primary font-bold text-xs truncate uppercase tracking-tight">
+                                            {file.name}
+                                        </span>
+                                        {file.status === 'uploading' && (
+                                            <span className="text-primary/40 font-black text-[10px] tabular-nums">
+                                                {file.progress}%
                                             </span>
-                                            {file.status === 'uploading' && (
-                                                <span className="text-brand-muted/50 font-bold text-[10px] tabular-nums">
-                                                    {file.progress}%
-                                                </span>
-                                            )}
-                                        </div>
-
-                                        {file.status === 'uploading' ? (
-                                            <div className="w-full h-1.5 bg-brand-primary/10 rounded-full overflow-hidden">
-                                                <motion.div 
-                                                    initial={{ width: 0 }}
-                                                    animate={{ width: `${file.progress}%` }}
-                                                    className="h-full bg-brand-primary"
-                                                />
-                                            </div>
-                                        ) : file.status === 'error' ? (
-                                            <p className="text-brand-accent text-[10px] font-bold">Upload failed</p>
-                                        ) : (
-                                            <p className="text-emerald-500 text-[10px] font-bold uppercase tracking-wider">Ready</p>
                                         )}
                                     </div>
 
-                                    <button 
-                                        type="button"
-                                        onClick={(e) => { e.stopPropagation(); removeFile(file.id); }}
-                                        className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors hover:bg-brand-accent/10 text-brand-muted/40 hover:text-brand-accent"
-                                    >
-                                        {file.status === 'uploading' ? <X className="w-4 h-4" /> : <Trash2 className="w-4 h-4" />}
-                                    </button>
-                                </motion.div>
-                            ))}
-                        </AnimatePresence>
-                    </div>
+                                    {file.status === 'uploading' ? (
+                                        <div className="w-full h-1 bg-primary/5 rounded-full overflow-hidden">
+                                            <motion.div 
+                                                initial={{ width: 0 }}
+                                                animate={{ width: `${file.progress}%` }}
+                                                className="h-full bg-primary-fixed"
+                                            />
+                                        </div>
+                                    ) : file.status === 'error' ? (
+                                        <p className="text-error text-[10px] font-bold uppercase tracking-tight">Upload failed</p>
+                                    ) : (
+                                        <div className="flex items-center gap-1 text-emerald-600">
+                                            <span className="material-symbols-outlined text-xs font-bold">check_circle</span>
+                                            <p className="text-[10px] font-bold uppercase tracking-widest">Ready</p>
+                                        </div>
+                                    )}
+                                </div>
+
+                                <button 
+                                    type="button"
+                                    onClick={(e) => { e.stopPropagation(); removeFile(file.id); }}
+                                    className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors hover:bg-error/10 text-primary/20 hover:text-error"
+                                >
+                                    <span className="material-symbols-outlined text-lg">delete</span>
+                                </button>
+                            </motion.div>
+                        ))}
+                    </AnimatePresence>
                 </div>
             </div>
         </div>

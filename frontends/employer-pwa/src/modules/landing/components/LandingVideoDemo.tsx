@@ -12,7 +12,9 @@ export function LandingVideoDemo() {
           <div className="organic-blob-alt aspect-video bg-brand-forest overflow-hidden shadow-2xl relative">
             <video 
               className="w-full h-full object-cover"
-              controls
+              autoPlay
+              muted
+              loop
               playsInline
               poster="https://lh3.googleusercontent.com/aida-public/AB6AXuDgQx5t1u7iKgQ0ZIgUXtjncGirGWa6h5kdu87_l83lQnxHbRvnxv5gdrdN7pNVd5z4jTruLgn71qurxr6JjyvBhZuI1w_iFPfF4r6-C_0W37ePVZgnH2qqCDay5R6F_pLrjoWb-n_DdbycBxW1DqiBbO_lSqiZwdxpvG46A1vUk78jCgQsfOmpoYQLfTbmXsw5i9iSrpuhNQsqqLhYVxUiOw-6ANGmPuz3VTwbe02veilSShQrXwMswxkKH4fRFz3jN3q6uBbuhHg"
             >

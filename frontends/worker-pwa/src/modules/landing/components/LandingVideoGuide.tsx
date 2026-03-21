@@ -33,15 +33,17 @@ export function LandingVideoGuide() {
           </div>
           
           <div className="lg:w-1/2 w-full">
-            <div className="relative group cursor-pointer aspect-video bg-surface-variant/20 rounded-[40px] flex items-center justify-center border-4 border-white/10 overflow-hidden shadow-2xl">
-              <img 
-                alt="Indian worker being hired video preview" 
-                className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-700" 
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuA1N6HAxgSeSUx0jzpDPVill6_I29Ns9j7t0MDqWlXZAyffvv6PUx59OR5FNa5-VtIbBZvT5mDVvq5g4KZMWaQzjwa9k5NBgFXKaFsDXvWjp9RJqthiH2sGj5PTdL0M7RmzI8uFj41lASyf9u3fWvjCH-IOUV6oP0lp8UvwhFafYEPMS4V6JgbeyUALurLqojtWCsHnCX47vAeSDC2HE9rYN0KLGpziOaHVMUntm-xrmh2IM9SxJXgLhr67pdTX6MxbySfmcHmmRWw" 
-              />
-              <div className="relative z-10 w-24 h-24 bg-primary-fixed text-primary rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform">
-                <span className="material-symbols-outlined text-5xl font-bold">play_arrow</span>
-              </div>
+            <div className="relative aspect-video bg-surface-variant/20 rounded-[40px] border-4 border-white/10 overflow-hidden shadow-2xl">
+              <video
+                autoPlay
+                muted
+                loop
+                playsInline
+                className="absolute inset-0 w-full h-full object-cover opacity-80"
+              >
+                <source src="/assets/landing/worker-pwa.mp4" type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
             </div>
           </div>
         </div>

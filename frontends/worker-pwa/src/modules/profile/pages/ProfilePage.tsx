@@ -1,15 +1,21 @@
 import { useEffect, useState } from "react";
 import { useAuth, useUser } from "../../../core/providers/AuthContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useOutletContext } from "react-router-dom";
 import { profileService, type WorkerProfile } from "../api/profile.service";
 import apiClient from "../../../core/api/apiClient";
-import { User, Mail, MapPin, Award, LogOut, ShieldCheck, Navigation, Camera, Loader2, Globe, Star, Clock } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { ProfileHeroCard } from "../components/ProfileHeroCard";
+import { ProfileStatsCard } from "../components/ProfileStatsCard";
+import { ProfileDetailsForm } from "../components/ProfileDetailsForm";
+import { ExpertiseMatrix } from "../components/ExpertiseMatrix";
+import { ProfileSideActions } from "../components/ProfileSideActions";
 
 export default function ProfilePage() {
   const { logout } = useAuth();
   const { user } = useUser();
+  const { setIsSidebarOpen } = useOutletContext<{ setIsSidebarOpen: (open: boolean) => void }>();
   const [isEditingLocation, setIsEditingLocation] = useState(false);
+  const [isMobileEditing, setIsMobileEditing] = useState(false);
   const [locationInput, setLocationInput] = useState("");
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [profileForm, setProfileForm] = useState({
@@ -46,6 +52,7 @@ export default function ProfilePage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['workerProfile'] });
       setIsEditingLocation(false);
+      setIsMobileEditing(false);
     }
   });
 
@@ -141,332 +148,317 @@ export default function ProfilePage() {
   };
 
   return (
-    <>
-        <div className="absolute inset-0 cloud-grid opacity-[0.05] pointer-events-none" />
-        
-        <header className="p-6 lg:p-10 border-b border-brand-border bg-brand-bg/80 backdrop-blur-3xl sticky top-0 z-40">
-            <div className="max-w-3xl mx-auto space-y-1">
-                <div className="flex items-center gap-2 text-brand-secondary/40 font-semibold tracking-widest text-[10px]">
-                    <Globe className="w-3.5 h-3.5 text-brand-primary" /> Identity & Integrity
-                </div>
-                <h1 className="text-3xl font-semibold tracking-tighter text-brand-secondary leading-none">Professional dossier</h1>
-                <p className="text-brand-muted font-medium text-base opacity-60">Management of your verified credentials and network presence.</p>
+    <div className="relative min-h-screen">
+      {/* Background Blobs for Design Fidelity */}
+      <div className="absolute top-[-5%] right-[-5%] w-[500px] h-[500px] bg-[#FACD15]/5 organic-blob -z-10 blur-3xl pointer-events-none"></div>
+      <div className="absolute bottom-[0%] left-[-5%] w-[600px] h-[600px] bg-[#1F3F34]/5 organic-blob -z-10 blur-3xl pointer-events-none"></div>
+
+      {/* MOBILE VIEW: Worker Dossier */}
+      <div className="lg:hidden text-on-surface font-body pb-10">
+        <header className="bg-[#F5F4EF]/80 backdrop-blur-md sticky top-0 z-50 shadow-[0_20px_40px_-10px_rgba(31,63,52,0.08)]">
+          <div className="flex justify-between items-center px-6 py-4 w-full">
+            <div className="flex items-center gap-4">
+              <button 
+                onClick={() => setIsSidebarOpen(true)}
+                className="text-[#1F3F34] hover:bg-[#FACD15]/10 p-2 transition-colors rounded-full active:scale-90 duration-200"
+              >
+                <span className="material-symbols-outlined">menu</span>
+              </button>
+              <h1 className="text-xl font-extrabold text-[#1F3F34] tracking-tight">Worker Dossier</h1>
             </div>
+            <div className="w-10 h-10 rounded-full bg-[#e9e8e3] overflow-hidden border-2 border-[#FACD15]">
+              <img src={user?.profileImageUrl || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200"} alt="Portrait" className="w-full h-full object-cover" />
+            </div>
+          </div>
         </header>
 
-        <main className="max-w-3xl mx-auto p-6 lg:p-10 w-full space-y-10 relative z-10 pb-32">
-            {/* Dossier Header Card */}
-            <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="bg-white border border-brand-border rounded-4xl p-8 lg:p-10 shadow-2xl relative overflow-hidden group"
-            >
-                <div className="absolute top-0 right-0 w-48 h-48 bg-brand-primary opacity-[0.03] rounded-bl-full pointer-events-none" />
-                
-                <div className="flex flex-col items-center gap-6 relative z-10">
-                    <div className="relative group/photo cursor-pointer">
-                        <input 
-                            type="file" 
-                            accept="image/*" 
-                            onChange={handleImageUpload} 
-                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-30"
-                            title="Update Profile Image"
-                        />
-                         <div className="w-24 h-24 rounded-3xl overflow-hidden border-4 border-brand-bg shadow-2xl relative group-hover/photo:scale-105 transition-all bg-brand-bg">
-                            {user?.profileImageUrl ? (
-                                <img 
-                                    src={user.profileImageUrl} 
-                                    alt={user.firstName || ""} 
-                                    className={`w-full h-full object-cover grayscale-[0.1] transition-opacity ${isUploadingImage ? 'opacity-50' : ''}`}
-                                />
-                            ) : (
-                                <div className="w-full h-full bg-brand-bg flex items-center justify-center">
-                                    <User className="w-16 h-16 text-brand-secondary/10" />
-                                </div>
-                            )}
-                            <div className="absolute inset-0 bg-brand-secondary/40 flex items-center justify-center opacity-0 group-hover/photo:opacity-100 transition-opacity backdrop-blur-sm">
-                                <Camera className="w-10 h-10 text-brand-primary" />
-                            </div>
-                        </div>
-
-                        {isUploadingImage && (
-                            <div className="absolute inset-0 bg-white/60 backdrop-blur-sm rounded-3xl flex items-center justify-center z-20">
-                                <Loader2 className="w-8 h-8 text-brand-primary animate-spin" />
-                            </div>
-                        )}
-
-                        <div className="absolute -bottom-2 -right-2 bg-emerald-500 text-white p-3 rounded-2xl border-4 border-white shadow-xl rotate-6">
-                            <ShieldCheck className="w-6 h-6" />
-                        </div>
-                    </div>
-
-                    <div className="text-center space-y-3">
-                        <div className="space-y-1">
-                            <h2 className="text-2xl font-semibold tracking-tight text-brand-secondary">
-                              {profile?.fullName || `${user?.firstName || ''} ${user?.lastName || ''}`.trim()}
-                            </h2>
-                            <div className="flex items-center justify-center gap-3">
-                                <span className="text-[9px] font-semibold text-brand-primary tracking-widest bg-brand-secondary px-3 py-1 rounded-full">Verified professional</span>
-                                <div className="w-1.5 h-1.5 bg-brand-primary rounded-full animate-pulse" />
-                            </div>
-                        </div>
-
-                        <div className="flex flex-col items-center gap-3">
-                            <AnimatePresence mode="wait">
-                                {isEditingLocation ? (
-                                    <motion.div 
-                                        key="location-edit"
-                                        initial={{ opacity: 0, scale: 0.95 }}
-                                        animate={{ opacity: 1, scale: 1 }}
-                                        className="flex flex-col sm:flex-row gap-3 bg-brand-bg p-3 rounded-2xl border border-brand-border"
-                                    >
-                                        <input 
-                                            type="text" 
-                                            value={locationInput} 
-                                            onChange={(e) => setLocationInput(e.target.value)}
-                                            placeholder="Enter operating base..."
-                                            className="bg-white border border-brand-border rounded-xl px-4 py-2 text-xs font-semibold focus:outline-none focus:border-brand-primary text-brand-secondary"
-                                        />
-                                        <div className="flex gap-2">
-                                             <button 
-                                                onClick={useCurrentLocation}
-                                                className="bg-brand-secondary text-brand-primary px-4 py-2 rounded-xl text-[10px] font-semibold tracking-widest flex items-center gap-2 hover:bg-neutral-800 transition-colors"
-                                            >
-                                                <Navigation className="w-3 h-3" /> GPS
-                                            </button>
-                                            <button 
-                                                onClick={handleUpdateLocation}
-                                                className="bg-brand-primary text-brand-secondary px-4 py-2 rounded-xl text-[10px] font-semibold tracking-widest hover:bg-amber-500 transition-colors"
-                                            >
-                                                Save
-                                            </button>
-                                            <button 
-                                                onClick={() => setIsEditingLocation(false)}
-                                                className="bg-white text-brand-muted px-4 py-2 rounded-xl text-[10px] font-semibold tracking-widest border border-brand-border hover:bg-brand-bg transition-colors"
-                                            >
-                                                Exit
-                                            </button>
-                                        </div>
-                                    </motion.div>
-                                ) : (
-                                    <button 
-                                        onClick={() => {
-                                            setLocationInput(profile?.address || profile?.city || profile?.location || "");
-                                            setIsEditingLocation(true);
-                                        }}
-                                        className="flex items-center gap-2 px-6 py-2 bg-brand-bg rounded-full border border-brand-border text-brand-secondary hover:text-brand-secondary hover:border-brand-primary transition-all text-sm font-medium group"
-                                    >
-                                        <MapPin className="w-4 h-4 text-brand-primary group-hover:scale-110 transition-transform" /> 
-                                        {profile?.address || profile?.city || profile?.location || "No Operating Base Defined"}
-                                    </button>
-                                )}
-                            </AnimatePresence>
-                        </div>
-                    </div>
+        <main className="px-4 pt-4 space-y-4 max-w-md mx-auto">
+          {/* Profile Hero Card */}
+          <section className="bg-white rounded-lg p-5 shadow-sm relative overflow-hidden border border-[#1F3F34]/5">
+            <div className="absolute -right-12 -top-12 w-48 h-48 bg-[#ffe081]/20 rounded-full blur-3xl"></div>
+            <div className="flex items-start gap-5 relative z-10">
+              <div className="relative">
+                <div className="w-24 h-24 rounded-lg overflow-hidden bg-[#e9e8e3] rotate-1">
+                  <img src={user?.profileImageUrl || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200"} alt="Profile" className="w-full h-full object-cover" />
                 </div>
-            </motion.div>
-
-            {/* Account Details */}
-            <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-white border border-brand-border rounded-3xl p-6 lg:p-8 space-y-6 shadow-sm">
-                    <div className="space-y-0.5">
-                         <h3 className="text-lg font-bold text-brand-secondary tracking-tighter">Core account</h3>
-                         <p className="text-[8px] font-semibold text-brand-secondary/40 tracking-widest uppercase">Digital identity details</p>
-                    </div>
-                    <div className="space-y-6">
-                        <div className="flex items-center gap-5">
-                            <div className="w-12 h-12 rounded-2xl bg-brand-bg flex items-center justify-center text-brand-secondary/20 border border-brand-border shadow-inner">
-                                <User className="w-6 h-6" />
-                            </div>
-                            <div className="space-y-0.5">
-                                <p className="text-[8px] text-brand-muted font-semibold tracking-widest">Full name</p>
-                                <p className="font-semibold text-brand-secondary tracking-tight">
-                                  {profile?.fullName || `${user?.firstName || ''} ${user?.lastName || ''}`.trim()}
-                                </p>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-5">
-                            <div className="w-12 h-12 rounded-2xl bg-brand-bg flex items-center justify-center text-brand-secondary/20 border border-brand-border shadow-inner">
-                                <Mail className="w-6 h-6" />
-                            </div>
-                            <div className="space-y-0.5">
-                                <p className="text-[8px] text-brand-muted font-semibold tracking-widest">Verified email</p>
-                                <p className="font-semibold text-brand-secondary tracking-tight">{user?.email}</p>
-                            </div>
-                        </div>
-                    </div>
+                <div className="absolute -bottom-2 -right-2 bg-[#FACD15] text-[#1F3F34] p-1 rounded-full shadow-lg">
+                  <span className="material-symbols-outlined text-sm font-bold" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
                 </div>
-
-                <div className="bg-white border border-brand-border rounded-3xl p-6 lg:p-8 space-y-6 shadow-sm">
-                    <div className="space-y-0.5">
-                         <h3 className="text-lg font-bold text-brand-secondary tracking-tighter">Market value</h3>
-                         <p className="text-[8px] font-semibold text-brand-secondary/40 tracking-widest uppercase">Professional standing</p>
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
-                        <div className="p-4 bg-brand-bg rounded-2xl border border-brand-border flex flex-col gap-1.5">
-                             <div className="flex items-center gap-2">
-                                <Award className="w-3.5 h-3.5 text-brand-primary" />
-                                <span className="text-[9px] text-brand-muted font-semibold tracking-tighter">Ranking</span>
-                             </div>
-                             <p className="text-2xl font-bold text-brand-secondary tracking-tighter">Lv {profile?.level || '1'}</p>
-                        </div>
-                        <div className="p-4 bg-brand-secondary rounded-2xl border border-brand-secondary flex flex-col gap-1.5 shadow-xl shadow-brand-secondary/10">
-                             <div className="flex items-center gap-2">
-                                <Star className="w-3.5 h-3.5 text-brand-primary fill-brand-primary" />
-                                <span className="text-[9px] text-brand-primary/60 font-semibold tracking-tighter">Reputation</span>
-                             </div>
-                             <p className="text-2xl font-bold text-brand-primary tracking-tighter">4.9</p>
-                        </div>
-                    </div>
-                    <div className="flex items-center justify-between p-4 bg-brand-bg rounded-2xl border border-brand-border">
-                        <div className="flex items-center gap-2.5">
-                             <Clock className="w-4 h-4 text-brand-primary" />
-                             <span className="text-[10px] font-semibold text-brand-muted tracking-widest">History</span>
-                        </div>
-                        <span className="text-lg font-semibold text-brand-secondary tracking-tight">{profile?.experienceYears || 0} YRS</span>
-                    </div>
+              </div>
+              <div className="flex-1 space-y-1">
+                <h2 className="text-2xl font-black text-[#1F3F34] leading-none tracking-tight">{profileForm.fullName}</h2>
+                <p className="text-sm font-bold text-[#1F3F34]/70 leading-tight">{profile?.bio?.split('.')[0] || "Professional Worker"}</p>
+                <div className="flex gap-2 mt-2">
+                  <span className="bg-[#c7ebdb] text-[#002117] px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider">Level {profile?.level || '1'}</span>
+                  <span className="bg-[#efeee9] text-[#1F3F34]/60 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider">Verified</span>
                 </div>
-            </section>
+              </div>
+            </div>
+          </section>
 
-            <section className="bg-white border border-brand-border rounded-4xl p-8 lg:p-10 space-y-6 shadow-sm">
-                <div className="space-y-0.5">
-                    <h3 className="text-xl font-bold text-brand-secondary tracking-tighter">Application profile</h3>
-                    <p className="text-[9px] font-semibold text-brand-secondary/40 tracking-widest uppercase">Required dossier fields</p>
-                </div>
+          {/* Trust Score Card */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-white rounded-lg p-4 flex flex-col justify-between border-b-4 border-[#FACD15] shadow-sm">
+              <p className="text-[10px] font-bold text-[#1F3F34]/50 uppercase tracking-widest">Trust Score</p>
+              <div className="flex items-end gap-1 mt-2">
+                <span className="text-3xl font-black text-[#1F3F34]">4.9</span>
+                <span className="text-sm font-bold text-[#1F3F34]/40 mb-1">/5.0</span>
+              </div>
+              <div className="flex items-center gap-1 text-[#FACD15] mt-1">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <span key={i} className="material-symbols-outlined text-xs" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+                ))}
+              </div>
+            </div>
+            <div className="bg-[#1F3F34] text-white rounded-lg p-4 flex flex-col justify-between shadow-sm">
+              <p className="text-[10px] font-bold text-white/50 uppercase tracking-widest">Performance</p>
+              <div className="mt-2">
+                <span className="text-xl font-black block">Gold Tier</span>
+                <p className="text-[10px] text-white/70 leading-tight mt-1">Top 2% of specialists in {profile?.city || "your region"}.</p>
+              </div>
+            </div>
+          </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <label className="space-y-2">
-                        <span className="text-[10px] font-semibold tracking-widest text-brand-secondary/40 ml-1 block">Full name</span>
-                        <input
-                            value={profileForm.fullName}
-                            onChange={(e) => setProfileForm((current) => ({ ...current, fullName: e.target.value }))}
-                            className="w-full bg-brand-bg border border-brand-border rounded-xl py-3 px-4 text-brand-secondary font-semibold focus:outline-none focus:border-brand-primary transition-colors"
-                        />
-                    </label>
-                    <label className="space-y-2">
-                        <span className="text-[10px] font-semibold tracking-widest text-brand-secondary/40 ml-1 block">City</span>
-                        <input
-                            value={profileForm.city}
-                            onChange={(e) => setProfileForm((current) => ({ ...current, city: e.target.value }))}
-                            className="w-full bg-brand-bg border border-brand-border rounded-xl py-3 px-4 text-brand-secondary font-semibold focus:outline-none focus:border-brand-primary transition-colors"
-                        />
-                    </label>
-                    <label className="space-y-2 md:col-span-2">
-                        <span className="text-[10px] font-semibold tracking-widest text-brand-secondary/40 ml-1 block">Address</span>
-                        <input
-                            value={profileForm.address}
-                            onChange={(e) => setProfileForm((current) => ({ ...current, address: e.target.value }))}
-                            className="w-full bg-brand-bg border border-brand-border rounded-xl py-3 px-4 text-brand-secondary font-semibold focus:outline-none focus:border-brand-primary transition-colors"
-                        />
-                    </label>
-                    <label className="space-y-2">
-                        <span className="text-[10px] font-semibold tracking-widest text-brand-secondary/40 ml-1 block">Experience years</span>
-                        <input
-                            type="number"
-                            min="0"
-                            value={profileForm.experienceYears}
-                            onChange={(e) => setProfileForm((current) => ({ ...current, experienceYears: e.target.value }))}
-                            className="w-full bg-brand-bg border border-brand-border rounded-xl py-3 px-4 text-brand-secondary font-semibold focus:outline-none focus:border-brand-primary transition-colors"
-                        />
-                    </label>
-                    <label className="space-y-2">
-                        <span className="text-[10px] font-semibold tracking-widest text-brand-secondary/40 ml-1 block">Hourly rate</span>
-                        <input
-                            type="number"
-                            min="0"
-                            value={profileForm.hourlyRate}
-                            onChange={(e) => setProfileForm((current) => ({ ...current, hourlyRate: e.target.value }))}
-                            className="w-full bg-brand-bg border border-brand-border rounded-xl py-3 px-4 text-brand-secondary font-semibold focus:outline-none focus:border-brand-primary transition-colors"
-                        />
-                    </label>
-                    <label className="space-y-2 md:col-span-2">
-                        <span className="text-[10px] font-semibold tracking-widest text-brand-secondary/40 ml-1 block">Skills</span>
-                        <input
-                            value={profileForm.skills}
-                            onChange={(e) => setProfileForm((current) => ({ ...current, skills: e.target.value }))}
-                            placeholder="Plumbing, Electrical, Carpentry"
-                            className="w-full bg-brand-bg border border-brand-border rounded-xl py-3 px-4 text-brand-secondary font-semibold focus:outline-none focus:border-brand-primary transition-colors"
-                        />
-                    </label>
-                    <label className="space-y-2 md:col-span-2">
-                        <span className="text-[10px] font-semibold tracking-widest text-brand-secondary/40 ml-1 block">Bio</span>
-                        <textarea
-                            rows={4}
-                            value={profileForm.bio}
-                            onChange={(e) => setProfileForm((current) => ({ ...current, bio: e.target.value }))}
-                            className="w-full bg-brand-bg border border-brand-border rounded-2xl p-4 text-brand-secondary font-semibold focus:outline-none focus:border-brand-primary resize-none transition-colors"
-                        />
-                    </label>
-                </div>
-
-                <div className="flex justify-end">
-                    <button
-                        onClick={handleSaveProfileDetails}
-                        disabled={updateMutation.isPending}
-                        className="px-8 py-4 bg-brand-secondary text-brand-primary rounded-2xl font-semibold tracking-widest text-[10px] hover:bg-neutral-800 transition-all disabled:opacity-60"
-                    >
-                        {updateMutation.isPending ? "Saving..." : "Save Profile"}
-                    </button>
-                </div>
-            </section>
-
-            {/* Expertise Section */}
-            <section className="bg-white border border-brand-border rounded-4xl p-8 lg:p-10 space-y-6 shadow-sm relative overflow-hidden">
-                <div className="absolute bottom-0 right-0 w-32 h-32 bg-brand-secondary opacity-[0.02] rounded-tl-full pointer-events-none" />
-                
-                <div className="space-y-0.5">
-                    <h3 className="text-xl font-bold text-brand-secondary tracking-tighter">Expertise matrix</h3>
-                    <p className="text-[9px] font-semibold text-brand-secondary/40 tracking-widest uppercase">Skill sets & Domain experience</p>
-                </div>
-                
-                <div className="flex flex-wrap gap-4">
-                    {profile?.skills?.split(',').map((skill, i) => (
-                        <motion.span 
-                            key={skill.trim()}
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ delay: i * 0.05 }}
-                            className="px-6 py-2.5 bg-brand-bg border border-brand-border rounded-xl text-[10px] font-semibold tracking-widest text-brand-secondary shadow-sm hover:border-brand-primary transition-colors hover:bg-white"
-                        >
-                            {skill.trim()}
-                        </motion.span>
-                    ))}
-                    {!profile?.skills && (
-                        <p className="text-brand-muted text-sm">No expertise defined. Update your protocol.</p>
-                    )}
-                </div>
-            </section>
-
-            {/* Operational Actions */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                 <button className="bg-white border border-brand-border p-6 rounded-3xl flex items-center gap-5 group hover:border-brand-primary transition-all shadow-sm hover:-translate-y-1">
-                    <div className="w-12 h-12 rounded-xl bg-brand-secondary text-brand-primary flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform shrink-0">
-                        <Award className="w-6 h-6" />
-                    </div>
-                    <div className="text-left space-y-0.5 overflow-hidden">
-                        <span className="text-base font-bold text-brand-secondary tracking-tighter block truncate">Certification vault</span>
-                        <p className="text-[8px] text-brand-muted font-semibold tracking-widest uppercase truncate">Verify credentials</p>
-                    </div>
-                </button>
-                
-                <button 
-                    onClick={logout}
-                    className="bg-brand-accent/5 border border-brand-accent/10 p-6 rounded-3xl flex items-center gap-5 group hover:bg-brand-accent transition-all shadow-sm hover:-translate-y-1"
-                >
-                    <div className="w-12 h-12 rounded-xl bg-brand-accent text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform shrink-0">
-                        <LogOut className="w-6 h-6" />
-                    </div>
-                    <div className="text-left space-y-0.5 overflow-hidden">
-                        <span className="text-base font-bold text-brand-accent group-hover:text-white tracking-tighter transition-colors block truncate">Terminate session</span>
-                        <p className="text-[8px] text-brand-accent/50 group-hover:text-white/60 font-semibold tracking-widest transition-colors uppercase truncate">Close systems</p>
-                    </div>
-                </button>
+          {/* Application Details */}
+          <section className="bg-[#efeee9] rounded-lg p-5 border border-black/5">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xs font-black text-[#1F3F34] uppercase tracking-[0.2em]">Application Dossier</h3>
+              <button 
+                onClick={() => setIsMobileEditing(!isMobileEditing)} 
+                className="text-[#1F3F34]/60 hover:text-[#1F3F34] transition-colors"
+                title="Toggle Edit Mode"
+              >
+                <span className="material-symbols-outlined text-lg">{isMobileEditing ? 'close' : 'edit_note'}</span>
+              </button>
             </div>
             
-            <div className="text-center pt-8">
-                <p className="text-[10px] font-semibold text-brand-secondary/20 tracking-widest">TrustHire Dossier System v2.1.0 • Verified Network</p>
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-[10px] font-bold text-[#1F3F34]/50 uppercase block mb-1">Full Name</label>
+                  {isMobileEditing ? (
+                    <input 
+                      type="text"
+                      className="w-full bg-white border border-[#1F3F34]/10 rounded-md px-2 py-1 text-sm font-bold text-[#1F3F34] focus:outline-none focus:border-[#FACD15]"
+                      value={profileForm.fullName}
+                      onChange={(e) => setProfileForm({ ...profileForm, fullName: e.target.value })}
+                    />
+                  ) : (
+                    <p className="text-sm font-bold text-[#1F3F34] truncate">{profileForm.fullName}</p>
+                  )}
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-[#1F3F34]/50 uppercase block mb-1">City</label>
+                  {isMobileEditing ? (
+                    <input 
+                      type="text"
+                      className="w-full bg-white border border-[#1F3F34]/10 rounded-md px-2 py-1 text-sm font-bold text-[#1F3F34] focus:outline-none focus:border-[#FACD15]"
+                      value={profileForm.city}
+                      onChange={(e) => setProfileForm({ ...profileForm, city: e.target.value })}
+                    />
+                  ) : (
+                    <p className="text-sm font-bold text-[#1F3F34] truncate">{profile?.city || "India"}</p>
+                  )}
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-[10px] font-bold text-[#1F3F34]/50 uppercase block mb-1">Experience (Yrs)</label>
+                  {isMobileEditing ? (
+                    <input 
+                      type="number"
+                      className="w-full bg-white border border-[#1F3F34]/10 rounded-md px-2 py-1 text-sm font-bold text-[#1F3F34] focus:outline-none focus:border-[#FACD15]"
+                      value={profileForm.experienceYears}
+                      onChange={(e) => setProfileForm({ ...profileForm, experienceYears: e.target.value })}
+                    />
+                  ) : (
+                    <p className="text-sm font-bold text-[#1F3F34]">{profile?.experienceYears || 0} Years</p>
+                  )}
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-[#1F3F34]/50 uppercase block mb-1">Base Rate (₹/hr)</label>
+                  {isMobileEditing ? (
+                    <input 
+                      type="number"
+                      className="w-full bg-white border border-[#1F3F34]/10 rounded-md px-2 py-1 text-sm font-bold text-[#1F3F34] focus:outline-none focus:border-[#FACD15]"
+                      value={profileForm.hourlyRate}
+                      onChange={(e) => setProfileForm({ ...profileForm, hourlyRate: e.target.value })}
+                    />
+                  ) : (
+                    <p className="text-sm font-bold text-[#1F3F34]">₹{profile?.hourlyRate || 0}/hr</p>
+                  )}
+                </div>
+              </div>
+              <div>
+                <label className="text-[10px] font-bold text-[#1F3F34]/50 uppercase block mb-1">Permanent Address</label>
+                {isMobileEditing ? (
+                  <textarea 
+                    className="w-full bg-white border border-[#1F3F34]/10 rounded-md px-2 py-1 text-sm font-medium text-[#1F3F34] focus:outline-none focus:border-[#FACD15] min-h-[60px]"
+                    value={profileForm.address}
+                    onChange={(e) => setProfileForm({ ...profileForm, address: e.target.value })}
+                  />
+                ) : (
+                  <p className="text-sm font-medium text-[#1F3F34]/80 leading-snug line-clamp-2">{profile?.address || "No address provided"}</p>
+                )}
+              </div>
+              <div>
+                <label className="text-[10px] font-bold text-[#1F3F34]/50 uppercase block mb-1">Professional Bio</label>
+                {isMobileEditing ? (
+                  <textarea 
+                    className="w-full bg-white border border-[#1F3F34]/10 rounded-md px-2 py-1 text-sm font-medium text-[#1F3F34] focus:outline-none focus:border-[#FACD15] min-h-[80px]"
+                    value={profileForm.bio}
+                    onChange={(e) => setProfileForm({ ...profileForm, bio: e.target.value })}
+                  />
+                ) : (
+                  <p className="text-sm text-[#1F3F34]/80 leading-relaxed italic font-medium line-clamp-3">{profile?.bio || "No professional bio provided yet."}</p>
+                )}
+              </div>
+              
+              {isMobileEditing && (
+                <div className="pt-2">
+                  <button 
+                    onClick={handleSaveProfileDetails}
+                    disabled={updateMutation.isPending}
+                    className="w-full bg-[#1F3F34] text-[#FACD15] py-3 rounded-lg font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-all"
+                  >
+                    {updateMutation.isPending ? 'Syncing...' : (
+                      <>
+                        <span className="material-symbols-outlined text-[16px]">save</span>
+                        Commit Changes
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
             </div>
+          </section>
+
+          {/* Expertise Matrix */}
+          <section className="bg-white rounded-lg p-5 shadow-sm border border-[#1F3F34]/5">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xs font-black text-[#1F3F34] uppercase tracking-[0.2em]">Expertise Matrix</h3>
+              <span className="text-[10px] font-black text-[#FACD15] bg-[#1F3F34] px-2 py-0.5 rounded">
+                {profileForm.skills.split(',').filter(Boolean).length || 0} Skills
+              </span>
+            </div>
+            
+            {isMobileEditing ? (
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold text-[#1F3F34]/50 uppercase block mb-1">Skills (Comma separated)</label>
+                <textarea 
+                  className="w-full bg-[#efeee9] border border-[#1F3F34]/10 rounded-md px-3 py-2 text-xs font-bold text-[#1F3F34] focus:outline-none focus:border-[#FACD15] min-h-[80px]"
+                  value={profileForm.skills}
+                  onChange={(e) => setProfileForm({ ...profileForm, skills: e.target.value })}
+                  placeholder="e.g. Electrical, Plumbing, HVAC"
+                />
+              </div>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {profile?.skills.split(',').filter(Boolean).map((skill, i) => (
+                  <span key={i} className="bg-[#e9e8e3] text-[#1F3F34] px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5">
+                    <span className="material-symbols-outlined text-[14px]">
+                      {skill.toLowerCase().includes('electric') ? 'electrical_services' : 
+                       skill.toLowerCase().includes('plumb') ? 'plumbing' : 
+                       skill.toLowerCase().includes('air') ? 'hvac' : 
+                       skill.toLowerCase().includes('security') ? 'security' : 'star'}
+                    </span>
+                    {skill.trim()}
+                  </span>
+                ))}
+              </div>
+            )}
+          </section>
+
+          {/* Operational Actions */}
+          <section className="space-y-3">
+            <button className="w-full bg-[#FACD15] text-[#002117] h-14 rounded-lg flex items-center justify-center gap-3 font-extrabold uppercase tracking-widest text-sm shadow-[inset_0_-2px_0_rgba(0,0,0,0.1)] active:scale-95 transition-transform">
+              <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>verified_user</span>
+              Certification Vault
+            </button>
+            <button 
+              onClick={logout}
+              className="w-full bg-[#efeee9] text-[#ba1a1a] h-14 rounded-lg flex items-center justify-center gap-3 font-bold uppercase tracking-widest text-[10px] active:scale-95 transition-transform"
+            >
+              <span className="material-symbols-outlined">logout</span>
+              Terminate Session
+            </button>
+          </section>
         </main>
-      </>
-    );
+      </div>
+
+      {/* DESKTOP VIEW: Legacy Bento Layout */}
+      <main className="hidden lg:block p-4 md:p-8 md:pr-12 space-y-8 pb-32 relative z-10">
+        {/* Header Section */}
+        <div className="mb-10 space-y-1">
+          <div className="flex items-center gap-2 text-[#414845]/60 font-black uppercase tracking-[0.2em] text-[10px]">
+            <span className="material-symbols-outlined text-[14px]">globe</span> 
+            Identity & Professional Integrity
+          </div>
+          <h1 className="text-3xl md:text-4xl font-black text-[#1F3F34] tracking-tight leading-none">Worker Dossier</h1>
+          <p className="text-[#414845]/60 font-medium text-sm">Control your verified credentials, status, and network presence.</p>
+        </div>
+
+        {/* Hero & Stats Bento Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2">
+            <ProfileHeroCard 
+              user={user}
+              profile={profile}
+              isUploadingImage={isUploadingImage}
+              onImageUpload={handleImageUpload}
+              isEditingLocation={isEditingLocation}
+              setIsEditingLocation={setIsEditingLocation}
+              locationInput={locationInput}
+              setLocationInput={setLocationInput}
+              onUpdateLocation={handleUpdateLocation}
+              useCurrentLocation={useCurrentLocation}
+            />
+          </div>
+          <div className="lg:col-span-1">
+            <ProfileStatsCard 
+              level={profile?.level || '1'}
+              experienceYears={profile?.experienceYears || 0}
+            />
+          </div>
+        </div>
+
+        {/* Main Content & Sidebar Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Left Column: Form and Skills */}
+          <div className="lg:col-span-2 space-y-8">
+            <ProfileDetailsForm 
+              form={profileForm}
+              setForm={setProfileForm}
+              onSave={handleSaveProfileDetails}
+              isSaving={updateMutation.isPending}
+            />
+            
+            <ExpertiseMatrix 
+              skills={profile?.skills || ""}
+            />
+          </div>
+
+          {/* Right Column: Actions and Badges */}
+          <div className="lg:col-span-1">
+            <ProfileSideActions 
+              onLogout={logout}
+            />
+          </div>
+        </div>
+        
+        {/* Version Footer */}
+        <div className="text-center pt-16">
+          <p className="text-[10px] font-black text-[#1F3F34]/20 uppercase tracking-[0.3em]">
+            TrustHire Dossier System v2.5.2 • Encrypted Professional Network
+          </p>
+        </div>
+      </main>
+
+      <style>{`
+        .organic-blob {
+            border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+        }
+      `}</style>
+    </div>
+  );
 }

@@ -1,224 +1,150 @@
-import { useState } from 'react';
-import { LayoutDashboard, Search,Award, Briefcase, User as UserIcon, ShieldCheck, BriefcaseIcon, ClipboardList, Menu, X, Settings, HelpCircle, LogOut, BarChart3 } from 'lucide-react';
-import { useUser, useAuth } from "../../../core/providers/AuthContext";
-import { UserButton } from "../../../core/components/UserButton";
+import React from 'react';
+import { useAuth } from "../../../core/providers/AuthContext";
 import { useNavigate, useLocation } from 'react-router-dom';
-import { NotificationCenter } from './notifications/NotificationCenter';
 import { useLanguage } from '../../../core/hooks/useLanguage';
 
-export const DashboardSidebar = () => {
-    const { user } = useUser();
+interface DashboardSidebarProps {
+  isOpen?: boolean;
+  onClose?: () => void;
+}
+
+export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ isOpen, onClose }) => {
     const { logout } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
     const { t } = useLanguage();
-    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     
     const menuItems = [
-        { name: t('sidebar.dashboard'), icon: <LayoutDashboard className="w-5 h-5" />, path: '/dashboard' },
-        { name: t('sidebar.findJobs'), icon: <Search className="w-5 h-5" />, path: '/search' },
-        { name: 'Applied Jobs', icon: <ClipboardList className="w-5 h-5" />, path: '/applied-jobs' },
-        { name: t('sidebar.skillTests'), icon: <Award className="w-5 h-5" />, path: '/tests' },
-        { name: t('sidebar.levelDetails'), icon: <BarChart3 className="w-5 h-5" />, path: '/level' },
-        { name: t('sidebar.history'), icon: <Briefcase className="w-5 h-5" />, path: '/history' },
-        { name: t('sidebar.profile'), icon: <UserIcon className="w-5 h-5" />, path: '/profile' },
+        { name: t('sidebar.dashboard'), icon: 'dashboard', path: '/dashboard' },
+        { name: t('sidebar.findJobs'), icon: 'search', path: '/search' },
+        { name: 'Applied Jobs', icon: 'work_history', path: '/applied-jobs' },
+        { name: t('sidebar.skillTests'), icon: 'psychology', path: '/tests' },
+        { name: t('sidebar.levelDetails'), icon: 'military_tech', path: '/level' },
+        { name: t('sidebar.profile'), icon: 'person', path: '/profile' },
     ];
 
-    const secondaryItems = [
-        { name: t('sidebar.verifyIdentity'), icon: <ShieldCheck className="w-5 h-5" />, path: '/verify-identity' },
-        { name: t('sidebar.settings'), icon: <Settings className="w-5 h-5" />, path: '/settings' },
-        { name: t('sidebar.help'), icon: <HelpCircle className="w-5 h-5" />, path: '/help' },
+    const accountItems = [
+        { name: t('sidebar.verifyIdentity'), icon: 'verified_user', path: '/verify-identity' },
+        { name: t('sidebar.settings'), icon: 'settings', path: '/settings' },
+        { name: t('sidebar.help'), icon: 'help', path: '/help' },
     ];
 
     const handleNavigate = (path: string) => {
         navigate(path);
-        setIsMobileMenuOpen(false);
+        onClose?.();
     };
 
     return (
         <>
-            <div className="md:hidden fixed top-0 inset-x-0 z-50 border-b border-brand-border bg-brand-bg/95 backdrop-blur-2xl">
-                <div className="flex items-center justify-between px-4 py-4">
-                    <button onClick={() => navigate('/dashboard')} className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-brand-secondary rounded-xl flex items-center justify-center shadow-sm">
-                            <BriefcaseIcon className="w-5 h-5 text-brand-primary" />
-                        </div>
-                        <div className="text-left">
-                            <div className="text-lg font-semibold tracking-tight text-brand-secondary leading-none"></div>
-                            <div className="text-[9px] font-semibold tracking-widest text-brand-primary mt-1">Worker Hub</div>
-                        </div>
-                    </button>
+            {/* Desktop Sidebar (Fixed) */}
+            <aside className="hidden lg:flex fixed left-0 top-0 h-full w-72 z-40 shadow-[0_20px_40px_-10px_rgba(31,63,52,0.08)]">
+                <SidebarContent 
+                  menuItems={menuItems} 
+                  accountItems={accountItems} 
+                  onNavigate={handleNavigate} 
+                  onLogout={logout}
+                  currentPath={location.pathname}
+                />
+            </aside>
 
-                    <div className="flex items-center gap-2">
-                        <NotificationCenter />
-                        <button
-                            onClick={() => setIsMobileMenuOpen((open) => !open)}
-                            className="w-11 h-11 rounded-2xl border border-brand-border bg-white flex items-center justify-center text-brand-secondary shadow-sm"
-                            aria-label="Toggle menu"
-                        >
-                            {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-                        </button>
-                    </div>
-                </div>
+            {/* Mobile Sidebar Overlay */}
+            <div 
+                className={`lg:hidden fixed inset-0 z-50 transition-opacity duration-300 ${isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+            >
+                <div 
+                    className="absolute inset-0 bg-[#002117]/60 backdrop-blur-sm shadow-[inset_0_0_100px_rgba(0,0,0,0.5)]" 
+                    onClick={onClose}
+                />
+                <aside 
+                    className={`absolute top-0 left-0 h-full w-80 shadow-2xl transition-transform duration-300 transform ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}
+                >
+                    <SidebarContent 
+                      menuItems={menuItems} 
+                      accountItems={accountItems} 
+                      onNavigate={handleNavigate} 
+                      onLogout={logout}
+                      currentPath={location.pathname}
+                    />
+                    <button 
+                        onClick={onClose}
+                        className="absolute top-6 -right-12 p-2 bg-[#FACD15] text-[#1F3F34] rounded-full shadow-lg active:scale-95 transition-transform"
+                    >
+                        <span className="material-symbols-outlined">close</span>
+                    </button>
+                </aside>
+            </div>
+        </>
+    );
+};
+
+interface SidebarItem {
+  name: string;
+  icon: string;
+  path: string;
+}
+
+interface SidebarContentProps {
+  menuItems: SidebarItem[];
+  accountItems: SidebarItem[];
+  onNavigate: (path: string) => void;
+  onLogout: () => void;
+  currentPath: string;
+}
+
+const SidebarContent = ({ menuItems, accountItems, onNavigate, onLogout, currentPath }: SidebarContentProps) => {
+    const navigate = useNavigate();
+    return (
+        <div className="flex flex-col h-full bg-[#1F3F34] dark:bg-[#002117] p-6 text-[#F5F4EF]/70 overflow-y-auto no-scrollbar">
+            {/* Branding */}
+            <div className="mb-10 px-4 group cursor-pointer" onClick={() => navigate('/')}>
+                <h1 className="text-xl font-black text-[#FACD15] tracking-tight transition-all group-hover:scale-105">TrustHire</h1>
+                <p className="text-sm font-medium text-[#F5F4EF]/60 tracking-tight mt-1 transition-opacity group-hover:opacity-100">Worker Portal</p>
             </div>
 
-            {isMobileMenuOpen && (
-                <div className="md:hidden fixed inset-0 z-40 bg-brand-secondary/50 backdrop-blur-sm" onClick={() => setIsMobileMenuOpen(false)}>
-                    <div
-                        className="w-[84%] max-w-xs h-full bg-brand-secondary text-white/70 p-6 space-y-8 shadow-2xl"
-                        onClick={(event) => event.stopPropagation()}
-                    >
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                                <div className="w-11 h-11 bg-brand-primary rounded-xl flex items-center justify-center">
-                                    <BriefcaseIcon className="w-6 h-6 text-brand-secondary" />
-                                </div>
-                                <div>
-                                    <div className="text-lg font-semibold text-white">TrustHire</div>
-                                    <div className="text-[9px] font-semibold tracking-widest text-brand-primary">Menu</div>
-                                </div>
-                            </div>
-                            <button
-                                onClick={() => setIsMobileMenuOpen(false)}
-                                className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center"
-                                aria-label="Close menu"
-                            >
-                                <X className="w-5 h-5 text-white" />
-                            </button>
-                        </div>
-
-                        <nav className="space-y-3 no-scrollbar overflow-y-auto">
-                            {menuItems.map((item) => {
-                                const isActive = location.pathname === item.path;
-                                return (
-                                    <button
-                                        key={item.name}
-                                        onClick={() => handleNavigate(item.path)}
-                                        className={`w-full flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all ${
-                                            isActive ? 'bg-white/10 text-brand-primary' : 'hover:bg-white/5 hover:text-white'
-                                        }`}
-                                    >
-                                        <div className={isActive ? 'text-brand-primary' : 'text-white/70'}>{item.icon}</div>
-                                        <span className="text-sm font-medium tracking-tight">{item.name}</span>
-                                    </button>
-                                );
-                            })}
-                            <div className="pt-4 border-t border-white/10 mt-4 space-y-2">
-                                {secondaryItems.map((item) => (
-                                    <button
-                                        key={item.name}
-                                        onClick={() => handleNavigate(item.path)}
-                                        className="w-full flex items-center gap-4 px-4 py-3 rounded-2xl hover:bg-white/5 hover:text-white transition-all"
-                                    >
-                                        <div className="text-white/40 group-hover:text-white">{item.icon}</div>
-                                        <span className="text-sm font-medium tracking-tight text-white/60">{item.name}</span>
-                                    </button>
-                                ))}
-                                <button
-                                    onClick={logout}
-                                    className="w-full flex items-center gap-4 px-4 py-3 rounded-2xl hover:bg-red-500/10 text-red-400 transition-all font-bold"
-                                >
-                                    <LogOut className="w-5 h-5" />
-                                    <span className="text-sm tracking-tight">{t('sidebar.logout')}</span>
-                                </button>
-                            </div>
-                        </nav>
-
-                        <div className="pt-6 border-t border-white/10 flex items-center gap-3">
-                            <div className="relative">
-                                <UserButton />
-                                <div className="absolute -bottom-1 -right-1 bg-emerald-500 text-white rounded-full p-0.5 border-2 border-brand-secondary shadow-sm">
-                                    <ShieldCheck className="w-3 h-3" />
-                                </div>
-                            </div>
-                            <div className="min-w-0">
-                                <div className="text-sm font-semibold text-white truncate">{user?.firstName || 'Professional'}</div>
-                                <div className="text-[9px] font-semibold tracking-widest text-brand-primary">Verified Hub</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            <aside className="hidden md:flex w-72 bg-brand-secondary border-r border-white/5 p-8 flex-col h-screen sticky top-0 z-40 text-white/70 overflow-hidden">
-                {/* Logo Section */}
-                <div className="flex items-center gap-4 px-2 mb-8 shrink-0">
-                    <div className="w-10 h-10 bg-brand-primary rounded-xl flex items-center justify-center shadow-lg transition-transform hover:scale-105 active:scale-95 cursor-pointer" onClick={() => navigate('/')}>
-                        <BriefcaseIcon className="w-6 h-6 text-brand-secondary" />
-                    </div>
-                    <div className="flex flex-col">
-                        <span className="text-xl font-bold tracking-tight text-white leading-none">TrustHire</span>
-                        <span className="text-[8px] font-bold text-brand-primary tracking-widest mt-1 uppercase opacity-60">Professional Hub</span>
-                    </div>
-                </div>
-
-                
-                {/* Main Navigation */}
-                <nav className="flex-1 space-y-2 overflow-y-auto pr-2 no-scrollbar">
-                    <div className="px-3 mb-4">
-                        <p className="text-[9px] font-bold tracking-widest text-white/20 uppercase">Navigation</p>
-                    </div>
-                    {menuItems.map((item) => {
-                        const isActive = location.pathname === item.path;
-                        return (
-                            <button 
-                                key={item.name}
-                                onClick={() => navigate(item.path)}
-                                className={`w-full flex items-center gap-4 px-5 py-3 rounded-2xl transition-all cursor-pointer group ${
-                                    isActive 
-                                    ? 'bg-white/10 text-brand-primary shadow-lg' 
-                                    : 'hover:bg-white/5 hover:text-white'
-                                }`}
-                            >
-                                <div className={`transition-colors ${isActive ? 'text-brand-primary' : 'group-hover:text-brand-primary/80'}`}>
-                                    {item.icon}
-                                </div>
-                                <span className={`text-xs tracking-tight ${isActive ? 'font-black' : 'font-semibold'}`}>
-                                    {item.name}
-                                </span>
-                                {isActive && (
-                                    <div className="ml-auto w-1 h-1 bg-brand-primary rounded-full shadow-[0_0_8px_rgba(250,204,21,0.6)]" />
-                                )}
-                            </button>
-                        );
-                    })}
-
-                    <div className="mt-8 pt-6 border-t border-white/5 space-y-1">
-                        <div className="px-3 mb-4">
-                            <p className="text-[9px] font-bold tracking-widest text-white/20 uppercase">Account</p>
-                        </div>
-                        {secondaryItems.map((item) => (
-                            <button 
-                                key={item.name}
-                                onClick={() => navigate(item.path)}
-                                className="w-full flex items-center gap-4 px-5 py-2.5 rounded-xl transition-all hover:bg-white/5 text-white/30 hover:text-white group"
-                            >
-                                <div className="group-hover:text-brand-primary/70 transition-colors">
-                                    {item.icon}
-                                </div>
-                                <span className="text-[10px] font-bold tracking-tight uppercase">
-                                    {item.name}
-                                </span>
-                            </button>
-                        ))}
-                         <button 
-                            onClick={logout}
-                            className="w-full flex items-center gap-4 px-5 py-3 rounded-xl transition-all hover:bg-red-500/10 text-red-400 group mt-6"
+            {/* Main Navigation */}
+            <nav className="flex-1 space-y-1">
+                {menuItems.map((item) => {
+                    const isActive = currentPath === item.path;
+                    return (
+                        <button
+                            key={item.name}
+                            onClick={() => onNavigate(item.path)}
+                            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all duration-300 group ${
+                                isActive 
+                                ? 'bg-[#FACD15] text-[#1F3F34] shadow-lg translate-x-1' 
+                                : 'text-[#F5F4EF]/70 hover:bg-white/10 hover:text-[#FACD15]'
+                            }`}
                         >
-                            <LogOut className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                            <span className="text-[10px] font-black tracking-widest uppercase">
-                                {t('sidebar.logout')}
+                            <span className={`material-symbols-outlined transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`}>
+                                {item.icon}
                             </span>
+                            <span className="text-sm tracking-tight">{item.name}</span>
                         </button>
-                    </div>
-                </nav>
+                    );
+                })}
+            </nav>
 
-                {/* Footer Section */}
-                <div className="pt-6 mt-auto border-t border-white/5 flex items-center justify-between shrink-0">
-                    <p className="text-[9px] font-bold text-white/10 uppercase tracking-widest">© 2026 TrustHire</p>
-                    <NotificationCenter position="top" />
-                </div>
-            </aside>
-        </>
+            {/* Account Settings */}
+            <div className="mt-auto space-y-1 pt-6 border-t border-white/10">
+                {accountItems.map((item) => (
+                    <button
+                        key={item.name}
+                        onClick={() => onNavigate(item.path)}
+                        className="w-full flex items-center gap-3 px-4 py-2 text-[#F5F4EF]/50 hover:text-[#FACD15] transition-all duration-200 text-xs font-bold group"
+                    >
+                        <span className="material-symbols-outlined text-lg group-hover:rotate-12 transition-transform">{item.icon}</span>
+                        <span className="tracking-tight">{item.name}</span>
+                    </button>
+                ))}
+                
+                <button
+                    onClick={onLogout}
+                    className="w-full flex items-center gap-3 px-4 py-3 text-red-100/50 hover:text-red-400 transition-all duration-200 text-xs font-bold group mt-2"
+                >
+                    <span className="material-symbols-outlined text-lg group-hover:translate-x-1 transition-transform">logout</span>
+                    <span className="tracking-tight italic uppercase">Logout</span>
+                </button>
+            </div>
+        </div>
     );
 };

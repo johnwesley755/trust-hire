@@ -72,7 +72,7 @@ export const SkillTestsPage = () => {
       <div className="absolute inset-0 cloud-grid opacity-[0.05] pointer-events-none" />
       
       <header className="p-8 lg:p-12 border-b border-brand-border bg-brand-bg/80 backdrop-blur-3xl sticky top-0 z-40">
-        <div className="max-w-4xl mx-auto space-y-2">
+        <div className="space-y-2">
             <div className="flex items-center gap-2 text-brand-secondary/40 font-semibold tracking-widest text-[10px]">
                 <Trophy className="w-3.5 h-3.5 text-brand-primary" /> Accreditation Matrix
             </div>
@@ -81,7 +81,7 @@ export const SkillTestsPage = () => {
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto p-8 lg:p-12 w-full space-y-10 relative z-10 pb-32">
+      <main className="p-8 lg:p-12 pr-8 lg:pr-16 w-full space-y-10 relative z-10 pb-32">
         {/* Categories */}
         <div className="flex gap-4 overflow-x-auto pb-6 scrollbar-hide">
             {['All', 'Electrical', 'Cooking', 'Cleaning', 'Security'].map(cat => (

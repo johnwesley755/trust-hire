@@ -1,5 +1,4 @@
-import React, { useState, useRef } from 'react';
-import { UploadCloud, FileImage, Trash2, X } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { mediaService } from '../api/media.service';
 
@@ -15,15 +14,26 @@ interface UploadedFile {
 interface AdvancedFileUploadProps {
     onUploadSuccess: (urls: string[]) => void;
     maxFiles?: number;
-    label?: string;
+    initialUrls?: string[];
+    trigger?: (open: () => void) => React.ReactNode;
 }
 
 export const AdvancedFileUpload: React.FC<AdvancedFileUploadProps> = ({ 
     onUploadSuccess, 
     maxFiles = 5,
-    label = "Uploaded files"
+    initialUrls = [],
+    trigger
 }) => {
-    const [files, setFiles] = useState<UploadedFile[]>([]);
+    const [files, setFiles] = useState<UploadedFile[]>(() => 
+        initialUrls.map(url => ({
+            id: Math.random().toString(36).substr(2, 9),
+            name: 'Existing Image',
+            size: 0,
+            progress: 100,
+            status: 'completed',
+            url
+        }))
+    );
     const [isDragging, setIsDragging] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -45,9 +55,6 @@ export const AdvancedFileUpload: React.FC<AdvancedFileUploadProps> = ({
         for (let i = 0; i < incomingFiles.length; i++) {
             const file = incomingFiles[i];
             const uploadId = newUploads[i].id;
-
-            const formData = new FormData();
-            formData.append('file', file);
 
             try {
                 const response = await mediaService.uploadFile(file, (progress) => {
@@ -82,113 +89,108 @@ export const AdvancedFileUpload: React.FC<AdvancedFileUploadProps> = ({
         });
     };
 
-    return (
-        <div className="w-full">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10 items-start">
-                <div 
-                    onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
-                    onDragLeave={() => setIsDragging(false)}
-                    onDrop={(e) => { e.preventDefault(); setIsDragging(false); handleFiles(e.dataTransfer.files); }}
-                    className={`
-                        relative border-2 border-dashed rounded-4xl p-6 sm:p-8
-                        flex flex-col items-center justify-center text-center transition-all
-                        ${isDragging ? 'border-brand-primary bg-brand-primary/5' : 'border-brand-border bg-white'}
-                        group cursor-pointer
-                    `}
-                    onClick={() => fileInputRef.current?.click()}
-                >
-                    <input 
-                        type="file" 
-                        ref={fileInputRef} 
-                        onChange={(e) => handleFiles(e.target.files)} 
-                        className="hidden" 
-                        multiple 
-                        accept=".png,.jpg,.webp"
-                    />
-                    
-                    <div className="w-14 h-14 bg-brand-primary/10 text-brand-primary rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                        <UploadCloud className="w-6 h-6" />
-                    </div>
+    useEffect(() => {
+        if (initialUrls.length > 0 && files.length === 0) {
+            setFiles(initialUrls.map(url => ({
+                id: Math.random().toString(36).substr(2, 9),
+                name: 'Existing Image',
+                size: 0,
+                progress: 100,
+                status: 'completed',
+                url
+            })));
+        }
+    }, [initialUrls, files.length]);
 
-                    <button 
-                        type="button"
-                        className="bg-brand-primary text-brand-secondary px-8 py-2.5 rounded-full font-bold text-sm shadow-md shadow-brand-primary/20 hover:scale-105 active:scale-95 transition-all mb-4"
-                    >
-                        Browse
-                    </button>
+    const openFilePicker = () => {
+        fileInputRef.current?.click();
+    };
 
-                    <p className="text-brand-muted font-medium text-xs mb-1">drop a file here</p>
-                    <p className="text-brand-muted/40 text-[10px] font-bold">
-                        <span className="text-brand-accent">*</span>File supported .png, .jpg & .webp
-                    </p>
-                </div>
-
-                <div className="space-y-4">
-                    <h3 className="text-brand-secondary font-bold text-sm uppercase tracking-wider opacity-60">{label}</h3>
-                    
-                    <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
-                        <AnimatePresence mode="popLayout">
-                            {files.length === 0 ? (
-                                <motion.div 
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    className="text-center py-8 border border-dashed border-brand-border/30 rounded-2xl bg-brand-bg/10"
-                                >
-                                    <p className="text-brand-muted/40 font-bold text-xs uppercase tracking-widest">No files uploaded yet</p>
-                                </motion.div>
-                            ) : files.map((file) => (
-                                <motion.div
-                                    key={file.id}
-                                    layout
-                                    initial={{ opacity: 0, x: 20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    exit={{ opacity: 0, x: -20 }}
-                                    className="flex items-center gap-4 group"
-                                >
-                                    <div className="w-10 h-10 bg-brand-primary/10 text-brand-primary rounded-xl flex items-center justify-center shrink-0">
-                                        <FileImage className="w-5 h-5" />
-                                    </div>
-
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex items-center justify-between mb-1 gap-4">
-                                            <span className="text-brand-secondary font-bold text-sm truncate uppercase tracking-tight">
-                                                {file.name}
-                                            </span>
-                                            {file.status === 'uploading' && (
-                                                <span className="text-brand-muted/50 font-bold text-[10px] tabular-nums">
-                                                    {file.progress}%
-                                                </span>
-                                            )}
-                                        </div>
-
-                                        {file.status === 'uploading' ? (
-                                            <div className="w-full h-1.5 bg-brand-primary/10 rounded-full overflow-hidden">
-                                                <motion.div 
-                                                    initial={{ width: 0 }}
-                                                    animate={{ width: `${file.progress}%` }}
-                                                    className="h-full bg-brand-primary"
-                                                />
-                                            </div>
-                                        ) : file.status === 'error' ? (
-                                            <p className="text-brand-accent text-[10px] font-bold">Upload failed</p>
-                                        ) : (
-                                            <p className="text-emerald-500 text-[10px] font-bold uppercase tracking-wider">Ready</p>
-                                        )}
-                                    </div>
-
-                                    <button 
-                                        type="button"
-                                        onClick={(e) => { e.stopPropagation(); removeFile(file.id); }}
-                                        className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors hover:bg-brand-accent/10 text-brand-muted/40 hover:text-brand-accent"
-                                    >
-                                        {file.status === 'uploading' ? <X className="w-4 h-4" /> : <Trash2 className="w-4 h-4" />}
-                                    </button>
-                                </motion.div>
-                            ))}
-                        </AnimatePresence>
-                    </div>
-                </div>
+    if (trigger) {
+        return (
+            <div className="relative">
+                <input 
+                    type="file" 
+                    ref={fileInputRef} 
+                    onChange={(e) => handleFiles(e.target.files)} 
+                    className="hidden" 
+                    accept="image/*"
+                />
+                {/* eslint-disable-next-line @typescript-eslint/no-unsafe-call */}
+                {(trigger as any)(openFilePicker)}
+                
+                <AnimatePresence>
+                    {files.length > 0 && files[0].status === 'uploading' && (
+                        <motion.div 
+                            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                            className="absolute inset-0 bg-white/60 backdrop-blur-[2px] rounded-full flex items-center justify-center z-20 pointer-events-none"
+                        >
+                            <div className="w-12 h-12 rounded-full border-4 border-primary-fixed border-t-transparent animate-spin" />
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </div>
+        );
+    }
+
+    return (
+        <div 
+            onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+            onDragLeave={() => setIsDragging(false)}
+            onDrop={(e) => { e.preventDefault(); setIsDragging(false); handleFiles(e.dataTransfer.files); }}
+            onClick={() => fileInputRef.current?.click()}
+            className="relative group cursor-pointer"
+        >
+            <input 
+                type="file" 
+                ref={fileInputRef} 
+                onChange={(e) => handleFiles(e.target.files)} 
+                className="hidden" 
+                accept="image/*"
+            />
+            
+            <div className={`
+                w-24 h-24 rounded-full bg-surface-container-high flex items-center justify-center border-2 border-dashed transition-all
+                ${isDragging ? 'border-primary-fixed bg-primary-fixed/10' : 'border-outline-variant group-hover:border-primary-fixed'}
+                overflow-hidden
+            `}>
+                {files.length > 0 && files[0].url ? (
+                    <img src={files[0].url} alt="Profile preview" className="w-full h-full object-cover" />
+                ) : (
+                    <span className="material-symbols-outlined text-4xl text-outline">add_a_photo</span>
+                )}
+            </div>
+
+            <div className="absolute -bottom-1 -right-1 bg-primary-fixed text-on-secondary-fixed p-1.5 rounded-full shadow-sm flex items-center justify-center">
+                <span className="material-symbols-outlined text-sm font-bold">edit</span>
+            </div>
+
+            <AnimatePresence>
+                {files.length > 0 && (files[0].status === 'uploading' || files[0].status === 'error') && (
+                    <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="absolute inset-xl bottom-0 bg-surface/90 flex flex-col items-center justify-center p-1 text-center"
+                        onClick={(e) => { e.stopPropagation(); removeFile(files[0].id); }}
+                    >
+                        {files[0].status === 'uploading' ? (
+                            <>
+                                <div className="w-16 h-1 bg-primary/10 rounded-full overflow-hidden mb-1">
+                                    <motion.div 
+                                        initial={{ width: 0 }}
+                                        animate={{ width: `${files[0].progress}%` }}
+                                        className="h-full bg-primary-fixed"
+                                    />
+                                </div>
+                                <span className="text-[7px] font-black uppercase text-primary leading-none">{files[0].progress}%</span>
+                            </>
+                        ) : (
+                            <span className="text-[7px] font-black uppercase text-error leading-none">Retry</span>
+                        )}
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };

@@ -25,7 +25,7 @@ export function LandingHero() {
             Get Started Now
             <span className="material-symbols-outlined">arrow_forward</span>
           </Link>
-          <Link to="/login" className="text-primary font-bold border-2 border-primary px-10 py-5 rounded-[12px] hover:bg-primary hover:text-white transition-all">
+          <Link to="/sign-in" className="text-primary font-bold border-2 border-primary px-10 py-5 rounded-[12px] hover:bg-primary hover:text-white transition-all">
             Login
           </Link>
         </div>

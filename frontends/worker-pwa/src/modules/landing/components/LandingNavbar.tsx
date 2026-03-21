@@ -17,7 +17,7 @@ export function LandingNavbar() {
             <span className="text-on-surface/30 px-1">|</span>
             <span className="text-on-surface/50 pl-2 cursor-pointer hover:text-on-surface">हिन्दी</span>
           </div>
-          <Link to="/login" className="text-primary font-bold border-2 border-primary px-6 py-2 rounded-[12px] hover:bg-primary hover:text-white transition-all">Login</Link>
+          <Link to="/sign-in" className="text-primary font-bold border-2 border-primary px-6 py-2 rounded-[12px] hover:bg-primary hover:text-white transition-all">Login</Link>
           <Link to="/sign-up" className="bg-primary-fixed text-primary px-6 py-2 rounded-[12px] font-bold uppercase text-sm shadow-[inset_0_-2px_0_rgba(0,0,0,0.1)] hover:brightness-105 transition-all">Get Started</Link>
         </div>
       </div>

@@ -1,4 +1,3 @@
-import { ActionTiles } from '../features/DashboardComponents';
 import { useQuery } from '@tanstack/react-query';
 import { searchJobs } from '../../jobs/api/search.service';
 import { profileService } from '../../profile/api/profile.service';
@@ -6,15 +5,17 @@ import { jobService } from '../../jobs/api/job.service';
 import { applicationService } from '../../jobs/api/application.service';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../../core/hooks/useLanguage';
-import { motion } from 'framer-motion';
-import { MapPin, Search, ShieldCheck, Briefcase, User as UserIcon, Globe } from 'lucide-react';
 import { useState, useEffect } from 'react';
+
+// New Modular Components
+import { StatsSection } from '../components/StatsSection';
+import { JobBentoCard, FeaturedJobCard } from '../components/JobBentoCard';
+import { ProgressSidePanel } from '../components/ProgressSidePanel';
 
 export default function DashboardPage() {
   const navigate = useNavigate();
   useLanguage();
   const [coords, setCoords] = useState<{lat: number, lon: number} | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -34,7 +35,7 @@ export default function DashboardPage() {
 
   const { data: jobs } = useQuery({ 
     queryKey: ['nearbyJobs', searchLocation, coords], 
-    queryFn: () => searchJobs('', '', searchLocation, coords?.lat, coords?.lon, 50),
+    queryFn: () => searchJobs('', '', searchLocation, undefined, coords?.lat, coords?.lon, 50),
     enabled: !!profile,
     staleTime: 60000 
   });
@@ -52,6 +53,7 @@ export default function DashboardPage() {
   });
 
   const appliedJobIds = new Set(myApplications.map((app) => app.jobId));
+  console.log('Jobs with applications:', appliedJobIds.size);
 
   const visibleJobs = (jobs && jobs.length > 0)
     ? jobs.map((job) => ({
@@ -72,196 +74,105 @@ export default function DashboardPage() {
           industry: job.industry,
         }));
 
-  const visibleJobIds = visibleJobs.map(j => j.id);
-
-  const { data: applicationCounts = {} } = useQuery({
-    queryKey: ['applicationCounts', visibleJobIds],
-    queryFn: () => jobService.getApplicationCounts(visibleJobIds),
-    enabled: visibleJobIds.length > 0,
-    staleTime: 30000,
-  });
-
-  const { data: jobStats } = useQuery({
-    queryKey: ['jobStats'],
-    queryFn: jobService.getStats,
-    staleTime: 300000,
-  });
-
-  const { data: workerStats } = useQuery({
-    queryKey: ['workerStats'],
-    queryFn: profileService.getGlobalStats,
-    staleTime: 300000,
-  });
-
-  const handleSearch = (e?: React.FormEvent) => {
-    e?.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
-    } else {
-      navigate('/search');
-    }
-  };
+  // Map earnings from job statistics or mock for design
+  const totalEarnings = visibleJobs.reduce((acc, job) => acc + (job.budget || 0), 0);
+  const formattedEarnings = `₹${(totalEarnings / 10).toLocaleString()}`; // Scaling for realism in demo
 
   return (
-    <>
-        <div className="absolute inset-0 cloud-grid opacity-[0.05] pointer-events-none" />
-
-        <main className="p-4 md:p-8 max-w-[1400px] mx-auto w-full relative z-10 min-h-screen">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            
-            {/* Left Sidebar: Trending Hub */}
-            <div className="lg:col-span-3 space-y-6 sticky top-24 hidden lg:block">
-               <div className="bg-white rounded-3xl border border-brand-border p-6 shadow-sm overflow-hidden relative group">
-                   <div className="absolute top-0 right-0 w-24 h-24 bg-brand-primary/5 rounded-bl-full -mr-8 -mt-8" />
-                   <h4 className="text-[10px] font-black tracking-widest text-brand-muted uppercase opacity-40 mb-6 flex items-center gap-2">
-                       <Globe className="w-3 h-3 text-brand-primary" /> Global Activity
-                   </h4>
-                   <div className="space-y-4">
-                       <div className="p-4 bg-brand-bg rounded-2xl border border-brand-border/50 transition-all hover:bg-white hover:shadow-sm">
-                           <p className="text-[10px] font-bold text-brand-secondary/60 uppercase tracking-widest mb-1">New Jobs Today</p>
-                           <p className="text-2xl font-black text-brand-secondary">
-                               {jobStats?.jobsToday ?? '...'}
-                           </p>
-                       </div>
-                       <div className="p-4 bg-brand-bg rounded-2xl border border-brand-border/50 transition-all hover:bg-white hover:shadow-sm">
-                           <p className="text-[10px] font-bold text-brand-secondary/60 uppercase tracking-widest mb-1">Verified Workers</p>
-                           <p className="text-2xl font-black text-brand-secondary">
-                               {workerStats?.totalWorkers ? `${(workerStats.totalWorkers / 1000).toFixed(1)}k+` : '...'}
-                           </p>
-                       </div>
-                   </div>
-               </div>
-               <div className="bg-white rounded-3xl border border-brand-border p-6 shadow-sm">
-                   <h4 className="text-[10px] font-black tracking-widest text-brand-muted uppercase opacity-40 mb-4">Your Recent Activity</h4>
-                   <div className="space-y-3">
-                       <div className="flex items-center justify-between text-xs transition-transform hover:translate-x-1 cursor-default">
-                           <span className="text-brand-muted font-semibold">Profile views</span>
-                           <span className="text-brand-primary font-bold">{profile?.profileViews ?? 0}</span>
-                       </div>
-                       <div className="flex items-center justify-between text-xs transition-transform hover:translate-x-1 cursor-default">
-                           <span className="text-brand-muted font-semibold">Applied jobs</span>
-                           <span className="text-brand-primary font-bold">{myApplications.length}</span>
-                       </div>
-                   </div>
-               </div>
-            </div>
-            
-            {/* Center: Main Feed */}
-            <div className="lg:col-span-6 space-y-6">
-                {/* Search / Feed Header - NOW SEO OPTIMIZED */}
-                <form 
-                    onSubmit={handleSearch}
-                    className="bg-white p-4 md:p-6 rounded-3xl border border-brand-border flex items-center gap-4 shadow-sm focus-within:ring-2 focus-within:ring-brand-primary/20 transition-all"
-                >
-                    <label htmlFor="job-search" className="sr-only">Search for work</label>
-                    <div className="w-12 h-12 rounded-xl bg-brand-bg flex items-center justify-center shrink-0">
-                        <Search className="w-6 h-6 text-brand-secondary/40" />
-                    </div>
-                    <input 
-                        id="job-search"
-                        type="text"
-                        placeholder="What kind of work are you looking for?"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        aria-label="Search for jobs by title, skills or industry"
-                        className="flex-1 bg-brand-bg h-12 rounded-xl px-4 flex items-center text-brand-secondary text-sm font-semibold border border-brand-border/50 focus:outline-none focus:border-brand-primary transition-colors"
-                    />
-                    <button 
-                        type="submit"
-                        className="bg-brand-secondary text-brand-primary px-4 md:px-6 py-2.5 rounded-xl font-bold text-xs tracking-widest uppercase hover:bg-neutral-800 transition-colors shadow-sm active:scale-95"
-                    >
-                        Explore
-                    </button>
-                </form>
-
-                <div className="space-y-4">
-                    <div className="flex items-center justify-between px-2">
-                        <h3 className="text-xl font-bold text-brand-secondary tracking-tight">Recommended for you</h3>
-                        <p className="text-[10px] font-bold text-brand-muted uppercase tracking-widest opacity-40">Showing {visibleJobs.length} opportunities</p>
-                    </div>
-
-                    {visibleJobs.map((job, i) => (
-                    <motion.div 
-                        key={job.id} 
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: i * 0.05 }}
-                        className="bg-white rounded-3xl border border-brand-border hover:border-brand-primary p-6 space-y-6 shadow-sm hover:shadow-md transition-all group relative overflow-hidden"
-                    >
-                        <div className="flex justify-between items-start">
-                            <div className="flex gap-4 min-w-0">
-                                <div className="w-14 h-14 bg-brand-bg rounded-2xl flex items-center justify-center shrink-0 border border-brand-border group-hover:bg-brand-primary/10 transition-colors">
-                                    <Briefcase className="w-6 h-6 text-brand-secondary" />
-                                </div>
-                                <div className="space-y-1 min-w-0">
-                                    <h4 className="font-bold text-lg text-brand-secondary leading-tight truncate group-hover:text-brand-primary transition-colors">{job.title}</h4>
-                                    <div className="flex items-center gap-2 text-brand-muted/60 font-semibold text-xs">
-                                        <MapPin className="w-3 h-3" /> {job.location} • {job.industry}
-                                    </div>
-                                    <div className="pt-1">
-                                        <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-lg">
-                                            <ShieldCheck className="w-3 h-3" /> Verified Employer
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="text-right shrink-0">
-                                <div className="text-xl font-black text-brand-secondary tracking-tight">₹{job.budget?.toLocaleString()}</div>
-                                <div className="text-[9px] font-bold text-brand-muted uppercase tracking-widest opacity-40">per project</div>
-                            </div>
-                        </div>
-
-                        <div className="flex items-center justify-between pt-4 border-t border-brand-border">
-                            <div className="flex -space-x-2">
-                                {[1,2,3].map(n => (
-                                    <div key={n} className="w-8 h-8 rounded-lg bg-brand-bg border-2 border-white flex items-center justify-center overflow-hidden">
-                                        <UserIcon className="w-4 h-4 text-brand-secondary opacity-20" />
-                                    </div>
-                                ))}
-                                <div className="pl-4 self-center text-[10px] font-bold text-brand-muted/60 tracking-tight">
-                                    {applicationCounts[job.id] ?? 0} candidates applied
-                                </div>
-                            </div>
-                            <button 
-                                onClick={() => !appliedJobIds.has(job.id) && navigate(`/job/${job.id}`)}
-                                disabled={appliedJobIds.has(job.id)}
-                                className={`px-8 py-3 rounded-xl font-bold transition-all text-[10px] tracking-widest uppercase ${
-                                    appliedJobIds.has(job.id)
-                                    ? 'bg-emerald-500 text-white cursor-default'
-                                    : 'bg-brand-secondary text-brand-primary hover:bg-neutral-800'
-                                }`}
-                            >
-                                {appliedJobIds.has(job.id) ? 'Applied' : 'Details'}
-                            </button>
-                        </div>
-                    </motion.div>
-                    ))}
-                    
-                    {visibleJobs.length === 0 && (
-                    <div className="p-20 rounded-3xl bg-white border border-dashed border-brand-border text-center space-y-4">
-                        <Search className="w-12 h-12 text-brand-secondary/10 mx-auto" />
-                        <p className="text-brand-muted font-bold text-sm">No jobs found in your area yet.</p>
-                    </div>
-                    )}
-                </div>
-            </div>
-
-            {/* Right Sidebar: Suggestions */}
-            <div className="lg:col-span-3 space-y-6 sticky top-24 hidden lg:block">
-               <ActionTiles />
-               <div className="bg-white rounded-3xl border border-brand-border p-6 shadow-sm">
-                   <h4 className="text-[10px] font-black tracking-widest text-brand-muted uppercase opacity-40 mb-4">Trending Skills</h4>
-                   <div className="flex flex-wrap gap-2">
-                       {['Plumbing', 'Electrical', 'Housekeeping', 'Security', 'Carpentry'].map(skill => (
-                           <button key={skill} className="px-3 py-1.5 bg-brand-bg hover:bg-brand-primary/10 text-[10px] font-bold text-brand-muted rounded-lg transition-colors">
-                               #{skill}
-                           </button>
-                       ))}
-                   </div>
-               </div>
-            </div>
+    <div className="p-4 md:p-8 pr-8 lg:pr-16 w-full relative">
+      {/* Greeting Section */}
+      <section className="mb-8">
+        <div className="flex justify-between items-end">
+          <div>
+            <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-[#1F3F34]">Namaste, {profile?.fullName?.split(' ')[0] || 'Professional'}!</h2>
+            <p className="text-[#1F3F34]/60 font-medium tracking-tight">Ready for today's tasks? Here's your overview.</p>
           </div>
-        </main>
-    </>
+          <div className="bg-white px-3 py-1 rounded-full shadow-sm flex items-center gap-1.5 border border-[#c1c8c3]/20">
+            <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#1F3F34]">Online</span>
+          </div>
+        </div>
+      </section>
+
+      {/* Stats Row */}
+      <StatsSection 
+        trustScore={84} 
+        nearbyJobs={visibleJobs.length} 
+        earnings={formattedEarnings} 
+      />
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        {/* Main Content: Recommended Jobs */}
+        <div className="lg:col-span-8 space-y-6">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-extrabold text-[#1F3F34] flex items-center gap-2 tracking-tight">
+              <span className="w-2 h-6 bg-[#FACD15] rounded-full"></span>
+              Recommended For You
+            </h2>
+            <button 
+              onClick={() => navigate('/search')}
+              className="text-xs font-bold text-[#414845] hover:text-[#1F3F34] transition-colors uppercase tracking-widest"
+            >
+              View All Jobs
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {visibleJobs.length > 0 ? (
+              <>
+                {/* First Job as Featured */}
+                <FeaturedJobCard 
+                  job={visibleJobs[0]} 
+                  onApply={() => navigate(`/job/${visibleJobs[0].id}`)} 
+                />
+                {/* Remaining Jobs as Bento Cards */}
+                {visibleJobs.slice(1).map((job) => (
+                  <JobBentoCard 
+                    key={job.id} 
+                    job={job} 
+                    onApply={() => navigate(`/job/${job.id}`)} 
+                  />
+                ))}
+              </>
+            ) : (
+                <div className="col-span-full py-20 bg-white rounded-[2rem] border-2 border-dashed border-[#c1c8c3]/30 flex flex-col items-center justify-center text-center space-y-4">
+                  <div className="w-16 h-16 bg-[#f5f4ef] rounded-full flex items-center justify-center text-[#414845]/30">
+                    <span className="material-symbols-outlined text-4xl">search_off</span>
+                  </div>
+                  <h4 className="font-extrabold text-[#1F3F34]">No matching jobs yet</h4>
+                  <p className="text-sm text-[#414845] max-w-xs mx-auto">Try updating your skills or expanding your location preferences.</p>
+                  <button 
+                    onClick={() => navigate('/profile')}
+                    className="text-[0.65rem] font-extrabold uppercase text-[#1F3F34] bg-[#FACD15] px-6 py-2 rounded-full hover:shadow-lg transition-all active:scale-95"
+                  >
+                    Update Profile
+                  </button>
+                </div>
+            )}
+          </div>
+
+          <div className="bg-[#EFEEE9] p-8 rounded-[2rem] border-2 border-dashed border-[#c1c8c3]/30 flex flex-col items-center justify-center text-center space-y-4 mt-8">
+            <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-[#414845]">
+              <span className="material-symbols-outlined">explore</span>
+            </div>
+            <div>
+              <h4 className="font-extrabold text-[#1F3F34]">Need more options?</h4>
+              <p className="text-sm text-[#414845] max-w-xs mx-auto">Your next big opportunity might be just a click away.</p>
+            </div>
+            <button 
+              onClick={() => navigate('/search')}
+              className="text-[0.65rem] font-extrabold uppercase text-[#1F3F34] bg-white px-6 py-2 rounded-full hover:bg-[#FACD15] transition-all border border-[#c1c8c3]/20"
+            >
+              Explore Job Marketplace
+            </button>
+          </div>
+        </div>
+
+        {/* Right Sidebar: Progress & Actions */}
+        <div className="lg:col-span-4 sticky top-24 space-y-6">
+          <ProgressSidePanel />
+        </div>
+      </div>
+    </div>
   );
 }

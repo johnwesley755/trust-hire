@@ -34,12 +34,12 @@ export const DashboardSidebar = () => {
                 </div>
                 <div className="flex flex-col">
                     <div className="flex items-center gap-2">
-                        <span className="text-2xl font-semibold tracking-tight text-white leading-none capitalize">TrustHire</span>
+                        <span className="text-2xl font-black tracking-tight text-white leading-none">TrustHire</span>
                         <div className="bg-emerald-500/10 text-emerald-500 p-0.5 rounded-full border border-emerald-500/20">
                             <ShieldCheck className="w-3 h-3" />
                         </div>
                     </div>
-                    <span className="text-[9px] font-medium text-brand-primary tracking-widest mt-1.5 uppercase">Enterprise Hub</span>
+                    <span className="text-sm font-medium text-[#FACD15]/60 tracking-tight mt-1">Enterprise Hub</span>
                 </div>
             </div>
             

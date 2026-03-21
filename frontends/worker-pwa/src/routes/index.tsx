@@ -12,7 +12,6 @@ import { SignUpPage } from '../modules/auth/pages/SignUpPage.tsx';
 import ForgotPasswordPage from '../modules/auth/pages/ForgotPasswordPage.tsx';
 import ResetPasswordPage from '../modules/auth/pages/ResetPasswordPage.tsx';
 import ProfilePage from '../modules/profile/pages/ProfilePage.tsx';
-import HistoryPage from '../modules/profile/pages/HistoryPage.tsx';
 import AppliedJobsPage from '../modules/jobs/pages/AppliedJobsPage.tsx';
 import OnboardingPage from '../modules/profile/pages/OnboardingPage.tsx';
 
@@ -56,10 +55,6 @@ export const router = createBrowserRouter([
             element: <DashboardPage />,
           },
           {
-            path: '/verify-identity',
-            element: <IdentityVerificationPage />,
-          },
-          {
             path: '/tests',
             element: <SkillTestsPage />,
           },
@@ -70,10 +65,6 @@ export const router = createBrowserRouter([
           {
             path: '/search',
             element: <JobSearchPage />,
-          },
-          {
-            path: '/history',
-            element: <HistoryPage />,
           },
           {
             path: '/applied-jobs',
@@ -95,6 +86,14 @@ export const router = createBrowserRouter([
           <SignedIn>
             <OnboardingPage />
           </SignedIn>
+        ),
+      },
+      {
+        path: '/verify-identity',
+        element: (
+          <ProtectedRoute>
+            <IdentityVerificationPage />
+          </ProtectedRoute>
         ),
       },
       {

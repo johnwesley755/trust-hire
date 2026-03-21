@@ -26,7 +26,7 @@ export const LevelDetailsPage = () => {
       <div className="absolute inset-0 cloud-grid opacity-[0.05] pointer-events-none" />
       
       <header className="p-8 lg:p-12 border-b border-brand-border bg-brand-bg/80 backdrop-blur-3xl sticky top-0 z-40">
-        <div className="max-w-4xl mx-auto flex justify-between items-end">
+        <div className="flex justify-between items-end w-full">
             <div className="space-y-2">
                 <div className="flex items-center gap-2 text-brand-secondary/40 font-semibold tracking-widest text-[10px]">
                     <ShieldCheck className="w-3.5 h-3.5 text-brand-primary" /> Professional Standing
@@ -40,7 +40,7 @@ export const LevelDetailsPage = () => {
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto p-8 lg:p-12 w-full space-y-12 relative z-10 pb-32">
+      <main className="p-8 lg:p-12 pr-8 lg:pr-16 w-full space-y-12 relative z-10 pb-32">
         {/* Component Breakdown */}
         <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {[

@@ -15,7 +15,7 @@ export function LandingNavbar() {
         </div>
 
         <div className="flex items-center gap-3">
-          <Link to="/login" className="text-brand-forest font-bold px-4 py-2 hover:bg-emerald-50/50 rounded-[12px] transition-all text-sm">Login</Link>
+          <Link to="/sign-in" className="text-brand-forest font-bold px-4 py-2 hover:bg-emerald-50/50 rounded-[12px] transition-all text-sm">Login</Link>
           <Link to="/sign-up" className="btn-primary px-6 py-2.5 uppercase text-sm shadow-[inset_0_-2px_0_rgba(0,0,0,0.1)] hover:scale-105 active:scale-95 flex items-center justify-center">
             Get Started
           </Link>
