@@ -1,233 +1,137 @@
-import { useState } from 'react';
-import { Users, Briefcase, LayoutDashboard, PlusCircle, Building2, ShieldCheck, Settings, HelpCircle, LogOut, UserCircle, Menu, X } from 'lucide-react';
-import { useUser, useAuth } from "../../../core/providers/AuthContext";
-import { UserButton } from '../components/UserButton';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useUser } from "../../../core/providers/AuthContext";
 import { NotificationCenter } from './notifications/NotificationCenter';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const menuItems = [
-    { name: 'Dashboard', icon: <LayoutDashboard className="w-5 h-5" />, path: '/dashboard' },
-    { name: 'Search Workers', icon: <Users className="w-5 h-5" />, path: '/find-workers' },
-    { name: 'Post a Job', icon: <PlusCircle className="w-5 h-5" />, path: '/post-job' },
-    { name: 'My Active Jobs', icon: <Briefcase className="w-5 h-5" />, path: '/jobs' },
-    { name: 'Applications', icon: <Briefcase className="w-5 h-5" />, path: '/applications' }, 
-    { name: 'Profile', icon: <UserCircle className="w-5 h-5" />, path: '/profile' }, 
+    { name: 'Dashboard', icon: 'dashboard', path: '/dashboard' },
+    { name: 'Search Workers', icon: 'person_search', path: '/find-workers' },
+    { name: 'Post a Job', icon: 'add_circle', path: '/post-job' },
+    { name: 'My Active Jobs', icon: 'work', path: '/jobs' },
+    { name: 'Applications', icon: 'description', path: '/applications' }, 
+    { name: 'Profile', icon: 'person', path: '/profile' }, 
 ];
 
 const secondaryItems = [
-    { name: 'Settings', icon: <Settings className="w-5 h-5" />, path: '/settings' },
-    { name: 'Help & Support', icon: <HelpCircle className="w-5 h-5" />, path: '/help' },
+    { name: 'Settings', icon: 'settings', path: '/settings' },
+    { name: 'Help & Support', icon: 'help', path: '/help' },
 ];
 
-export const DashboardSidebar = () => {
+export const DashboardSidebar = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) => {
     const { user } = useUser();
-    const { logout } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
 
     return (
-        <aside className="hidden md:flex w-72 bg-brand-secondary border-r border-white/5 p-8 flex-col h-screen sticky top-0 z-40 text-white/70 overflow-hidden">
-            {/* Logo Section */}
-            <div className="flex items-center gap-4 px-2 mb-10 shrink-0">
-                <div className="w-12 h-12 bg-brand-primary rounded-xl flex items-center justify-center p-2 shadow-lg transition-transform hover:scale-105 active:scale-95 cursor-pointer" onClick={() => navigate('/')}>
-                    <Building2 className="w-full h-full text-brand-secondary" />
-                </div>
-                <div className="flex flex-col">
-                    <div className="flex items-center gap-2">
-                        <span className="text-2xl font-black tracking-tight text-white leading-none">TrustHire</span>
-                        <div className="bg-emerald-500/10 text-emerald-500 p-0.5 rounded-full border border-emerald-500/20">
-                            <ShieldCheck className="w-3 h-3" />
-                        </div>
+        <>
+            {/* Mobile Overlay */}
+            {isOpen && (
+                <div 
+                    className="fixed inset-0 bg-black/50 z-60 md:hidden backdrop-blur-sm"
+                    onClick={onClose}
+                />
+            )}
+
+            <aside className={`fixed md:sticky top-0 left-0 h-screen w-64 bg-[#1F3F34] p-6 gap-2 shrink-0 z-70 transition-transform duration-300 md:translate-x-0 ${
+                isOpen ? 'translate-x-0' : '-translate-x-full'
+            } md:flex flex-col`}>
+                {/* Logo Section */}
+                <div className="mb-8 px-2 flex justify-between items-center" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
+                    <div>
+                        <h1 className="text-xl font-black text-white tracking-tight">TrustHire</h1>
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-[#FACD15] opacity-90">Employer Portal</p>
                     </div>
-                    <span className="text-sm font-medium text-[#FACD15]/60 tracking-tight mt-1">Enterprise Hub</span>
+                    <button onClick={onClose} className="md:hidden text-white/50 hover:text-white">
+                        <span className="material-symbols-outlined">close</span>
+                    </button>
                 </div>
-            </div>
-            
+
             {/* Main Navigation */}
-            <nav className="flex-1 space-y-2 overflow-y-auto pr-2 no-scrollbar">
-                <div className="px-3 mb-4">
-                    <p className="text-[10px] font-bold tracking-widest text-white/20 uppercase">Dashboard</p>
-                </div>
+            <nav className="flex-1 flex flex-col gap-1 overflow-y-auto pr-1 no-scrollbar">
                 {menuItems.map((item) => {
                     const isActive = location.pathname === item.path;
                     return (
                         <button 
                             key={item.name}
-                            onClick={() => navigate(item.path)}
-                            className={`w-full flex items-center gap-4 px-5 py-3.5 rounded-2xl transition-all cursor-pointer group active:scale-[0.98] ${
+                            onClick={() => {
+                                navigate(item.path);
+                                onClose();
+                            }}
+                            className={`flex items-center gap-3 px-4 py-3 rounded-full transition-all group ${
                                 isActive 
-                                ? 'bg-white/10 text-brand-primary shadow-lg shadow-black/10' 
-                                : 'text-white/60 hover:bg-white/5 hover:text-white'
+                                ? 'bg-[#FACD15] text-[#1F3F34] shadow-lg shadow-[#FACD15]/10' 
+                                : 'text-white/70 hover:bg-white/5 hover:text-white'
                             }`}
                         >
-                            <div className={`${isActive ? 'text-brand-primary' : 'text-white/40 group-hover:text-white'} transition-colors`}>
+                            <span className={`material-symbols-outlined ${isActive ? 'filled-icon' : ''}`} 
+                                  style={{ fontVariationSettings: isActive ? "'FILL' 1" : "'FILL' 0", fontSize: '20px' }}>
                                 {item.icon}
-                            </div>
-                            <span className={`text-sm tracking-tight ${isActive ? 'font-bold' : 'font-medium'}`}>{item.name}</span>
+                            </span>
+                            <span className="text-xs font-bold uppercase tracking-wider">{item.name}</span>
                         </button>
                     );
                 })}
-
-                <div className="mt-8 pt-6 border-t border-white/5 space-y-1">
-                    <div className="px-3 mb-4">
-                        <p className="text-[10px] font-bold tracking-widest text-white/20 uppercase">Settings</p>
-                    </div>
-                    {secondaryItems.map((item) => (
-                        <button 
-                            key={item.name}
-                            onClick={() => navigate(item.path)}
-                            className="w-full flex items-center gap-4 px-5 py-2.5 rounded-xl transition-all hover:bg-white/5 text-white/40 hover:text-white group"
-                        >
-                            <div className="text-white/40 group-hover:text-brand-primary/70 transition-colors">
-                                {item.icon}
-                            </div>
-                            <span className="text-xs font-semibold tracking-tight">{item.name}</span>
-                        </button>
-                    ))}
-                    <button 
-                        onClick={logout}
-                        className="w-full flex items-center gap-4 px-5 py-3 rounded-xl transition-all hover:bg-red-500/10 text-red-400 group mt-6 font-bold"
-                    >
-                        <LogOut className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                        <span className="text-xs tracking-widest uppercase">Sign Out</span>
-                    </button>
-                </div>
             </nav>
 
-            {/* Footer Section */}
-            <div className="pt-8 mt-auto border-t border-white/5 flex items-center justify-between gap-4 shrink-0">
-                <div className="flex items-center gap-3 min-w-0">
-                    <div className="relative shrink-0">
-                        <UserButton />
+            {/* Secondary & Profile Section */}
+            <div className="mt-auto flex flex-col gap-1 pt-6 border-t border-white/10">
+                {secondaryItems.map((item) => (
+                    <button 
+                        key={item.name}
+                        onClick={() => navigate(item.path)}
+                        className="flex items-center gap-3 px-4 py-2.5 text-white/60 hover:text-white transition-all text-left"
+                    >
+                        <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>{item.icon}</span>
+                        <span className="text-xs font-bold uppercase tracking-wider">{item.name}</span>
+                    </button>
+                ) )}
+                
+                <div className="mt-4 flex items-center gap-3 px-2 py-3 bg-white/5 rounded-2xl relative">
+                    <div className="w-10 h-10 rounded-full border-2 border-[#FACD15]/30 overflow-hidden shrink-0">
+                        <img 
+                            alt="Employer" 
+                            className="w-full h-full object-cover" 
+                            src={user?.profileImageUrl || "https://lh3.googleusercontent.com/aida-public/AB6AXuDB2IKihz2HBZd0YvzOOsCbtLo2SulU29Gl-66RaZ0YJu1cPL1c7gEIXDzmFS_blQp7DPx_68dl8H8Rt20b8QV8REGIk7AxmnYfhBUb6WOrdtxG8i2Xo6zbzCdHGAHY2f30l-mNztw8qHinR7O6zvr9OPtlVVb-zP_nlaG7GdSfLcvCMR4--5niBM_iua3ZjqJgXGdCfo0ke2z11Rnm8ykPyZxOftXvcLXMAJ6Sw6aEOQGXOP9afmh9Wj8ywyc9hayr3MG-fwARVAQ"}
+                        />
                     </div>
-                    <div className="overflow-hidden">
-                        <p className="text-xs font-bold text-white truncate leading-tight">{user?.firstName} {user?.lastName}</p>
-                        <p className="text-[9px] font-bold text-brand-primary uppercase tracking-widest mt-0.5">Admin Hub</p>
+                    <div className="flex flex-col truncate flex-1 pr-8">
+                        <span className="text-[11px] font-bold text-white truncate">{user?.firstName} {user?.lastName}</span>
+                        <span className="text-[9px] text-[#FACD15]/70 font-bold uppercase tracking-tight">Tier 1 Partner</span>
+                    </div>
+                    <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                        <NotificationCenter />
                     </div>
                 </div>
-                <NotificationCenter />
             </div>
         </aside>
+        </>
     );
 };
 
-export const MobileNav = () => {
-    const { user } = useUser();
-    const { logout } = useAuth();
+export const MobileNav = ({ onMenuClick }: { onMenuClick: () => void }) => {
     const navigate = useNavigate();
-    const location = useLocation();
-    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-    const handleNavigate = (path: string) => {
-        navigate(path);
-        setIsMobileMenuOpen(false);
-    };
 
     return (
-        <>
-            <div className="md:hidden fixed top-0 inset-x-0 z-50 border-b border-white/5 bg-brand-bg/95 backdrop-blur-2xl">
-                <div className="flex items-center justify-between px-4 py-4">
-                    <button onClick={() => navigate('/dashboard')} className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-brand-secondary rounded-xl flex items-center justify-center shadow-sm">
-                            <Building2 className="w-5 h-5 text-brand-primary" />
-                        </div>
-                        <div className="text-left">
-                            <div className="text-lg font-bold tracking-tight text-brand-secondary leading-none">TrustHire</div>
-                            <div className="text-[9px] font-bold tracking-widest text-brand-primary mt-1 uppercase">Employer Hub</div>
-                        </div>
+        <header className="md:hidden fixed top-0 w-full z-40 bg-[#F5F4EF]/80 backdrop-blur-md shadow-[0_2px_12px_rgba(0,0,0,0.05)] border-b border-[#EFEEE9]">
+            <div className="flex justify-between items-center px-6 py-4 w-full">
+                <div className="flex items-center gap-4">
+                    <button 
+                        onClick={onMenuClick}
+                        className="active:scale-95 duration-200 transition-transform w-10 h-10 flex items-center justify-center rounded-full hover:bg-black/5"
+                    >
+                        <span className="material-symbols-outlined text-[#1F3F34] text-2xl">menu</span>
                     </button>
-
-                    <div className="flex items-center gap-2">
-                        <NotificationCenter />
-                        <button
-                            onClick={() => setIsMobileMenuOpen((open) => !open)}
-                            className="w-11 h-11 rounded-2xl border border-brand-border bg-white flex items-center justify-center text-brand-secondary shadow-sm"
-                            aria-label="Toggle menu"
-                        >
-                            {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-                        </button>
-                    </div>
+                    <h1 className="text-xl font-bold tracking-tight text-[#1F3F34]" onClick={() => navigate('/')}>TrustHire</h1>
+                </div>
+                <div className="flex items-center gap-3">
+                    <button className="p-2 hover:bg-black/5 rounded-full transition-colors active:scale-90">
+                        <span className="material-symbols-outlined text-[#1F3F34]">search</span>
+                    </button>
+                    <button className="p-2 hover:bg-black/5 rounded-full transition-colors active:scale-90 relative">
+                        <span className="material-symbols-outlined text-[#1F3F34]">notifications</span>
+                        <span className="absolute top-2 right-2 w-2 h-2 bg-error rounded-full border-2 border-white"></span>
+                    </button>
                 </div>
             </div>
-
-            {isMobileMenuOpen && (
-                <div className="md:hidden fixed inset-0 z-40 bg-brand-secondary/50 backdrop-blur-sm" onClick={() => setIsMobileMenuOpen(false)}>
-                    <div
-                        className="w-[84%] max-w-xs h-full bg-brand-secondary text-white/70 p-6 flex flex-col shadow-2xl"
-                        onClick={(event) => event.stopPropagation()}
-                    >
-                        <div className="flex items-center justify-between mb-10 shrink-0">
-                            <div className="flex items-center gap-3">
-                                <div className="w-11 h-11 bg-brand-primary rounded-xl flex items-center justify-center">
-                                    <Building2 className="w-6 h-6 text-brand-secondary" />
-                                </div>
-                                <div>
-                                    <div className="text-xl font-bold text-white tracking-tight">TrustHire</div>
-                                    <div className="text-[9px] font-bold tracking-widest text-brand-primary uppercase">Menu</div>
-                                </div>
-                            </div>
-                            <button
-                                onClick={() => setIsMobileMenuOpen(false)}
-                                className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center"
-                                aria-label="Close menu"
-                            >
-                                <X className="w-5 h-5 text-white" />
-                            </button>
-                        </div>
-
-                        <nav className="flex-1 space-y-2 overflow-y-auto custom-scrollbar no-scrollbar">
-                            {menuItems.map((item) => {
-                                const isActive = location.pathname === item.path;
-                                return (
-                                    <button
-                                        key={item.name}
-                                        onClick={() => handleNavigate(item.path)}
-                                        className={`w-full flex items-center gap-4 px-4 py-4 rounded-2xl transition-all ${
-                                            isActive ? 'bg-white/10 text-brand-primary shadow-lg' : 'hover:bg-white/5 hover:text-white'
-                                        }`}
-                                    >
-                                        <div className={isActive ? 'text-brand-primary' : 'text-white/40'}>{item.icon}</div>
-                                        <span className="text-sm font-bold tracking-tight">{item.name}</span>
-                                    </button>
-                                );
-                            })}
-                            
-                            <div className="mt-8 pt-6 border-t border-white/10 space-y-1">
-                                {secondaryItems.map((item) => (
-                                    <button
-                                        key={item.name}
-                                        onClick={() => handleNavigate(item.path)}
-                                        className="w-full flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-white/5 transition-all group"
-                                    >
-                                        <div className="text-white/30 group-hover:text-white">{item.icon}</div>
-                                        <span className="text-sm font-semibold tracking-tight text-white/50 group-hover:text-white">{item.name}</span>
-                                    </button>
-                                ))}
-                                <button
-                                    onClick={logout}
-                                    className="w-full flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-red-500/10 text-red-400 mt-4 transition-all"
-                                >
-                                    <LogOut className="w-5 h-5" />
-                                    <span className="text-sm font-bold tracking-widest uppercase truncate text-left">Sign Out</span>
-                                </button>
-                            </div>
-                        </nav>
-
-                        <div className="mt-auto pt-6 border-t border-white/10 flex items-center gap-3 shrink-0">
-                            <div className="relative">
-                                <UserButton />
-                                <div className="absolute -bottom-1 -right-1 bg-emerald-500 text-white rounded-full p-0.5 border-2 border-brand-secondary shadow-sm">
-                                    <ShieldCheck className="w-3 h-3" />
-                                </div>
-                            </div>
-                            <div className="min-w-0">
-                                <div className="text-sm font-bold text-white truncate">{user?.firstName} {user?.lastName}</div>
-                                <div className="text-[9px] font-bold tracking-widest text-brand-primary uppercase">Admin Hub</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
-        </>
+        </header>
     );
 };

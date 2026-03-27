@@ -90,6 +90,8 @@ public class JobServiceImpl implements JobService {
                     .longitude(job.getLongitude())
                     .budget(job.getBudget() != null ? job.getBudget().doubleValue() : null)
                     .requiredSkills(job.getRequiredSkills() != null ? String.join(", ", job.getRequiredSkills()) : "")
+                    .experienceYearsRequired(job.getExperienceYearsRequired())
+                    .address(job.getAddress())
                     .employerId(job.getEmployerId())
                     .status(job.getStatus() != null ? job.getStatus().name() : "OPEN")
                     .build();

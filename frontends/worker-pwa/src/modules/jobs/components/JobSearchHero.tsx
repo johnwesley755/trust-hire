@@ -68,7 +68,7 @@ export const JobSearchHero: React.FC<JobSearchHeroProps> = ({
             <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span> 
             1,240 New Roles Today
           </span>
-          {['Construction', 'Hospitality', 'Logistics', 'Manufacturing'].map(industry => (
+          {['Cooking / Chef', 'Construction', 'Logistics', 'Retail', 'Security', 'Agriculture', 'Domestic Help'].map(industry => (
             <span key={industry} className="px-5 py-2.5 bg-white text-[#414845]/60 rounded-full text-[10px] font-black uppercase tracking-widest border border-[#1F3F34]/5 shadow-sm hover:border-[#FACD15] transition-all cursor-pointer">
               {industry}
             </span>

@@ -4,14 +4,19 @@ import apiClient from "../../../core/api/apiClient";
 import { motion, AnimatePresence } from 'framer-motion';
 
 const INDUSTRY_OPTIONS = [
-  { id: 'Construction', label: 'Construction', icon: 'construction' },
-  { id: 'Facility Management', label: 'Facility Management', icon: 'business_center' },
-  { id: 'Retail', label: 'Retail', icon: 'shopping_cart' },
-  { id: 'Hospitality', label: 'Hospitality', icon: 'restaurant' },
-  { id: 'Manufacturing', label: 'Manufacturing', icon: 'precision_manufacturing' },
-  { id: 'Logistics', label: 'Logistics', icon: 'local_shipping' },
-  { id: 'Personal Services', label: 'Personal Services', icon: 'person_apron' },
-  { id: 'Technology', label: 'Technology', icon: 'devices' }
+  { id: 'CONSTRUCTION', label: 'Construction', icon: 'construction' },
+  { id: 'MAINTENANCE', label: 'Maintenance & Repair', icon: 'handyman' },
+  { id: 'LOGISTICS', label: 'Logistics & Delivery', icon: 'local_shipping' },
+  { id: 'COOKING_CHEF', label: 'Cooking / Chef', icon: 'restaurant' },
+  { id: 'HOSPITALITY', label: 'Hospitality & Hotel', icon: 'hotel' },
+  { id: 'DOMESTIC_HELP', label: 'Domestic Help', icon: 'cleaning_services' },
+  { id: 'RETAIL', label: 'Retail & Shop', icon: 'shopping_cart' },
+  { id: 'SECURITY', label: 'Security Services', icon: 'security' },
+  { id: 'AGRICULTURE', label: 'Agriculture', icon: 'agriculture' },
+  { id: 'MANUFACTURING', label: 'Manufacturing', icon: 'precision_manufacturing' },
+  { id: 'GARMENT', label: 'Tailoring / Garment', icon: 'apparel' },
+  { id: 'BEAUTY', label: 'Salon & Beauty', icon: 'content_cut' },
+  { id: 'HEALTHCARE', label: 'Healthcare', icon: 'medical_services' }
 ];
 
 export default function OnboardingPage() {

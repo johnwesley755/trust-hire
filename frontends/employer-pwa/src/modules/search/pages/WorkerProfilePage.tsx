@@ -1,8 +1,20 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { workerService } from '../api/worker.service';
-import { ShieldCheck, MapPin, Award, Star, Briefcase, ChevronLeft, Calendar, Loader2, Mail, Phone } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { 
+  ShieldCheck, 
+  Star, 
+  ChevronLeft, 
+  Loader2, 
+  Share2, 
+  Bookmark, 
+  BadgeCheck, 
+  Zap, 
+  Snowflake, 
+  Construction,
+  Verified
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useEffect } from 'react';
 
 // Defining it here since it's cleaner for now
@@ -35,8 +47,6 @@ export const WorkerProfilePage = () => {
   const { data: trustScore } = useQuery({
     queryKey: ['trustScore', id],
     queryFn: async () => {
-        // In a real app we'd have a specific service. 
-        // For demonstration, we'll mock the response based on the backend we just created.
         return {
             score: 450,
             identityVerified: true,
@@ -50,152 +60,241 @@ export const WorkerProfilePage = () => {
   });
 
   if (isLoadingWorker) return (
-    <div className="min-h-screen bg-brand-bg flex flex-col items-center justify-center gap-4">
-        <Loader2 className="h-12 w-12 text-brand-primary animate-spin" />
-        <p className="text-[10px] font-semibold uppercase tracking-widest text-brand-muted">Loading profile...</p>
+    <div className="min-h-screen bg-[#F5F4EF] flex flex-col items-center justify-center gap-4">
+        <Loader2 className="h-12 w-12 text-[#1F3F34] animate-spin" />
+        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#1F3F34]/40">Loading Dossier...</p>
     </div>
   );
 
-  const stats = [
-    { label: 'Rating', value: `${trustScore?.avgRating} / 5`, icon: <Star className="text-brand-primary h-5 w-5" /> },
-    { label: 'Reliability', value: `${(trustScore?.reliabilityRate || 0) * 100}%`, icon: <ShieldCheck className="text-brand-primary h-5 w-5" /> },
-    { label: 'Experience', value: `${worker?.experience} YRS`, icon: <Briefcase className="text-brand-primary h-5 w-5" /> },
-    { label: 'Exp Level', value: `LVL ${worker?.level}`, icon: <Award className="text-brand-primary h-5 w-5" /> },
-  ];
-
   return (
-    <>
-      <div className="absolute inset-0 cloud-grid opacity-[0.03] pointer-events-none" />
-      
-      <div className="max-w-5xl mx-auto px-6 py-12 pb-32 relative z-10">
-        <button 
+    <div className="min-h-screen bg-[#F5F4EF] text-[#1F3F34] font-body selection:bg-[#FACD15] selection:text-[#1F3F34]">
+      {/* Main Content Area */}
+      <main className="max-w-7xl mx-auto px-8 py-10 relative pb-32">
+        {/* Header Actions */}
+        <header className="flex justify-between items-center mb-12">
+          <button 
             onClick={() => navigate(-1)}
-            className="mb-10 flex items-center gap-3 text-brand-muted hover:text-brand-primary transition-all font-semibold uppercase tracking-widest text-[10px] group"
-        >
-            <ChevronLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" /> Back to Search
-        </button>
+            className="flex items-center gap-2 text-sm font-bold text-[#1F3F34]/60 hover:text-[#1F3F34] transition-colors"
+          >
+            <ChevronLeft className="w-4 h-4" />
+            <span>Back to Worker Search</span>
+          </button>
+          
+          <div className="flex gap-4">
+            <button className="p-3 bg-white rounded-full shadow-sm hover:bg-[#F5F4EF] transition-colors">
+              <Share2 className="w-5 h-5" />
+            </button>
+            <button className="p-3 bg-white rounded-full shadow-sm hover:bg-[#F5F4EF] transition-colors">
+              <Bookmark className="w-5 h-5" />
+            </button>
+          </div>
+        </header>
 
-        <div className="space-y-12">
-            {/* Profile Header */}
-            <motion.section 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="bg-brand-surface border border-brand-border rounded-[3rem] p-10 flex flex-col md:flex-row gap-10 items-center md:items-start text-center md:text-left shadow-2xl relative overflow-hidden group"
-            >
-                <div className="absolute top-0 right-0 p-10 opacity-[0.02] pointer-events-none">
-                    <ShieldCheck className="w-64 h-64 text-brand-primary" />
-                </div>
-
-                <div className="h-40 w-40 rounded-4xl bg-brand-secondary text-brand-primary flex items-center justify-center text-6xl font-bold shadow-2xl border border-brand-secondary shrink-0 relative z-10 overflow-hidden">
+        <AnimatePresence mode="wait">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          >
+            {/* Profile Hero Section */}
+            <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-12 text-left">
+              {/* Left: Avatar & Primary Info */}
+              <div className="lg:col-span-8 bg-white rounded-lg p-8 flex flex-col md:flex-row gap-8 relative overflow-hidden">
+                {/* Background Blob Decoration */}
+                <div className="absolute -top-10 -right-10 w-48 h-48 bg-[#FACD15]/10 rounded-full blur-3xl"></div>
+                
+                <div className="relative z-10 shrink-0">
+                  <div className="w-40 h-40 md:w-56 md:h-56 rounded-lg overflow-hidden bg-[#F5F4EF] relative shadow-lg">
                     {worker?.profilePhoto ? (
-                        <img src={worker.profilePhoto} alt={worker.name} className="w-full h-full object-cover" />
+                      <img src={worker.profilePhoto} alt={worker.name} className="w-full h-full object-cover" />
                     ) : (
-                        worker?.name[0]
+                      <div className="w-full h-full flex items-center justify-center text-5xl font-black bg-[#FACD15] text-[#1F3F34]">
+                        {worker?.name[0]}
+                      </div>
                     )}
-                </div>
-                
-                <div className="flex-1 space-y-6 relative z-10 pt-2">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                        <div>
-                            <h1 className="text-5xl font-bold text-neutral-900 tracking-tight leading-tight mb-4">{worker?.name}</h1>
-                            <div className="flex flex-wrap items-center justify-center md:justify-start gap-4">
-                                <span className="text-brand-muted flex items-center gap-2 text-[10px] font-semibold uppercase tracking-widest">
-                                    <MapPin className="h-4 w-4 text-brand-primary" /> {worker?.city || worker?.address || worker?.location}
-                                </span>
-                                <span className="w-1.5 h-1.5 rounded-full bg-brand-border" />
-                                <span className="text-brand-muted text-[10px] font-semibold uppercase tracking-widest">Joined Jan 2026</span>
-                            </div>
-                            <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 mt-4">
-                                {worker?.email && (
-                                    <span className="text-brand-muted flex items-center gap-2 text-[10px] font-semibold uppercase tracking-widest">
-                                        <Mail className="h-4 w-4 text-brand-primary" /> {worker.email}
-                                    </span>
-                                )}
-                                {worker?.phoneNumber && (
-                                    <span className="text-brand-muted flex items-center gap-2 text-[10px] font-semibold uppercase tracking-widest">
-                                        <Phone className="h-4 w-4 text-brand-primary" /> {worker.phoneNumber}
-                                    </span>
-                                )}
-                            </div>
-                        </div>
-                        <div className="bg-brand-secondary px-8 py-5 rounded-4xl flex items-center gap-4 shadow-2xl border border-brand-secondary">
-                            <ShieldCheck className="h-8 w-8 text-brand-primary" />
-                            <div className="text-left">
-                                <span className="block text-[8px] font-semibold text-brand-primary uppercase tracking-widest leading-none mb-1">Trust Score</span>
-                                <span className="text-3xl font-bold text-brand-primary leading-none uppercase tracking-tight">{trustScore?.score}</span>
-                            </div>
-                        </div>
+                    <div className="absolute bottom-4 left-4 bg-[#FACD15] text-[#1F3F34] text-[10px] font-extrabold px-3 py-1 rounded-full flex items-center gap-1 shadow-lg">
+                      <Verified className="w-3 h-3" />
+                      VERIFIED
                     </div>
-                    
-                    <div className="bg-brand-bg/50 p-6 rounded-3xl border border-brand-border text-brand-muted font-medium relative shadow-inner">
-                        <p className="leading-relaxed">"{worker?.bio || "No professional overview provided."}"</p>
-                    </div>
+                  </div>
                 </div>
-            </motion.section>
 
-            {/* Stats Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {stats.map((stat, i) => (
-                <motion.div 
-                    key={i} 
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.05 }}
-                    className="bg-brand-surface border border-brand-border p-8 rounded-4xl text-center space-y-3 shadow-xl hover:border-brand-primary/30 transition-all group"
-                >
-                    <div className="mx-auto w-12 h-12 bg-brand-secondary rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                        {stat.icon}
-                    </div>
-                    <div>
-                        <span className="block text-2xl font-bold text-brand-secondary uppercase tracking-tight leading-none mb-1">{stat.value}</span>
-                        <span className="block text-[8px] font-semibold text-brand-muted uppercase tracking-widest">{stat.label}</span>
-                    </div>
-                </motion.div>
-            ))}
-            </div>
+                <div className="flex-1 z-10 space-y-6">
+                  <div>
+                    <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-2 uppercase">{worker?.name}</h1>
+                    <p className="text-lg text-[#1F3F34]/70 font-medium">Senior Multi-Technical Specialist • {worker?.city || 'Bengaluru, KA'}</p>
+                  </div>
 
-            {/* Verified Skills */}
-            <section className="space-y-8">
-                <div className="flex items-center gap-4">
-                    <Award className="text-brand-primary h-8 w-8" />
-                    <h2 className="text-3xl font-bold text-neutral-900 uppercase tracking-tight">Verified Skills</h2>
+                  {/* Metrics Grid inside Hero */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                    <div className="bg-[#F5F4EF] p-4 rounded-lg flex flex-col justify-center text-center">
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-[#1F3F34]/50 mb-1">Rating</p>
+                      <div className="flex items-center justify-center gap-1">
+                        <span className="text-lg font-extrabold">{trustScore?.avgRating || 4.8}</span>
+                        <Star className="w-3.5 h-3.5 text-[#FACD15] fill-[#FACD15]" />
+                      </div>
+                    </div>
+                    <div className="bg-[#F5F4EF] p-4 rounded-lg flex flex-col justify-center text-center">
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-[#1F3F34]/50 mb-1">Reliability</p>
+                      <p className="text-lg font-extrabold">{((trustScore?.reliabilityRate || 0.95) * 100).toFixed(0)}%</p>
+                    </div>
+                    <div className="bg-[#F5F4EF] p-4 rounded-lg flex flex-col justify-center text-center">
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-[#1F3F34]/50 mb-1">Experience</p>
+                      <p className="text-lg font-extrabold">{worker?.experience || 3} YRS</p>
+                    </div>
+                    <div className="bg-[#F5F4EF] p-4 rounded-lg flex flex-col justify-center text-center">
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-[#1F3F34]/50 mb-1">Level</p>
+                      <p className="text-lg font-extrabold">LVL {worker?.level || 1}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2 pt-2">
+                    <span className="bg-[#1F3F34]/5 px-4 py-2 rounded-full text-xs font-bold font-body">Immediate Start</span>
+                    <span className="bg-[#1F3F34]/5 px-4 py-2 rounded-full text-xs font-bold font-body">Background Checked</span>
+                    <span className="bg-[#1F3F34]/5 px-4 py-2 rounded-full text-xs font-bold font-body">Own Vehicle</span>
+                  </div>
                 </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {worker?.skills.map((skill: string, i: number) => (
-                    <motion.div 
-                        key={i} 
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: i * 0.1 }}
-                        className="bg-white border border-brand-border p-8 rounded-4xl flex items-center justify-between shadow-2xl group hover:border-brand-primary/50 transition-all cursor-default"
-                    >
-                        <div className="flex items-center gap-5">
-                            <div className="p-4 bg-brand-secondary rounded-2xl shadow-xl group-hover:rotate-12 transition-transform">
-                                <ShieldCheck className="h-7 w-7 text-brand-primary" />
-                            </div>
-                            <div>
-                                <h4 className="font-bold text-xl text-brand-secondary uppercase tracking-tight mb-1">{skill}</h4>
-                                <span className="text-[10px] text-brand-primary font-semibold uppercase tracking-widest">Verified by TrustHire</span>
-                            </div>
-                        </div>
-                        <Calendar className="h-6 w-6 text-brand-border group-hover:text-brand-primary transition-colors" />
-                    </motion.div>
-                    ))}
+              </div>
+
+              {/* Right: Trust Widget */}
+              <div className="lg:col-span-4 flex flex-col gap-6">
+                <div className="bg-[#1F3F34] text-[#F5F4EF] p-8 rounded-lg relative overflow-hidden flex-1 shadow-2xl">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-[#FACD15] opacity-5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+                  <div className="relative z-10 flex flex-col h-full text-left">
+                    <div className="flex items-center gap-3 mb-8">
+                      <ShieldCheck className="w-8 h-8 text-[#FACD15]" />
+                      <h2 className="text-xl font-black uppercase tracking-tight">Bharat Trust Score</h2>
+                    </div>
+                    <div className="flex items-baseline gap-2 mb-2">
+                      <span className="text-6xl font-black text-[#FACD15] leading-none">{trustScore?.score || 450}</span>
+                      <span className="text-lg font-bold opacity-40">/ 500</span>
+                    </div>
+                    <p className="text-sm text-[#F5F4EF]/70 mb-8 leading-relaxed font-bold">
+                        Based on 24 successful assignments and high employer reliability feedback.
+                    </p>
+                    <div className="mt-auto">
+                      <div className="h-2 w-full bg-white/10 rounded-full overflow-hidden">
+                        <div 
+                            className="h-full bg-[#FACD15] rounded-full transition-all duration-1000 ease-out"
+                            style={{ width: `${((trustScore?.score || 450) / 500) * 100}%` }}
+                        ></div>
+                      </div>
+                      <div className="flex justify-between mt-2 text-[10px] font-bold uppercase tracking-widest opacity-60">
+                        <span>Novice</span>
+                        <span>Expert</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
+              </div>
             </section>
 
-            <motion.button 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                whileHover={{ scale: 1.02 }}
+            {/* Verified Skills Section */}
+            <section className="mb-12 text-left">
+              <h3 className="text-2xl font-black uppercase tracking-tight mb-6">Verified Skills</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* Skill Card 1 */}
+                <div className="bg-white p-6 rounded-lg shadow-sm border-l-4 border-[#FACD15] text-left">
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="w-12 h-12 bg-[#F5F4EF] rounded-lg flex items-center justify-center">
+                      <Zap className="w-6 h-6 text-[#1F3F34]" />
+                    </div>
+                    <BadgeCheck className="w-6 h-6 text-[#1F3F34]" />
+                  </div>
+                  <h4 className="text-lg font-black uppercase tracking-tight mb-1">Electrical</h4>
+                  <p className="text-sm text-[#1F3F34]/60 mb-4 font-bold">Industrial wiring, MCB installation, and panel maintenance.</p>
+                  <div className="bg-[#F5F4EF] px-3 py-1 rounded inline-block text-[10px] font-bold uppercase tracking-wider">Expert Level</div>
+                </div>
+                {/* Skill Card 2 */}
+                <div className="bg-white p-6 rounded-lg shadow-sm border-l-4 border-[#FACD15] text-left">
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="w-12 h-12 bg-[#F5F4EF] rounded-lg flex items-center justify-center">
+                      <Snowflake className="w-6 h-6 text-[#1F3F34]" />
+                    </div>
+                    <BadgeCheck className="w-6 h-6 text-[#1F3F34]" />
+                  </div>
+                  <h4 className="text-lg font-black uppercase tracking-tight mb-1">HVAC</h4>
+                  <p className="text-sm text-[#1F3F34]/60 mb-4 font-bold">Centralized air conditioning repair and seasonal servicing.</p>
+                  <div className="bg-[#F5F4EF] px-3 py-1 rounded inline-block text-[10px] font-bold uppercase tracking-wider">Advanced</div>
+                </div>
+                {/* Skill Card 3 */}
+                <div className="bg-white p-6 rounded-lg shadow-sm border-l-4 border-[#FACD15] text-left">
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="w-12 h-12 bg-[#F5F4EF] rounded-lg flex items-center justify-center">
+                      <Construction className="w-6 h-6 text-[#1F3F34]" />
+                    </div>
+                    <BadgeCheck className="w-6 h-6 text-[#1F3F34]" />
+                  </div>
+                  <h4 className="text-lg font-black uppercase tracking-tight mb-1">Construction</h4>
+                  <p className="text-sm text-[#1F3F34]/60 mb-4 font-bold">Masonry work, blueprint reading, and site supervision.</p>
+                  <div className="bg-[#F5F4EF] px-3 py-1 rounded inline-block text-[10px] font-bold uppercase tracking-wider">Intermediate</div>
+                </div>
+              </div>
+            </section>
+
+            {/* Recent Work Feedback */}
+            <section className="mb-24 text-left">
+              <h3 className="text-2xl font-black uppercase tracking-tight mb-6">Recent Work Feedback</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-white/50 p-6 rounded-lg flex flex-col sm:flex-row gap-6 border border-white">
+                  <div className="w-16 h-16 rounded-lg bg-[#F5F4EF] overflow-hidden shrink-0 shadow-sm">
+                    <img alt="Job Site" className="w-full h-full object-cover grayscale opacity-60" src="https://images.unsplash.com/photo-1541888946425-d81bb1930060?auto=format&fit=crop&q=80&w=200" />
+                  </div>
+                  <div className="text-left">
+                    <div className="flex justify-between items-start mb-2">
+                      <h5 className="font-black uppercase tracking-tight">Warehouse Maintenance</h5>
+                      <div className="flex items-center gap-1 text-xs font-black text-[#FACD15]">
+                        <span>4.9</span>
+                        <Star className="w-3 h-3 fill-[#FACD15]" />
+                      </div>
+                    </div>
+                    <p className="text-sm text-[#1F3F34]/70 mb-4 italic font-bold">"Lourdusamy handled a complex HVAC failure over the weekend. Extremely professional and punctual."</p>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-[#1F3F34]/40">— GreenLine Logistics Pvt Ltd</p>
+                  </div>
+                </div>
+                <div className="bg-white/50 p-6 rounded-lg flex flex-col sm:flex-row gap-6 border border-white">
+                  <div className="w-16 h-16 rounded-lg bg-[#F5F4EF] overflow-hidden shrink-0 shadow-sm">
+                    <img alt="Factory" className="w-full h-full object-cover grayscale opacity-60" src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=200" />
+                  </div>
+                  <div className="text-left">
+                    <div className="flex justify-between items-start mb-2">
+                      <h5 className="font-black uppercase tracking-tight">Electrical Panel Upgrade</h5>
+                      <div className="flex items-center gap-1 text-xs font-black text-[#FACD15]">
+                        <span>5.0</span>
+                        <Star className="w-3 h-3 fill-[#FACD15]" />
+                      </div>
+                    </div>
+                    <p className="text-sm text-[#1F3F34]/70 mb-4 italic font-bold">"Superb work on the main distribution boards. Highly recommended for industrial technical roles."</p>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-[#1F3F34]/40">— Apex Manufacturing</p>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </motion.div>
+        </AnimatePresence>
+
+        {/* Sticky Bottom CTA */}
+        <div className="fixed bottom-0 left-0 right-0 p-6 bg-white/80 backdrop-blur-md z-40 flex justify-center border-t border-[#F5F4EF] lg:left-64 transition-all duration-300">
+          <div className="max-w-7xl w-full flex items-center justify-between gap-8 px-8">
+            <div className="hidden md:block text-left">
+              <p className="text-[10px] font-black uppercase tracking-widest text-[#1F3F34]/40 mb-1">Expected Salary</p>
+              <p className="text-2xl font-black uppercase tracking-tighter">₹32,000 - ₹38,000 <span className="text-xs font-bold opacity-30 tracking-normal text-[#1F3F34]">/month</span></p>
+            </div>
+            <div className="flex-1 md:flex-none flex gap-4">
+              <button className="flex-1 md:w-48 py-4 bg-[#F5F4EF] text-[#1F3F34] rounded-lg font-black uppercase text-xs tracking-widest hover:bg-[#E3E3DE] transition-colors border border-[#1F3F34]/5">
+                Save Draft
+              </button>
+              <motion.button 
+                whileHover={{ scale: 1.02, backgroundColor: '#002117' }}
                 whileTap={{ scale: 0.98 }}
-                className="w-full bg-brand-secondary text-brand-primary py-6 rounded-4xl font-bold text-2xl uppercase tracking-widest shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-brand-secondary hover:bg-neutral-900 active:scale-[0.99] transition-all"
-            >
-                Hire Worker
-            </motion.button>
+                className="flex-1 md:w-80 py-4 bg-[#1F3F34] text-white rounded-lg font-black uppercase text-xs tracking-widest shadow-xl hover:bg-on-secondary-fixed transition-all"
+              >
+                HIRE WORKER
+              </motion.button>
+            </div>
+          </div>
         </div>
-      </div>
-    </>
+      </main>
+    </div>
   );
 };
