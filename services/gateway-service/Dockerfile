@@ -1,14 +1,12 @@
 # Build stage
 FROM maven:3.8.5-eclipse-temurin-17 AS build
 WORKDIR /app
-COPY pom.xml .
-RUN mvn dependency:go-offline
-COPY src ./src
-RUN mvn package -DskipTests
+COPY . .
+RUN mvn clean package -DskipTests -pl services/gateway-service -am
 
 # Run stage
 FROM eclipse-temurin:17-jre-focal
 WORKDIR /app
-COPY --from=build /app/target/*.jar app.jar
+COPY --from=build /app/services/gateway-service/target/*.jar app.jar
 EXPOSE 9000
 ENTRYPOINT ["java", "-Dspring.profiles.active=prod", "-jar", "app.jar"]
