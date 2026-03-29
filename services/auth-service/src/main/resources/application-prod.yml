@@ -21,7 +21,7 @@ spring:
           use_jdbc_metadata_defaults: false
 
   flyway:
-    enabled: false
+    enabled: true
 
 server:
   port: ${AUTH_SERVICE_PORT:8081}
