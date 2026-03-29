@@ -1,0 +1,146 @@
+services:
+  # --- API GATEWAY ---
+  - type: web
+    name: trusthire-gateway
+    runtime: docker
+    dockerContext: .
+    dockerfilePath: ./services/gateway-service/Dockerfile
+    plan: free
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: AUTH_SERVICE_URL
+        fromService: { name: trusthire-auth, type: web, property: host }
+      - key: WORKER_SERVICE_URL
+        fromService: { name: trusthire-worker, type: web, property: host }
+      - key: EMPLOYER_SERVICE_URL
+        fromService: { name: trusthire-employer, type: web, property: host }
+      - key: JOB_SERVICE_URL
+        fromService: { name: trusthire-job, type: web, property: host }
+      - key: VERIFICATION_SERVICE_URL
+        fromService: { name: trusthire-verification, type: web, property: host }
+      - key: RATING_SERVICE_URL
+        fromService: { name: trusthire-rating, type: web, property: host }
+      - key: NOTIFICATION_SERVICE_URL
+        fromService: { name: trusthire-notification, type: web, property: host }
+      - key: SEARCH_SERVICE_URL
+        fromService: { name: trusthire-search, type: web, property: host }
+      - key: MEDIA_SERVICE_URL
+        fromService: { name: trusthire-media, type: web, property: host }
+
+  # --- AUTH SERVICE ---
+  - type: web
+    name: trusthire-auth
+    runtime: docker
+    dockerContext: .
+    dockerfilePath: ./services/auth-service/Dockerfile
+    plan: free
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: SPRING_DATASOURCE_URL
+        sync: false
+
+  # --- WORKER SERVICE ---
+  - type: web
+    name: trusthire-worker
+    runtime: docker
+    dockerContext: .
+    dockerfilePath: ./services/worker-service/Dockerfile
+    plan: free
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: SPRING_DATASOURCE_URL
+        sync: false
+
+  # --- EMPLOYER SERVICE ---
+  - type: web
+    name: trusthire-employer
+    runtime: docker
+    dockerContext: .
+    dockerfilePath: ./services/employer-service/Dockerfile
+    plan: free
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: SPRING_DATASOURCE_URL
+        sync: false
+
+  # --- JOB SERVICE ---
+  - type: web
+    name: trusthire-job
+    runtime: docker
+    dockerContext: .
+    dockerfilePath: ./services/job-service/Dockerfile
+    plan: free
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: SPRING_DATASOURCE_URL
+        sync: false
+
+  # --- VERIFICATION SERVICE ---
+  - type: web
+    name: trusthire-verification
+    runtime: docker
+    dockerContext: .
+    dockerfilePath: ./services/verification-service/Dockerfile
+    plan: free
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: SPRING_DATASOURCE_URL
+        sync: false
+
+  # --- RATING SERVICE ---
+  - type: web
+    name: trusthire-rating
+    runtime: docker
+    dockerContext: .
+    dockerfilePath: ./services/rating-service/Dockerfile
+    plan: free
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: SPRING_DATASOURCE_URL
+        sync: false
+
+  # --- NOTIFICATION SERVICE ---
+  - type: web
+    name: trusthire-notification
+    runtime: docker
+    dockerContext: .
+    dockerfilePath: ./services/notification-service/Dockerfile
+    plan: free
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: SPRING_DATASOURCE_URL
+        sync: false
+
+  # --- SEARCH SERVICE ---
+  - type: web
+    name: trusthire-search
+    runtime: docker
+    dockerContext: .
+    dockerfilePath: ./services/search-service/Dockerfile
+    plan: free
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: SPRING_DATASOURCE_URL
+        sync: false
+
+  # --- MEDIA SERVICE ---
+  - type: web
+    name: trusthire-media
+    runtime: docker
+    dockerContext: .
+    dockerfilePath: ./services/media-service/Dockerfile
+    plan: free
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: SPRING_DATASOURCE_URL
+        sync: false
