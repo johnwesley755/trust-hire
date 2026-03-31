@@ -53,6 +53,10 @@ services:
         value: prod
       - key: SPRING_DATASOURCE_URL
         sync: false
+      - key: SEARCH_SERVICE_URL
+        fromService: { name: trusthire-search, type: web, property: host }
+      - key: AUTH_SERVICE_URL
+        fromService: { name: trusthire-auth, type: web, property: host }
 
   # --- EMPLOYER SERVICE ---
   - type: web
@@ -79,6 +83,10 @@ services:
         value: prod
       - key: SPRING_DATASOURCE_URL
         sync: false
+      - key: SEARCH_SERVICE_URL
+        fromService: { name: trusthire-search, type: web, property: host }
+      - key: WORKER_SERVICE_URL
+        fromService: { name: trusthire-worker, type: web, property: host }
 
   # --- VERIFICATION SERVICE ---
   - type: web
@@ -92,6 +100,8 @@ services:
         value: prod
       - key: SPRING_DATASOURCE_URL
         sync: false
+      - key: MEDIA_SERVICE_URL
+        fromService: { name: trusthire-media, type: web, property: host }
 
   # --- RATING SERVICE ---
   - type: web
