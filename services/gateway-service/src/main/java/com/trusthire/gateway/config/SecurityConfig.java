@@ -33,7 +33,7 @@ public class SecurityConfig {
     @Bean
     public CorsWebFilter corsWebFilter() {
         CorsConfiguration corsConfig = new CorsConfiguration();
-        corsConfig.setAllowedOrigins(Arrays.asList(
+        corsConfig.setAllowedOriginPatterns(Arrays.asList(
             "http://localhost:5173", 
             "http://localhost:5174", 
             "https://trust-hire-five.vercel.app", 
