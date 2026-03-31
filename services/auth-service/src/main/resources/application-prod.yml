@@ -22,8 +22,10 @@ spring:
 
   flyway:
     enabled: true
-    baseline-on-migrate: false
-    table: flyway_schema_history_auth
+    default-schema: auth_schema
+    create-schemas: true
+    baseline-on-migrate: true
+    table: flyway_schema_history
     repair-on-migrate: true
 
 server:

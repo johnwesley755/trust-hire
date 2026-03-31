@@ -20,8 +20,10 @@ spring:
 
   flyway:
     enabled: true
-    baseline-on-migrate: false
-    table: flyway_schema_history_search
+    default-schema: search_schema
+    create-schemas: true
+    baseline-on-migrate: true
+    table: flyway_schema_history
     repair-on-migrate: true
 
 server:

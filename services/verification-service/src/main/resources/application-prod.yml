@@ -20,7 +20,11 @@ spring:
 
   flyway:
     enabled: true
+    default-schema: verification_schema
+    create-schemas: true
     baseline-on-migrate: true
+    table: flyway_schema_history
+    repair-on-migrate: true
 
 server:
   port: ${VERIFICATION_SERVICE_PORT:8085}
