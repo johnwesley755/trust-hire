@@ -22,7 +22,9 @@ spring:
 
   flyway:
     enabled: true
-    baseline-on-migrate: true
+    baseline-on-migrate: false
+    table: flyway_schema_history_auth
+    repair-on-migrate: true
 
 server:
   port: ${AUTH_SERVICE_PORT:8081}

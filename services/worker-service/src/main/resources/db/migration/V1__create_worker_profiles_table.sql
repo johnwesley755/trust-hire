@@ -1,4 +1,4 @@
-CREATE TABLE worker_profiles (
+CREATE TABLE IF NOT EXISTS worker_profiles (
     id UUID PRIMARY KEY,
     clerk_id VARCHAR(255) NOT NULL UNIQUE,
     bio TEXT,
@@ -10,4 +10,4 @@ CREATE TABLE worker_profiles (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_worker_clerk_id ON worker_profiles(clerk_id);
+CREATE INDEX IF NOT EXISTS idx_worker_clerk_id ON worker_profiles(clerk_id);

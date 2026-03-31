@@ -1,4 +1,4 @@
-CREATE TABLE job_search_index (
+CREATE TABLE IF NOT EXISTS job_search_index (
     job_id UUID PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
     description TEXT,
@@ -12,5 +12,5 @@ CREATE TABLE job_search_index (
     last_updated_at TIMESTAMP WITHOUT TIME ZONE
 );
 
-CREATE INDEX idx_job_search_category ON job_search_index(category);
-CREATE INDEX idx_job_search_status ON job_search_index(status);
+CREATE INDEX IF NOT EXISTS idx_job_search_category ON job_search_index(category);
+CREATE INDEX IF NOT EXISTS idx_job_search_status ON job_search_index(status);

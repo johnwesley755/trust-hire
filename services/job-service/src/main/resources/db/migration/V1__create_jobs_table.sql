@@ -1,4 +1,4 @@
-CREATE TABLE jobs (
+CREATE TABLE IF NOT EXISTS jobs (
     id UUID PRIMARY KEY,
     employer_clerk_id VARCHAR(255) NOT NULL,
     title VARCHAR(255) NOT NULL,
@@ -12,7 +12,7 @@ CREATE TABLE jobs (
     updated_at TIMESTAMP WITHOUT TIME ZONE
 );
 
-CREATE TABLE job_required_skills (
+CREATE TABLE IF NOT EXISTS job_required_skills (
     job_id UUID NOT NULL,
     skill VARCHAR(255) NOT NULL,
     PRIMARY KEY (job_id, skill),
