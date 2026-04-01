@@ -8,30 +8,30 @@ spring:
         - id: auth-service
           uri: ${AUTH_SERVICE_URL:http://localhost:8081}
           predicates:
-            - Path=/api/v1/api/auth/**
+            - Path=/api/v1/auth/**
           filters:
-            - StripPrefix=2
+            - RewritePath=/api/v1/(?<segment>.*), /api/$\{segment}
 
         - id: worker-service
           uri: ${WORKER_SERVICE_URL:http://localhost:8082}
           predicates:
-            - Path=/api/v1/api/worker/**,/api/v1/api/levels/**,/api/v1/api/skill-tests/**
+            - Path=/api/v1/worker/**, /api/v1/levels/**, /api/v1/skill-tests/**
           filters:
-            - StripPrefix=2
+            - RewritePath=/api/v1/(?<segment>.*), /api/$\{segment}
 
         - id: employer-service
           uri: ${EMPLOYER_SERVICE_URL:http://localhost:8083}
           predicates:
-            - Path=/api/v1/api/employer/**
+            - Path=/api/v1/employer/**
           filters:
-            - StripPrefix=2
+            - RewritePath=/api/v1/(?<segment>.*), /api/$\{segment}
 
         - id: job-service
           uri: ${JOB_SERVICE_URL:http://localhost:8084}
           predicates:
-            - Path=/api/v1/api/jobs/**
+            - Path=/api/v1/jobs/**
           filters:
-            - StripPrefix=2
+            - RewritePath=/api/v1/jobs/(?<segment>.*), /api/jobs/$\{segment}
 
         - id: target-worker-service-direct
           uri: ${WORKER_SERVICE_URL:http://localhost:8082}
@@ -43,37 +43,37 @@ spring:
         - id: search-service
           uri: ${SEARCH_SERVICE_URL:http://localhost:8088}
           predicates:
-            - Path=/api/v1/api/search/**
+            - Path=/api/v1/search/**
           filters:
-            - StripPrefix=2
+            - RewritePath=/api/v1/(?<segment>.*), /api/$\{segment}
 
         - id: verification-service
           uri: ${VERIFICATION_SERVICE_URL:http://localhost:8085}
           predicates:
-            - Path=/api/v1/api/verification/**
+            - Path=/api/v1/verification/**
           filters:
-            - StripPrefix=2
+            - RewritePath=/api/v1/(?<segment>.*), /api/$\{segment}
 
         - id: rating-service
           uri: ${RATING_SERVICE_URL:http://localhost:8086}
           predicates:
-            - Path=/api/v1/api/ratings/**
+            - Path=/api/v1/ratings/**
           filters:
-            - StripPrefix=2
+            - RewritePath=/api/v1/ratings/(?<segment>.*), /api/ratings/$\{segment}
 
         - id: notification-service
           uri: ${NOTIFICATION_SERVICE_URL:http://localhost:8087}
           predicates:
-            - Path=/api/v1/api/notifications/**
+            - Path=/api/v1/notifications/**
           filters:
-            - StripPrefix=2
+            - RewritePath=/api/v1/notifications/(?<segment>.*), /api/notifications/$\{segment}
 
         - id: media-service
           uri: ${MEDIA_SERVICE_URL:http://localhost:8089}
           predicates:
-            - Path=/api/v1/api/media/**
+            - Path=/api/v1/media/**
           filters:
-            - StripPrefix=2
+            - RewritePath=/api/v1/(?<segment>.*), /api/$\{segment}
 
         - id: websocket-service
           uri: ${NOTIFICATION_SERVICE_URL:http://localhost:8087}
