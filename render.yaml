@@ -9,24 +9,26 @@ services:
     envVars:
       - key: SPRING_PROFILES_ACTIVE
         value: prod
+      - key: PORT
+        value: 9000
       - key: AUTH_SERVICE_URL
-        fromService: { name: trusthire-auth, type: web, property: host }
+        value: http://trusthire-auth:8081
       - key: WORKER_SERVICE_URL
-        fromService: { name: trusthire-worker, type: web, property: host }
+        value: http://trusthire-worker:8082
       - key: EMPLOYER_SERVICE_URL
-        fromService: { name: trusthire-employer, type: web, property: host }
+        value: http://trusthire-employer:8083
       - key: JOB_SERVICE_URL
-        fromService: { name: trusthire-job, type: web, property: host }
+        value: http://trusthire-job:8084
       - key: VERIFICATION_SERVICE_URL
-        fromService: { name: trusthire-verification, type: web, property: host }
+        value: http://trusthire-verification:8085
       - key: RATING_SERVICE_URL
-        fromService: { name: trusthire-rating, type: web, property: host }
+        value: http://trusthire-rating:8086
       - key: NOTIFICATION_SERVICE_URL
-        fromService: { name: trusthire-notification, type: web, property: host }
+        value: http://trusthire-notification:8087
       - key: SEARCH_SERVICE_URL
-        fromService: { name: trusthire-search, type: web, property: host }
+        value: http://trusthire-search:8088
       - key: MEDIA_SERVICE_URL
-        fromService: { name: trusthire-media, type: web, property: host }
+        value: http://trusthire-media:8089
 
   # --- AUTH SERVICE ---
   - type: web
@@ -38,6 +40,8 @@ services:
     envVars:
       - key: SPRING_PROFILES_ACTIVE
         value: prod
+      - key: PORT
+        value: 8081
       - key: SPRING_DATASOURCE_URL
         sync: false
 
@@ -51,12 +55,14 @@ services:
     envVars:
       - key: SPRING_PROFILES_ACTIVE
         value: prod
+      - key: PORT
+        value: 8082
       - key: SPRING_DATASOURCE_URL
         sync: false
       - key: SEARCH_SERVICE_URL
-        fromService: { name: trusthire-search, type: web, property: host }
+        value: http://trusthire-search:8088
       - key: AUTH_SERVICE_URL
-        fromService: { name: trusthire-auth, type: web, property: host }
+        value: http://trusthire-auth:8081
 
   # --- EMPLOYER SERVICE ---
   - type: web
@@ -68,6 +74,8 @@ services:
     envVars:
       - key: SPRING_PROFILES_ACTIVE
         value: prod
+      - key: PORT
+        value: 8083
       - key: SPRING_DATASOURCE_URL
         sync: false
 
@@ -81,12 +89,14 @@ services:
     envVars:
       - key: SPRING_PROFILES_ACTIVE
         value: prod
+      - key: PORT
+        value: 8084
       - key: SPRING_DATASOURCE_URL
         sync: false
       - key: SEARCH_SERVICE_URL
-        fromService: { name: trusthire-search, type: web, property: host }
+        value: http://trusthire-search:8088
       - key: WORKER_SERVICE_URL
-        fromService: { name: trusthire-worker, type: web, property: host }
+        value: http://trusthire-worker:8082
 
   # --- VERIFICATION SERVICE ---
   - type: web
@@ -98,10 +108,12 @@ services:
     envVars:
       - key: SPRING_PROFILES_ACTIVE
         value: prod
+      - key: PORT
+        value: 8085
       - key: SPRING_DATASOURCE_URL
         sync: false
       - key: MEDIA_SERVICE_URL
-        fromService: { name: trusthire-media, type: web, property: host }
+        value: http://trusthire-media:8089
 
   # --- RATING SERVICE ---
   - type: web
@@ -113,6 +125,8 @@ services:
     envVars:
       - key: SPRING_PROFILES_ACTIVE
         value: prod
+      - key: PORT
+        value: 8086
       - key: SPRING_DATASOURCE_URL
         sync: false
 
@@ -126,6 +140,8 @@ services:
     envVars:
       - key: SPRING_PROFILES_ACTIVE
         value: prod
+      - key: PORT
+        value: 8087
       - key: SPRING_DATASOURCE_URL
         sync: false
 
@@ -139,6 +155,8 @@ services:
     envVars:
       - key: SPRING_PROFILES_ACTIVE
         value: prod
+      - key: PORT
+        value: 8088
       - key: SPRING_DATASOURCE_URL
         sync: false
 
@@ -152,5 +170,7 @@ services:
     envVars:
       - key: SPRING_PROFILES_ACTIVE
         value: prod
+      - key: PORT
+        value: 8089
       - key: SPRING_DATASOURCE_URL
         sync: false

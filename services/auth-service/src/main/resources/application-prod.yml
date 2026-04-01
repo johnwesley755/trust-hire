@@ -1,4 +1,6 @@
 spring:
+  main:
+    web-application-type: servlet
   datasource:
     url: ${SPRING_DATASOURCE_URL}
     username: ${SPRING_DATASOURCE_USERNAME:}
@@ -29,4 +31,4 @@ spring:
     repair-on-migrate: true
 
 server:
-  port: ${AUTH_SERVICE_PORT:8081}
+  port: ${PORT:8081}

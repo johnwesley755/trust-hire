@@ -1,4 +1,6 @@
 spring:
+  main:
+    web-application-type: servlet
   datasource:
     url: ${SPRING_DATASOURCE_URL}
     username: ${SPRING_DATASOURCE_USERNAME:}
@@ -26,4 +28,4 @@ spring:
     table: flyway_schema_history
 
 server:
-  port: ${MEDIA_SERVICE_PORT:8089}
+  port: ${PORT:8089}
