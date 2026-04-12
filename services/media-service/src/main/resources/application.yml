@@ -9,9 +9,9 @@ spring:
 
   
   datasource:
-    url: ${MEDIA_DB_URL:jdbc:postgresql://localhost:5432/trusthire_media_db}
-    username: ${POSTGRES_USER:trusthire_user}
-    password: ${POSTGRES_PASSWORD:trusthire123}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/trusthire_media_db}
+    username: ${SPRING_DATASOURCE_USERNAME:trusthire_user}
+    password: ${SPRING_DATASOURCE_PASSWORD:trusthire123}
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 2

@@ -18,15 +18,16 @@ public class SearchController {
     private final SearchService searchService;
 
     @GetMapping("/jobs")
-    public ResponseEntity<List<JobSearch>> searchJobs(
+    public ResponseEntity<List<com.trusthire.search.dto.JobSearchResponseDTO>> searchJobs(
             @RequestParam(required = false) String query,
             @RequestParam(required = false) String category,
             @RequestParam(required = false) String location,
             @RequestParam(required = false) String city,
             @RequestParam(required = false) Double lat,
             @RequestParam(required = false) Double lon,
-            @RequestParam(required = false) Double radius) {
-        return ResponseEntity.ok(searchService.searchJobs(query, category, location, city, lat, lon, radius));
+            @RequestParam(required = false) Double radius,
+            @RequestHeader(name = "Authorization", required = false) String token) {
+        return ResponseEntity.ok(searchService.searchJobs(query, category, location, city, lat, lon, radius, token));
     }
 
     @PostMapping("/index/job")

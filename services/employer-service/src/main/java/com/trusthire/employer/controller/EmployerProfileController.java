@@ -18,9 +18,9 @@ public class EmployerProfileController {
     @GetMapping
     public ResponseEntity<EmployerProfile> getProfile(@AuthenticationPrincipal Jwt jwt) {
         String userId = jwt.getSubject();
-        return profileService.getProfileByUserId(userId)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        EmployerProfile profile = profileService.getProfileByUserId(userId)
+                .orElseGet(() -> profileService.createProfile(userId));
+        return ResponseEntity.ok(profile);
     }
 
     @RequestMapping(method = {RequestMethod.POST, RequestMethod.PUT})

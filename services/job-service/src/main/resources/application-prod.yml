@@ -1,6 +1,7 @@
 spring:
   main:
     web-application-type: servlet
+    lazy-initialization: true
   datasource:
     url: ${SPRING_DATASOURCE_URL}
     username: ${SPRING_DATASOURCE_USERNAME:}
