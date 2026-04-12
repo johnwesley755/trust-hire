@@ -51,22 +51,34 @@ public class SearchServiceImpl implements SearchService {
         }
         
         final Set<UUID> finalAppliedJobIds = appliedJobIds;
-        return results.stream().map(job -> JobSearchResponseDTO.builder()
+        return results.stream()
+                .map(job -> mapToResponseDTO(job, finalAppliedJobIds.contains(job.getJobId())))
+                .collect(Collectors.toList());
+    }
+
+    private JobSearchResponseDTO mapToResponseDTO(JobSearch job, boolean isApplied) {
+        return JobSearchResponseDTO.builder()
                 .jobId(job.getJobId())
                 .title(job.getTitle())
                 .description(job.getDescription())
-                .category(job.getIndustry())
+                .industry(job.getIndustry())
+                .requiredSkills(job.getRequiredSkills() != null 
+                        ? java.util.Arrays.asList(job.getRequiredSkills().split(", ")) 
+                        : java.util.Collections.emptyList())
+                .budget(job.getBudget() != null 
+                        ? java.math.BigDecimal.valueOf(job.getBudget()) 
+                        : java.math.BigDecimal.ZERO)
                 .location(job.getLocation())
                 .city(job.getCity())
+                .address(job.getAddress())
                 .latitude(job.getLatitude())
                 .longitude(job.getLongitude())
                 .level(job.getLevel())
                 .status(job.getStatus())
                 .indexedAt(job.getIndexedAt())
                 .lastUpdatedAt(job.getLastUpdatedAt())
-                .isApplied(finalAppliedJobIds.contains(job.getJobId()))
-                .build()
-        ).collect(Collectors.toList());
+                .isApplied(isApplied)
+                .build();
     }
 
     @Override

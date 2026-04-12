@@ -1,5 +1,6 @@
-import React from 'react';
-import { Loader2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { Loader2, Map as MapIcon, ChevronDown, ChevronUp } from 'lucide-react';
+import { ProfileLocationPicker } from './ProfileLocationPicker';
 
 interface ProfileDetailsFormProps {
   form: {
@@ -10,6 +11,8 @@ interface ProfileDetailsFormProps {
     hourlyRate: string;
     address: string;
     city: string;
+    latitude?: number;
+    longitude?: number;
   };
   setForm: (form: any) => void;
   onSave: () => void;
@@ -22,6 +25,8 @@ export const ProfileDetailsForm: React.FC<ProfileDetailsFormProps> = ({
   onSave,
   isSaving,
 }) => {
+  const [showMap, setShowMap] = useState(false);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setForm((prev: any) => ({ ...prev, [name]: value }));
@@ -76,15 +81,45 @@ export const ProfileDetailsForm: React.FC<ProfileDetailsFormProps> = ({
               type="number" 
             />
           </div>
-          <div className="md:col-span-2 space-y-2">
-            <label className="text-[10px] font-black uppercase text-[#1F3F34]/40 ml-1 tracking-widest">Residential Address</label>
+          <div className="md:col-span-2 space-y-4">
+            <div className="flex justify-between items-end px-1">
+              <label className="text-[10px] font-black uppercase text-[#1F3F34]/40 tracking-widest">Residential Address</label>
+              <button 
+                type="button"
+                onClick={() => setShowMap(!showMap)}
+                className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-[#1F3F34] hover:text-[#FACD15] transition-colors"
+              >
+                <MapIcon className="w-3.5 h-3.5" />
+                {showMap ? "Hide Map" : "Open Map Picker"}
+                {showMap ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+              </button>
+            </div>
+            
             <input 
               name="address"
               value={form.address}
               onChange={handleChange}
+              placeholder="Detect via map or enter manually..."
               className="w-full bg-[#F5F4EF] border-none rounded-2xl px-5 py-3.5 focus:ring-2 focus:ring-[#FACD15]/50 text-[#1F3F34] font-bold text-sm transition-all shadow-inner" 
               type="text" 
             />
+
+            {showMap && (
+              <div className="pt-2">
+                <ProfileLocationPicker 
+                  initialPos={form.latitude && form.longitude ? { lat: form.latitude, lon: form.longitude } : undefined}
+                  onLocationSelect={(lat, lon, addr, city) => {
+                    setForm((prev: any) => ({
+                      ...prev,
+                      address: addr,
+                      city: city,
+                      latitude: lat,
+                      longitude: lon
+                    }));
+                  }}
+                />
+              </div>
+            )}
           </div>
           <div className="md:col-span-2 space-y-2">
             <label className="text-[10px] font-black uppercase text-[#1F3F34]/40 ml-1 tracking-widest">Skills Matrix (Comma Separated)</label>

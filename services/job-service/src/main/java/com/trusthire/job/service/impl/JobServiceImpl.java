@@ -2,17 +2,21 @@ package com.trusthire.job.service.impl;
 
 import com.trusthire.job.entity.Job;
 import com.trusthire.job.repository.JobRepository;
+import com.trusthire.job.repository.JobApplicationRepository;
 import com.trusthire.job.service.JobService;
+import com.trusthire.job.dto.JobResponseDTO;
 import com.trusthire.job.dto.StatsDTO;
+import com.trusthire.job.client.SearchClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -20,10 +24,11 @@ import java.util.UUID;
 public class JobServiceImpl implements JobService {
 
     private final JobRepository repository;
-    private final com.trusthire.job.client.SearchClient searchClient;
-    private final org.springframework.web.client.RestTemplate restTemplate;
+    private final JobApplicationRepository applicationRepository;
+    private final SearchClient searchClient;
+    private final RestTemplate restTemplate;
 
-    @org.springframework.beans.factory.annotation.Value("${ai.scoring-engine.url:http://localhost:5000/score/match}")
+    @Value("${ai.scoring-engine.url:http://localhost:5000/score/match}")
     private String scoringEngineUrl;
 
     @Override
@@ -44,9 +49,31 @@ public class JobServiceImpl implements JobService {
     }
 
     @Override
+    public List<JobResponseDTO> getAllJobsEnriched(String workerId) {
+        log.info("Fetching enriched jobs for worker: {}", workerId);
+        List<Job> jobs = repository.findAll();
+        
+        if (workerId == null || workerId.isBlank()) {
+            return jobs.stream().map(this::mapToResponseDTO).collect(Collectors.toList());
+        }
+
+        Set<UUID> appliedJobIds = applicationRepository.findByWorkerIdAndJobIdIn(
+                workerId, jobs.stream().map(Job::getId).collect(Collectors.toList())
+        ).stream().map(com.trusthire.job.entity.JobApplication::getJobId).collect(Collectors.toSet());
+
+        return jobs.stream()
+                .map(job -> {
+                    JobResponseDTO dto = mapToResponseDTO(job);
+                    dto.setApplied(appliedJobIds.contains(job.getId()));
+                    return dto;
+                })
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public List<Job> getJobsByIds(List<UUID> ids) {
         if (ids == null || ids.isEmpty()) {
-            return List.of();
+            return Collections.emptyList();
         }
         return repository.findByIdIn(ids);
     }
@@ -57,8 +84,41 @@ public class JobServiceImpl implements JobService {
     }
 
     @Override
+    public Optional<JobResponseDTO> getJobByIdEnriched(UUID id, String workerId) {
+        return repository.findById(id).map(job -> {
+            JobResponseDTO dto = mapToResponseDTO(job);
+            if (workerId != null && !workerId.isBlank()) {
+                dto.setApplied(applicationRepository.existsByJobIdAndWorkerId(id, workerId));
+            }
+            return dto;
+        });
+    }
+
+    @Override
     public List<Job> getJobsByEmployer(String employerId) {
         return repository.findByEmployerId(employerId);
+    }
+
+    private JobResponseDTO mapToResponseDTO(Job job) {
+        return JobResponseDTO.builder()
+                .id(job.getId())
+                .employerId(job.getEmployerId())
+                .title(job.getTitle())
+                .description(job.getDescription())
+                .industry(job.getIndustry())
+                .requiredSkills(job.getRequiredSkills())
+                .experienceYearsRequired(job.getExperienceYearsRequired())
+                .budget(job.getBudget())
+                .location(job.getLocation())
+                .latitude(job.getLatitude())
+                .longitude(job.getLongitude())
+                .address(job.getAddress())
+                .city(job.getCity())
+                .status(job.getStatus())
+                .createdAt(job.getCreatedAt())
+                .updatedAt(job.getUpdatedAt())
+                .isApplied(false)
+                .build();
     }
 
     @Override
@@ -79,7 +139,7 @@ public class JobServiceImpl implements JobService {
 
     private void indexJobInSearch(Job job) {
         try {
-            com.trusthire.job.client.SearchClient.JobSearchRequest request = com.trusthire.job.client.SearchClient.JobSearchRequest.builder()
+            SearchClient.JobSearchRequest request = SearchClient.JobSearchRequest.builder()
                     .jobId(job.getId())
                     .title(job.getTitle())
                     .description(job.getDescription())
@@ -114,13 +174,13 @@ public class JobServiceImpl implements JobService {
 
         Job job = jobOpt.get();
         try {
-            java.util.Map<String, Object> request = new java.util.HashMap<>();
+            Map<String, Object> request = new HashMap<>();
             request.put("job_description", job.getDescription() + " " + job.getTitle());
             request.put("worker_profile", workerProfile);
             request.put("worker_skills", workerSkills);
 
             @SuppressWarnings("unchecked")
-            java.util.Map<String, Object> response = restTemplate.postForObject(scoringEngineUrl, request, java.util.Map.class);
+            Map<String, Object> response = restTemplate.postForObject(scoringEngineUrl, request, Map.class);
 
             if (response != null && response.containsKey("score")) {
                 return ((Number) response.get("score")).doubleValue();

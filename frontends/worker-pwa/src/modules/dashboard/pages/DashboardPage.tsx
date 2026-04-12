@@ -60,8 +60,9 @@ export default function DashboardPage() {
         id: job.jobId,
         title: job.title,
         location: job.location,
-        budget: job.budget,
+        budget: Number(job.budget),
         industry: job.industry,
+        isApplied: job.isApplied || appliedJobIds.has(job.jobId)
       }))
     : allJobs
         .filter((job) => job.status === 'OPEN')
@@ -70,8 +71,9 @@ export default function DashboardPage() {
           id: job.id || '',
           title: job.title,
           location: job.city || job.address || job.location,
-          budget: job.budget,
+          budget: Number(job.budget),
           industry: job.industry,
+          isApplied: (job as any).isApplied || appliedJobIds.has(job.id || '')
         }));
 
   // Map earnings from job statistics or mock for design

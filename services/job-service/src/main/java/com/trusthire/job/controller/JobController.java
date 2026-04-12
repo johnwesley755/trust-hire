@@ -25,8 +25,9 @@ public class JobController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Job>> getAllJobs() {
-        return ResponseEntity.ok(jobService.getAllJobs());
+    public ResponseEntity<List<com.trusthire.job.dto.JobResponseDTO>> getAllJobs(@AuthenticationPrincipal Jwt jwt) {
+        String userId = jwt != null ? jwt.getSubject() : null;
+        return ResponseEntity.ok(jobService.getAllJobsEnriched(userId));
     }
 
     @PostMapping("/by-ids")
@@ -35,8 +36,9 @@ public class JobController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Job> getJob(@PathVariable UUID id) {
-        return jobService.getJobById(id)
+    public ResponseEntity<com.trusthire.job.dto.JobResponseDTO> getJob(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID id) {
+        String userId = jwt != null ? jwt.getSubject() : null;
+        return jobService.getJobByIdEnriched(id, userId)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }

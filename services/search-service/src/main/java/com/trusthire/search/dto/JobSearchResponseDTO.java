@@ -16,9 +16,12 @@ public class JobSearchResponseDTO {
     private UUID jobId;
     private String title;
     private String description;
-    private String category;
+    private String industry;
+    private java.util.List<String> requiredSkills;
+    private java.math.BigDecimal budget;
     private String location;
     private String city;
+    private String address;
     private Double latitude;
     private Double longitude;
     private String level;

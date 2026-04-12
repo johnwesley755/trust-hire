@@ -31,6 +31,11 @@ public class JobSearch {
     private Double latitude;
     private Double longitude;
     private String level; // L1, L2, L3, L4
+    @Column(name = "required_skills")
+    private String requiredSkills;
+    
+    private String address;
+    private Double budget;
     private String status;
 
     @CreationTimestamp

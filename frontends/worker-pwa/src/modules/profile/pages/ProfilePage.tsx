@@ -26,6 +26,8 @@ export default function ProfilePage() {
     hourlyRate: "",
     address: "",
     city: "",
+    latitude: undefined as number | undefined,
+    longitude: undefined as number | undefined,
   });
   const queryClient = useQueryClient();
 
@@ -44,6 +46,8 @@ export default function ProfilePage() {
       hourlyRate: profile.hourlyRate?.toString() || "",
       address: profile.address || "",
       city: profile.city || "",
+      latitude: profile.latitude,
+      longitude: profile.longitude,
     });
   }, [profile, user]);
 
@@ -105,6 +109,8 @@ export default function ProfilePage() {
       hourlyRate: profileForm.hourlyRate === "" ? undefined : Number(profileForm.hourlyRate),
       address: profileForm.address,
       city: profileForm.city,
+      latitude: profileForm.latitude,
+      longitude: profileForm.longitude,
       location: profileForm.address || profileForm.city,
     });
   };

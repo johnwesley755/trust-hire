@@ -10,6 +10,7 @@ interface Job {
   imageUrl?: string;
   type?: string;
   schedule?: string;
+  isApplied?: boolean;
 }
 
 export const JobBentoCard: React.FC<{ job: Job; onApply?: () => void }> = ({ job, onApply }) => {
@@ -34,10 +35,20 @@ export const JobBentoCard: React.FC<{ job: Job; onApply?: () => void }> = ({ job
           <span className="text-[0.65rem] font-bold uppercase ml-1">/ day</span>
         </div>
         <button 
-          onClick={onApply}
-          className="bg-[#FACD15] text-[#002117] text-[0.65rem] font-extrabold px-4 py-2 rounded-xl uppercase shadow-[0_2px_0_0_#C39F00] active:shadow-none active:translate-y-[1px] transition-all"
+          onClick={job.isApplied ? undefined : onApply}
+          disabled={job.isApplied}
+          className={`${
+            job.isApplied 
+            ? 'bg-[#c1c8c3]/20 text-[#414845]/60 cursor-default border border-[#c1c8c3]/30' 
+            : 'bg-[#FACD15] text-[#002117] hover:shadow-lg active:shadow-none active:translate-y-[1px]'
+          } text-[0.65rem] font-extrabold px-4 py-2 rounded-xl uppercase transition-all flex items-center gap-2`}
         >
-          Apply Now
+          {job.isApplied ? (
+            <>
+              <span className="material-symbols-outlined text-sm">check_circle</span>
+              Applied
+            </>
+          ) : 'Apply Now'}
         </button>
       </div>
     </div>
@@ -77,10 +88,20 @@ export const FeaturedJobCard: React.FC<{ job: Job; onApply?: () => void }> = ({ 
             </div>
           </div>
           <button 
-            onClick={onApply}
-            className="w-full sm:w-auto bg-[#FACD15] text-[#002117] text-[0.65rem] font-extrabold px-6 py-2 rounded-xl uppercase shadow-[0_2px_0_0_#C39F00] active:shadow-none active:translate-y-[1px] transition-all"
+            onClick={job.isApplied ? undefined : onApply}
+            disabled={job.isApplied}
+            className={`${
+              job.isApplied 
+              ? 'bg-[#c1c8c3]/20 text-[#414845]/60 cursor-default border border-[#c1c8c3]/30' 
+              : 'bg-[#FACD15] text-[#002117] hover:shadow-lg active:shadow-none active:translate-y-[1px]'
+            } w-full sm:w-auto text-[0.65rem] font-extrabold px-6 py-2 rounded-xl uppercase transition-all flex items-center justify-center gap-2`}
           >
-            Apply Now
+            {job.isApplied ? (
+              <>
+                <span className="material-symbols-outlined text-sm">check_circle</span>
+                Applied
+              </>
+            ) : 'Apply Now'}
           </button>
         </div>
       </div>
