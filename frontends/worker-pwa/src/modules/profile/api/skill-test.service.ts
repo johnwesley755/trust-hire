@@ -8,20 +8,27 @@ export interface SkillTest {
   durationMinutes: number;
   points: number;
   description: string;
+  questions?: SkillTestQuestion[];
+}
+
+export interface SkillTestQuestion {
+  id: string;
+  questionText: string;
+  options: string[];
+  points: number;
 }
 
 export interface TestSubmission {
   testId: string;
-  userId: string;
-  answers: any[];
-  maxPoints: number;
+  answers: number[];
 }
 
 export interface TestResult {
   testId: string;
   score: number;
   passed: boolean;
-  pointsEarned: number;
+  correctAnswers: number;
+  totalQuestions: number;
   feedback: string;
 }
 
@@ -30,6 +37,11 @@ export const skillTestService = {
     const response = await apiClient.get<SkillTest[]>('/api/skill-tests/available', {
       params: { category }
     });
+    return response.data;
+  },
+
+  getTestById: async (id: string): Promise<SkillTest> => {
+    const response = await apiClient.get<SkillTest>(`/api/skill-tests/${id}`);
     return response.data;
   },
 

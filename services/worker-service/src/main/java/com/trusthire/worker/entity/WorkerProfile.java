@@ -38,6 +38,27 @@ public class WorkerProfile {
     private String skills;
 
     private Integer experienceYears;
+    
+    @Column(name = "skill_score")
+    private Double skillScore = 30.0;
+
+    @Column(name = "experience_score")
+    private Double experienceScore = 0.0;
+
+    @Column(name = "performance_score")
+    private Double performanceScore = 0.0;
+
+    @Column(name = "reliability_score")
+    private Double reliabilityScore = 0.0;
+
+    @Column(name = "level_score")
+    private Double levelScore = 0.0;
+
+    @Column(name = "trust_score")
+    private Integer trustScore = 0;
+
+    @Column(name = "level_number")
+    private Integer levelNumber = 1;
 
     @Column(precision = 10, scale = 2)
     private BigDecimal hourlyRate;

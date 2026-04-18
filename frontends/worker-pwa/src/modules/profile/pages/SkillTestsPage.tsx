@@ -4,6 +4,7 @@ import type { SkillTest } from '../api/skill-test.service';
 import { Clock, Trophy, ChevronRight, Play } from 'lucide-react';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { SkillTestUI } from '../components/SkillTestUI';
 
 export interface TestSubmission {
   testId: string;
@@ -23,47 +24,13 @@ export const SkillTestsPage = () => {
 
   if (activeTest) {
     return (
-      <div className="fixed inset-0 bg-brand-secondary/40 backdrop-blur-xl z-[100] p-6 flex items-center justify-center text-brand-secondary">
-        <motion.div 
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="max-w-xl w-full bg-white border border-brand-border rounded-[3rem] p-12 text-center space-y-10 shadow-2xl relative overflow-hidden"
-        >
-          <div className="absolute top-0 right-0 w-32 h-32 bg-brand-primary opacity-[0.03] rounded-bl-full pointer-events-none" />
-          
-          <div className="mx-auto w-24 h-24 bg-brand-secondary rounded-[2rem] flex items-center justify-center shadow-xl transform rotate-3">
-            <Play className="h-10 w-10 text-brand-primary fill-brand-primary" />
-          </div>
-          <div className="space-y-4">
-            <h2 className="text-4xl font-bold tracking-tighter leading-none">{activeTest.title}</h2>
-            <p className="text-brand-muted font-medium text-lg leading-relaxed">{activeTest.description}</p>
-          </div>
-          <div className="grid grid-cols-2 gap-6">
-            <div className="bg-brand-bg p-6 rounded-[2rem] border border-brand-border shadow-inner">
-              <span className="block text-[10px] font-bold text-brand-muted/40 tracking-widest uppercase mb-2">Duration</span>
-              <span className="text-2xl font-bold text-brand-secondary tracking-tight">{activeTest.durationMinutes}m</span>
-            </div>
-            <div className="bg-brand-secondary p-6 rounded-[2rem] border border-brand-secondary shadow-xl shadow-brand-secondary/10">
-              <span className="block text-[10px] font-bold text-brand-primary/60 tracking-widest uppercase mb-2">Points</span>
-              <span className="text-2xl font-bold text-brand-primary tracking-tight">+{activeTest.points}</span>
-            </div>
-          </div>
-          <div className="flex flex-col gap-4">
-            <button 
-                onClick={() => setActiveTest(null)} // Mocking start
-                className="w-full bg-brand-secondary text-brand-primary py-5 rounded-[1.5rem] font-semibold text-xs tracking-widest uppercase hover:bg-neutral-800 transition-all active:scale-95 shadow-xl shadow-brand-secondary/20"
-            >
-                Initiate assessment
-            </button>
-            <button 
-                onClick={() => setActiveTest(null)}
-                className="w-full text-[10px] font-bold text-brand-muted/40 tracking-widest uppercase hover:text-brand-secondary transition-colors"
-            >
-                Return to matrix
-            </button>
-          </div>
-        </motion.div>
-      </div>
+      <SkillTestUI 
+        testId={activeTest.id}
+        onClose={() => setActiveTest(null)}
+        onComplete={() => {
+          // Success logic here (e.g., refetch profile)
+        }}
+      />
     );
   }
 

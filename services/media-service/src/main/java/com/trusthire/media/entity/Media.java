@@ -28,7 +28,7 @@ public class Media {
     private String fileType; // IMAGE, DOCUMENT, etc.
     private Long fileSize;
 
-    @Column(nullable = false)
+    @Column(name = "owner_clerk_id", nullable = false)
     private String ownerId;
 
     @CreationTimestamp

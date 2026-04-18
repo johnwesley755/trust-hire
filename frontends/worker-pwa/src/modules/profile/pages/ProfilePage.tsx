@@ -9,6 +9,7 @@ import { ProfileStatsCard } from "../components/ProfileStatsCard";
 import { ProfileDetailsForm } from "../components/ProfileDetailsForm";
 import { ExpertiseMatrix } from "../components/ExpertiseMatrix";
 import { ProfileSideActions } from "../components/ProfileSideActions";
+import { LevelProgressCard } from "../components/LevelProgressCard";
 
 export default function ProfilePage() {
   const { logout } = useAuth();
@@ -179,6 +180,9 @@ export default function ProfilePage() {
         </header>
 
         <main className="px-4 pt-4 space-y-4 max-w-md mx-auto">
+          {/* Level Progress Card */}
+          <LevelProgressCard />
+
           {/* Profile Hero Card */}
           <section className="bg-white rounded-lg p-5 shadow-sm relative overflow-hidden border border-[#1F3F34]/5">
             <div className="absolute -right-12 -top-12 w-48 h-48 bg-[#ffe081]/20 rounded-full blur-3xl"></div>
@@ -403,6 +407,11 @@ export default function ProfilePage() {
           <h1 className="text-3xl md:text-4xl font-black text-[#1F3F34] tracking-tight leading-none">Worker Dossier</h1>
           <p className="text-[#414845]/60 font-medium text-sm">Control your verified credentials, status, and network presence.</p>
         </div>
+
+        {/* Level Progress Card */}
+        <section className="mb-8">
+          <LevelProgressCard />
+        </section>
 
         {/* Hero & Stats Bento Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

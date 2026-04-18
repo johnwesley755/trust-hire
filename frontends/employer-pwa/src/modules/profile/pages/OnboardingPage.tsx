@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import apiClient from "../../../core/api/apiClient";
 import { motion, AnimatePresence } from 'framer-motion';
+import { LocationPicker } from "../../jobs/components/LocationPicker";
 
 const INDUSTRY_OPTIONS = [
   { id: 'CONSTRUCTION', label: 'Construction', icon: 'construction' },
@@ -452,29 +453,32 @@ export default function OnboardingPage() {
                     <section className="flex-1 relative hidden lg:flex items-center justify-center bg-[#EFEEE9] overflow-hidden">
                         <div className="absolute top-0 right-0 w-96 h-96 bg-[#FACD15]/10 rounded-full blur-3xl -mr-20 -mt-20"></div>
                         <div className="absolute bottom-0 left-0 w-80 h-80 bg-[#FACD15]/5 rounded-full blur-3xl -ml-20 -mb-20"></div>
-                        <div className="relative w-full h-full flex items-center justify-center p-12">
-                            <div className="blob-mask w-full max-w-xl aspect-square bg-[#E9E8E3] relative overflow-hidden shadow-2xl z-0">
-                                <img 
-                                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuCFe3eZ1wcx06BE3O4kNQuPtUKX_Y7mJ0OP0bRAxHhkl3S0bOB0S2OsN1P8cQj2IWwe4LyU55g1NomTIv4FoiA8qKayUFfXW5pgYY9WxCQ6y5QXWWcqKQIJjZgNBzQexwTmuDpE_waGL_MGc-OwaPWqDBNRQyJeXw70nxmNIdUEzYPr_bIUbTDKZjPoCHjrrrArpT2J1EReeW6veUONKR6S-c7U3jiFCysOY1WWn3btBDSKGe6ILQ_7sK8783-h865IYkzjJhgc3TE" 
-                                    alt="Service location map" 
-                                    className="w-full h-full object-cover scale-110 opacity-80" 
+                        <div className="relative w-full h-full flex flex-col items-center justify-center p-12 space-y-8">
+                            <div className="blob-mask w-full max-w-xl aspect-square bg-[#E9E8E3] relative overflow-hidden shadow-2xl z-0 ring-4 ring-white/50">
+                                <LocationPicker 
+                                    onLocationSelect={(lat, lon, addr, city) => {
+                                        setFormData(prev => ({
+                                            ...prev,
+                                            latitude: lat,
+                                            longitude: lon,
+                                            businessAddress: addr,
+                                            city: city
+                                        }));
+                                    }}
+                                    initialPos={formData.latitude && formData.longitude ? { lat: formData.latitude, lon: formData.longitude } : undefined}
                                 />
                             </div>
 
-                            {/* Floating Map Card OUTSIDE overflow-hidden container */}
-                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white/90 backdrop-blur-xl p-5 rounded-2xl shadow-2xl flex items-center gap-4 border border-white/50 min-w-[280px] z-30">
+                            {/* Floating Map Card */}
+                            <div className="bg-white/90 backdrop-blur-xl p-5 rounded-2xl shadow-2xl flex items-center gap-4 border border-white/50 min-w-[320px] z-30 animate-in fade-in slide-in-from-bottom-4 duration-500">
                                 <div className="w-12 h-12 bg-[#1F3F34] rounded-xl flex items-center justify-center text-[#FACD15]">
                                     <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>location_on</span>
                                 </div>
                                 <div>
-                                    <p className="font-bold text-[#1F3F34] text-sm leading-tight">Hyperlocal Focus</p>
-                                    <p className="text-xs text-[#1F3F34]/60 font-medium">Trust is built in your neighborhood</p>
+                                    <p className="font-bold text-[#1F3F34] text-sm leading-tight">Interactive Mapping</p>
+                                    <p className="text-xs text-[#1F3F34]/60 font-medium italic">Click the map to precisely pin your base</p>
                                 </div>
                             </div>
-
-                            {/* Abstract Decorative Elements */}
-                            <div className="absolute top-1/4 left-1/4 w-4 h-4 rounded-full bg-[#FACD15] shadow-lg animate-pulse z-20"></div>
-                            <div className="absolute bottom-1/3 right-1/4 w-3 h-3 rounded-full bg-[#1F3F34]/20 z-20"></div>
                         </div>
                     </section>
                 </motion.div>

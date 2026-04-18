@@ -1,12 +1,15 @@
 package com.trusthire.worker.controller;
 
+import com.trusthire.worker.entity.SkillTest;
+import com.trusthire.worker.service.CertificationService;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -15,66 +18,33 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class SkillTestController {
 
+    private final CertificationService certificationService;
+
     @GetMapping("/available")
     public ResponseEntity<List<SkillTest>> getAvailableTests(@RequestParam(required = false) String category) {
-        return ResponseEntity.ok(Arrays.asList(
-                SkillTest.builder()
-                        .id(UUID.randomUUID())
-                        .title("Basic Electrical Safety")
-                        .category("Electrical")
-                        .difficulty("Beginner")
-                        .durationMinutes(20)
-                        .points(100)
-                        .description("Essential safety protocols for residential electrical work.")
-                        .build(),
-                SkillTest.builder()
-                        .id(UUID.randomUUID())
-                        .title("Advanced Culinary Techniques")
-                        .category("Cooking")
-                        .difficulty("Advanced")
-                        .durationMinutes(45)
-                        .points(300)
-                        .description("Mastery of industrial kitchen operations and hygiene.")
-                        .build()
-        ));
+        return ResponseEntity.ok(certificationService.getAllAvailableTests());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<SkillTest> getTestById(@PathVariable UUID id) {
+        return ResponseEntity.ok(certificationService.getTestById(id));
     }
 
     @PostMapping("/submit")
-    public ResponseEntity<TestResult> submitResult(@RequestBody TestSubmission submission) {
-        return ResponseEntity.ok(TestResult.builder()
-                .testId(submission.getTestId())
-                .score(85)
-                .passed(true)
-                .pointsEarned(submission.getMaxPoints() * 85 / 100)
-                .feedback("Excellent understanding of safety protocols.")
-                .build());
-    }
-
-    @Data @Builder
-    public static class SkillTest {
-        private UUID id;
-        private String title;
-        private String category;
-        private String difficulty;
-        private int durationMinutes;
-        private int points;
-        private String description;
+    public ResponseEntity<CertificationService.TestResultDto> submitResult(
+            @AuthenticationPrincipal Jwt jwt,
+            @RequestBody TestSubmission submission) {
+        return ResponseEntity.ok(certificationService.submitTest(
+                jwt.getSubject(),
+                submission.getTestId(),
+                submission.getAnswers()));
     }
 
     @Data
     public static class TestSubmission {
         private UUID testId;
         private String workerId;
-        private List<Object> answers;
+        private List<Integer> answers;
         private int maxPoints;
-    }
-
-    @Data @Builder
-    public static class TestResult {
-        private UUID testId;
-        private int score;
-        private boolean passed;
-        private int pointsEarned;
-        private String feedback;
     }
 }

@@ -11,7 +11,6 @@ export const setupInterceptors = (getToken: () => Promise<string | null>) => {
   apiClient.interceptors.request.use(async (config) => {
     const token = await getToken();
     const isOpenEndpoint = config.url && (
-      config.url.includes('/api/media/upload') || 
       config.url.includes('/api/auth/register') ||
       config.url.includes('/api/auth/login') ||
       config.url.includes('/api/auth/send-otp') ||

@@ -1,12 +1,14 @@
 package com.trusthire.worker.controller;
 
+import com.trusthire.worker.entity.WorkerProfile;
+import com.trusthire.worker.repository.WorkerProfileRepository;
+import com.trusthire.worker.service.LevelCalculationService;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -14,36 +16,61 @@ import java.util.List;
 @RequiredArgsConstructor
 public class LevelController {
 
-    @GetMapping("/worker/{workerId}")
-    public ResponseEntity<LevelDetails> getLevelDetails(@PathVariable String workerId) {
-        // Mock data logic for now, connecting to real profile data
+    private final LevelCalculationService levelCalculationService;
+    private final WorkerProfileRepository workerRepository;
+
+    @GetMapping("/worker/{userId}")
+    public ResponseEntity<LevelDetails> getLevelDetails(@PathVariable String userId) {
+        WorkerProfile worker = workerRepository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("Worker not found"));
+
         return ResponseEntity.ok(LevelDetails.builder()
-                .workerId(workerId)
-                .currentLevel(1)
-                .levelScore(450)
+                .workerId(userId)
+                .currentLevel(worker.getLevelNumber())
+                .levelScore(worker.getLevelScore().intValue())
                 .components(LevelComponents.builder()
-                        .skillScore(120)
-                        .experienceScore(100)
-                        .performanceScore(150)
-                        .reliabilityScore(80)
+                        .skillScore(worker.getSkillScore().intValue())
+                        .experienceScore(worker.getExperienceScore().intValue())
+                        .performanceScore(worker.getPerformanceScore().intValue())
+                        .reliabilityScore(worker.getReliabilityScore().intValue())
                         .build())
-                .nextLevel(2)
-                .pointsToNextLevel(550)
-                .salaryRange("₹15,000 - ₹25,000")
-                .achievements(Arrays.asList("Quick Learner", "Highly Reliable"))
+                .nextLevel(worker.getLevelNumber() < 4 ? worker.getLevelNumber() + 1 : 4)
+                .salaryRange(getSalaryRange(worker.getLevelNumber()))
                 .build());
     }
 
-    @GetMapping("/progress/{workerId}")
-    public ResponseEntity<LevelProgress> getLevelProgress(@PathVariable String workerId) {
+    @GetMapping("/progress/{userId}")
+    public ResponseEntity<LevelProgress> getLevelProgress(@PathVariable String userId) {
+        WorkerProfile worker = workerRepository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("Worker not found"));
+
         return ResponseEntity.ok(LevelProgress.builder()
-                .currentLevel(1)
-                .levelScore(450)
-                .nextLevel(2)
-                .progress(45.0)
-                .recommendations(Arrays.asList("Complete 2 more Skill Tests", "Maintain 95% punctuality"))
-                .estimatedTime("2 weeks")
+                .currentLevel(worker.getLevelNumber())
+                .levelScore(worker.getLevelScore().intValue())
+                .nextLevel(worker.getLevelNumber() < 4 ? worker.getLevelNumber() + 1 : 4)
+                .progress(calculateProgress(worker))
                 .build());
+    }
+
+    private String getSalaryRange(int level) {
+        return switch (level) {
+            case 1 -> "₹8,000 - ₹12,000";
+            case 2 -> "₹12,000 - ₹18,000";
+            case 3 -> "₹18,000 - ₹25,000";
+            case 4 -> "₹25,000+";
+            default -> "N/A";
+        };
+    }
+
+    private double calculateProgress(WorkerProfile worker) {
+        int currentLevel = worker.getLevelNumber();
+        double score = worker.getLevelScore();
+        if (currentLevel == 4) return 100.0;
+        
+        int min = currentLevel == 1 ? 0 : (currentLevel == 2 ? 41 : 66);
+        int max = currentLevel == 1 ? 40 : (currentLevel == 2 ? 65 : 85);
+        
+        return ((score - min) / (max - min)) * 100;
     }
 
     @Data @Builder
