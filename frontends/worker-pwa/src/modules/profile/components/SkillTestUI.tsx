@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Clock, CheckCircle2, XCircle, AlertCircle, ChevronRight, Loader2, Trophy } from 'lucide-react';
-import { skillTestService, SkillTest, TestResult } from '../api/skill-test.service';
+import { skillTestService, type SkillTest, type TestResult } from '../api/skill-test.service';
 
 interface SkillTestUIProps {
   testId: string;
