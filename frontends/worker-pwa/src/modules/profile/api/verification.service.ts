@@ -14,18 +14,14 @@ export const verificationService = {
   uploadAadhaar: async (file: File): Promise<VerificationRecord> => {
     const formData = new FormData();
     formData.append('file', file);
-    const response = await apiClient.post<VerificationRecord>('/api/verification/upload-doc', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    });
+    const response = await apiClient.post<VerificationRecord>('/api/verification/upload-doc', formData);
     return response.data;
   },
 
   uploadLiveCapture: async (file: File): Promise<VerificationRecord> => {
     const formData = new FormData();
     formData.append('file', file);
-    const response = await apiClient.post<VerificationRecord>('/api/verification/capture-live', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    });
+    const response = await apiClient.post<VerificationRecord>('/api/verification/capture-live', formData);
     return response.data;
   },
 

@@ -12,9 +12,6 @@ export const mediaService = {
     const formData = new FormData();
     formData.append('file', file);
     const response = await apiClient.post<MediaResponse>('/api/media/upload', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
       onUploadProgress: (progressEvent) => {
         if (onProgress && progressEvent.total) {
           const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);

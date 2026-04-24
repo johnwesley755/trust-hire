@@ -7,9 +7,10 @@ interface User {
   email: string;
   role: string;
   onboarded: boolean;
-  firstName?: string;
-  lastName?: string;
-  profileImageUrl?: string;
+  identity_verified: boolean;
+  first_name?: string;
+  last_name?: string;
+  profile_image_url?: string;
   level?: number;
 }
 

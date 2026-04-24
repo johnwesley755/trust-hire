@@ -48,6 +48,18 @@ export const SignUpPage = () => {
 
     const handleSendOtp = async (e?: React.FormEvent) => {
         if (e) e.preventDefault();
+        
+        // Comprehensive validation before wasting API calls
+        if (!formData.email || !formData.phoneNumber || !formData.firstName || !formData.lastName || !formData.password) {
+            setError('All fields are mandatory. Please fill in everything before proceeding.');
+            return;
+        }
+
+        if (formData.phoneNumber.length < 10) {
+            setError('Please enter a valid 10-digit mobile number.');
+            return;
+        }
+
         setIsLoading(true);
         setError('');
         try {
@@ -90,6 +102,23 @@ export const SignUpPage = () => {
         }
     };
 
+    const handlePaste = (e: React.ClipboardEvent) => {
+        e.preventDefault();
+        const pasteData = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
+        if (!pasteData) return;
+        
+        const newOtp = [...otp];
+        const chars = pasteData.split('');
+        chars.forEach((char, idx) => {
+            if (idx < 6) newOtp[idx] = char;
+        });
+        setOtp(newOtp);
+        
+        // Focus last filled box
+        const lastIdx = Math.min(chars.length - 1, 5);
+        document.getElementById(`otp-${lastIdx}`)?.focus();
+    };
+
     const handleVerifyAndRegister = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
@@ -98,6 +127,7 @@ export const SignUpPage = () => {
         try {
             const data = await authService.register({
                 ...formData,
+                phoneNumber: `+91${formData.phoneNumber}`,
                 otp: otp.join('')
             });
             login(data.token, data.user);
@@ -153,6 +183,7 @@ export const SignUpPage = () => {
                                             value={digit}
                                             onChange={(e) => handleOtpChange(e.target.value, idx)}
                                             onKeyDown={(e) => handleKeyDown(e, idx)}
+                                            onPaste={handlePaste}
                                         />
                                     ))}
                                 </div>

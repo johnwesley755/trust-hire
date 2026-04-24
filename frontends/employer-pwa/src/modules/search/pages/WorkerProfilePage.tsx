@@ -273,27 +273,6 @@ export const WorkerProfilePage = () => {
           </motion.div>
         </AnimatePresence>
 
-        {/* Sticky Bottom CTA */}
-        <div className="fixed bottom-0 left-0 right-0 p-6 bg-white/80 backdrop-blur-md z-40 flex justify-center border-t border-[#F5F4EF] lg:left-64 transition-all duration-300">
-          <div className="max-w-7xl w-full flex items-center justify-between gap-8 px-8">
-            <div className="hidden md:block text-left">
-              <p className="text-[10px] font-black uppercase tracking-widest text-[#1F3F34]/40 mb-1">Expected Salary</p>
-              <p className="text-2xl font-black uppercase tracking-tighter">₹32,000 - ₹38,000 <span className="text-xs font-bold opacity-30 tracking-normal text-[#1F3F34]">/month</span></p>
-            </div>
-            <div className="flex-1 md:flex-none flex gap-4">
-              <button className="flex-1 md:w-48 py-4 bg-[#F5F4EF] text-[#1F3F34] rounded-lg font-black uppercase text-xs tracking-widest hover:bg-[#E3E3DE] transition-colors border border-[#1F3F34]/5">
-                Save Draft
-              </button>
-              <motion.button 
-                whileHover={{ scale: 1.02, backgroundColor: '#002117' }}
-                whileTap={{ scale: 0.98 }}
-                className="flex-1 md:w-80 py-4 bg-[#1F3F34] text-white rounded-lg font-black uppercase text-xs tracking-widest shadow-xl hover:bg-on-secondary-fixed transition-all"
-              >
-                HIRE WORKER
-              </motion.button>
-            </div>
-          </div>
-        </div>
       </main>
     </div>
   );

@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useUser } from "../../../core/providers/AuthContext";
+import { useState, useEffect, useRef } from "react";
+import { useAuth, useUser } from "../../../core/providers/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import apiClient from "../../../core/api/apiClient";
 import { 
@@ -15,11 +15,12 @@ import ReviewStep from "../components/onboarding/ReviewStep";
 
 export default function OnboardingPage() {
   const { user } = useUser();
+  const { isSignedIn, updateUser } = useAuth();
   const navigate = useNavigate();
   
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
-    fullName: user ? `${user.firstName} ${user.lastName}` : "",
+    fullName: user ? `${user.first_name || ''} ${user.last_name || ''}`.trim() : "",
     bio: "",
     skills: [] as string[],
     experienceYears: "",
@@ -29,11 +30,42 @@ export default function OnboardingPage() {
     city: "South Mumbai",
     latitude: null as number | null,
     longitude: null as number | null,
-    profile_image_url: (user as { profile_image_url?: string })?.profile_image_url || ""
+    profile_image_url: user?.profile_image_url || ""
   });
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [locationError, setLocationError] = useState("");
+  const hasSynced = useRef(false);
+
+  // Sync formData with authenticated user data when it becomes available
+  useEffect(() => {
+    const fetchUser = async () => {
+      if (hasSynced.current) return;
+      
+      try {
+        const response = await apiClient.get('/api/auth/me');
+        const freshUser = response.data;
+        if (freshUser) {
+          hasSynced.current = true;
+          updateUser(freshUser);
+          
+          const newFullName = `${freshUser.first_name || ''} ${freshUser.last_name || ''}`.trim();
+          
+          setFormData(prev => ({
+            ...prev,
+            fullName: newFullName || prev.fullName,
+            profile_image_url: freshUser.profile_image_url || prev.profile_image_url || ""
+          }));
+        }
+      } catch (error) {
+        console.error("Failed to fetch user data:", error);
+      }
+    };
+
+    if (isSignedIn && !hasSynced.current) {
+      fetchUser();
+    }
+  }, [isSignedIn, updateUser]);
 
   const nextStep = () => {
     if (step < 4) setStep(s => s + 1);
@@ -93,6 +125,7 @@ export default function OnboardingPage() {
           isAvailable: true
         }
       );
+      updateUser({ onboarded: true });
       navigate("/verify-identity");
     } catch (error) {
       console.error("Onboarding failed:", error);

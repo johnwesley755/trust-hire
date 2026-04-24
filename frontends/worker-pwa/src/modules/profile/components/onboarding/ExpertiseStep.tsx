@@ -200,7 +200,8 @@ export default function ExpertiseStep({ formData, setFormData, onNext, onBack }:
                     </button>
                     <button 
                         onClick={onNext}
-                        className="bg-[#FACD15] text-[#002117] px-14 py-6 rounded-full font-bold font-headline uppercase tracking-[0.2em] text-sm shadow-[0_10px_0_0_#C39F00] active:translate-y-1 active:shadow-none transition-all flex items-center gap-4"
+                        disabled={formData.skills.length === 0 || !formData.experienceYears || !formData.hourlyRate}
+                        className="bg-[#FACD15] text-[#002117] px-14 py-6 rounded-full font-bold font-headline uppercase tracking-[0.2em] text-sm shadow-[0_10px_0_0_#C39F00] active:translate-y-1 active:shadow-none transition-all flex items-center gap-4 disabled:opacity-50 disabled:shadow-none disabled:translate-y-0"
                     >
                         NEXT PROTOCOL
                         <span className="material-symbols-outlined font-black">arrow_forward</span>

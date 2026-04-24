@@ -85,8 +85,10 @@ export const JobPostingPage = () => {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 max-w-7xl mx-auto">
         {/* Main Form Section */}
         <div className="lg:col-span-8 space-y-6">
-          <section className="bg-white rounded-4xl p-8 md:p-10 shadow-sm border border-[#EFEEE9] relative overflow-hidden group">
-            <div className="absolute -top-12 -right-12 w-48 h-48 bg-[#FACD15] opacity-[0.03] rounded-full group-hover:scale-110 transition-transform duration-700 pointer-events-none"></div>
+          <section className="bg-white rounded-4xl p-8 md:p-10 shadow-sm border border-[#EFEEE9] relative group">
+            <div className="absolute inset-0 overflow-hidden rounded-4xl pointer-events-none">
+                <div className="absolute -top-12 -right-12 w-48 h-48 bg-[#FACD15] opacity-[0.03] rounded-full group-hover:scale-110 transition-transform duration-700"></div>
+            </div>
             
             <form onSubmit={handleSubmit} className="space-y-12">
               {/* Step 1: Basic Info */}
@@ -200,7 +202,7 @@ export const JobPostingPage = () => {
                   <h2 className="text-xl font-black tracking-tight">Terms & Talent</h2>
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="space-y-2">
                     <label className="block text-[10px] font-black uppercase tracking-widest text-[#1F3F34]/40 ml-1">Budget (Monthly)</label>
                     <div className="relative">
@@ -224,20 +226,21 @@ export const JobPostingPage = () => {
                       placeholder="e.g. 3" 
                     />
                   </div>
-                  <div className="space-y-2">
-                    <label className="block text-[10px] font-black uppercase tracking-widest text-[#1F3F34]/40 ml-1">Required Skills</label>
-                    <div className="flex gap-2">
-                        <input 
-                          value={skillInput}
-                          onChange={(e) => setSkillInput(e.target.value)}
-                          onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addSkill())}
-                          className="flex-1 bg-[#F5F4EF] border-2 border-transparent focus:border-[#FACD15] rounded-2xl px-4 py-4.5 text-sm font-bold text-[#1F3F34] focus:outline-none transition-all" 
-                          placeholder="e.g. Welding" 
-                        />
-                        <button type="button" onClick={addSkill} className="bg-[#1F3F34] text-[#FACD15] px-4 rounded-2xl hover:scale-105 active:scale-95 transition-all">
-                            <Plus className="w-5 h-5" />
-                        </button>
-                    </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="block text-[10px] font-black uppercase tracking-widest text-[#1F3F34]/40 ml-1">Required Skills</label>
+                  <div className="flex gap-2">
+                      <input 
+                        value={skillInput}
+                        onChange={(e) => setSkillInput(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addSkill())}
+                        className="flex-1 bg-[#F5F4EF] border-2 border-transparent focus:border-[#FACD15] rounded-2xl px-5 py-4.5 text-sm font-bold text-[#1F3F34] focus:outline-none transition-all" 
+                        placeholder="e.g. Welding, Industrial Wiring, Masonry..." 
+                      />
+                      <button type="button" onClick={addSkill} className="bg-[#1F3F34] text-[#FACD15] px-6 rounded-2xl hover:scale-105 active:scale-95 transition-all shadow-lg shadow-[#1F3F34]/10">
+                          <Plus className="w-5 h-5" />
+                      </button>
                   </div>
                 </div>
 
@@ -262,7 +265,7 @@ export const JobPostingPage = () => {
                   className="bg-[#1F3F34] text-[#FACD15] w-full md:w-auto px-12 py-5 rounded-3xl font-black uppercase text-xs tracking-[0.2em] shadow-2xl shadow-[#1F3F34]/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3"
                 >
                   {mutation.isPending ? <Loader2 className="w-5 h-5 animate-spin" /> : (
-                      <>Commit & Post <ChevronRight className="w-4 h-4" /></>
+                      <>Post <ChevronRight className="w-4 h-4" /></>
                   )}
                 </button>
               </div>

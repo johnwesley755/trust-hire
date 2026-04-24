@@ -14,9 +14,7 @@ export const verificationService = {
   uploadBusinessDoc: async (file: File): Promise<EmployerVerificationRecord> => {
     const formData = new FormData();
     formData.append('file', file);
-    const response = await apiClient.post<EmployerVerificationRecord>('/api/verification/employer/upload', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    });
+    const response = await apiClient.post<EmployerVerificationRecord>('/api/verification/employer/upload', formData);
     return response.data;
   },
 

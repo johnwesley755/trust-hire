@@ -15,6 +15,7 @@ export interface User {
   email: string;
   role: string;
   onboarded: boolean;
+  identityVerified: boolean;
   firstName?: string;
   lastName?: string;
   profileImageUrl?: string;

@@ -11,10 +11,9 @@ export const mediaService = {
   uploadFile: async (file: File, onProgress?: (progress: number) => void): Promise<MediaResponse> => {
     const formData = new FormData();
     formData.append('file', file);
+    const token = localStorage.getItem('token');
     const response = await apiClient.post<MediaResponse>('/api/media/upload', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
+      headers: token ? { 'Authorization': `Bearer ${token}` } : {},
       onUploadProgress: (progressEvent) => {
         if (onProgress && progressEvent.total) {
           const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
