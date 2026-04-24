@@ -17,10 +17,10 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class OtpServiceImpl implements OtpService {
 
-    @Value("${BREVO_API_KEY}")
+    @Value("${BREVO_API_KEY:}")
     private String apiKey;
 
-    @Value("${BREVO_SENDER_EMAIL}")
+    @Value("${BREVO_SENDER_EMAIL:}")
     private String fromEmail;
 
     @Value("${BREVO_SENDER_NAME:TrustHire}")

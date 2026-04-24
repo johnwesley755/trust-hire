@@ -39,6 +39,11 @@ cloudinary:
   api-key: ${CLOUDINARY_API_KEY}
   api-secret: ${CLOUDINARY_API_SECRET}
 
+brevo:
+  api-key: ${BREVO_API_KEY}
+  sender-email: ${BREVO_SENDER_EMAIL}
+  sender-name: ${BREVO_SENDER_NAME:TrustHire}
+
 app:
   jwt:
     secret: ${JWT_SECRET}
