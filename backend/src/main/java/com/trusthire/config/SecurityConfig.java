@@ -65,7 +65,12 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOriginPatterns(List.of("http://localhost:*", "https://*.trusthire.com"));
+        config.setAllowedOriginPatterns(List.of(
+            "http://localhost:*", 
+            "https://*.trusthire.com",
+            "https://trust-hire-ellv.vercel.app",
+            "https://trust-hire-five.vercel.app"
+        ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
