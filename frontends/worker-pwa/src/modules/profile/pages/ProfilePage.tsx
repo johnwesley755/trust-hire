@@ -79,12 +79,12 @@ export default function ProfilePage() {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       const newImageUrl = uploadRes.data.url;
-      await apiClient.post('/api/auth/sync', { profileImageUrl: newImageUrl });
+      await apiClient.post('/api/auth/sync', { profile_image_url: newImageUrl });
 
       const storedUser = localStorage.getItem('user');
       if (storedUser) {
         const userObj = JSON.parse(storedUser);
-        userObj.profileImageUrl = newImageUrl;
+        userObj.profile_image_url = newImageUrl;
         localStorage.setItem('user', JSON.stringify(userObj));
       }
       queryClient.invalidateQueries({ queryKey: ['workerProfile'] });
@@ -174,7 +174,7 @@ export default function ProfilePage() {
               <h1 className="text-xl font-extrabold text-[#1F3F34] tracking-tight">Worker Dossier</h1>
             </div>
             <div className="w-10 h-10 rounded-full bg-[#e9e8e3] overflow-hidden border-2 border-[#FACD15]">
-              <img src={user?.profileImageUrl || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200"} alt="Portrait" className="w-full h-full object-cover" />
+              <img src={user?.profile_image_url || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200"} alt="Portrait" className="w-full h-full object-cover" />
             </div>
           </div>
         </header>
@@ -189,7 +189,7 @@ export default function ProfilePage() {
             <div className="flex items-start gap-5 relative z-10">
               <div className="relative">
                 <div className="w-24 h-24 rounded-lg overflow-hidden bg-[#e9e8e3] rotate-1">
-                  <img src={user?.profileImageUrl || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200"} alt="Profile" className="w-full h-full object-cover" />
+                  <img src={user?.profile_image_url || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200"} alt="Profile" className="w-full h-full object-cover" />
                 </div>
                 <div className="absolute -bottom-2 -right-2 bg-[#FACD15] text-[#1F3F34] p-1 rounded-full shadow-lg">
                   <span className="material-symbols-outlined text-sm font-bold" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
@@ -334,7 +334,7 @@ export default function ProfilePage() {
                     {updateMutation.isPending ? 'Syncing...' : (
                       <>
                         <span className="material-symbols-outlined text-[16px]">save</span>
-                        Commit Changes
+                        Submit
                       </>
                     )}
                   </button>

@@ -1,27 +1,40 @@
 import { useAuth, useUser } from "../../../core/providers/AuthContext";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import apiClient from "../../../core/api/apiClient";
 
 export const AuthOnboardingGuard = ({ children }: { children: React.ReactNode }) => {
-  const { isSignedIn, isLoaded, getToken } = useAuth();
+  const { isSignedIn, isLoaded, updateUser } = useAuth();
   const { user } = useUser();
   const [isOnboarded, setIsOnboarded] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
   const location = useLocation();
+  const syncStarted = useRef(false);
 
   useEffect(() => {
     const checkOnboarding = async () => {
+      // Prevent infinite loop by checking if we've already synced
+      if (syncStarted.current) return;
+
       if (isSignedIn && user) {
+        // If local user is already marked onboarded, we can skip the remote sync
+        if (user.onboarded && user.identity_verified) {
+          setIsOnboarded(true);
+          setLoading(false);
+          return;
+        }
+
+        syncStarted.current = true;
         try {
           const response = await apiClient.post('/api/auth/sync', { role: "EMPLOYER" });
-          const status = response.data.onboarded || localStorage.getItem('onboarded') === 'true';
-          setIsOnboarded(status);
+          const syncedUser = response.data;
+          setIsOnboarded(syncedUser.onboarded);
+          
+          // Update the global auth context
+          updateUser(syncedUser);
         } catch (error) {
           console.error("Onboarding check failed:", error);
-          // If the API fails but we have a local flag, trust it for the UI/UX
-          const localStatus = localStorage.getItem('onboarded') === 'true';
-          setIsOnboarded(localStatus);
+          setIsOnboarded(false);
         } finally {
           setLoading(false);
         }
@@ -31,7 +44,7 @@ export const AuthOnboardingGuard = ({ children }: { children: React.ReactNode })
     };
 
     checkOnboarding();
-  }, [isSignedIn, isLoaded, user, getToken]);
+  }, [isSignedIn, isLoaded, location.pathname]);
 
   if (!isLoaded || loading) {
     return (

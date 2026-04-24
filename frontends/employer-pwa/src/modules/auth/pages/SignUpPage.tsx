@@ -20,7 +20,7 @@ export const SignUpPage = () => {
         password: '',
         firstName: '',
         lastName: '',
-        phone: '',
+        phoneNumber: '',
         profile_image_url: '',
         role: 'EMPLOYER'
     });
@@ -50,6 +50,18 @@ export const SignUpPage = () => {
 
     const handleSendOtp = async (e: React.FormEvent) => {
         e.preventDefault();
+        
+        // Prevent wasted API requests
+        if (!formData.email || !formData.phoneNumber || !formData.firstName || !formData.lastName || !formData.password) {
+            setError('Please fill in all mandatory fields before requesting an OTP.');
+            return;
+        }
+
+        if (formData.phoneNumber.length < 10) {
+            setError('Please enter a valid 10-digit phone number.');
+            return;
+        }
+
         setError('');
         setIsLoading(true);
 
@@ -91,6 +103,23 @@ export const SignUpPage = () => {
         }
     };
 
+    const handlePaste = (e: React.ClipboardEvent) => {
+        e.preventDefault();
+        const pasteData = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
+        if (!pasteData) return;
+        
+        const newOtp = [...otp];
+        const chars = pasteData.split('');
+        chars.forEach((char, idx) => {
+            if (idx < 6) newOtp[idx] = char;
+        });
+        setOtp(newOtp);
+        
+        // Focus last filled box
+        const lastIdx = Math.min(chars.length - 1, 5);
+        document.getElementById(`otp-${lastIdx}`)?.focus();
+    };
+
     const handleVerifyAndRegister = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
@@ -99,6 +128,7 @@ export const SignUpPage = () => {
         try {
             const data = await authService.register({
                 ...formData,
+                phoneNumber: `+91${formData.phoneNumber}`,
                 otp: otp.join('')
             });
             login(data.token, data.user);
@@ -111,7 +141,7 @@ export const SignUpPage = () => {
         }
     };
 
-    const isFormValid = formData.firstName && formData.lastName && formData.email && formData.phone && formData.password;
+    const isFormValid = formData.firstName && formData.lastName && formData.email && formData.phoneNumber && formData.password;
 
     if (otpSent) {
         return (
@@ -154,6 +184,7 @@ export const SignUpPage = () => {
                                             value={digit}
                                             onChange={(e) => handleOtpChange(e.target.value, idx)}
                                             onKeyDown={(e) => handleKeyDown(e, idx)}
+                                            onPaste={handlePaste}
                                         />
                                     ))}
                                 </div>
@@ -336,8 +367,8 @@ export const SignUpPage = () => {
                                         className="w-full bg-surface-container-high border border-gray-200 rounded-[4px] pl-14 pr-4 py-3 focus:border-[#FACD15] focus:ring-4 focus:ring-[#FACD15]/10 transition-all outline-none placeholder:text-primary/30 font-bold" 
                                         placeholder="98765 43210" 
                                         type="tel"
-                                        value={formData.phone}
-                                        onChange={(e) => setFormData({...formData, phone: e.target.value.replace(/\D/g, '')})}
+                                        value={formData.phoneNumber}
+                                        onChange={(e) => setFormData({...formData, phoneNumber: e.target.value.replace(/\D/g, '')})}
                                         maxLength={10}
                                         required
                                     />

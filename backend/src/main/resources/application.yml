@@ -1,0 +1,54 @@
+spring:
+  application:
+    name: trusthire-monolith
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/trusthire_monolith_db}
+    username: ${SPRING_DATASOURCE_USERNAME:trusthire_user}
+    password: ${SPRING_DATASOURCE_PASSWORD:trusthire123}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      idle-timeout: 30000
+      max-lifetime: 1800000
+      connection-timeout: 30000
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  flyway:
+    enabled: false
+
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 20MB
+
+
+server:
+  port: 8080
+
+cloudinary:
+  cloud-name: ${CLOUDINARY_CLOUD_NAME}
+  api-key: ${CLOUDINARY_API_KEY}
+  api-secret: ${CLOUDINARY_API_SECRET}
+
+app:
+  jwt:
+    secret: ${JWT_SECRET}
+    expiration: 86400000  # 24 hours
+
+clerk:
+  frontend-api: ${CLERK_FRONTEND_API:https://sure-bengal-96.clerk.accounts.dev}
+
+logging:
+  level:
+    org.springframework.security: INFO
+    org.hibernate.SQL: DEBUG
+    com.trusthire: DEBUG

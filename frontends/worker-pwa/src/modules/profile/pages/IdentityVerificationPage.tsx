@@ -36,6 +36,7 @@ export const IdentityVerificationPage = () => {
     mutationFn: (file: File) => verificationService.uploadLiveCapture(file),
     onSuccess: () => {
       setStep(3);
+      updateUser({ identity_verified: true });
       refetch();
     }
   });

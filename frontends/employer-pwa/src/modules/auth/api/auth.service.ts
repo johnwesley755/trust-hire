@@ -4,7 +4,7 @@ export interface RegisterRequest {
   firstName: string;
   lastName: string;
   email: string;
-  phone: string;
+  phoneNumber: string;
   password?: string;
   otp?: string;
 }
@@ -14,6 +14,7 @@ export interface User {
   email: string;
   role: string;
   onboarded: boolean;
+  identityVerified: boolean;
   firstName?: string;
   lastName?: string;
   profileImageUrl?: string;

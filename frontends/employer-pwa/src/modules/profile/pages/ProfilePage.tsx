@@ -343,7 +343,7 @@ export default function ProfilePage() {
                                     className="flex-1 bg-[#1F3F34] text-[#FACD15] py-4 rounded-3xl font-black uppercase text-xs tracking-widest hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 group shadow-xl shadow-[#1F3F34]/20"
                                 >
                                     {updateMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4 group-hover:scale-125 transition-transform" />}
-                                    Commit Changes
+                                    Submit
                                 </button>
                                 <button 
                                     type="button"

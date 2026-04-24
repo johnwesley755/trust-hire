@@ -45,11 +45,11 @@ export const ProfileHeroCard: React.FC<ProfileHeroCardProps> = ({
             title="Update Profile Image"
           />
           <div className="w-32 h-32 rounded-[2rem] overflow-hidden border-4 border-[#F5F4EF] shadow-2xl relative group-hover/photo:scale-105 transition-all bg-[#F5F4EF]">
-            {user?.profileImageUrl ? (
+            {user?.profile_image_url ? (
               <img 
-                src={user.profileImageUrl} 
+                src={user.profile_image_url} 
                 alt={user.firstName || ""} 
-                className={`w-full h-full object-cover grayscale-[0.1] transition-opacity ${isUploadingImage ? 'opacity-50' : ''}`}
+                className={`w-full h-full object-cover transition-opacity ${isUploadingImage ? 'opacity-50' : ''}`}
               />
             ) : (
               <div className="w-full h-full bg-[#E9E8E3] flex items-center justify-center">

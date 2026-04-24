@@ -1,10 +1,7 @@
 import axios from 'axios';
 
 const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1',
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8080'
 });
 
 // Interceptor to inject Clerk Token (to be configured in Provider)
@@ -20,10 +17,31 @@ export const setupInterceptors = (getToken: () => Promise<string | null>) => {
     );
 
     if (token && !isOpenEndpoint) {
-      config.headers.Authorization = `Bearer ${token}`;
+      if (config.headers.set) {
+        config.headers.set('Authorization', `Bearer ${token}`);
+      } else {
+        config.headers['Authorization'] = `Bearer ${token}`;
+      }
     }
     return config;
   });
 };
+
+// Response interceptor to unwrap ApiResponse
+apiClient.interceptors.response.use(
+  (response) => {
+    if (response.data && typeof response.data === 'object' && 'success' in response.data && 'data' in response.data) {
+      if (response.data.success) {
+        return { ...response, data: response.data.data };
+      } else {
+        return Promise.reject(new Error(response.data.message || 'API Error'));
+      }
+    }
+    return response;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
 export default apiClient;

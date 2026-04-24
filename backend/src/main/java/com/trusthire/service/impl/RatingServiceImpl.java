@@ -1,0 +1,52 @@
+package com.trusthire.service.impl;
+
+import com.trusthire.entity.Rating;
+import com.trusthire.exception.ResourceNotFoundException;
+import com.trusthire.repository.RatingRepository;
+import com.trusthire.service.RatingService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+@Service
+@RequiredArgsConstructor
+public class RatingServiceImpl implements RatingService {
+
+    private final RatingRepository ratingRepository;
+
+    @Override
+    @Transactional
+    public Rating submitRating(Rating rating) {
+        return ratingRepository.save(rating);
+    }
+
+    @Override
+    public List<Rating> getRatingsForUser(String rateeId) {
+        return ratingRepository.findByRateeId(rateeId);
+    }
+
+    @Override
+    public Double getAverageRatingForUser(String rateeId) {
+        Double avg = ratingRepository.getAverageRating(rateeId);
+        return avg != null ? avg : 0.0;
+    }
+
+    @Override
+    public Integer getRatingCountForUser(String rateeId) {
+        return ratingRepository.getRatingCount(rateeId);
+    }
+
+    @Override
+    public List<Rating> getRatingsByUser(String reviewerId) {
+        return ratingRepository.findByReviewerId(reviewerId);
+    }
+
+    @Override
+    public Optional<Rating> getRatingById(UUID id) {
+        return ratingRepository.findById(id);
+    }
+}

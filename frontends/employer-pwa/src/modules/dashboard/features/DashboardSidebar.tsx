@@ -1,4 +1,4 @@
-import { useUser } from "../../../core/providers/AuthContext";
+import { useUser, useAuth } from "../../../core/providers/AuthContext";
 import { NotificationCenter } from './notifications/NotificationCenter';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -18,6 +18,7 @@ const secondaryItems = [
 
 export const DashboardSidebar = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) => {
     const { user } = useUser();
+    const { logout } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -84,6 +85,14 @@ export const DashboardSidebar = ({ isOpen, onClose }: { isOpen: boolean, onClose
                         <span className="text-xs font-bold uppercase tracking-wider">{item.name}</span>
                     </button>
                 ) )}
+
+                <button 
+                    onClick={logout}
+                    className="flex items-center gap-3 px-4 py-2.5 text-white/60 hover:text-red-400 transition-all text-left"
+                >
+                    <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>logout</span>
+                    <span className="text-xs font-bold uppercase tracking-wider">Logout</span>
+                </button>
                 
                 <div className="mt-4 flex items-center gap-3 px-2 py-3 bg-white/5 rounded-2xl relative">
                     <div className="w-10 h-10 rounded-full border-2 border-[#FACD15]/30 overflow-hidden shrink-0">
