@@ -76,7 +76,7 @@ export const SkillTestUI: React.FC<SkillTestUIProps> = ({ testId, onClose, onCom
         <div className="bg-white p-12 rounded-[3rem] text-center space-y-6 max-w-md shadow-2xl border border-brand-border">
           <AlertCircle className="w-20 h-20 text-rose-500 mx-auto" />
           <h2 className="text-3xl font-bold tracking-tighter text-brand-secondary">{error}</h2>
-          <button onClick={onClose} className="w-full bg-brand-secondary text-brand-primary py-4 rounded-2xl font-bold uppercase tracking-widest text-xs">Return to dossier</button>
+          <button onClick={onClose} className="w-full bg-brand-secondary text-brand-primary py-4 rounded-2xl font-bold uppercase tracking-widest text-xs">Return to profile</button>
         </div>
       </div>
     );
@@ -128,7 +128,7 @@ export const SkillTestUI: React.FC<SkillTestUIProps> = ({ testId, onClose, onCom
             onClick={() => { onComplete(); onClose(); }}
             className="w-full bg-brand-secondary text-brand-primary py-6 rounded-[2rem] font-black text-xs tracking-[0.3em] uppercase hover:bg-neutral-800 transition-all active:scale-95 shadow-2xl shadow-brand-secondary/20"
           >
-            Finalize dossier update
+            Finalize profile update
           </button>
         </motion.div>
       </div>

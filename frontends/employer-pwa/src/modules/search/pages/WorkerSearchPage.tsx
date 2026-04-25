@@ -253,7 +253,7 @@ export const WorkerSearchPage = () => {
                       <span className="text-[10px] font-black uppercase tracking-widest text-[#1F3F34]/60">Ranked Operative</span>
                     </div>
                     <button className="flex items-center gap-2 px-6 py-3 bg-[#FACD15] text-[#1F3F34] rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-[#FACD15]/10 group-hover:shadow-xl group-hover:-translate-y-1 transition-all">
-                      Review Dossier
+                      Review Profile
                     </button>
                   </div>
                 </motion.div>

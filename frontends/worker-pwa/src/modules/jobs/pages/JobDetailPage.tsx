@@ -96,7 +96,7 @@ export default function JobDetailPage() {
           </h1>
           
           <p className="text-[#414845] text-lg lg:text-xl leading-relaxed max-w-md mx-auto mb-12 font-medium opacity-80">
-            Your professional dossier has been shared with the hiring team. You will be notified of the outcome via the dashboard.
+            Your profile has been shared with the hiring team. You will be notified of the outcome via the dashboard.
           </p>
 
           {/* Action Cluster */}
