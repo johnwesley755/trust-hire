@@ -3,21 +3,19 @@ import { useQuery } from '@tanstack/react-query';
 import { jobService } from '../../jobs/api/job.service';
 import { applicationService } from '../../jobs/api/application.service';
 import { workerService } from '../../search/api/worker.service';
+import { dashboardService } from '../api/dashboard.service';
 import { useNavigate } from 'react-router-dom';
 
 export const StatsGrid = () => {
-    const { data: jobs } = useQuery({ queryKey: ['employerJobs'], queryFn: jobService.getEmployerJobs });
-    const jobIds = jobs?.map(j => j.id).filter((id): id is string => !!id) || [];
-    const { data: applications = [] } = useQuery({
-        queryKey: ['employerJobApplications', jobIds],
-        queryFn: () => applicationService.getApplicationsForEmployerJobs(jobIds),
-        enabled: jobIds.length > 0
+    const { data: stats } = useQuery({ 
+        queryKey: ['employerStats'], 
+        queryFn: dashboardService.getEmployerStats 
     });
     
-    const stats = [
+    const statsData = [
         { 
             label: 'Active Jobs', 
-            value: jobs?.filter(j => j.status === 'OPEN').length || 0, 
+            value: stats?.activeJobs || 0, 
             trend: '+2 vs last week', 
             trendColor: 'text-green-700 bg-green-50',
             icon: 'work',
@@ -25,15 +23,15 @@ export const StatsGrid = () => {
         },
         { 
             label: 'Applicants', 
-            value: applications.length || 0, 
-            trend: '42 new today', 
+            value: stats?.totalApplicants || 0, 
+            trend: 'Live updates', 
             trendColor: 'text-[#1F3F34]/60',
             icon: 'group',
             trendIcon: 'check_circle'
         },
         { 
             label: 'Interviewing', 
-            value: 48, 
+            value: stats?.interviewingCount || 0, 
             trend: '12 calls scheduled', 
             trendColor: 'text-amber-600 bg-amber-50',
             icon: 'video_call',
@@ -41,7 +39,7 @@ export const StatsGrid = () => {
         },
         { 
             label: 'Total Hired', 
-            value: 156, 
+            value: stats?.totalHired || 0, 
             trend: '92% retention rate', 
             trendColor: 'text-[#1F3F34] bg-[#FACD15]/20',
             icon: 'verified',
@@ -51,7 +49,7 @@ export const StatsGrid = () => {
 
     return (
         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            {stats.map((stat) => (
+            {statsData.map((stat) => (
                 <div key={stat.label} className="bg-white p-5 rounded-2xl shadow-sm border border-[#EFEEE9] flex flex-col justify-between hover:shadow-md transition-shadow group">
                     <div className="flex justify-between items-start">
                         <div>

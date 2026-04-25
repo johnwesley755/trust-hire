@@ -11,5 +11,6 @@ import java.util.UUID;
 public interface JobRepository extends JpaRepository<Job, UUID> {
     List<Job> findByEmployerId(String employerId);
     List<Job> findByIdIn(List<UUID> ids);
+    long countByEmployerIdAndStatus(String employerId, Job.JobStatus status);
     long count();
 }

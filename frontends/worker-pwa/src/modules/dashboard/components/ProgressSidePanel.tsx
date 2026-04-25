@@ -30,7 +30,14 @@ const ActionCard: React.FC<ActionCardProps> = ({ title, description, icon, conta
   );
 };
 
-export const ProgressSidePanel: React.FC = () => {
+interface ProgressSidePanelProps {
+  level?: string;
+  progress?: number;
+}
+
+export const ProgressSidePanel: React.FC<ProgressSidePanelProps> = ({ level = 'L1 Skilled', progress = 30 }) => {
+  const nextLevel = level.startsWith('L1') ? 'L2 Skilled' : level.startsWith('L2') ? 'L3 Expert' : 'Master';
+
   return (
     <div className="space-y-6">
       <div className="bg-[#1F3F34] text-[#F5F4EF] p-6 rounded-[2rem] relative overflow-hidden bento-card shadow-lg hover:shadow-xl transition-all border border-[#FACD15]/10">
@@ -41,13 +48,13 @@ export const ProgressSidePanel: React.FC = () => {
           </div>
           <div className="flex justify-between items-end mb-2">
             <div>
-              <h3 className="text-2xl font-extrabold text-white">L2 Skilled</h3>
-              <p className="text-xs text-[#F5F4EF]/60 font-medium tracking-tight">To L3 Expert</p>
+              <h3 className="text-2xl font-extrabold text-white">{level}</h3>
+              <p className="text-xs text-[#F5F4EF]/60 font-medium tracking-tight">To {nextLevel}</p>
             </div>
-            <span className="text-2xl font-extrabold text-[#FACD15]">75%</span>
+            <span className="text-2xl font-extrabold text-[#FACD15]">{progress}%</span>
           </div>
           <div className="h-3 w-full bg-[#FFFFFF]/10 rounded-full mb-6 overflow-hidden">
-            <div className="h-full bg-[#FACD15] rounded-full w-[75%] shadow-[0_0_15px_rgba(250,205,21,0.3)]"></div>
+            <div className="h-full bg-[#FACD15] rounded-full shadow-[0_0_15px_rgba(250,205,21,0.3)]" style={{ width: `${progress}%` }}></div>
           </div>
           <div className="space-y-3">
             <p className="text-[0.65rem] font-bold text-[#F5F4EF]/40 uppercase tracking-widest leading-none">Tasks to unlock L3</p>

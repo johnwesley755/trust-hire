@@ -16,6 +16,7 @@ import AppliedJobsPage from '../modules/jobs/pages/AppliedJobsPage.tsx';
 import OnboardingPage from '../modules/profile/pages/OnboardingPage.tsx';
 import { SettingsPage } from '../modules/settings/pages/SettingsPage.tsx';
 import { HelpPage } from '../modules/help/pages/HelpPage.tsx';
+import NotificationsPage from '../modules/dashboard/pages/NotificationsPage.tsx';
 
 import AppLayout from '../core/layouts/AppLayout.tsx';
 import RootLayout from '../core/layouts/RootLayout.tsx';

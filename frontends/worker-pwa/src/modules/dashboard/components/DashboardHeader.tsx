@@ -1,5 +1,7 @@
 import React from 'react';
 import { useUser } from '../../../core/providers/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import { NotificationCenter } from './NotificationCenter';
 
 interface DashboardHeaderProps {
   onMenuClick?: () => void;
@@ -8,6 +10,7 @@ interface DashboardHeaderProps {
 
 export const DashboardHeader: React.FC<DashboardHeaderProps> = ({ onMenuClick, className }) => {
   const { user } = useUser();
+  const navigate = useNavigate();
 
   return (
     <header className={`fixed top-0 right-0 left-0 lg:left-72 h-16 glass-header bg-[#F5F4EF]/80 backdrop-blur-md flex justify-between items-center px-4 md:px-8 z-30 border-b border-[#1F3F34]/5 transition-all ${className || ''}`}>
@@ -34,10 +37,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({ onMenuClick, c
       </div>
 
       <div className="flex items-center gap-2 md:gap-4">
-        <button className="p-2 hover:bg-[#E9E8E3] rounded-full transition-all relative group text-[#1F3F34]">
-          <span className="material-symbols-outlined">notifications</span>
-          <span className="absolute top-2 right-2 w-2 h-2 bg-[#ba1a1a] rounded-full animate-pulse"></span>
-        </button>
+        <NotificationCenter />
         <button className="p-2 hover:bg-[#E9E8E3] rounded-full transition-all text-[#1F3F34]">
           <span className="material-symbols-outlined">chat_bubble</span>
         </button>
@@ -47,7 +47,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({ onMenuClick, c
         <div className="flex items-center gap-3 group cursor-pointer hover:bg-[#1F3F34]/5 p-1.5 rounded-xl transition-all">
           <div className="text-right hidden sm:block">
             <p className="text-xs font-black leading-none text-[#1F3F34]">{user?.firstName} {user?.lastName}</p>
-            <p className="text-[10px] text-[#414845] font-bold uppercase mt-1 tracking-tighter">L2 Skilled Worker</p>
+            <p className="text-[10px] text-[#414845] font-bold uppercase mt-1 tracking-tighter">{(user as any)?.level || 'L1'} Skilled Worker</p>
           </div>
           <div className="relative group">
             <img 

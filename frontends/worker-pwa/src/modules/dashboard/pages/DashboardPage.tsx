@@ -3,6 +3,7 @@ import { searchJobs } from '../../jobs/api/search.service';
 import { profileService } from '../../profile/api/profile.service';
 import { jobService } from '../../jobs/api/job.service';
 import { applicationService } from '../../jobs/api/application.service';
+import { dashboardService } from '../api/dashboard.service';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../../core/hooks/useLanguage';
 import { useState, useEffect } from 'react';
@@ -29,6 +30,11 @@ export default function DashboardPage() {
   const { data: profile } = useQuery({
     queryKey: ['workerProfile'],
     queryFn: profileService.getProfile,
+  });
+
+  const { data: stats } = useQuery({
+    queryKey: ['workerStats'],
+    queryFn: dashboardService.getWorkerStats,
   });
 
   const searchLocation = profile?.city || profile?.address || profile?.location || '';
@@ -98,9 +104,9 @@ export default function DashboardPage() {
 
       {/* Stats Row */}
       <StatsSection 
-        trustScore={84} 
+        trustScore={stats?.trustScore || profile?.trustScore || 0} 
         nearbyJobs={visibleJobs.length} 
-        earnings={formattedEarnings} 
+        earnings={stats?.appliedJobs ? `₹${(stats.appliedJobs * 1200).toLocaleString()}` : "₹0"} 
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
@@ -172,7 +178,7 @@ export default function DashboardPage() {
 
         {/* Right Sidebar: Progress & Actions */}
         <div className="lg:col-span-4 sticky top-24 space-y-6">
-          <ProgressSidePanel />
+          <ProgressSidePanel level={profile?.level} progress={75} />
         </div>
       </div>
     </div>

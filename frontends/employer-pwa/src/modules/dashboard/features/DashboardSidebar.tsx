@@ -102,12 +102,9 @@ export const DashboardSidebar = ({ isOpen, onClose }: { isOpen: boolean, onClose
                             src={user?.profileImageUrl || "https://lh3.googleusercontent.com/aida-public/AB6AXuDB2IKihz2HBZd0YvzOOsCbtLo2SulU29Gl-66RaZ0YJu1cPL1c7gEIXDzmFS_blQp7DPx_68dl8H8Rt20b8QV8REGIk7AxmnYfhBUb6WOrdtxG8i2Xo6zbzCdHGAHY2f30l-mNztw8qHinR7O6zvr9OPtlVVb-zP_nlaG7GdSfLcvCMR4--5niBM_iua3ZjqJgXGdCfo0ke2z11Rnm8ykPyZxOftXvcLXMAJ6Sw6aEOQGXOP9afmh9Wj8ywyc9hayr3MG-fwARVAQ"}
                         />
                     </div>
-                    <div className="flex flex-col truncate flex-1 pr-8">
+                    <div className="flex flex-col truncate flex-1 pr-2">
                         <span className="text-[11px] font-bold text-white truncate">{user?.firstName} {user?.lastName}</span>
                         <span className="text-[9px] text-[#FACD15]/70 font-bold uppercase tracking-tight">Tier 1 Partner</span>
-                    </div>
-                    <div className="absolute right-2 top-1/2 -translate-y-1/2">
-                        <NotificationCenter />
                     </div>
                 </div>
             </div>
@@ -134,10 +131,6 @@ export const MobileNav = ({ onMenuClick }: { onMenuClick: () => void }) => {
                 <div className="flex items-center gap-3">
                     <button className="p-2 hover:bg-black/5 rounded-full transition-colors active:scale-90">
                         <span className="material-symbols-outlined text-[#1F3F34]">search</span>
-                    </button>
-                    <button className="p-2 hover:bg-black/5 rounded-full transition-colors active:scale-90 relative">
-                        <span className="material-symbols-outlined text-[#1F3F34]">notifications</span>
-                        <span className="absolute top-2 right-2 w-2 h-2 bg-error rounded-full border-2 border-white"></span>
                     </button>
                 </div>
             </div>

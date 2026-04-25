@@ -19,7 +19,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ isOpen, onCl
         { name: t('sidebar.findJobs'), icon: 'search', path: '/search' },
         { name: 'Applied Jobs', icon: 'work_history', path: '/applied-jobs' },
         { name: t('sidebar.skillTests'), icon: 'psychology', path: '/tests' },
-        { name: t('sidebar.levelDetails'), icon: 'military_tech', path: '/level' },
+        // { name: t('sidebar.levelDetails'), icon: 'military_tech', path: '/level' },
         { name: t('sidebar.profile'), icon: 'person', path: '/profile' },
     ];
 

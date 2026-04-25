@@ -12,5 +12,6 @@ import java.util.UUID;
 public interface WorkerProfileRepository extends JpaRepository<WorkerProfile, UUID> {
     Optional<WorkerProfile> findByUserId(String userId);
     List<WorkerProfile> findByUserIdIn(List<String> userIds);
+    boolean existsByUserId(String userId);
     long count();
 }

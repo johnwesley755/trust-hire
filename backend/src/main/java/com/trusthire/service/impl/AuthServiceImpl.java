@@ -14,6 +14,7 @@ import com.trusthire.repository.UserMetadataRepository;
 import com.trusthire.repository.WorkerProfileRepository;
 import com.trusthire.security.JwtService;
 import com.trusthire.service.AuthService;
+import com.trusthire.service.NotificationSenderService;
 import com.trusthire.service.OtpService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,6 +44,7 @@ public class AuthServiceImpl implements AuthService {
     private final JwtService jwtService;
     private final OtpService otpService;
     private final PasswordEncoder passwordEncoder;
+    private final NotificationSenderService notificationSenderService;
 
     @Value("${BREVO_API_KEY}")
     private String apiKey;
@@ -100,6 +102,14 @@ public class AuthServiceImpl implements AuthService {
             workerProfileRepository.save(workerProfile);
             log.info("Created worker profile for user: {}", newUser.getEmail());
         }
+
+        // Send Welcome Notification
+        notificationSenderService.sendNotification(
+            newUser.getId().toString(),
+            "Welcome to TrustHire!",
+            "Thank you for joining us, " + newUser.getFirstName() + "! Complete your profile to get started.",
+            "WELCOME"
+        );
 
         return AuthResponse.of(jwtService.generateToken(newUser), newUser);
     }
@@ -191,7 +201,31 @@ public class AuthServiceImpl implements AuthService {
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
 
         if (updates.containsKey("role")) {
-            user.setRole(UserMetadata.Role.valueOf((String) updates.get("role")));
+            UserMetadata.Role newRole = UserMetadata.Role.valueOf((String) updates.get("role"));
+            if (user.getRole() != newRole) {
+                user.setRole(newRole);
+                
+                // Ensure profile exists for the new role
+                if (newRole == UserMetadata.Role.EMPLOYER) {
+                    if (!employerProfileRepository.existsByUserId(userId)) {
+                        employerProfileRepository.save(EmployerProfile.builder()
+                                .userId(userId)
+                                .companyName(user.getFirstName() + "'s Company")
+                                .build());
+                    }
+                    user.setOnboarded(false); // Force onboarding for new role
+                } else if (newRole == UserMetadata.Role.WORKER) {
+                    if (!workerProfileRepository.existsByUserId(userId)) {
+                        workerProfileRepository.save(WorkerProfile.builder()
+                                .userId(userId)
+                                .fullName(user.getFirstName() + " " + user.getLastName())
+                                .level("L1")
+                                .levelNumber(1)
+                                .build());
+                    }
+                    user.setOnboarded(false);
+                }
+            }
         }
         if (updates.containsKey("onboarded")) {
             user.setOnboarded((Boolean) updates.get("onboarded"));

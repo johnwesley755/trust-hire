@@ -55,7 +55,7 @@ export default function DashboardPage() {
                     <div className="md:hidden space-y-6 max-w-lg mx-auto pb-24">
                         {/* Welcome Section */}
                         <section className="px-2">
-                            <h2 className="text-2xl font-bold text-brand-secondary leading-tight">Namaste, {user?.firstName || 'Nitin'}</h2>
+                            <h2 className="text-2xl font-bold text-brand-secondary leading-tight">Namaste, {user?.firstName || 'Partner'}</h2>
                             <p className="text-sm font-medium text-secondary opacity-80">Here's your hiring snapshot for today.</p>
                         </section>
 

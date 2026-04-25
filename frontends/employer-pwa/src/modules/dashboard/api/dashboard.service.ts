@@ -1,0 +1,14 @@
+import apiClient from "../../../core/api/apiClient";
+
+export interface EmployerStats {
+    activeJobs: number;
+    totalApplicants: number;
+    unreadNotifications: number;
+}
+
+export const dashboardService = {
+    getEmployerStats: async (): Promise<EmployerStats> => {
+        const response = await apiClient.get('/api/dashboard/employer/stats');
+        return response.data.data;
+    }
+};

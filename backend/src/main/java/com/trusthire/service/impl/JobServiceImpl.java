@@ -8,6 +8,7 @@ import com.trusthire.repository.JobApplicationRepository;
 import com.trusthire.repository.JobRepository;
 import com.trusthire.entity.JobSearchIndex;
 import com.trusthire.service.JobService;
+import com.trusthire.service.NotificationSenderService;
 import com.trusthire.service.SearchService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ public class JobServiceImpl implements JobService {
     private final JobRepository jobRepository;
     private final JobApplicationRepository applicationRepository;
     private final SearchService searchService;
+    private final NotificationSenderService notificationSenderService;
 
     @Override
     @Transactional
@@ -31,6 +33,15 @@ public class JobServiceImpl implements JobService {
         job.setEmployerId(employerId);
         Job saved = jobRepository.save(job);
         indexJob(saved);
+
+        // Notify Employer of success
+        notificationSenderService.sendNotification(
+            employerId,
+            "Job Posted!",
+            "Your job '" + saved.getTitle() + "' is now live and visible to workers.",
+            "JOB_CREATED"
+        );
+
         return saved;
     }
 
