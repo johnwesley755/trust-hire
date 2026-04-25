@@ -3,7 +3,7 @@
 
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
-CREATE TABLE user_metadata (
+CREATE TABLE IF NOT EXISTS user_metadata (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     email VARCHAR(255) UNIQUE NOT NULL,
     password_hash TEXT,
@@ -20,7 +20,7 @@ CREATE TABLE user_metadata (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE worker_profiles (
+CREATE TABLE IF NOT EXISTS worker_profiles (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id VARCHAR(255) UNIQUE NOT NULL,
     full_name VARCHAR(255),
@@ -47,7 +47,7 @@ CREATE TABLE worker_profiles (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE skill_tests (
+CREATE TABLE IF NOT EXISTS skill_tests (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     title VARCHAR(255) NOT NULL,
     category VARCHAR(100) NOT NULL,
@@ -58,7 +58,7 @@ CREATE TABLE skill_tests (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE skill_test_questions (
+CREATE TABLE IF NOT EXISTS skill_test_questions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     test_id UUID NOT NULL REFERENCES skill_tests(id) ON DELETE CASCADE,
     question_text TEXT NOT NULL,
@@ -69,7 +69,7 @@ CREATE TABLE skill_test_questions (
     metadata JSONB
 );
 
-CREATE TABLE skill_test_results (
+CREATE TABLE IF NOT EXISTS skill_test_results (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     worker_id VARCHAR(255) NOT NULL,
     test_id UUID NOT NULL REFERENCES skill_tests(id),
@@ -78,7 +78,7 @@ CREATE TABLE skill_test_results (
     completed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE employer_profiles (
+CREATE TABLE IF NOT EXISTS employer_profiles (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id VARCHAR(255) UNIQUE NOT NULL,
     company_name VARCHAR(255),
@@ -96,7 +96,7 @@ CREATE TABLE employer_profiles (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE jobs (
+CREATE TABLE IF NOT EXISTS jobs (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     employer_id VARCHAR(255) NOT NULL,
     title VARCHAR(255) NOT NULL,
@@ -114,12 +114,12 @@ CREATE TABLE jobs (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE job_required_skills (
+CREATE TABLE IF NOT EXISTS job_required_skills (
     job_id UUID NOT NULL REFERENCES jobs(id) ON DELETE CASCADE,
     skill VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE job_applications (
+CREATE TABLE IF NOT EXISTS job_applications (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     job_id UUID NOT NULL REFERENCES jobs(id),
     worker_id VARCHAR(255) NOT NULL,
@@ -128,7 +128,7 @@ CREATE TABLE job_applications (
     applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE job_search_index (
+CREATE TABLE IF NOT EXISTS job_search_index (
     job_id UUID PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
     description TEXT,
@@ -146,7 +146,7 @@ CREATE TABLE job_search_index (
     last_updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE worker_search_index (
+CREATE TABLE IF NOT EXISTS worker_search_index (
     user_id VARCHAR(255) PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     bio TEXT,
@@ -163,7 +163,7 @@ CREATE TABLE worker_search_index (
     last_updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE media_assets (
+CREATE TABLE IF NOT EXISTS media_assets (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     url TEXT NOT NULL,
     public_id VARCHAR(255) NOT NULL,
@@ -174,7 +174,7 @@ CREATE TABLE media_assets (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE notifications (
+CREATE TABLE IF NOT EXISTS notifications (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id VARCHAR(255) NOT NULL,
     title VARCHAR(255) NOT NULL,
@@ -185,7 +185,7 @@ CREATE TABLE notifications (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE ratings (
+CREATE TABLE IF NOT EXISTS ratings (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     reviewer_id VARCHAR(255) NOT NULL,
     ratee_id VARCHAR(255) NOT NULL,
@@ -196,7 +196,7 @@ CREATE TABLE ratings (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE verification_records (
+CREATE TABLE IF NOT EXISTS verification_records (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id VARCHAR(255) NOT NULL,
     doc_image_url TEXT,
@@ -229,6 +229,7 @@ GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO trusthire_user;
 
 -- Initial Seed Data: Admin User
 INSERT INTO user_metadata (
+    id,
     email, 
     password_hash, 
     first_name, 
@@ -239,8 +240,9 @@ INSERT INTO user_metadata (
     created_at, 
     updated_at
 ) VALUES (
-    'kernelx123@gmail.com',
-    '$2a$10$8.UnVuG9HHgffUDAlk8qfOuVGkqRzgVymGe07xd00DMxs.TVuHOnu', -- admin123
+    gen_random_uuid(),
+    'johnwesley8113@gmail.com',
+    '$2b$12$ExN/8eD7fPFbW7XztNvCtO4cQ80HuT2QeCmm4IG9rhUDreFjdFzoW', -- demo@123
     'Admin',
     'User',
     'ADMIN',

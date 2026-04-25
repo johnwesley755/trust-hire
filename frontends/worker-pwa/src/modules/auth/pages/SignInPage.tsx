@@ -24,7 +24,15 @@ export const SignInPage = () => {
                 email: identifier,
                 password
             });
-            login(response.data.token, response.data.user);
+            
+            const userData = response.data.user;
+            if (userData.role !== 'WORKER') {
+                setError('This account is not registered as a Worker. Please use the Employer portal.');
+                setIsLoading(false);
+                return;
+            }
+
+            login(response.data.token, userData);
             navigate('/dashboard');
         } catch (err: unknown) {
             const apiError = err as { response?: { data?: { message?: string } } };

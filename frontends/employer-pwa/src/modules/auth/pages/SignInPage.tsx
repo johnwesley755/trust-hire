@@ -23,7 +23,15 @@ export const SignInPage = () => {
                 email,
                 password
             });
-            login(response.data.token, response.data.user);
+
+            const userData = response.data.user;
+            if (userData.role !== 'EMPLOYER' && userData.role !== 'ADMIN') {
+                setError('This account is not registered as an Employer. Please use the Worker portal.');
+                setIsLoading(false);
+                return;
+            }
+
+            login(response.data.token, userData);
             navigate('/dashboard');
         } catch (err: unknown) {
             const apiError = err as { response?: { data?: { message?: string } } };
