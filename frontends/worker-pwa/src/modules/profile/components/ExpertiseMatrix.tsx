@@ -27,8 +27,8 @@ export const ExpertiseMatrix: React.FC<ExpertiseMatrixProps> = ({ skills }) => {
               transition={{ delay: i * 0.05 }}
               className="px-6 py-4 bg-white text-[#1F3F34] rounded-2xl text-xs font-black border border-[#1F3F34]/5 shadow-sm hover:border-[#FACD15] transition-all hover:shadow-2xl cursor-default flex flex-col gap-3 group/skill relative overflow-hidden"
             >
-              <div className="flex items-center gap-2">
-                <div className="w-1.5 h-1.5 bg-[#FACD15] rounded-full group-hover/skill:scale-150 transition-transform" />
+              <div className="flex items-center gap-2 break-words overflow-hidden">
+                <div className="w-1.5 h-1.5 bg-[#FACD15] rounded-full group-hover/skill:scale-150 transition-transform shrink-0" />
                 {skill}
               </div>
               <div className="flex items-center gap-1.5 text-[9px] font-black text-[#1F3F34]/40 uppercase tracking-widest">

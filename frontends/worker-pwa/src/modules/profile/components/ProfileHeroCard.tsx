@@ -130,7 +130,7 @@ export const ProfileHeroCard: React.FC<ProfileHeroCardProps> = ({
                   className="flex items-center gap-2.5 px-6 py-2.5 bg-[#F5F4EF] rounded-full border border-[#1F3F34]/5 text-[#1F3F34] hover:border-[#FACD15] hover:bg-white transition-all text-sm font-bold group shadow-sm"
                 >
                   <MapPin className="w-4 h-4 text-[#FACD15] group-hover:scale-110 transition-transform" /> 
-                  <span className="opacity-80">
+                  <span className="opacity-80 truncate max-w-[200px] sm:max-w-xs">
                     {profile?.address || profile?.city || profile?.location || "No Operating Base Defined"}
                   </span>
                 </button>

@@ -196,24 +196,24 @@ export default function ProfilePage() {
                             </h4>
                             
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                <div className="space-y-1.5 p-4 bg-[#F5F4EF]/30 rounded-2xl border border-transparent hover:border-[#FACD15]/20 transition-all">
+                                <div className="space-y-1.5 p-4 bg-[#F5F4EF]/30 rounded-2xl border border-transparent hover:border-[#FACD15]/20 transition-all overflow-hidden">
                                     <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#1F3F34]/40">Company Name</label>
-                                    <p className="text-lg font-black text-[#1F3F34]">{profile?.companyName || "Acme Constructions"}</p>
+                                    <p className="text-lg font-black text-[#1F3F34] break-words">{profile?.companyName || "Acme Constructions"}</p>
                                 </div>
                                 <div className="space-y-1.5 p-4 bg-[#F5F4EF]/30 rounded-2xl border border-transparent hover:border-[#FACD15]/20 transition-all">
                                     <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#1F3F34]/40">Industry</label>
                                     <p className="text-lg font-black text-[#1F3F34]">{profile?.industry || "Facility Management"}</p>
                                 </div>
-                                <div className="md:col-span-2 space-y-1.5 p-4 bg-[#F5F4EF]/30 rounded-2xl border border-transparent hover:border-[#FACD15]/20 transition-all">
+                                <div className="md:col-span-2 space-y-1.5 p-4 bg-[#F5F4EF]/30 rounded-2xl border border-transparent hover:border-[#FACD15]/20 transition-all overflow-hidden">
                                     <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#1F3F34]/40">Official Website</label>
-                                    <div className="flex items-center justify-between">
-                                        <p className="text-lg font-black text-[#1F3F34]">{profile?.companyWebsite || "https://acme.com"}</p>
-                                        <ExternalLink className="w-4 h-4 text-[#FACD15]" />
+                                    <div className="flex items-center justify-between gap-4">
+                                        <p className="text-lg font-black text-[#1F3F34] break-all">{profile?.companyWebsite || "https://acme.com"}</p>
+                                        <ExternalLink className="w-4 h-4 text-[#FACD15] shrink-0" />
                                     </div>
                                 </div>
                                 <div className="md:col-span-2 space-y-3 pt-2">
                                     <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#1F3F34]/40 px-1">About Company</label>
-                                    <div className="text-sm leading-relaxed text-[#1F3F34]/70 font-medium bg-[#F5F4EF]/50 p-6 rounded-3xl border border-[#EFEEE9]">
+                                    <div className="text-sm leading-relaxed text-[#1F3F34]/70 font-medium bg-[#F5F4EF]/50 p-6 rounded-3xl border border-[#EFEEE9] break-words overflow-hidden">
                                         {profile?.profileBio || "Acme Constructions is a leading infrastructure and facility management firm operating across Southern India. We specialize in high-density commercial developments and maintain a dedicated workforce of over 500+ verified professionals."}
                                     </div>
                                 </div>
@@ -238,9 +238,9 @@ export default function ProfilePage() {
                                     <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center group-hover/item:bg-[#FACD15]/10 transition-colors">
                                         <Mail className="w-5 h-5 text-[#FACD15]" />
                                     </div>
-                                    <div className="space-y-0.5">
+                                    <div className="space-y-0.5 min-w-0 flex-1">
                                         <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-white/40">Primary Protocol Email</label>
-                                        <p className="text-sm font-black">{user?.email}</p>
+                                        <p className="text-sm font-black break-all">{user?.email}</p>
                                     </div>
                                 </div>
 
