@@ -62,7 +62,7 @@ export const WorkerProfilePage = () => {
   if (isLoadingWorker) return (
     <div className="min-h-screen bg-[#F5F4EF] flex flex-col items-center justify-center gap-4">
         <Loader2 className="h-12 w-12 text-[#1F3F34] animate-spin" />
-        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#1F3F34]/40">Loading Dossier...</p>
+        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#1F3F34]/40">Loading</p>
     </div>
   );
 

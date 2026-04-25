@@ -11,7 +11,7 @@ export const ProfileSideActions: React.FC<ProfileSideActionsProps> = ({ onLogout
       {/* Quick Actions Card */}
       <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-[#1F3F34]/5 relative overflow-hidden">
         <div className="absolute -top-4 -right-4 w-24 h-24 bg-[#FACD15] opacity-[0.05] rounded-full blur-xl" />
-        <h4 className="text-[10px] font-black uppercase text-[#1F3F34]/30 mb-8 tracking-[0.2em] relative z-10">Dossier Control</h4>
+        <h4 className="text-[10px] font-black uppercase text-[#1F3F34]/30 mb-8 tracking-[0.2em] relative z-10">Profile Card</h4>
         <div className="space-y-3 relative z-10">
           <button className="w-full py-4.5 bg-[#FACD15] text-[#1F3F34] rounded-2xl font-black uppercase text-[10px] tracking-widest flex items-center justify-center gap-3 shadow-lg hover:shadow-[0_10px_20px_rgba(250,205,21,0.2)] active:scale-95 transition-all">
             <span className="material-symbols-outlined text-lg">verified_user</span>
@@ -46,7 +46,7 @@ export const ProfileSideActions: React.FC<ProfileSideActionsProps> = ({ onLogout
           </div>
         </div>
         <p className="text-sm text-[#1F3F34]/80 font-medium leading-relaxed mb-6">
-          This dossier has been manually audited by the TrustHire compliance team. All certifications are currently active and verified.
+          This profile has been manually audited by the TrustHire compliance team. All certifications are currently active and verified.
         </p>
         <button className="text-[10px] font-black uppercase text-[#1F3F34] underline decoration-[#FACD15] decoration-4 underline-offset-8 hover:decoration-[#1F3F34] transition-all">
           Review Audit Log
@@ -55,7 +55,7 @@ export const ProfileSideActions: React.FC<ProfileSideActionsProps> = ({ onLogout
 
       {/* Recent Activity */}
       <div className="p-4 px-8">
-        <h4 className="text-[10px] font-black uppercase text-[#1F3F34]/30 mb-8 tracking-[0.2em]">Recent Dossier Activity</h4>
+        <h4 className="text-[10px] font-black uppercase text-[#1F3F34]/30 mb-8 tracking-[0.2em]">Recent Activity</h4>
         <div className="space-y-8 relative">
           <div className="absolute left-[3px] top-2 bottom-2 w-[1px] bg-[#1F3F34]/10" />
           

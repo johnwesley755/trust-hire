@@ -171,7 +171,7 @@ export default function ProfilePage() {
               >
                 <span className="material-symbols-outlined">menu</span>
               </button>
-              <h1 className="text-xl font-extrabold text-[#1F3F34] tracking-tight">Worker Dossier</h1>
+              <h1 className="text-xl font-extrabold text-[#1F3F34] tracking-tight">Worker Profile</h1>
             </div>
             <div className="w-10 h-10 rounded-full bg-[#e9e8e3] overflow-hidden border-2 border-[#FACD15]">
               <img src={user?.profile_image_url || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200"} alt="Portrait" className="w-full h-full object-cover" />
@@ -232,7 +232,7 @@ export default function ProfilePage() {
           {/* Application Details */}
           <section className="bg-[#efeee9] rounded-lg p-5 border border-black/5">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xs font-black text-[#1F3F34] uppercase tracking-[0.2em]">Application Dossier</h3>
+              <h3 className="text-xs font-black text-[#1F3F34] uppercase tracking-[0.2em]">Application</h3>
               <button 
                 onClick={() => setIsMobileEditing(!isMobileEditing)} 
                 className="text-[#1F3F34]/60 hover:text-[#1F3F34] transition-colors"
@@ -411,7 +411,7 @@ export default function ProfilePage() {
             <span className="material-symbols-outlined text-[14px]">globe</span> 
             Identity & Professional Integrity
           </div>
-          <h1 className="text-3xl md:text-4xl font-black text-[#1F3F34] tracking-tight leading-none">Worker Dossier</h1>
+          <h1 className="text-3xl md:text-4xl font-black text-[#1F3F34] tracking-tight leading-none">Worker Profile</h1>
           <p className="text-[#414845]/60 font-medium text-sm">Control your verified credentials, status, and network presence.</p>
         </div>
 
@@ -471,7 +471,7 @@ export default function ProfilePage() {
         {/* Version Footer */}
         <div className="text-center pt-16">
           <p className="text-[10px] font-black text-[#1F3F34]/20 uppercase tracking-[0.3em]">
-            TrustHire Dossier System v2.5.2 • Encrypted Professional Network
+            TrustHire System v2.5.2 • Encrypted Professional Network
           </p>
         </div>
       </main>

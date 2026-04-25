@@ -41,7 +41,7 @@ export const ExpertiseMatrix: React.FC<ExpertiseMatrixProps> = ({ skills }) => {
             </motion.div>
           ))
         ) : (
-          <p className="text-sm font-bold text-[#1F3F34]/40 italic py-4">No skills registered in dossier.</p>
+          <p className="text-sm font-bold text-[#1F3F34]/40 italic py-4">No skills registered in your profile.</p>
         )}
       </div>
 

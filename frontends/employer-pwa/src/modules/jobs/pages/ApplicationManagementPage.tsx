@@ -271,7 +271,7 @@ export default function ApplicationManagementPage() {
                             onClick={() => navigate(`/worker/${app.workerId}`)}
                             className="w-full py-3 text-[10px] font-black uppercase tracking-widest text-[#1F3F34]/40 hover:text-[#1F3F34] transition-colors"
                           >
-                            View Full Dossier
+                            View Profile
                           </button>
                         </div>
                       </div>

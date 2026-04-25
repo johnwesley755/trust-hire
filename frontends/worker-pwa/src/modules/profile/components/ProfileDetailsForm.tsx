@@ -36,7 +36,7 @@ export const ProfileDetailsForm: React.FC<ProfileDetailsFormProps> = ({
     <section className="bg-white rounded-[2rem] p-8 lg:p-10 shadow-sm border border-[#1F3F34]/5">
       <h3 className="text-xl font-black text-[#1F3F34] mb-8 flex items-center gap-4">
         <span className="w-2.5 h-7 bg-[#FACD15] rounded-full shadow-[0_0_15px_rgba(250,205,21,0.5)]"></span>
-        Application Dossier
+        Application
       </h3>
 
       <div className="space-y-8">
@@ -155,7 +155,7 @@ export const ProfileDetailsForm: React.FC<ProfileDetailsFormProps> = ({
             ) : (
               <span className="material-symbols-outlined text-lg group-hover:rotate-12 transition-transform">save</span>
             )}
-            {isSaving ? "Synchronizing..." : "Update Dossier"}
+            {isSaving ? "Synchronizing..." : "Update Profile"}
           </button>
         </div>
       </div>
