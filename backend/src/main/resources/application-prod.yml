@@ -24,6 +24,12 @@ spring:
   flyway:
     enabled: false
 
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+
 server:
   port: ${PORT:8080}
   forward-headers-strategy: native

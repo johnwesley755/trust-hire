@@ -16,6 +16,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import org.springframework.core.env.Environment;
+import java.util.Arrays;
 import java.util.List;
 
 @Configuration
@@ -24,9 +26,12 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
+    private final Environment environment;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        boolean isDev = Arrays.asList(environment.getActiveProfiles()).contains("dev");
+
         http
             .csrf(AbstractHttpConfigurer::disable)
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
@@ -42,7 +47,15 @@ public class SecurityConfig {
                     "/api/auth/reset-password",
                     "/api/auth/webhooks/**",
                     "/ws/**"
-                ).permitAll()
+                ).permitAll());
+
+        if (isDev) {
+            http.authorizeHttpRequests(auth -> auth
+                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
+            );
+        }
+
+        http.authorizeHttpRequests(auth -> auth
                 // Internal service-to-service endpoints
                 .requestMatchers("/api/auth/internal/**").permitAll()
                 // Read-only public endpoints
