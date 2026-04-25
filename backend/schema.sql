@@ -233,6 +233,17 @@ CREATE INDEX IF NOT EXISTS idx_job_search_city ON job_search_index(city);
 CREATE INDEX IF NOT EXISTS idx_job_search_status ON job_search_index(status);
 
 -- Permissions
+CREATE TABLE IF NOT EXISTS support_tickets (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id VARCHAR(255),
+    subject VARCHAR(255) NOT NULL,
+    message TEXT NOT NULL,
+    status VARCHAR(20) DEFAULT 'OPEN',
+    priority VARCHAR(20) DEFAULT 'NORMAL',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO trusthire_user;
 GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO trusthire_user;
 
