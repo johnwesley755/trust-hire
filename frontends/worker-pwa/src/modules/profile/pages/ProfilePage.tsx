@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth, useUser } from "../../../core/providers/AuthContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useOutletContext } from "react-router-dom";
+import { useOutletContext, Link } from "react-router-dom";
 import { profileService, type WorkerProfile } from "../api/profile.service";
 import apiClient from "../../../core/api/apiClient";
 import { ProfileHeroCard } from "../components/ProfileHeroCard";
@@ -348,7 +348,7 @@ export default function ProfilePage() {
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-xs font-black text-[#1F3F34] uppercase tracking-[0.2em]">Expertise Matrix</h3>
               <span className="text-[10px] font-black text-[#FACD15] bg-[#1F3F34] px-2 py-0.5 rounded">
-                {profileForm.skills.split(',').filter(Boolean).length || 0} Skills
+                {(profileForm.skills || "").split(',').filter(Boolean).length || 0} Skills
               </span>
             </div>
             
@@ -364,7 +364,7 @@ export default function ProfilePage() {
               </div>
             ) : (
               <div className="flex flex-wrap gap-2">
-                {profile?.skills.split(',').filter(Boolean).map((skill, i) => (
+                {(profile?.skills || "").split(',').filter(Boolean).map((skill, i) => (
                   <span key={i} className="bg-[#e9e8e3] text-[#1F3F34] px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5">
                     <span className="material-symbols-outlined text-[14px]">
                       {skill.toLowerCase().includes('electric') ? 'electrical_services' : 
@@ -385,6 +385,13 @@ export default function ProfilePage() {
               <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>verified_user</span>
               Certification Vault
             </button>
+            <Link 
+              to="/settings"
+              className="w-full bg-white border-2 border-[#1F3F34]/5 text-[#1F3F34] h-14 rounded-lg flex items-center justify-center gap-3 font-extrabold uppercase tracking-widest text-sm active:scale-95 transition-transform"
+            >
+              <span className="material-symbols-outlined">settings</span>
+              Settings
+            </Link>
             <button 
               onClick={logout}
               className="w-full bg-[#efeee9] text-[#ba1a1a] h-14 rounded-lg flex items-center justify-center gap-3 font-bold uppercase tracking-widest text-[10px] active:scale-95 transition-transform"

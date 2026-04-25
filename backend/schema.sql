@@ -200,11 +200,20 @@ CREATE TABLE IF NOT EXISTS verification_records (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id VARCHAR(255) NOT NULL,
     doc_image_url TEXT,
-    live_image_url TEXT,
-    status VARCHAR(20) DEFAULT 'NONE',
-    confidence_score VARCHAR(50),
-    failure_reason TEXT,
+    verification_type VARCHAR(50),
+    status VARCHAR(50) DEFAULT 'PENDING',
+    verified_at TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS user_settings (
+    user_id VARCHAR(255) PRIMARY KEY,
+    email_notifications BOOLEAN DEFAULT true,
+    push_notifications BOOLEAN DEFAULT true,
+    marketing_emails BOOLEAN DEFAULT false,
+    theme VARCHAR(20) DEFAULT 'light',
+    language VARCHAR(10) DEFAULT 'en',
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -227,27 +236,18 @@ CREATE INDEX IF NOT EXISTS idx_job_search_status ON job_search_index(status);
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO trusthire_user;
 GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO trusthire_user;
 
--- Initial Seed Data: Admin User
-INSERT INTO user_metadata (
-    id,
-    email, 
-    password_hash, 
-    first_name, 
-    last_name, 
-    role, 
-    email_verified, 
-    onboarded, 
-    created_at, 
-    updated_at
-) VALUES (
-    gen_random_uuid(),
-    'johnwesley8113@gmail.com',
-    '$2b$12$ExN/8eD7fPFbW7XztNvCtO4cQ80HuT2QeCmm4IG9rhUDreFjdFzoW', -- demo@123
-    'Admin',
-    'User',
-    'ADMIN',
-    true,
-    true,
-    CURRENT_TIMESTAMP,
-    CURRENT_TIMESTAMP
-) ON CONFLICT (email) DO NOTHING;
+-- Initial Seed Data: Admin User & Profile
+DO $$
+DECLARE
+    admin_id UUID := '00000000-0000-0000-0000-000000000001';
+BEGIN
+    -- 1. Ensure Admin User exists
+    INSERT INTO user_metadata (id, email, password_hash, first_name, last_name, role, email_verified, onboarded)
+    VALUES (admin_id, 'johnwesley8113@gmail.com', '$2b$12$ExN/8eD7fPFbW7XztNvCtO4cQ80HuT2QeCmm4IG9rhUDreFjdFzoW', 'Admin', 'User', 'ADMIN', true, true)
+    ON CONFLICT (email) DO UPDATE SET id = EXCLUDED.id, role = 'ADMIN';
+
+    -- 2. Ensure Employer Profile exists for this Admin
+    INSERT INTO employer_profiles (id, user_id, company_name, industry, profile_bio, is_verified, business_tier)
+    VALUES (gen_random_uuid(), admin_id, 'TrustHire Admin', 'Technology', 'System Administrator for TrustHire platform.', true, 'ENTERPRISE')
+    ON CONFLICT (user_id) DO NOTHING;
+END $$;

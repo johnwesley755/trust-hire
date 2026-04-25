@@ -14,6 +14,7 @@ import OnboardingPage from '../modules/profile/pages/OnboardingPage.tsx';
 
 import { ActiveJobsPage } from '../modules/jobs/pages/ActiveJobsPage.tsx';
 import ProfilePage from '../modules/profile/pages/ProfilePage.tsx';
+import { SettingsPage } from '../modules/settings/pages/SettingsPage.tsx';
 
 import AppLayout from '../core/layouts/AppLayout.tsx';
 import RootLayout from '../core/layouts/RootLayout.tsx';
@@ -85,6 +86,10 @@ export const router = createBrowserRouter([
           {
             path: '/profile',
             element: <ProfilePage />,
+          },
+          {
+            path: '/settings',
+            element: <SettingsPage />,
           },
         ],
       },

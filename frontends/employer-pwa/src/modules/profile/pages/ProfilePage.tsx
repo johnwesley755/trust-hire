@@ -6,8 +6,9 @@ import apiClient from "../../../core/api/apiClient";
 import { 
     User, Mail, MapPin, Building2, LogOut, ShieldCheck, 
     Camera, Loader2, Globe, ExternalLink, 
-    Verified, X, Check, Briefcase
+    Verified, X, Check, Briefcase, Settings
 } from "lucide-react";
+import { Link } from 'react-router-dom';
 
 export default function ProfilePage() {
     const { logout } = useAuth();
@@ -79,6 +80,9 @@ export default function ProfilePage() {
             <header className="sticky top-0 z-40 bg-[#F5F4EF]/80 backdrop-blur-xl border-b border-[#EFEEE9] px-6 py-4 flex justify-between items-center">
                 <h2 className="text-xl font-black text-[#1F3F34] tracking-tight">Enterprise Identity</h2>
                 <div className="flex items-center gap-4">
+                    <Link to="/settings" className="text-[#1F3F34]/60 hover:text-[#FACD15] transition-colors p-2 rounded-full hover:bg-white">
+                        <Settings className="w-5 h-5" />
+                    </Link>
                     <button onClick={logout} className="text-[#1F3F34]/60 hover:text-red-600 transition-colors p-2 rounded-full hover:bg-red-50">
                         <LogOut className="w-5 h-5" />
                     </button>
@@ -161,10 +165,18 @@ export default function ProfilePage() {
                             >
                                 Update Profile
                             </button>
+                            <Link 
+                                to="/settings"
+                                className="bg-white text-[#1F3F34] px-8 py-3.5 rounded-2xl font-black uppercase text-xs tracking-widest border-2 border-[#1F3F34]/5 hover:border-[#FACD15] transition-all active:scale-95 flex items-center gap-2"
+                            >
+                                <Settings className="w-4 h-4" />
+                                Settings
+                            </Link>
                             <button 
                                 onClick={logout}
-                                className="text-[#1F3F34]/60 hover:text-[#1F3F34] px-8 py-3.5 rounded-2xl font-black uppercase text-xs tracking-widest border-2 border-[#1F3F34]/5 hover:border-[#1F3F34]/20 transition-all active:scale-95"
+                                className="text-[#1F3F34]/60 hover:text-[#1F3F34] px-8 py-3.5 rounded-2xl font-black uppercase text-xs tracking-widest border-2 border-[#1F3F34]/5 hover:border-[#1F3F34]/20 transition-all active:scale-95 flex items-center gap-2"
                             >
+                                <LogOut className="w-4 h-4" />
                                 Sign Out
                             </button>
                         </div>

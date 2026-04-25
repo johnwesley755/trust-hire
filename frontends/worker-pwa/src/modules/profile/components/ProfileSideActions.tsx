@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 interface ProfileSideActionsProps {
   onLogout: () => void;
@@ -16,6 +17,13 @@ export const ProfileSideActions: React.FC<ProfileSideActionsProps> = ({ onLogout
             <span className="material-symbols-outlined text-lg">verified_user</span>
             Certification Vault
           </button>
+          <Link 
+            to="/settings"
+            className="w-full py-4.5 bg-white border-2 border-[#1F3F34]/5 text-[#1F3F34] rounded-2xl font-black uppercase text-[10px] tracking-widest flex items-center justify-center gap-3 hover:border-[#FACD15] active:scale-95 transition-all"
+          >
+            <span className="material-symbols-outlined text-lg">settings</span>
+            Settings
+          </Link>
           <button 
             onClick={onLogout}
             className="w-full py-4.5 bg-[#F5F4EF] text-[#1F3F34]/60 rounded-2xl font-black uppercase text-[10px] tracking-widest flex items-center justify-center gap-3 hover:bg-[#E9E8E3] hover:text-[#1F3F34] active:scale-95 transition-all"

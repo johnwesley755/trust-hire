@@ -20,7 +20,19 @@ export interface WorkerProfile {
 export const profileService = {
   getProfile: async (): Promise<WorkerProfile> => {
     const response = await apiClient.get<WorkerProfile>('/api/worker/profile');
-    return response.data;
+    const data = response.data;
+    return {
+      ...data,
+      fullName: data.fullName || '',
+      bio: data.bio || '',
+      skills: data.skills || '',
+      location: data.location || '',
+      city: data.city || '',
+      address: data.address || '',
+      level: data.level || '1',
+      experienceYears: data.experienceYears || 0,
+      hourlyRate: data.hourlyRate || 0
+    };
   },
 
   updateProfile: async (updates: Partial<WorkerProfile>): Promise<WorkerProfile> => {
