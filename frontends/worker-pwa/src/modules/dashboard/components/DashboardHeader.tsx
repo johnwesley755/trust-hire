@@ -13,7 +13,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({ onMenuClick, c
   const navigate = useNavigate();
 
   return (
-    <header className={`fixed top-0 right-0 left-0 lg:left-72 h-16 glass-header bg-[#F5F4EF]/80 backdrop-blur-md flex justify-between items-center px-4 md:px-8 z-30 border-b border-[#1F3F34]/5 transition-all ${className || ''}`}>
+    <header className={`sticky top-0 right-0 left-0 h-16 glass-header bg-[#F5F4EF]/80 backdrop-blur-md flex justify-between items-center px-4 md:px-8 z-30 border-b border-[#1F3F34]/5 transition-all ${className || ''}`}>
       <div className="flex items-center gap-4">
         <button 
           onClick={onMenuClick}

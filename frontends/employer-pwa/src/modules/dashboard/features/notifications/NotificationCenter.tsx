@@ -64,7 +64,7 @@ export const NotificationCenter = () => {
         if (t === 'NEW_APPLICATION') {
             navigate('/applications');
         } else if (t === 'JOB_CREATED') {
-            navigate('/my-active-jobs');
+            navigate('/applications');
         } else if (t === 'WELCOME') {
             navigate('/profile');
         }

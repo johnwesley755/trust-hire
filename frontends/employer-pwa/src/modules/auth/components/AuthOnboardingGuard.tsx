@@ -17,8 +17,10 @@ export const AuthOnboardingGuard = ({ children }: { children: React.ReactNode })
       if (syncStarted.current) return;
 
       if (isSignedIn && user) {
+        const isLocalOnboarded = user.onboarded || localStorage.getItem('onboarded') === 'true';
+
         // If local user is already marked onboarded, we can skip the remote sync
-        if (user.onboarded && user.identity_verified) {
+        if (isLocalOnboarded) {
           setIsOnboarded(true);
           setLoading(false);
           return;

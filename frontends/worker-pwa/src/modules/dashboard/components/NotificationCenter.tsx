@@ -62,7 +62,7 @@ export const NotificationCenter = () => {
 
         const t = n.type?.toUpperCase();
         if (t === 'APPLICATION_SUBMITTED' || t === 'APPLICATION_UPDATE') {
-            navigate('/applications');
+            navigate('/applied-jobs');
         } else if (t === 'NEW_JOB' || t === 'JOB_MATCH') {
             navigate('/jobs');
         } else if (t === 'WELCOME') {

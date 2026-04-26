@@ -23,7 +23,7 @@ export default function AppLayout() {
           onMenuClick={() => setIsSidebarOpen(true)} 
           className={hideHeaderOnMobile ? 'hidden lg:flex' : 'flex'}
         />
-        <main className={`flex-1 lg:pl-72 transition-all duration-300 ${!hideHeaderOnMobile ? 'pt-16' : 'pt-0 lg:pt-16'}`}>
+        <main className="flex-1 transition-all duration-300">
           <Outlet context={{ setIsSidebarOpen }} />
         </main>
       </div>

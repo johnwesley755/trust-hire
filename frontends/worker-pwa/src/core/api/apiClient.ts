@@ -26,10 +26,9 @@ export const setupInterceptors = (getToken: () => Promise<string | null>) => {
   });
 };
 
-// Response interceptor to unwrap ApiResponse
+// Response interceptor to unwrap ApiResponse and handle 401s
 apiClient.interceptors.response.use(
   (response) => {
-    // If it's a success response and has the ApiResponse structure
     if (response.data && typeof response.data === 'object' && 'success' in response.data && 'data' in response.data) {
       if (response.data.success) {
         return { ...response, data: response.data.data };
@@ -40,6 +39,10 @@ apiClient.interceptors.response.use(
     return response;
   },
   (error) => {
+    if (error.response?.status === 401) {
+      // Dispatch custom event for session expiry
+      window.dispatchEvent(new CustomEvent('auth:expired'));
+    }
     return Promise.reject(error);
   }
 );

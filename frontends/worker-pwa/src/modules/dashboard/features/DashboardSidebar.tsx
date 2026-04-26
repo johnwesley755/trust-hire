@@ -19,7 +19,6 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ isOpen, onCl
         { name: t('sidebar.findJobs'), icon: 'search', path: '/search' },
         { name: 'Applied Jobs', icon: 'work_history', path: '/applied-jobs' },
         { name: t('sidebar.skillTests'), icon: 'psychology', path: '/tests' },
-        // { name: t('sidebar.levelDetails'), icon: 'military_tech', path: '/level' },
         { name: t('sidebar.profile'), icon: 'person', path: '/profile' },
     ];
 
@@ -36,8 +35,8 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ isOpen, onCl
 
     return (
         <>
-            {/* Desktop Sidebar (Fixed) */}
-            <aside className="hidden lg:flex fixed left-0 top-0 h-full w-72 z-40 shadow-[0_20px_40px_-10px_rgba(31,63,52,0.08)]">
+            {/* Desktop Sidebar (Sticky - takes up space in flow) */}
+            <aside className="hidden lg:flex sticky top-0 left-0 h-screen w-72 shrink-0 z-40 bg-[#1F3F34] shadow-[0_20px_40px_-10px_rgba(31,63,52,0.08)]">
                 <SidebarContent 
                   menuItems={menuItems} 
                   accountItems={accountItems} 
@@ -94,7 +93,7 @@ interface SidebarContentProps {
 const SidebarContent = ({ menuItems, accountItems, onNavigate, onLogout, currentPath }: SidebarContentProps) => {
     const navigate = useNavigate();
     return (
-        <div className="flex flex-col h-full bg-[#1F3F34] dark:bg-[#002117] p-6 text-[#F5F4EF]/70 overflow-y-auto no-scrollbar">
+        <div className="flex flex-col h-full w-full bg-[#1F3F34] dark:bg-[#002117] p-6 text-[#F5F4EF]/70 overflow-y-auto no-scrollbar">
             {/* Branding */}
             <div className="mb-10 px-4 group cursor-pointer" onClick={() => navigate('/')}>
                 <h1 className="text-xl font-black text-[#FACD15] tracking-tight transition-all group-hover:scale-105">TrustHire</h1>

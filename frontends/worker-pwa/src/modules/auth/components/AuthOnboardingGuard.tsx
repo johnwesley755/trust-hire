@@ -17,8 +17,11 @@ export const AuthOnboardingGuard = ({ children }: { children: React.ReactNode })
       if (syncStarted.current) return;
 
       if (isSignedIn && user) {
-        // If we already know the user is fully verified, skip sync
-        if (user.onboarded && user.identityVerified) {
+        const isLocalOnboarded = user.onboarded || localStorage.getItem('onboarded') === 'true';
+        const isLocalIdentityVerified = user.identity_verified || false;
+
+        // If we have both onboarded and identity_verified locally, we can skip sync
+        if (isLocalOnboarded && isLocalIdentityVerified) {
           setIsOnboarded(true);
           setLoading(false);
           return;
