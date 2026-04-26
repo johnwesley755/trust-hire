@@ -23,6 +23,7 @@ public class JobApplicationServiceImpl implements JobApplicationService {
 
     private final JobApplicationRepository applicationRepository;
     private final JobRepository jobRepository;
+    private final com.trusthire.service.ActivityService activityService;
 
     @Override
     @Transactional
@@ -45,7 +46,17 @@ public class JobApplicationServiceImpl implements JobApplicationService {
                 .status(JobApplication.ApplicationStatus.PENDING)
                 .build();
         
-        return applicationRepository.save(application);
+        JobApplication saved = applicationRepository.save(application);
+
+        // Log Activity for Employer
+        activityService.logActivity(
+            job.getEmployerId(),
+            "APPLICATION_RECEIVED",
+            "New application received for: " + job.getTitle(),
+            saved.getId().toString()
+        );
+
+        return saved;
     }
 
     @Override
@@ -93,6 +104,21 @@ public class JobApplicationServiceImpl implements JobApplicationService {
         }
 
         application.setStatus(status);
-        return applicationRepository.save(application);
+        JobApplication saved = applicationRepository.save(application);
+
+        // Log Activity for Employer
+        String activityType = status == JobApplication.ApplicationStatus.ACCEPTED ? "HIRED" : "APPLICATION_UPDATED";
+        String activityDesc = status == JobApplication.ApplicationStatus.ACCEPTED ? 
+            "Approved application for: " + job.getTitle() : 
+            "Rejected application for: " + job.getTitle();
+
+        activityService.logActivity(
+            userId,
+            activityType,
+            activityDesc,
+            saved.getId().toString()
+        );
+
+        return saved;
     }
 }

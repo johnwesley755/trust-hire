@@ -26,6 +26,7 @@ public class JobServiceImpl implements JobService {
     private final JobApplicationRepository applicationRepository;
     private final SearchService searchService;
     private final NotificationSenderService notificationSenderService;
+    private final com.trusthire.service.ActivityService activityService;
 
     @Override
     @Transactional
@@ -40,6 +41,14 @@ public class JobServiceImpl implements JobService {
             "Job Posted!",
             "Your job '" + saved.getTitle() + "' is now live and visible to workers.",
             "JOB_CREATED"
+        );
+
+        // Log Activity
+        activityService.logActivity(
+            employerId,
+            "JOB_POSTED",
+            "Posted a new job: " + saved.getTitle(),
+            saved.getId().toString()
         );
 
         return saved;

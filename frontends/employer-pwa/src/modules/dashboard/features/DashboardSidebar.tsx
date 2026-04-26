@@ -1,6 +1,8 @@
 import { useUser, useAuth } from "../../../core/providers/AuthContext";
 import { NotificationCenter } from './notifications/NotificationCenter';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { profileService } from '../../profile/api/profile.service';
 
 const menuItems = [
     { name: 'Dashboard', icon: 'dashboard', path: '/dashboard' },
@@ -21,6 +23,11 @@ export const DashboardSidebar = ({ isOpen, onClose }: { isOpen: boolean, onClose
     const { logout } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
+
+    const { data: profile } = useQuery({
+        queryKey: ['employerProfile'],
+        queryFn: profileService.getProfile,
+    });
 
     return (
         <>
@@ -99,7 +106,7 @@ export const DashboardSidebar = ({ isOpen, onClose }: { isOpen: boolean, onClose
                         <img 
                             alt="Employer" 
                             className="w-full h-full object-cover" 
-                            src={user?.profileImageUrl || "https://lh3.googleusercontent.com/aida-public/AB6AXuDB2IKihz2HBZd0YvzOOsCbtLo2SulU29Gl-66RaZ0YJu1cPL1c7gEIXDzmFS_blQp7DPx_68dl8H8Rt20b8QV8REGIk7AxmnYfhBUb6WOrdtxG8i2Xo6zbzCdHGAHY2f30l-mNztw8qHinR7O6zvr9OPtlVVb-zP_nlaG7GdSfLcvCMR4--5niBM_iua3ZjqJgXGdCfo0ke2z11Rnm8ykPyZxOftXvcLXMAJ6Sw6aEOQGXOP9afmh9Wj8ywyc9hayr3MG-fwARVAQ"}
+                            src={profile?.profileImageUrl || user?.profileImageUrl || "https://lh3.googleusercontent.com/aida-public/AB6AXuDB2IKihz2HBZd0YvzOOsCbtLo2SulU29Gl-66RaZ0YJu1cPL1c7gEIXDzmFS_blQp7DPx_68dl8H8Rt20b8QV8REGIk7AxmnYfhBUb6WOrdtxG8i2Xo6zbzCdHGAHY2f30l-mNztw8qHinR7O6zvr9OPtlVVb-zP_nlaG7GdSfLcvCMR4--5niBM_iua3ZjqJgXGdCfo0ke2z11Rnm8ykPyZxOftXvcLXMAJ6Sw6aEOQGXOP9afmh9Wj8ywyc9hayr3MG-fwARVAQ"}
                         />
                     </div>
                     <div className="flex flex-col truncate flex-1 pr-2">

@@ -55,7 +55,7 @@ export default function ApplicationManagementPage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
         <Loader2 className="w-12 h-12 text-[#1F3F34] animate-spin" />
-        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#1F3F34]/30">Syncing Pipeline...</p>
+        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#1F3F34]/30">Syncing...</p>
       </div>
     );
   }
@@ -74,7 +74,7 @@ export default function ApplicationManagementPage() {
             <div className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
               <div className="space-y-4">
                 <h1 className="text-4xl md:text-5xl font-black text-[#1F3F34] tracking-tighter leading-none">
-                  Workforce Pipeline
+                  Applications
                 </h1>
                 <p className="text-[#1F3F34]/60 max-w-xl font-medium leading-relaxed">
                   You have {jobs?.length || 0} active roles currently accepting applications. Real-time updates on candidate activity are reflected below.
@@ -149,7 +149,7 @@ export default function ApplicationManagementPage() {
                 </div>
                 <h4 className="text-xl font-black text-[#1F3F34] mb-2 tracking-tight">Create Opening</h4>
                 <p className="text-[10px] font-black uppercase tracking-widest text-[#1F3F34]/30 max-w-[180px]">
-                  Add a new role to your workforce pipeline
+                  Add a new role
                 </p>
               </motion.div>
             </div>
@@ -167,7 +167,7 @@ export default function ApplicationManagementPage() {
               className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#1F3F34]/40 hover:text-[#1F3F34] transition-colors mb-8 group"
             >
               <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-              Back to Pipeline
+              Back
             </button>
 
             <div className="mb-12">
@@ -286,7 +286,7 @@ export default function ApplicationManagementPage() {
                     <User className="w-10 h-10 text-[#1F3F34]/10" />
                   </div>
                   <div className="space-y-2">
-                    <h3 className="text-2xl font-black text-[#1F3F34] tracking-tight">Pipeline Empty</h3>
+                    <h3 className="text-2xl font-black text-[#1F3F34] tracking-tight">No Applications</h3>
                     <p className="text-[10px] font-black uppercase tracking-widest text-[#1F3F34]/30 max-w-xs mx-auto">
                       No professionals have applied for this specific tactical role yet.
                     </p>

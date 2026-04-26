@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { applicationService } from "../../jobs/api/application.service";
 import { workerService } from "../../search/api/worker.service";
 import { Loader2 } from "lucide-react";
+import apiClient from "../../../core/api/apiClient";
 
 export default function DashboardPage() {
     const { user } = useUser();
@@ -24,6 +25,14 @@ export default function DashboardPage() {
         queryFn: () => applicationService.getApplicationsForEmployerJobs([]) // This is a placeholder, in real app we'd pass jobIds
     });
 
+    const { data: activities = [], isLoading: activitiesLoading } = useQuery({
+        queryKey: ['recent-activities'],
+        queryFn: async () => {
+            const res = await apiClient.get('/api/activities/recent?limit=5');
+            return res.data.data;
+        }
+    });
+
     const workerIds = [...new Set(applications.map(app => app.workerId))];
     const { data: workers = [], isLoading: workersLoading } = useQuery({
         queryKey: ['workers-mobile', workerIds],
@@ -33,7 +42,7 @@ export default function DashboardPage() {
 
     const workersById = new Map(workers.map(w => [w.userId, w]));
 
-    if (appsLoading || workersLoading) {
+    if (appsLoading || workersLoading || activitiesLoading) {
         return (
             <div className="flex-1 flex items-center justify-center bg-[#F5F4EF]">
                 <Loader2 className="w-8 h-8 animate-spin text-[#1F3F34]" />
@@ -135,29 +144,37 @@ export default function DashboardPage() {
                             })}
                         </section>
 
-                        {/* Mobile Today's Schedule */}
+                        {/* Mobile Recent Activity */}
                         <section className="space-y-4">
-                            <h3 className="font-bold text-xl text-brand-secondary px-2">Today's Schedule</h3>
+                            <h3 className="font-bold text-xl text-brand-secondary px-2">Recent Activity</h3>
                             <div className="bg-surface-container rounded-4xl p-4 space-y-3">
-                                {[
-                                    { time: '10:30', period: 'AM', name: 'Arjun Sharma', type: 'Video Call Interview', icon: 'videocam', border: 'border-[#FACD15]' },
-                                    { time: '02:00', period: 'PM', name: 'Hiring Review', type: 'Team Internal Sync', icon: 'groups', border: 'border-[#456559]' }
-                                ].map((item, i) => (
-                                    <div key={i} className={`flex items-center gap-4 bg-white p-4 rounded-3xl border-l-4 ${item.border} shadow-sm`}>
-                                        <div className="text-center min-w-[50px]">
-                                            <div className="text-[11px] font-bold text-secondary uppercase leading-tight">{item.time}</div>
-                                            <div className="text-[11px] font-bold text-secondary/50 uppercase leading-tight">{item.period}</div>
-                                        </div>
-                                        <div className="h-8 w-px bg-[#e3e3de]/50"></div>
-                                        <div>
-                                            <div className="font-bold text-sm text-brand-secondary">{item.name}</div>
-                                            <div className="flex items-center gap-1 mt-1">
-                                                <span className="material-symbols-outlined text-[14px] text-secondary">{item.icon}</span>
-                                                <span className="text-[10px] font-medium text-secondary/70">{item.type}</span>
+                                {activities.length > 0 ? (
+                                    activities.map((activity, i) => (
+                                        <div key={i} className={`flex items-center gap-4 bg-white p-4 rounded-3xl border-l-4 ${i % 2 === 0 ? 'border-[#FACD15]' : 'border-[#456559]'} shadow-sm`}>
+                                            <div className="text-center min-w-[50px]">
+                                                <div className="text-[11px] font-bold text-secondary uppercase leading-tight">
+                                                    {new Date(activity.createdAt).toLocaleDateString()}
+                                                </div>
+                                            </div>
+                                            <div className="h-8 w-px bg-[#e3e3de]/50"></div>
+                                            <div>
+                                                <div className="font-bold text-sm text-brand-secondary">{activity.description}</div>
+                                                <div className="flex items-center gap-1 mt-1">
+                                                    <span className="material-symbols-outlined text-[14px] text-secondary">
+                                                        {activity.type === 'JOB_POSTED' ? 'add_circle' : 
+                                                         activity.type === 'APPLICATION_RECEIVED' ? 'description' : 
+                                                         activity.type === 'HIRED' ? 'verified_user' : 'history'}
+                                                    </span>
+                                                    <span className="text-[10px] font-medium text-secondary/70">{activity.type.replace('_', ' ')}</span>
+                                                </div>
                                             </div>
                                         </div>
+                                    ))
+                                ) : (
+                                    <div className="bg-white p-8 rounded-3xl text-center border border-black/3 shadow-sm">
+                                        <p className="text-xs font-bold text-secondary/40 uppercase tracking-widest">No recent activity</p>
                                     </div>
-                                ))}
+                                )}
                             </div>
                         </section>
 
@@ -265,31 +282,39 @@ export default function DashboardPage() {
                                 </button>
                             </div>
 
-                            {/* Upcoming Interviews */}
+                            {/* Recent Activity */}
                             <div className="bg-white rounded-3xl p-6 border border-[#EFEEE9] shadow-sm">
                                 <div className="flex justify-between items-center mb-6 px-1">
-                                    <h4 className="text-[10px] font-bold text-[#1F3F34]/40 uppercase tracking-widest">Today's Schedule</h4>
-                                    <span className="w-2 h-2 bg-red-500 rounded-full"></span>
+                                    <h4 className="text-[10px] font-bold text-[#1F3F34]/40 uppercase tracking-widest">Recent Activity</h4>
+                                    <span className="w-2 h-2 bg-[#FACD15] rounded-full animate-pulse"></span>
                                 </div>
                                 <div className="space-y-4">
-                                    {[
-                                        { time: '10:30 AM', name: 'Arjun Verma', pos: 'Floor Supervisor', icon: 'person' },
-                                        { time: '02:00 PM', name: 'Sita Ram', pos: 'Delivery Fleet', icon: 'person' },
-                                        { time: '04:15 PM', name: 'Raj Kumar', pos: 'Warehousing', icon: 'person' }
-                                    ].map((interview, i) => (
-                                        <div key={i} className="flex items-center gap-4 p-3 rounded-2xl border border-dashed border-[#EFEEE9] group hover:border-[#FACD15] transition-colors cursor-pointer">
-                                            <div className="w-10 h-10 rounded-full bg-[#EFEEE9] flex items-center justify-center group-hover:bg-[#FACD15]/10 transition-colors">
-                                                <span className="material-symbols-outlined text-[#1F3F34]/40 group-hover:text-[#1F3F34]">{interview.icon}</span>
+                                    {activities.length > 0 ? (
+                                        activities.map((activity, i) => (
+                                            <div key={i} className="flex items-start gap-4 p-3 rounded-2xl border border-dashed border-[#EFEEE9] group hover:border-[#FACD15] transition-colors cursor-pointer">
+                                                <div className="w-10 h-10 rounded-xl bg-[#EFEEE9]/50 flex items-center justify-center group-hover:bg-[#FACD15]/10 transition-colors shrink-0">
+                                                    <span className="material-symbols-outlined text-[#1F3F34]/40 group-hover:text-[#1F3F34]">
+                                                        {activity.type === 'JOB_POSTED' ? 'add_circle' : 
+                                                         activity.type === 'APPLICATION_RECEIVED' ? 'description' : 
+                                                         activity.type === 'HIRED' ? 'verified_user' : 'history'}
+                                                    </span>
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="text-[10px] font-bold text-[#1F3F34]/40 uppercase tracking-widest">
+                                                        {new Date(activity.createdAt).toLocaleDateString()}
+                                                    </p>
+                                                    <p className="text-xs font-black text-[#1F3F34] leading-tight mb-1">{activity.description}</p>
+                                                    <p className="text-[9px] font-bold text-[#1F3F34]/30 uppercase tracking-tighter">{activity.type.replace('_', ' ')}</p>
+                                                </div>
                                             </div>
-                                            <div className="flex-1 min-w-0">
-                                                <p className="text-[10px] font-bold text-[#1F3F34]/40 uppercase tracking-widest">{interview.time}</p>
-                                                <p className="text-xs font-black text-[#1F3F34] truncate">{interview.name}</p>
-                                                <p className="text-[9px] font-bold text-[#1F3F34]/30 uppercase tracking-tighter">{interview.pos}</p>
-                                            </div>
+                                        ))
+                                    ) : (
+                                        <div className="text-center py-8">
+                                            <p className="text-[10px] font-bold text-[#1F3F34]/20 uppercase tracking-widest">No recent activity</p>
                                         </div>
-                                    ))}
+                                    )}
                                     <button className="w-full py-3 text-[10px] font-bold text-[#1F3F34]/40 uppercase tracking-widest hover:text-[#1F3F34] transition-colors">
-                                        View Full Calendar
+                                        View All Logs
                                     </button>
                                 </div>
                             </div>
