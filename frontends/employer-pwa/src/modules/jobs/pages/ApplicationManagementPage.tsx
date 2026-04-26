@@ -58,7 +58,7 @@ export default function ApplicationManagementPage() {
         <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#1F3F34]/30">Syncing...</p>
       </div>
     );
-  }
+  } 
 
   return (
     <main className="min-h-screen bg-[#F5F4EF] p-4 md:p-8 lg:p-12">

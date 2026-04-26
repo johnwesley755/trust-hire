@@ -12,6 +12,8 @@ import { useState, useEffect } from 'react';
 import { StatsSection } from '../components/StatsSection';
 import { JobBentoCard, FeaturedJobCard } from '../components/JobBentoCard';
 import { ProgressSidePanel } from '../components/ProgressSidePanel';
+import { Loader2 } from 'lucide-react';
+import apiClient from '../../../core/api/apiClient';
 
 export default function DashboardPage() {
   const navigate = useNavigate();
@@ -58,6 +60,14 @@ export default function DashboardPage() {
     staleTime: 60000,
   });
 
+  const { data: activities = [], isLoading: activitiesLoading } = useQuery({
+    queryKey: ['recent-activities'],
+    queryFn: async () => {
+        const res = await apiClient.get('/api/activities/recent?limit=5');
+        return res.data;
+    }
+  });
+
   const appliedJobIds = new Set(myApplications.map((app) => app.jobId));
   console.log('Jobs with applications:', appliedJobIds.size);
 
@@ -65,6 +75,7 @@ export default function DashboardPage() {
     ? jobs.map((job) => ({
         id: job.jobId,
         title: job.title,
+        description: job.description,
         location: job.location,
         budget: Number(job.budget),
         industry: job.industry,
@@ -76,6 +87,7 @@ export default function DashboardPage() {
         .map((job) => ({
           id: job.id || '',
           title: job.title,
+          description: job.description,
           location: job.city || job.address || job.location,
           budget: Number(job.budget),
           industry: job.industry,
@@ -132,6 +144,7 @@ export default function DashboardPage() {
                 <FeaturedJobCard 
                   job={visibleJobs[0]} 
                   onApply={() => navigate(`/job/${visibleJobs[0].id}`)} 
+                  onClick={() => navigate(`/job/${visibleJobs[0].id}`)} 
                 />
                 {/* Remaining Jobs as Bento Cards */}
                 {visibleJobs.slice(1).map((job) => (
@@ -139,6 +152,7 @@ export default function DashboardPage() {
                     key={job.id} 
                     job={job} 
                     onApply={() => navigate(`/job/${job.id}`)} 
+                    onClick={() => navigate(`/job/${job.id}`)} 
                   />
                 ))}
               </>
@@ -179,6 +193,46 @@ export default function DashboardPage() {
         {/* Right Sidebar: Progress & Actions */}
         <div className="lg:col-span-4 sticky top-24 space-y-6">
           <ProgressSidePanel level={profile?.level} progress={75} />
+          
+          {/* Recent Activity Card */}
+          <div className="bg-white rounded-[2rem] p-6 border border-[#EFEEE9] shadow-sm">
+            <div className="flex justify-between items-center mb-6 px-1">
+              <h4 className="text-[10px] font-bold text-[#1F3F34]/40 uppercase tracking-widest">Recent Activity</h4>
+              <span className="w-2 h-2 bg-[#FACD15] rounded-full animate-pulse"></span>
+            </div>
+            <div className="space-y-4">
+              {activitiesLoading ? (
+                <div className="flex justify-center py-8">
+                  <Loader2 className="w-6 h-6 animate-spin text-[#1F3F34]/20" />
+                </div>
+              ) : activities.length > 0 ? (
+                activities.map((activity: any, i: number) => (
+                  <div key={i} className="flex items-start gap-4 p-3 rounded-2xl border border-dashed border-[#EFEEE9] group hover:border-[#FACD15] transition-colors cursor-pointer">
+                    <div className="w-10 h-10 rounded-xl bg-[#EFEEE9]/50 flex items-center justify-center group-hover:bg-[#FACD15]/10 transition-colors shrink-0">
+                      <span className="material-symbols-outlined text-[#1F3F34]/40 group-hover:text-[#1F3F34]">
+                        {activity.type === 'JOB_APPLIED' ? 'description' : 
+                         activity.type === 'APPLICATION_STATUS_CHANGED' ? 'notifications_active' : 'history'}
+                      </span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[10px] font-bold text-[#1F3F34]/40 uppercase tracking-widest">
+                        {new Date(activity.createdAt).toLocaleDateString()}
+                      </p>
+                      <p className="text-xs font-black text-[#1F3F34] leading-tight mb-1">{activity.description}</p>
+                      <p className="text-[9px] font-bold text-[#1F3F34]/30 uppercase tracking-tighter">{activity.type.replace('_', ' ')}</p>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-[10px] font-bold text-[#1F3F34]/20 uppercase tracking-widest">No recent activity</p>
+                </div>
+              )}
+              <button className="w-full py-3 text-[10px] font-bold text-[#1F3F34]/40 uppercase tracking-widest hover:text-[#1F3F34] transition-colors">
+                View All Activity
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

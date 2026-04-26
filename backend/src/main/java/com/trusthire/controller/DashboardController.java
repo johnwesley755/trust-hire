@@ -49,6 +49,8 @@ public class DashboardController {
         
         stats.put("activeJobs", jobRepository.countByEmployerIdAndStatus(userId, Job.JobStatus.OPEN));
         stats.put("totalApplicants", applicationRepository.countByJobEmployerId(userId));
+        stats.put("interviewingCount", applicationRepository.countByJobEmployerIdAndStatus(userId, com.trusthire.entity.JobApplication.ApplicationStatus.REVIEWING));
+        stats.put("totalHired", applicationRepository.countByJobEmployerIdAndStatus(userId, com.trusthire.entity.JobApplication.ApplicationStatus.ACCEPTED));
         stats.put("unreadNotifications", notificationRepository.countByUserIdAndIsReadFalse(userId));
 
         return ResponseEntity.ok(ApiResponse.ok("Employer stats fetched", stats));

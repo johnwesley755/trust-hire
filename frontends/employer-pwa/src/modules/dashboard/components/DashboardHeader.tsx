@@ -1,10 +1,17 @@
 import { useUser } from "../../../core/providers/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { NotificationCenter } from "../features/notifications/NotificationCenter";
+import { useQuery } from "@tanstack/react-query";
+import { profileService } from "../../profile/api/profile.service";
 
 export const DashboardHeader = () => {
     const { user } = useUser();
     const navigate = useNavigate();
+
+    const { data: profile } = useQuery({
+        queryKey: ['employerProfile'],
+        queryFn: profileService.getProfile,
+    });
 
     return (
         <header className="sticky top-0 w-full z-30 bg-white/80 backdrop-blur-md flex justify-between items-center px-8 py-4 border-b border-[#EFEEE9]">
@@ -32,7 +39,7 @@ export const DashboardHeader = () => {
                         <img 
                             alt="Admin" 
                             className="w-full h-full object-cover" 
-                            src={user?.profileImageUrl || "https://lh3.googleusercontent.com/aida-public/AB6AXuDB2IKihz2HBZd0YvzOOsCbtLo2SulU29Gl-66RaZ0YJu1cPL1c7gEIXDzmFS_blQp7DPx_68dl8H8Rt20b8QV8REGIk7AxmnYfhBUb6WOrdtxG8i2Xo6zbzCdHGAHY2f30l-mNztw8qHinR7O6zvr9OPtlVVb-zP_nlaG7GdSfLcvCMR4--5niBM_iua3ZjqJgXGdCfo0ke2z11Rnm8ykPyZxOftXvcLXMAJ6Sw6aEOQGXOP9afmh9Wj8ywyc9hayr3MG-fwARVAQ"}
+                            src={profile?.profileImageUrl || user?.profileImageUrl || "https://lh3.googleusercontent.com/aida-public/AB6AXuDB2IKihz2HBZd0YvzOOsCbtLo2SulU29Gl-66RaZ0YJu1cPL1c7gEIXDzmFS_blQp7DPx_68dl8H8Rt20b8QV8REGIk7AxmnYfhBUb6WOrdtxG8i2Xo6zbzCdHGAHY2f30l-mNztw8qHinR7O6zvr9OPtlVVb-zP_nlaG7GdSfLcvCMR4--5niBM_iua3ZjqJgXGdCfo0ke2z11Rnm8ykPyZxOftXvcLXMAJ6Sw6aEOQGXOP9afmh9Wj8ywyc9hayr3MG-fwARVAQ"}
                         />
                     </button>
                 </div>

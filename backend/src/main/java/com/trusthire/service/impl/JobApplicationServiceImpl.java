@@ -56,6 +56,14 @@ public class JobApplicationServiceImpl implements JobApplicationService {
             saved.getId().toString()
         );
 
+        // Log Activity for Worker
+        activityService.logActivity(
+            workerId,
+            "JOB_APPLIED",
+            "Applied for job: " + job.getTitle(),
+            saved.getId().toString()
+        );
+
         return saved;
     }
 
@@ -116,6 +124,15 @@ public class JobApplicationServiceImpl implements JobApplicationService {
             userId,
             activityType,
             activityDesc,
+            saved.getId().toString()
+        );
+
+        // Log Activity for Worker
+        String workerActivityDesc = "Your application for '" + job.getTitle() + "' was marked as " + status.name();
+        activityService.logActivity(
+            application.getWorkerId(),
+            "APPLICATION_STATUS_CHANGED",
+            workerActivityDesc,
             saved.getId().toString()
         );
 

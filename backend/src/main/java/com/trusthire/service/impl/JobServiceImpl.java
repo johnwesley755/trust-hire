@@ -7,6 +7,8 @@ import com.trusthire.exception.UnauthorizedException;
 import com.trusthire.repository.JobApplicationRepository;
 import com.trusthire.repository.JobRepository;
 import com.trusthire.entity.JobSearchIndex;
+import com.trusthire.service.ActivityService;
+import com.trusthire.service.EmployerProfileService;
 import com.trusthire.service.JobService;
 import com.trusthire.service.NotificationSenderService;
 import com.trusthire.service.SearchService;
@@ -26,7 +28,8 @@ public class JobServiceImpl implements JobService {
     private final JobApplicationRepository applicationRepository;
     private final SearchService searchService;
     private final NotificationSenderService notificationSenderService;
-    private final com.trusthire.service.ActivityService activityService;
+    private final ActivityService activityService;
+    private final EmployerProfileService employerProfileService;
 
     @Override
     @Transactional
@@ -55,9 +58,14 @@ public class JobServiceImpl implements JobService {
     }
 
     private void indexJob(Job job) {
+        String companyName = employerProfileService.getProfileByUserId(job.getEmployerId())
+                .map(p -> p.getCompanyName())
+                .orElse("Registered Partner");
+
         searchService.indexJob(JobSearchIndex.builder()
                 .jobId(job.getId())
                 .title(job.getTitle())
+                .employerName(companyName)
                 .description(job.getDescription())
                 .industry(job.getIndustry())
                 .location(job.getLocation())

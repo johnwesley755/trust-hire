@@ -6,7 +6,6 @@ import { applicationService } from '../api/application.service';
 import { profileService } from '../../profile/api/profile.service';
 import { Search, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { formatMissingProfileFields, getMissingProfileFields } from '../../../core/utils/profileCompletion';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { JobSearchHero } from '../components/JobSearchHero';
 import { JobSearchResultCard } from '../components/JobSearchResultCard';
@@ -63,13 +62,7 @@ export default function JobSearchPage() {
   });
 
   const handleApply = (jobId: string) => {
-    const missingFields = getMissingProfileFields(profile);
-    if (missingFields.length > 0) {
-      alert(`Complete your profile before applying. Missing: ${formatMissingProfileFields(missingFields)}.`);
-      navigate('/profile');
-      return;
-    }
-    applyMutation.mutate({ jobId, coverLetter: "Professional application for the specified position." });
+    navigate(`/job/${jobId}`);
   };
 
   const jobs = (query || city) ? searchResults : allJobs;

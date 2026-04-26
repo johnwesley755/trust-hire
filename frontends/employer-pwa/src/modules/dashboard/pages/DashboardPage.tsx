@@ -7,10 +7,16 @@ import { applicationService } from "../../jobs/api/application.service";
 import { workerService } from "../../search/api/worker.service";
 import { Loader2 } from "lucide-react";
 import apiClient from "../../../core/api/apiClient";
+import { dashboardService } from "../api/dashboard.service";
 
 export default function DashboardPage() {
-    const { user } = useUser();
     const navigate = useNavigate();
+    const { user } = useUser();
+
+    const { data: stats } = useQuery({ 
+        queryKey: ['employerStats'], 
+        queryFn: dashboardService.getEmployerStats 
+    });
 
     const blobMaskStyle = {
         maskImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%23FF0066' d='M44.7,-76.4C58.8,-69.2,71.8,-59.1,79.6,-45.8C87.4,-32.5,90,-16.3,88.5,-0.9C87,14.6,81.4,29.1,73.1,41.9C64.8,54.7,53.8,65.7,40.8,72.8C27.8,79.9,13.9,83.1,-0.5,83.9C-14.8,84.7,-29.7,83.1,-43.3,76.5C-56.9,70,-69.2,58.4,-77.3,44.7C-85.4,31.1,-89.3,15.5,-88.1,0.7C-86.9,-14.1,-80.6,-28.2,-71.7,-40.5C-62.8,-52.8,-51.2,-63.3,-38.2,-71.1C-25.2,-78.9,-12.6,-84,1.4,-86.4C15.4,-88.8,30.7,-83.6,44.7,-76.4Z' transform='translate(100 100)' /%3E%3C/svg%3E")`,
@@ -29,7 +35,7 @@ export default function DashboardPage() {
         queryKey: ['recent-activities'],
         queryFn: async () => {
             const res = await apiClient.get('/api/activities/recent?limit=5');
-            return res.data.data;
+            return res.data;
         }
     });
 
@@ -71,10 +77,10 @@ export default function DashboardPage() {
                         {/* Mobile Stats Grid (2x2) */}
                         <section className="grid grid-cols-2 gap-3">
                             {[
-                                { label: 'Active Jobs', val: '12', icon: 'work', color: 'text-[#456559] bg-[#456559]/10' },
-                                { label: 'Applicants', val: '148', icon: 'group', color: 'text-[#231b00] bg-[#FACD15]', border: 'border-2 border-[#FACD15]' },
-                                { label: 'Interviewing', val: '05', icon: 'video_chat', color: 'text-[#456559] bg-[#456559]/10' },
-                                { label: 'Hired', val: '82', icon: 'verified_user', color: 'text-[#456559] bg-[#456559]/10' }
+                                { label: 'Active Jobs', val: stats?.activeJobs || 0, icon: 'work', color: 'text-[#456559] bg-[#456559]/10' },
+                                { label: 'Applicants', val: stats?.totalApplicants || 0, icon: 'group', color: 'text-[#231b00] bg-[#FACD15]', border: 'border-2 border-[#FACD15]' },
+                                { label: 'Interviewing', val: stats?.interviewingCount || 0, icon: 'video_chat', color: 'text-[#456559] bg-[#456559]/10' },
+                                { label: 'Hired', val: stats?.totalHired || 0, icon: 'verified_user', color: 'text-[#456559] bg-[#456559]/10' }
                             ].map((stat, i) => (
                                 <div key={i} className={`bg-white p-5 rounded-3xl shadow-sm border border-black/3 ${stat.border || ''}`}>
                                     <span className={`material-symbols-outlined ${stat.color} p-2 rounded-2xl text-lg mb-3 block w-fit`}>{stat.icon}</span>
@@ -260,12 +266,16 @@ export default function DashboardPage() {
                                 <h4 className="text-[10px] font-bold text-[#1F3F34]/40 uppercase tracking-widest mb-6 px-1">Quick Management</h4>
                                 <div className="grid grid-cols-2 gap-3">
                                     {[
-                                        { label: 'Shortlist', icon: 'star', color: 'text-amber-500 bg-amber-50' },
-                                        { label: 'Schedule', icon: 'event', color: 'text-blue-500 bg-blue-50' },
-                                        { label: 'Reports', icon: 'analytics', color: 'text-emerald-500 bg-emerald-50' },
-                                        { label: 'Contracts', icon: 'description', color: 'text-purple-500 bg-purple-50' }
+                                        { label: 'Shortlist', icon: 'star', color: 'text-amber-500 bg-amber-50', path: '/find-workers' },
+                                        { label: 'Schedule', icon: 'event', color: 'text-blue-500 bg-blue-50', path: '/applications' },
+                                        { label: 'Reports', icon: 'analytics', color: 'text-emerald-500 bg-emerald-50', path: '/dashboard' },
+                                        { label: 'Contracts', icon: 'description', color: 'text-purple-500 bg-purple-50', path: '/jobs' }
                                     ].map(action => (
-                                        <button key={action.label} className="flex flex-col items-center justify-center p-4 rounded-2xl bg-[#EFEEE9]/30 hover:bg-[#EFEEE9] transition-all group border border-transparent">
+                                        <button 
+                                            key={action.label} 
+                                            onClick={() => navigate(action.path)}
+                                            className="flex flex-col items-center justify-center p-4 rounded-2xl bg-[#EFEEE9]/30 hover:bg-[#EFEEE9] transition-all group border border-transparent"
+                                        >
                                             <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-2 ${action.color} group-hover:scale-110 transition-transform`}>
                                                 <span className="material-symbols-outlined text-xl">{action.icon}</span>
                                             </div>

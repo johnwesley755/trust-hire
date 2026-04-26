@@ -22,6 +22,8 @@ public class JobSearchIndex {
     @Column(nullable = false)
     private String title;
 
+    private String employerName;
+
     @Column(columnDefinition = "TEXT")
     private String description;
 

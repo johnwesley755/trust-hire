@@ -3,6 +3,8 @@ import apiClient from "../../../core/api/apiClient";
 export interface EmployerStats {
     activeJobs: number;
     totalApplicants: number;
+    interviewingCount: number;
+    totalHired: number;
     unreadNotifications: number;
 }
 

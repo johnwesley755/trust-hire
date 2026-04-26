@@ -3,6 +3,7 @@ import apiClient from '../../../core/api/apiClient';
 export interface JobSearch {
   jobId: string;
   employerId: string;
+  employerName?: string;
   title: string;
   description: string;
   industry: string;

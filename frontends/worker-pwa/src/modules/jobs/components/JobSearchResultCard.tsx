@@ -39,7 +39,7 @@ export const JobSearchResultCard: React.FC<JobSearchResultCardProps> = ({
             <h3 className="font-black text-lg md:text-2xl text-[#1F3F34] leading-[1.1] md:leading-[0.9] tracking-tighter group-hover:text-[#2d2300] transition-colors truncate md:whitespace-normal">{job.title}</h3>
             <p className="font-bold text-[#414845]/60 flex items-center gap-1.5 uppercase tracking-widest text-[9px] md:text-[10px]">
               <span className="material-symbols-outlined text-xs md:text-sm">apartment</span>
-              Verification Pending
+              {(job as any).employerName || 'Registered Partner'}
             </p>
           </div>
         </div>

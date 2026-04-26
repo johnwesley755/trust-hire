@@ -8,10 +8,10 @@ interface User {
   email: string;
   role: string;
   onboarded: boolean;
-  identity_verified: boolean;
-  first_name?: string;
-  last_name?: string;
-  profile_image_url?: string;
+  identityVerified: boolean;
+  firstName?: string;
+  lastName?: string;
+  profileImageUrl?: string;
   companyName?: string;
 }
 
@@ -82,6 +82,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const getToken = async () => localStorage.getItem('token');
   
+  const mapUserFields = (data: any): User => {
+    return {
+      id: data.userId || data.id,
+      email: data.email,
+      role: data.role,
+      onboarded: data.onboarded,
+      identityVerified: data.identityVerified ?? data.identity_verified,
+      firstName: data.firstName ?? data.first_name,
+      lastName: data.lastName ?? data.last_name,
+      profileImageUrl: data.profileImageUrl ?? data.profile_image_url,
+      companyName: data.companyName,
+    };
+  };
+
   const updateUser = (data: Partial<User>) => {
     setUser(prev => {
       if (!prev) return null;
@@ -91,10 +105,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     });
   };
 
-  const login = (token: string, userData: User) => {
+  const login = (token: string, userData: any) => {
+    const mappedUser = mapUserFields(userData);
     localStorage.setItem('token', token);
-    localStorage.setItem('user', JSON.stringify(userData));
-    setUser(userData);
+    localStorage.setItem('user', JSON.stringify(mappedUser));
+    setUser(mappedUser);
   };
 
   const logout = () => {

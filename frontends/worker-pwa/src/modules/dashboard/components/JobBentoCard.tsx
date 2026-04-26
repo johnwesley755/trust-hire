@@ -13,9 +13,12 @@ interface Job {
   isApplied?: boolean;
 }
 
-export const JobBentoCard: React.FC<{ job: Job; onApply?: () => void }> = ({ job, onApply }) => {
+export const JobBentoCard: React.FC<{ job: Job; onApply?: () => void; onClick?: () => void }> = ({ job, onApply, onClick }) => {
   return (
-    <div className="bg-white p-5 rounded-[24px] relative overflow-hidden bento-card shadow-sm hover:shadow-md transition-all border border-[#c1c8c3]/10 h-full flex flex-col">
+    <div 
+      onClick={onClick}
+      className="bg-white p-5 rounded-[24px] relative overflow-hidden bento-card shadow-sm hover:shadow-md transition-all border border-[#c1c8c3]/10 h-full flex flex-col cursor-pointer"
+    >
       <div className="flex justify-between items-start mb-4">
         <div className="bg-[#f5f4ef] px-3 py-1 rounded-full text-[0.65rem] font-bold uppercase tracking-tighter text-[#1F3F34]">
           {job.industry || 'General'}
@@ -35,7 +38,10 @@ export const JobBentoCard: React.FC<{ job: Job; onApply?: () => void }> = ({ job
           <span className="text-[0.65rem] font-bold uppercase ml-1">/ day</span>
         </div>
         <button 
-          onClick={job.isApplied ? undefined : onApply}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (!job.isApplied && onApply) onApply();
+          }}
           disabled={job.isApplied}
           className={`${
             job.isApplied 
@@ -55,9 +61,12 @@ export const JobBentoCard: React.FC<{ job: Job; onApply?: () => void }> = ({ job
   );
 };
 
-export const FeaturedJobCard: React.FC<{ job: Job; onApply?: () => void }> = ({ job, onApply }) => {
+export const FeaturedJobCard: React.FC<{ job: Job; onApply?: () => void; onClick?: () => void }> = ({ job, onApply, onClick }) => {
   return (
-    <div className="bg-white p-5 rounded-[24px] col-span-1 md:col-span-2 bento-card flex flex-col sm:flex-row gap-6 items-center shadow-sm hover:shadow-md transition-all border border-[#c1c8c3]/10">
+    <div 
+      onClick={onClick}
+      className="bg-white p-5 rounded-[24px] col-span-1 md:col-span-2 bento-card flex flex-col sm:flex-row gap-6 items-center shadow-sm hover:shadow-md transition-all border border-[#c1c8c3]/10 cursor-pointer"
+    >
       <div className="h-24 w-24 rounded-2xl overflow-hidden flex-shrink-0 relative shadow-inner">
         <img 
           className="w-full h-full object-cover" 
@@ -88,7 +97,10 @@ export const FeaturedJobCard: React.FC<{ job: Job; onApply?: () => void }> = ({ 
             </div>
           </div>
           <button 
-            onClick={job.isApplied ? undefined : onApply}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (!job.isApplied && onApply) onApply();
+            }}
             disabled={job.isApplied}
             className={`${
               job.isApplied 

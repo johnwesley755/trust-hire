@@ -32,7 +32,7 @@ export const StatsGrid = () => {
         { 
             label: 'Interviewing', 
             value: stats?.interviewingCount || 0, 
-            trend: '12 calls scheduled', 
+            trend: `${stats?.interviewingCount || 0} calls scheduled`, 
             trendColor: 'text-amber-600 bg-amber-50',
             icon: 'video_call',
             trendIcon: 'schedule'
@@ -40,7 +40,7 @@ export const StatsGrid = () => {
         { 
             label: 'Total Hired', 
             value: stats?.totalHired || 0, 
-            trend: '92% retention rate', 
+            trend: 'Direct placements', 
             trendColor: 'text-[#1F3F34] bg-[#FACD15]/20',
             icon: 'verified',
             trendIcon: 'star'

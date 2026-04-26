@@ -13,6 +13,8 @@ export interface Worker {
   location?: string;
   address?: string;
   city?: string;
+  latitude?: number;
+  longitude?: number;
   bio?: string;
   userId?: string;
   email?: string;
@@ -32,6 +34,8 @@ export interface WorkerProfileSummary {
   profileImageUrl?: string;
   address?: string;
   city?: string;
+  latitude?: number;
+  longitude?: number;
   bio?: string;
   skills?: string;
   experienceYears?: number;
@@ -72,6 +76,8 @@ export const workerService = {
       location: worker.city || worker.address || '',
       address: worker.address,
       city: worker.city,
+      latitude: worker.latitude,
+      longitude: worker.longitude,
       bio: worker.bio,
       email: worker.email,
       phoneNumber: worker.phoneNumber,

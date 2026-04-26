@@ -13,6 +13,8 @@ public class WorkerProfileSummary {
     private String skills;
     private String city;
     private Integer trustScore;
+    private Double latitude;
+    private Double longitude;
 
     public static WorkerProfileSummary fromEntity(WorkerProfile profile) {
         return WorkerProfileSummary.builder()
@@ -22,6 +24,8 @@ public class WorkerProfileSummary {
                 .skills(profile.getSkills())
                 .city(profile.getCity())
                 .trustScore(profile.getTrustScore())
+                .latitude(profile.getLatitude())
+                .longitude(profile.getLongitude())
                 .build();
     }
 }

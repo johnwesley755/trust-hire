@@ -6,6 +6,22 @@ import { profileService } from '../../profile/api/profile.service';
 import { useState } from 'react';
 import { formatMissingProfileFields, getMissingProfileFields } from '../../../core/utils/profileCompletion';
 import { motion } from 'framer-motion';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+
+// Fix for default marker icons in Vite
+import icon from 'leaflet/dist/images/marker-icon.png';
+import iconShadow from 'leaflet/dist/images/marker-shadow.png';
+
+let DefaultIcon = L.icon({
+    iconUrl: icon,
+    shadowUrl: iconShadow,
+    iconSize: [25, 41],
+    iconAnchor: [12, 41]
+});
+
+L.Marker.prototype.options.icon = DefaultIcon;
 
 export default function JobDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -27,6 +43,15 @@ export default function JobDetailPage() {
   const { data: myApplications = [], refetch: refetchApplications } = useQuery({
     queryKey: ['myApplications'],
     queryFn: applicationService.getMyApplications,
+  });
+
+  const { data: employer } = useQuery({
+    queryKey: ['employer', job?.employerId],
+    queryFn: async () => {
+        const res = await apiClient.get(`/api/employer/profile/${job?.employerId}`);
+        return res.data;
+    },
+    enabled: !!job?.employerId
   });
 
   const mutation = useMutation({
@@ -229,23 +254,24 @@ export default function JobDetailPage() {
             </h3>
             
             <div className="space-y-6 text-[#1F3F34] leading-relaxed relative z-10">
-              <p className="text-xl font-bold leading-snug opacity-90 lg:opacity-100 italic lg:not-italic">
+              <div className="text-xl font-bold leading-snug opacity-90 lg:opacity-100 italic lg:not-italic whitespace-pre-wrap">
                 {job.description}
-              </p>
-              <ul className="space-y-4 font-medium opacity-90">
-                <li className="flex gap-4 items-start">
-                  <span className="text-[#FACD15] font-black">01.</span>
-                  <span>Execution of specialized tasks within the project scope as outlined in the brief.</span>
-                </li>
-                <li className="flex gap-4 items-start">
-                  <span className="text-[#FACD15] font-black">02.</span>
-                  <span>Adherence to site-specific safety protocols and quality control measures.</span>
-                </li>
-                <li className="flex gap-4 items-start">
-                  <span className="text-[#FACD15] font-black">03.</span>
-                  <span>Final inspection and sign-off with the project manager or owner.</span>
-                </li>
-              </ul>
+              </div>
+              
+              {/* Optional: If we want to show it as bullets if it has multiple lines */}
+              {job.description?.includes('\n') && (
+                <div className="mt-8 pt-8 border-t border-[#1F3F34]/5">
+                  <h4 className="text-sm font-black uppercase tracking-widest text-[#1F3F34]/30 mb-6">Execution Details</h4>
+                  <ul className="space-y-4 font-medium opacity-90">
+                    {job.description.split('\n').filter(line => line.trim().length > 0).map((line, i) => (
+                      <li key={i} className="flex gap-4 items-start">
+                        <span className="text-[#FACD15] font-black">{(i + 1).toString().padStart(2, '0')}.</span>
+                        <span>{line.trim()}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
           </div>
 
@@ -309,8 +335,12 @@ export default function JobDetailPage() {
             </div>
             <div>
               <p className="text-xs font-bold uppercase tracking-widest opacity-60 mb-1">Client Status</p>
-              <h4 className="text-lg font-black leading-tight text-[#1F3F34]">Verified Partner</h4>
-              <p className="text-sm font-medium opacity-70">12 Projects Completed</p>
+              <h4 className="text-lg font-black leading-tight text-[#1F3F34] truncate max-w-[180px]">
+                {employer?.companyName || 'Verified Partner'}
+              </h4>
+              <p className="text-sm font-medium opacity-70">
+                {employer?.isVerified ? 'Verified Partner' : 'Registered Partner'}
+              </p>
             </div>
           </div>
 
@@ -326,22 +356,46 @@ export default function JobDetailPage() {
             </div>
           </div>
 
-          {/* Location Mini Map */}
-          <div className="rounded-[24px] overflow-hidden relative h-48 bg-[#EFEEE9] shadow-sm">
-            <img 
-              className="w-full h-full object-cover opacity-60 grayscale group-hover:grayscale-0 group-hover:scale-110 transition-all duration-700" 
-              alt="Stylized map showing job location" 
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuCQ9CXIoPSFGkPHLpM28D6MesN9DJuNVF0Cus1mWQ-poFYwQvs1AgIC5RuiUQW0ltENi6vK3xF4oXE2y8bSDwWdTCLPK6tDaRJJXQ4a1n3ZGQCI1j2mkhuXL1Ap0yFzUJaTnBmYvBTdmu4zl_qbOLxDQcz_2FOExEm_Pozwr4wLs-nG1CQ6BZ8P4oPQ4tOGoRhr_W-qQ6m9xedbkw8e3pMJNMBb1zuGKH4yxaAjG3v60lwn7czN1yPaHsiSM8TAaJPFHGXr6niBh1U"
-            />
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="w-12 h-12 bg-[#1F3F34] rounded-full flex items-center justify-center text-white shadow-2xl animate-pulse">
-                <span className="material-symbols-outlined">location_pin</span>
+          {/* Location Mini Map - Interactive Leaflet */}
+          <div className="rounded-[24px] overflow-hidden relative h-48 bg-[#EFEEE9] shadow-sm group">
+            {job.latitude && job.longitude ? (
+              <div className="w-full h-full relative z-0">
+                <MapContainer 
+                  center={[job.latitude, job.longitude]} 
+                  zoom={13} 
+                  scrollWheelZoom={false}
+                  className="w-full h-full grayscale-[0.2]"
+                >
+                  <TileLayer
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  />
+                  <Marker position={[job.latitude, job.longitude]}>
+                    <Popup>
+                      <div className="p-2">
+                        <h4 className="font-black text-[#1F3F34]">{job.title}</h4>
+                        <p className="text-xs text-[#414845] font-medium">{job.location}</p>
+                      </div>
+                    </Popup>
+                  </Marker>
+                </MapContainer>
+                {/* Brand Overlay Label */}
+                <div className="absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur-md p-3 rounded-xl flex items-center justify-between border border-[#1F3F34]/5 z-[1000]">
+                  <span className="text-[10px] font-bold truncate text-[#1F3F34] px-2 max-w-[200px]">{job.address || job.location}</span>
+                  <button 
+                    onClick={() => window.open(`https://www.google.com/maps/dir/?api=1&destination=${job.latitude},${job.longitude}`, '_blank')}
+                    className="text-[9px] font-black text-[#1F3F34] bg-[#FACD15] px-3 py-1.5 rounded-lg uppercase tracking-tighter hover:scale-105 transition-all"
+                  >
+                    Get Directions
+                  </button>
+                </div>
               </div>
-            </div>
-            <div className="absolute bottom-4 left-4 right-4 bg-white/90 backdrop-blur-sm p-3 rounded-xl flex items-center justify-between border border-[#1F3F34]/5">
-              <span className="text-xs font-bold truncate text-[#1F3F34] px-2">{job.location}</span>
-              <button className="text-[10px] font-black text-[#1F3F34] uppercase tracking-tighter hover:text-[#FACD15] transition-colors pr-2">View Map</button>
-            </div>
+            ) : (
+              <div className="w-full h-full flex flex-col items-center justify-center text-[#1F3F34]/40 bg-[#EFEEE9]">
+                <span className="material-symbols-outlined text-4xl mb-2">location_off</span>
+                <p className="text-[10px] font-bold uppercase tracking-widest">Location Data Missing</p>
+              </div>
+            )}
           </div>
 
           {/* Support Card */}
@@ -358,6 +412,22 @@ export default function JobDetailPage() {
       <style>{`
         .organic-blob {
           border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+        }
+        .leaflet-container {
+            width: 100%;
+            height: 100%;
+            font-family: inherit;
+        }
+        .leaflet-control-zoom {
+            border: none !important;
+            margin: 16px !important;
+        }
+        .leaflet-control-zoom-in, .leaflet-control-zoom-out {
+            background-color: white !important;
+            color: #1F3F34 !important;
+            border: 1px solid rgba(0,0,0,0.1) !important;
+            border-radius: 8px !important;
+            margin-bottom: 4px !important;
         }
       `}</style>
     </div>
