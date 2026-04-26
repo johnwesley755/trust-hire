@@ -23,8 +23,23 @@ public class WorkerProfileServiceImpl implements WorkerProfileService {
     private final SearchService searchService;
 
     @Override
+    @Transactional
     public Optional<WorkerProfile> getProfileByUserId(String userId) {
-        return profileRepository.findByUserId(userId);
+        Optional<WorkerProfile> profile = profileRepository.findByUserId(userId);
+        if (profile.isEmpty()) {
+            WorkerProfile newProfile = WorkerProfile.builder()
+                    .userId(userId)
+                    .level("L1")
+                    .levelNumber(1)
+                    .skillScore(30.0)
+                    .isAvailable(true)
+                    .profileViews(0L)
+                    .build();
+            WorkerProfile saved = profileRepository.save(newProfile);
+            indexWorker(saved);
+            return Optional.of(saved);
+        }
+        return profile;
     }
 
     @Override

@@ -88,7 +88,7 @@ export default function ProfilePage() {
                     </button>
                     <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-[#FACD15] shadow-sm">
                         <img 
-                            src={user?.profileImageUrl || "https://lh3.googleusercontent.com/aida-public/AB6AXuDu_-9A0uL8jewJUb7fnsTb5DmbTDJ-8WproHwY_Kynm4LGC4YzEpeMAKhoRTFNS9o5K1-d9t6OnkWdgu54p3Focwt-PutSV3WGF8IvLC1IaCq3fOl7ZCgFqES1yRoKT9wjzy92UQb_Z0qRSmsHU7QVQssx4-lN-4dAHmadeFUedQLiEfRIcERjkD5_R8-pNdnAaHK7C2tpD8Js3uJZgoAMiZNv61e3sW1lq5s0Iv_V6yx6QR2yC5ylgdy4vjBuP0R3vRLWlubIrqs"} 
+                            src={profile?.profileImageUrl || user?.profileImageUrl || "https://lh3.googleusercontent.com/aida-public/AB6AXuDu_-9A0uL8jewJUb7fnsTb5DmbTDJ-8WproHwY_Kynm4LGC4YzEpeMAKhoRTFNS9o5K1-d9t6OnkWdgu54p3Focwt-PutSV3WGF8IvLC1IaCq3fOl7ZCgFqES1yRoKT9wjzy92UQb_Z0qRSmsHU7QVQssx4-lN-4dAHmadeFUedQLiEfRIcERjkD5_R8-pNdnAaHK7C2tpD8Js3uJZgoAMiZNv61e3sW1lq5s0Iv_V6yx6QR2yC5ylgdy4vjBuP0R3vRLWlubIrqs"} 
                             alt="Profile" 
                             className="w-full h-full object-cover"
                         />
@@ -110,10 +110,10 @@ export default function ProfilePage() {
                                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
                                 title="Change Profile Photo"
                             />
-                            {user?.profileImageUrl ? (
+                            {profile?.profileImageUrl || user?.profileImageUrl ? (
                                 <img 
-                                    src={user.profileImageUrl} 
-                                    alt={user.firstName || ""} 
+                                    src={profile?.profileImageUrl || user?.profileImageUrl} 
+                                    alt={user?.firstName || ""} 
                                     className={`w-full h-full object-cover transition-all ${isUploadingImage ? 'opacity-50' : 'group-hover:opacity-90'}`}
                                 />
                             ) : (

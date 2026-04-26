@@ -40,7 +40,7 @@ export const LevelProgressCard: React.FC = () => {
                 <div className="flex justify-between items-start mb-8 relative z-10">
                     <div className="space-y-1">
                         <div className="flex items-center gap-2 text-brand-primary/40 font-black tracking-[0.2em] text-[9px] uppercase">
-                            <Trophy className="w-3 h-3" /> Operative Status
+                            <Trophy className="w-3 h-3" /> Status
                         </div>
                         <h3 className="text-4xl font-black tracking-tighter italic uppercase leading-none">
                             Rank L{progress.currentLevel} {getLevelBadge(progress.currentLevel)}

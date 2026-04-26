@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { 
     Briefcase, MapPin, Plus, X, 
     ChevronRight, Loader2, 
-    HardHat, Bell, HelpCircle,
+    HardHat,
     CheckCircle, Lightbulb, IndianRupee
 } from 'lucide-react';
 import { LocationPicker } from '../components/LocationPicker';
@@ -70,7 +70,7 @@ export const JobPostingPage = () => {
           </h1>
           <p className="text-[#1F3F34]/60 font-medium text-sm">Connect with the best regional talent across India.</p>
         </div>
-        <div className="flex items-center gap-4 w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
+        {/* <div className="flex items-center gap-4 w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
           <button className="p-2.5 text-[#1F3F34]/60 hover:bg-[#FACD15]/10 rounded-full transition-colors shrink-0">
             <Bell className="w-5 h-5" />
           </button>
@@ -79,7 +79,7 @@ export const JobPostingPage = () => {
             <HelpCircle className="w-3.5 h-3.5" />
             Help Center
           </button>
-        </div>
+        </div> */}
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 max-w-7xl mx-auto">

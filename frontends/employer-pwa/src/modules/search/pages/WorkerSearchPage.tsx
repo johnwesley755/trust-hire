@@ -133,7 +133,7 @@ export const WorkerSearchPage = () => {
                 <span className="material-symbols-outlined text-sm font-black" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
                 <span className="text-[10px] font-black uppercase tracking-widest">Certified Base</span>
               </div>
-              <h3 className="text-2xl font-black leading-tight mb-3">Bharat Trust Verified</h3>
+              <h3 className="text-2xl font-black leading-tight mb-3">Trust Hire Verified</h3>
               <p className="text-sm font-bold opacity-80 leading-snug max-w-[240px]">
                 Every worker on our platform is physically verified and background checked.
               </p>
@@ -166,7 +166,7 @@ export const WorkerSearchPage = () => {
             </div>
             <div className="flex items-center gap-4">
               <span className="px-4 py-1.5 bg-white rounded-full text-[10px] font-black uppercase tracking-widest text-[#1F3F34]/60 shadow-sm border border-[#1F3F34]/5">
-                {results?.length || 0} Operatives Found
+                {results?.length || 0} Found
               </span>
             </div>
           </div>

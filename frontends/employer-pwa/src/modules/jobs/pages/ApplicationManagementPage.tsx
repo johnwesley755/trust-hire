@@ -236,10 +236,10 @@ export default function ApplicationManagementPage() {
                       </div>
 
                       <div className="w-full lg:w-72 space-y-4 pt-6 lg:pt-0 lg:border-l lg:border-[#1F3F34]/5 lg:pl-10">
-                        <div className="flex justify-between items-end mb-2">
+                        {/* <div className="flex justify-between items-end mb-2">
                            <span className="text-[10px] font-black uppercase tracking-widest text-[#1F3F34]/30">Protocol Execution</span>
                            <ShieldCheck className="w-4 h-4 text-[#FACD15]" />
-                        </div>
+                        </div> */}
                         
                         <div className="space-y-3">
                           {app.status === 'PENDING' ? (
@@ -248,13 +248,13 @@ export default function ApplicationManagementPage() {
                                 onClick={() => mutation.mutate({ id: app.id!, status: 'ACCEPTED' })}
                                 className="w-full py-4 bg-[#FACD15] text-[#1F3F34] rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-[#FACD15]/10 hover:shadow-2xl hover:-translate-y-1 transition-all flex items-center justify-center gap-2"
                               >
-                                <CheckCircle className="w-4 h-4" /> Approve Operative
+                                <CheckCircle className="w-4 h-4" /> Approve
                               </button>
                               <button 
                                 onClick={() => mutation.mutate({ id: app.id!, status: 'REJECTED' })}
                                 className="w-full py-4 bg-white border border-[#1F3F34]/5 text-[#1F3F34]/40 hover:text-rose-600 hover:bg-rose-50 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all"
                               >
-                                Terminate Request
+                                Reject
                               </button>
                             </div>
                           ) : (
@@ -264,7 +264,7 @@ export default function ApplicationManagementPage() {
                                 : 'bg-rose-50 text-rose-600 border-rose-100'
                             }`}>
                               {app.status === 'ACCEPTED' ? <BadgeCheck className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
-                              {app.status === 'ACCEPTED' ? 'Operative Approved' : 'Request Denied'}
+                              {app.status === 'ACCEPTED' ? 'Approved' : 'Rejected'}
                             </div>
                           )}
                           <button 

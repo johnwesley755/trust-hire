@@ -21,6 +21,10 @@ public class EmployerProfile {
     @Column(nullable = false, unique = true)
     private String userId;
 
+    @Transient
+    @com.fasterxml.jackson.annotation.JsonProperty("profile_image_url")
+    private String profileImageUrl;
+
     private String companyName;
     private String industry;
     private String companyWebsite;

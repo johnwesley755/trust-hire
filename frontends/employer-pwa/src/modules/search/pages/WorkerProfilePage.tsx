@@ -163,7 +163,7 @@ export const WorkerProfilePage = () => {
                   <div className="relative z-10 flex flex-col h-full text-left">
                     <div className="flex items-center gap-3 mb-8">
                       <ShieldCheck className="w-8 h-8 text-[#FACD15]" />
-                      <h2 className="text-xl font-black uppercase tracking-tight">Bharat Trust Score</h2>
+                      <h2 className="text-xl font-black uppercase tracking-tight">Trust Hire Score</h2>
                     </div>
                     <div className="flex items-baseline gap-2 mb-2">
                       <span className="text-6xl font-black text-[#FACD15] leading-none">{trustScore?.score || 450}</span>

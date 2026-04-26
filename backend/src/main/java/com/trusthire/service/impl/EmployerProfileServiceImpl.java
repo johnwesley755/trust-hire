@@ -3,29 +3,51 @@ package com.trusthire.service.impl;
 import com.trusthire.entity.EmployerProfile;
 import com.trusthire.exception.ResourceNotFoundException;
 import com.trusthire.repository.EmployerProfileRepository;
+import com.trusthire.repository.UserMetadataRepository;
 import com.trusthire.service.EmployerProfileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class EmployerProfileServiceImpl implements EmployerProfileService {
 
     private final EmployerProfileRepository profileRepository;
+    private final UserMetadataRepository userRepository;
 
     @Override
+    @Transactional
     public Optional<EmployerProfile> getProfileByUserId(String userId) {
-        return profileRepository.findByUserId(userId);
+        Optional<EmployerProfile> profileOpt = profileRepository.findByUserId(userId);
+        final EmployerProfile profile = profileOpt.orElseGet(() -> {
+            EmployerProfile newProfile = EmployerProfile.builder()
+                    .userId(userId)
+                    .companyName("My Company")
+                    .build();
+            return profileRepository.save(newProfile);
+        });
+
+        // Fetch UserMetadata to get the profile image
+        userRepository.findById(UUID.fromString(userId)).ifPresent(user -> {
+            profile.setProfileImageUrl(user.getProfileImageUrl());
+        });
+
+        return Optional.of(profile);
     }
 
     @Override
     @Transactional
     public EmployerProfile createProfile(String userId, EmployerProfile profile) {
         profile.setUserId(userId);
-        return profileRepository.save(profile);
+        EmployerProfile saved = profileRepository.save(profile);
+        userRepository.findById(UUID.fromString(userId)).ifPresent(user -> {
+            saved.setProfileImageUrl(user.getProfileImageUrl());
+        });
+        return saved;
     }
 
     @Override
@@ -45,6 +67,10 @@ public class EmployerProfileServiceImpl implements EmployerProfileService {
         if (updates.getLatitude() != null) profile.setLatitude(updates.getLatitude());
         if (updates.getLongitude() != null) profile.setLongitude(updates.getLongitude());
 
-        return profileRepository.save(profile);
+        EmployerProfile saved = profileRepository.save(profile);
+        userRepository.findById(UUID.fromString(userId)).ifPresent(user -> {
+            saved.setProfileImageUrl(user.getProfileImageUrl());
+        });
+        return saved;
     }
 }

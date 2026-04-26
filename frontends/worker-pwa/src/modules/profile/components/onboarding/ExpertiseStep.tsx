@@ -53,7 +53,7 @@ export default function ExpertiseStep({ formData, setFormData, onNext, onBack }:
                 Expertise
             </h1>
             <p className="text-[#1F3F34]/80 text-lg max-w-lg leading-relaxed">
-                Highlight your core tactical skills and market value for the Bharat Trust ecosystem.
+                Highlight your core tactical skills and market value for the Trust Hire ecosystem.
             </p>
         </div>
 
