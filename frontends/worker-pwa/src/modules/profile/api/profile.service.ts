@@ -15,12 +15,13 @@ export interface WorkerProfile {
   hourlyRate: number;
   isAvailable: boolean;
   profileViews?: number;
+  trustScore?: number;
 }
 
 export const profileService = {
   getProfile: async (): Promise<WorkerProfile> => {
-    const response = await apiClient.get<WorkerProfile>('/api/worker/profile');
-    const data = response.data;
+    const response = await apiClient.get<any>('/api/worker/profile');
+    const data = response.data.data;
     return {
       ...data,
       fullName: data.fullName || '',
@@ -31,13 +32,14 @@ export const profileService = {
       address: data.address || '',
       level: data.level || '1',
       experienceYears: data.experienceYears || 0,
-      hourlyRate: data.hourlyRate || 0
+      hourlyRate: data.hourlyRate || 0,
+      trustScore: data.trustScore || 0
     };
   },
 
   updateProfile: async (updates: Partial<WorkerProfile>): Promise<WorkerProfile> => {
-    const response = await apiClient.put<WorkerProfile>('/api/worker/profile', updates);
-    return response.data;
+    const response = await apiClient.put<any>('/api/worker/profile', updates);
+    return response.data.data;
   },
 
   incrementProfileView: async (userId: string): Promise<void> => {
@@ -45,7 +47,7 @@ export const profileService = {
   },
 
   getGlobalStats: async (): Promise<{ totalWorkers: number }> => {
-    const response = await apiClient.get<{ totalWorkers: number }>('/api/worker/stats');
-    return response.data;
+    const response = await apiClient.get<any>('/api/worker/stats');
+    return response.data.data;
   }
 };

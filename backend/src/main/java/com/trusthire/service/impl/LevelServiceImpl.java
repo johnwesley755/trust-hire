@@ -18,6 +18,7 @@ public class LevelServiceImpl implements LevelService {
 
     private final WorkerProfileRepository workerRepository;
     private final SkillTestResultRepository testResultRepository;
+    private final com.trusthire.service.SearchService searchService;
     
     @Lazy
     private final RatingService ratingService;
@@ -33,37 +34,56 @@ public class LevelServiceImpl implements LevelService {
         double performanceScore = calculatePerformanceScore(worker);
         double reliabilityScore = calculateReliabilityScore(worker);
 
-        // Weighted Formula from Docs
+        // Weighted Formula: Skill 30%, Experience 25%, Performance 25%, Reliability 20%
         double levelScore = (skillScore * 0.30)
                           + (experienceScore * 0.25)
                           + (performanceScore * 0.25)
                           + (reliabilityScore * 0.20);
 
-        int levelNumber = assignLevel(levelScore);
-
+        int trustScore = (int) Math.round(levelScore); // Scale 0-100
+        
         worker.setSkillScore(skillScore);
         worker.setExperienceScore(experienceScore);
         worker.setPerformanceScore(performanceScore);
         worker.setReliabilityScore(reliabilityScore);
         worker.setLevelScore(levelScore);
-        worker.setLevelNumber(levelNumber);
+        worker.setTrustScore(trustScore);
         
-        // Calculate Trust Score based on Level and performance
-        int trustScore = (int) (levelScore * 0.8 + (performanceScore > 80 ? 20 : 0));
-        worker.setTrustScore(Math.min(100, trustScore));
+        // Assign Level Name and Number
+        worker.setLevel(assignLevelName(trustScore));
+        worker.setLevelNumber(assignLevelNumber(trustScore));
 
         workerRepository.save(worker);
-        log.info("Recalculated level for worker {}: Score={}, Level={}", userId, levelScore, levelNumber);
+        
+        // Update search index
+        searchService.indexWorker(com.trusthire.entity.WorkerSearchIndex.builder()
+                .userId(worker.getUserId())
+                .name(worker.getFullName() != null ? worker.getFullName() : "Anonymous")
+                .bio(worker.getBio())
+                .skills(worker.getSkills())
+                .location(worker.getLocation())
+                .city(worker.getCity())
+                .latitude(worker.getLatitude())
+                .longitude(worker.getLongitude())
+                .level(worker.getLevel())
+                .isVerified(false) // Default
+                .status(worker.getIsAvailable() != null && worker.getIsAvailable() ? "AVAILABLE" : "BUSY")
+                .trustScore(worker.getTrustScore())
+                .build());
+
+        log.info("Recalculated Trust Score for worker {}: Score={}, Level={}", userId, trustScore, worker.getLevel());
     }
 
     private double calculateSkillScore(WorkerProfile worker) {
         double baseScore = 30.0;
         
+        // Test bonus (up to 35)
         var passedTests = testResultRepository.findByWorkerIdAndPassedTrue(worker.getUserId());
         double testBonus = passedTests.stream()
                 .mapToDouble(t -> t.getScore() / 100.0 * 35.0)
                 .average().orElse(0.0);
 
+        // Variety bonus (up to 35)
         String skills = worker.getSkills();
         int skillCount = (skills != null && !skills.isEmpty()) ? skills.split(",").length : 0;
         double varietyBonus = Math.min(skillCount / 5.0, 1.0) * 35.0;
@@ -72,8 +92,19 @@ public class LevelServiceImpl implements LevelService {
     }
 
     private double calculateExperienceScore(WorkerProfile worker) {
-        int years = worker.getExperienceYears() != null ? worker.getExperienceYears() : 0;
-        return Math.min(years / 10.0, 1.0) * 100.0;
+        // Jobs completed (up to 50)
+        double jobScore = Math.min(worker.getCompletedJobs() / 50.0, 1.0) * 50.0;
+        
+        // Months on platform (up to 50)
+        double monthsOnPlatform = 0;
+        if (worker.getCreatedAt() != null) {
+            monthsOnPlatform = java.time.Duration.between(worker.getCreatedAt(), java.time.LocalDateTime.now()).toDays() / 30.0;
+        } else if (worker.getExperienceYears() != null) {
+            monthsOnPlatform = worker.getExperienceYears() * 12;
+        }
+        double longevityScore = Math.min(monthsOnPlatform / 24.0, 1.0) * 50.0;
+
+        return Math.min(100, jobScore + longevityScore);
     }
 
     private double calculatePerformanceScore(WorkerProfile worker) {
@@ -83,24 +114,44 @@ public class LevelServiceImpl implements LevelService {
             
             if (avgRating == null || ratingCount == null || ratingCount == 0) return 0.0;
 
+            // Avg rating (up to 70)
             double ratingScore = (avgRating / 5.0) * 70.0;
-            double countBonus = Math.min(ratingCount / 20.0, 1.0) * 30.0;
+            // Rating count bonus (up to 30)
+            double countBonus = Math.min(ratingCount / 50.0, 1.0) * 30.0;
 
             return Math.min(100, ratingScore + countBonus);
         } catch (Exception e) {
-            log.warn("Rating service calculation error for worker {}: {}", worker.getUserId(), e.getMessage());
+            log.warn("Rating calculation error for worker {}: {}", worker.getUserId(), e.getMessage());
             return 0.0;
         }
     }
 
     private double calculateReliabilityScore(WorkerProfile worker) {
-        return 80.0; // Placeholder baseline
+        // Completion rate (up to 60)
+        int total = worker.getTotalJobs() > 0 ? worker.getTotalJobs() : 1;
+        double completionRate = (double) worker.getCompletedJobs() / total * 100.0;
+        double completionScore = (completionRate / 100.0) * 60.0;
+
+        // Stability bonus (up to 40)
+        double stabilityScore = 20.0; // Base
+
+        // Penalties
+        double penalty = worker.getAbscondCount() * 20.0;
+
+        return Math.max(0, Math.min(100, completionScore + stabilityScore - penalty));
     }
 
-    private int assignLevel(double score) {
-        if (score >= 86) return 4; // Elite
-        if (score >= 66) return 3; // Pro Worker
-        if (score >= 41) return 2; // Skilled
-        return 1;                  // Beginner
+    private String assignLevelName(int score) {
+        if (score >= 86) return "L4 Elite";
+        if (score >= 66) return "L3 Pro Worker";
+        if (score >= 41) return "L2 Skilled";
+        return "L1 Beginner";
+    }
+
+    private int assignLevelNumber(int score) {
+        if (score >= 86) return 4;
+        if (score >= 66) return 3;
+        if (score >= 41) return 2;
+        return 1;
     }
 }

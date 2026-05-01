@@ -15,4 +15,9 @@ public interface WorkerProfileService {
     List<WorkerProfileSummary> getProfileSummariesByUserIds(List<String> userIds);
     void incrementProfileViews(String userId);
     long getTotalWorkersCount();
+    
+    Double getAverageRating(String userId);
+    int getRatingCount(String userId);
+    int getTrustScore(String userId);
+    int getVerifiedSkillsCount(String userId);
 }

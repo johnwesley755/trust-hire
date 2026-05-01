@@ -263,10 +263,16 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public void setIdentityVerified(String userId, boolean verified) {
-        UserMetadata user = userRepository.findById(UUID.fromString(userId))
-                .orElseThrow(() -> new UnauthorizedException("User not found"));
-        user.setIdentityVerified(verified);
-        userRepository.save(user);
-        log.info("User {} identity_verified status set to: {}", userId, verified);
+        userRepository.findById(UUID.fromString(userId)).ifPresent(user -> {
+            user.setIdentityVerified(verified);
+            userRepository.save(user);
+        });
+    }
+
+    @Override
+    public boolean isIdentityVerified(String userId) {
+        return userRepository.findById(UUID.fromString(userId))
+                .map(UserMetadata::getIdentityVerified)
+                .orElse(false);
     }
 }

@@ -46,12 +46,15 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({ onMenuClick, c
         
         <div className="flex items-center gap-3 group cursor-pointer hover:bg-[#1F3F34]/5 p-1.5 rounded-xl transition-all">
           <div className="text-right hidden sm:block">
-            <p className="text-xs font-black leading-none text-[#1F3F34]">{user?.firstName} {user?.lastName}</p>
+            <p className="text-xs font-black leading-none text-[#1F3F34]">
+              {user?.first_name} {user?.last_name}
+              {(!user?.first_name && !user?.last_name) && (user as any)?.fullName}
+            </p>
             <p className="text-[10px] text-[#414845] font-bold uppercase mt-1 tracking-tighter">{(user as any)?.level || 'L1'} Skilled Worker</p>
           </div>
           <div className="relative group">
             <img 
-              src={user?.profileImageUrl || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&auto=format&fit=crop"} 
+              src={user?.profile_image_url || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&auto=format&fit=crop"} 
               alt="Profile" 
               className="w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-[#FACD15] shadow-sm transform group-hover:scale-105 transition-transform"
             />

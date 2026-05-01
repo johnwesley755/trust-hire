@@ -17,16 +17,6 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { useEffect } from 'react';
 
-// Defining it here since it's cleaner for now
-export interface TrustScoreResponse {
-    score: number;
-    identityVerified: boolean;
-    skillsVerifiedCount: number;
-    avgRating: number;
-    reliabilityRate: number;
-    lastUpdated: string;
-}
-
 export const WorkerProfilePage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -43,19 +33,15 @@ export const WorkerProfilePage = () => {
     enabled: !!id
   });
 
-  // Mocking trust score fetch since it's a new backend endpoint
   const { data: trustScore } = useQuery({
     queryKey: ['trustScore', id],
-    queryFn: async () => {
-        return {
-            score: 450,
-            identityVerified: true,
-            skillsVerifiedCount: 3,
-            avgRating: 4.8,
-            reliabilityRate: 0.95,
-            lastUpdated: new Date().toISOString()
-        } as TrustScoreResponse;
-    },
+    queryFn: () => workerService.getTrustScore(id || ''),
+    enabled: !!id
+  });
+
+  const { data: ratings } = useQuery({
+    queryKey: ['workerRatings', id],
+    queryFn: () => workerService.getWorkerRatings(id || ''),
     enabled: !!id
   });
 
@@ -112,10 +98,12 @@ export const WorkerProfilePage = () => {
                         {worker?.name[0]}
                       </div>
                     )}
-                    <div className="absolute bottom-4 left-4 bg-[#FACD15] text-[#1F3F34] text-[10px] font-extrabold px-3 py-1 rounded-full flex items-center gap-1 shadow-lg">
-                      <Verified className="w-3 h-3" />
-                      VERIFIED
-                    </div>
+                    {worker?.verificationStatus === 'VERIFIED' && (
+                      <div className="absolute bottom-4 left-4 bg-[#FACD15] text-[#1F3F34] text-[10px] font-extrabold px-3 py-1 rounded-full flex items-center gap-1 shadow-lg">
+                        <Verified className="w-3 h-3" />
+                        VERIFIED
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -166,17 +154,17 @@ export const WorkerProfilePage = () => {
                       <h2 className="text-xl font-black uppercase tracking-tight">Trust Hire Score</h2>
                     </div>
                     <div className="flex items-baseline gap-2 mb-2">
-                      <span className="text-6xl font-black text-[#FACD15] leading-none">{trustScore?.score || 450}</span>
-                      <span className="text-lg font-bold opacity-40">/ 500</span>
+                      <span className="text-6xl font-black text-[#FACD15] leading-none">{trustScore?.score || 30}</span>
+                      <span className="text-lg font-bold opacity-40">/ 100</span>
                     </div>
                     <p className="text-sm text-[#F5F4EF]/70 mb-8 leading-relaxed font-bold">
-                        Based on 24 successful assignments and high employer reliability feedback.
+                        Calculated based on skill certifications, job history, and verified reliability metrics.
                     </p>
                     <div className="mt-auto">
                       <div className="h-2 w-full bg-white/10 rounded-full overflow-hidden">
                         <div 
                             className="h-full bg-[#FACD15] rounded-full transition-all duration-1000 ease-out"
-                            style={{ width: `${((trustScore?.score || 450) / 500) * 100}%` }}
+                            style={{ width: `${(trustScore?.score || 30)}%` }}
                         ></div>
                       </div>
                       <div className="flex justify-between mt-2 text-[10px] font-bold uppercase tracking-widest opacity-60">
@@ -189,46 +177,42 @@ export const WorkerProfilePage = () => {
               </div>
             </section>
 
+            {/* Bio Section */}
+            {worker?.bio && (
+              <section className="mb-12 text-left">
+                <h3 className="text-2xl font-black uppercase tracking-tight mb-4">Professional Bio</h3>
+                <div className="bg-white p-8 rounded-lg shadow-sm">
+                  <p className="text-lg leading-relaxed text-[#1F3F34]/80 font-medium">
+                    {worker.bio}
+                  </p>
+                </div>
+              </section>
+            )}
+
             {/* Verified Skills Section */}
             <section className="mb-12 text-left">
-              <h3 className="text-2xl font-black uppercase tracking-tight mb-6">Verified Skills</h3>
+              <h3 className="text-2xl font-black uppercase tracking-tight mb-6">Worker Skills</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Skill Card 1 */}
-                <div className="bg-white p-6 rounded-lg shadow-sm border-l-4 border-[#FACD15] text-left">
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="w-12 h-12 bg-[#F5F4EF] rounded-lg flex items-center justify-center">
-                      <Zap className="w-6 h-6 text-[#1F3F34]" />
+                {worker?.skills && worker.skills.length > 0 ? (
+                  worker.skills.map((skill, idx) => (
+                    <div key={idx} className="bg-white p-6 rounded-lg shadow-sm border-l-4 border-[#FACD15] text-left flex flex-col justify-between">
+                      <div className="flex justify-between items-start mb-4">
+                        <div className="w-12 h-12 bg-[#F5F4EF] rounded-lg flex items-center justify-center">
+                          {skill.toLowerCase().includes('electric') ? <Zap className="w-6 h-6 text-[#1F3F34]" /> : 
+                           skill.toLowerCase().includes('hvac') || skill.toLowerCase().includes('ac') ? <Snowflake className="w-6 h-6 text-[#1F3F34]" /> :
+                           <Construction className="w-6 h-6 text-[#1F3F34]" />}
+                        </div>
+                        <BadgeCheck className="w-6 h-6 text-[#1F3F34]" />
+                      </div>
+                      <h4 className="text-lg font-black uppercase tracking-tight mb-1">{skill}</h4>
+                      <div className="mt-4 bg-[#F5F4EF] px-3 py-1 rounded inline-block text-[10px] font-bold uppercase tracking-wider w-fit">Verified Skill</div>
                     </div>
-                    <BadgeCheck className="w-6 h-6 text-[#1F3F34]" />
+                  ))
+                ) : (
+                  <div className="col-span-full bg-white p-12 rounded-lg text-center border-2 border-dashed border-[#1F3F34]/10">
+                    <p className="text-[#1F3F34]/40 font-bold uppercase tracking-widest">No skills listed</p>
                   </div>
-                  <h4 className="text-lg font-black uppercase tracking-tight mb-1">Electrical</h4>
-                  <p className="text-sm text-[#1F3F34]/60 mb-4 font-bold">Industrial wiring, MCB installation, and panel maintenance.</p>
-                  <div className="bg-[#F5F4EF] px-3 py-1 rounded inline-block text-[10px] font-bold uppercase tracking-wider">Expert Level</div>
-                </div>
-                {/* Skill Card 2 */}
-                <div className="bg-white p-6 rounded-lg shadow-sm border-l-4 border-[#FACD15] text-left">
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="w-12 h-12 bg-[#F5F4EF] rounded-lg flex items-center justify-center">
-                      <Snowflake className="w-6 h-6 text-[#1F3F34]" />
-                    </div>
-                    <BadgeCheck className="w-6 h-6 text-[#1F3F34]" />
-                  </div>
-                  <h4 className="text-lg font-black uppercase tracking-tight mb-1">HVAC</h4>
-                  <p className="text-sm text-[#1F3F34]/60 mb-4 font-bold">Centralized air conditioning repair and seasonal servicing.</p>
-                  <div className="bg-[#F5F4EF] px-3 py-1 rounded inline-block text-[10px] font-bold uppercase tracking-wider">Advanced</div>
-                </div>
-                {/* Skill Card 3 */}
-                <div className="bg-white p-6 rounded-lg shadow-sm border-l-4 border-[#FACD15] text-left">
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="w-12 h-12 bg-[#F5F4EF] rounded-lg flex items-center justify-center">
-                      <Construction className="w-6 h-6 text-[#1F3F34]" />
-                    </div>
-                    <BadgeCheck className="w-6 h-6 text-[#1F3F34]" />
-                  </div>
-                  <h4 className="text-lg font-black uppercase tracking-tight mb-1">Construction</h4>
-                  <p className="text-sm text-[#1F3F34]/60 mb-4 font-bold">Masonry work, blueprint reading, and site supervision.</p>
-                  <div className="bg-[#F5F4EF] px-3 py-1 rounded inline-block text-[10px] font-bold uppercase tracking-wider">Intermediate</div>
-                </div>
+                )}
               </div>
             </section>
 
@@ -236,38 +220,30 @@ export const WorkerProfilePage = () => {
             <section className="mb-24 text-left">
               <h3 className="text-2xl font-black uppercase tracking-tight mb-6">Recent Work Feedback</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-white/50 p-6 rounded-lg flex flex-col sm:flex-row gap-6 border border-white">
-                  <div className="w-16 h-16 rounded-lg bg-[#F5F4EF] overflow-hidden shrink-0 shadow-sm">
-                    <img alt="Job Site" className="w-full h-full object-cover grayscale opacity-60" src="https://images.unsplash.com/photo-1541888946425-d81bb1930060?auto=format&fit=crop&q=80&w=200" />
-                  </div>
-                  <div className="text-left">
-                    <div className="flex justify-between items-start mb-2">
-                      <h5 className="font-black uppercase tracking-tight">Warehouse Maintenance</h5>
-                      <div className="flex items-center gap-1 text-xs font-black text-[#FACD15]">
-                        <span>4.9</span>
-                        <Star className="w-3 h-3 fill-[#FACD15]" />
+                {ratings && ratings.length > 0 ? (
+                  ratings.map((rating, idx) => (
+                    <div key={idx} className="bg-white/50 p-6 rounded-lg flex flex-col sm:flex-row gap-6 border border-white">
+                      <div className="w-16 h-16 rounded-lg bg-[#F5F4EF] overflow-hidden shrink-0 shadow-sm flex items-center justify-center">
+                        <Star className="w-8 h-8 text-[#1F3F34]/10" />
+                      </div>
+                      <div className="text-left flex-1">
+                        <div className="flex justify-between items-start mb-2">
+                          <h5 className="font-black uppercase tracking-tight">Project Feedback</h5>
+                          <div className="flex items-center gap-1 text-xs font-black text-[#FACD15]">
+                            <span>{rating.score?.toFixed(1)}</span>
+                            <Star className="w-3 h-3 fill-[#FACD15]" />
+                          </div>
+                        </div>
+                        <p className="text-sm text-[#1F3F34]/70 mb-4 italic font-bold">"{rating.comment || 'No comment provided.'}"</p>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-[#1F3F34]/40">— {new Date(rating.createdAt).toLocaleDateString()}</p>
                       </div>
                     </div>
-                    <p className="text-sm text-[#1F3F34]/70 mb-4 italic font-bold">"Lourdusamy handled a complex HVAC failure over the weekend. Extremely professional and punctual."</p>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-[#1F3F34]/40">— GreenLine Logistics Pvt Ltd</p>
+                  ))
+                ) : (
+                  <div className="col-span-full bg-white/30 p-12 rounded-lg text-center border-2 border-dashed border-[#1F3F34]/5">
+                    <p className="text-[#1F3F34]/30 font-bold uppercase tracking-widest">No feedback received yet</p>
                   </div>
-                </div>
-                <div className="bg-white/50 p-6 rounded-lg flex flex-col sm:flex-row gap-6 border border-white">
-                  <div className="w-16 h-16 rounded-lg bg-[#F5F4EF] overflow-hidden shrink-0 shadow-sm">
-                    <img alt="Factory" className="w-full h-full object-cover grayscale opacity-60" src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=200" />
-                  </div>
-                  <div className="text-left">
-                    <div className="flex justify-between items-start mb-2">
-                      <h5 className="font-black uppercase tracking-tight">Electrical Panel Upgrade</h5>
-                      <div className="flex items-center gap-1 text-xs font-black text-[#FACD15]">
-                        <span>5.0</span>
-                        <Star className="w-3 h-3 fill-[#FACD15]" />
-                      </div>
-                    </div>
-                    <p className="text-sm text-[#1F3F34]/70 mb-4 italic font-bold">"Superb work on the main distribution boards. Highly recommended for industrial technical roles."</p>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-[#1F3F34]/40">— Apex Manufacturing</p>
-                  </div>
-                </div>
+                )}
               </div>
             </section>
           </motion.div>

@@ -14,6 +14,7 @@ public class VerificationServiceImpl implements VerificationService {
 
     private final VerificationRecordRepository verificationRepository;
     private final AuthService authService;
+    private final org.springframework.context.ApplicationEventPublisher eventPublisher;
 
     @Override
     @Transactional
@@ -34,6 +35,8 @@ public class VerificationServiceImpl implements VerificationService {
         record.setStatus("VERIFIED"); // Mocking immediate verification for now
         
         authService.setIdentityVerified(userId, true);
+        
+        eventPublisher.publishEvent(new com.trusthire.event.WorkerVerifiedEvent(this, userId));
         
         return verificationRepository.save(record);
     }

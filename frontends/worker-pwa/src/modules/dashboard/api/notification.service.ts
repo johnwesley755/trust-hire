@@ -13,15 +13,15 @@ export interface AppNotification {
 export const notificationService = {
     getNotifications: async (): Promise<AppNotification[]> => {
         const response = await apiClient.get('/api/notifications');
-        return response.data;
+        return response.data.data;
     },
     getUnreadCount: async (): Promise<number> => {
         const response = await apiClient.get('/api/notifications/unread/count');
-        return response.data;
+        return response.data.data;
     },
     markAsRead: async (id: string): Promise<AppNotification> => {
         const response = await apiClient.patch(`/api/notifications/${id}/read`);
-        return response.data;
+        return response.data.data;
     },
     markAllAsRead: async (): Promise<void> => {
         await apiClient.patch('/api/notifications/read-all');

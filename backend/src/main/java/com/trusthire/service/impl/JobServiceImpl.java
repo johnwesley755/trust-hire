@@ -30,6 +30,7 @@ public class JobServiceImpl implements JobService {
     private final NotificationSenderService notificationSenderService;
     private final ActivityService activityService;
     private final EmployerProfileService employerProfileService;
+    private final org.springframework.context.ApplicationEventPublisher eventPublisher;
 
     @Override
     @Transactional
@@ -126,7 +127,18 @@ public class JobServiceImpl implements JobService {
         if (updates.getLongitude() != null) job.setLongitude(updates.getLongitude());
         if (updates.getCity() != null) job.setCity(updates.getCity());
         if (updates.getAddress() != null) job.setAddress(updates.getAddress());
-        if (updates.getStatus() != null) job.setStatus(updates.getStatus());
+        if (updates.getStatus() != null) {
+            Job.JobStatus oldStatus = job.getStatus();
+            job.setStatus(updates.getStatus());
+            
+            if (updates.getStatus() == Job.JobStatus.COMPLETED && oldStatus != Job.JobStatus.COMPLETED) {
+                // Find hired worker
+                applicationRepository.findByJobId(job.getId()).stream()
+                    .filter(app -> app.getStatus() == com.trusthire.entity.JobApplication.ApplicationStatus.ACCEPTED)
+                    .findFirst()
+                    .ifPresent(app -> eventPublisher.publishEvent(new com.trusthire.event.JobCompletedEvent(this, job.getId(), app.getWorkerId())));
+            }
+        }
 
         Job saved = jobRepository.save(job);
         indexJob(saved);

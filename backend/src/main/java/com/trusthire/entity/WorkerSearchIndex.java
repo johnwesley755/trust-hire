@@ -33,6 +33,7 @@ public class WorkerSearchIndex {
     private Boolean isVerified;
     private String profileImageUrl;
     private String status;
+    private Integer trustScore;
 
     @CreationTimestamp
     private LocalDateTime indexedAt;

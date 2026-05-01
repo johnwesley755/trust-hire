@@ -221,7 +221,7 @@ export const WorkerSearchPage = () => {
                     <div className="text-right">
                       <div className="flex items-center gap-1.5 justify-end text-[#1F3F34] font-black text-2xl tracking-tighter">
                         <span className="material-symbols-outlined text-[#FACD15] text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                        96<span className="text-[10px] opacity-30 font-bold uppercase tracking-widest mt-2 ml-1">Trust.sc</span>
+                        {worker.trustScore || 30}<span className="text-[10px] opacity-30 font-bold uppercase tracking-widest mt-2 ml-1">Trust.sc</span>
                       </div>
                       <p className="text-[10px] font-black uppercase text-[#1F3F34]/30 tracking-widest mt-1">Certified Asset</p>
                     </div>

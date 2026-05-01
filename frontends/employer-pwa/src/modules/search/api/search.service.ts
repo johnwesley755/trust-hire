@@ -11,6 +11,7 @@ export interface WorkerSearch {
   isVerified: boolean;
   profileImageUrl: string;
   status: string;
+  trustScore: number;
 }
 
 export const searchWorkers = async (
@@ -23,8 +24,8 @@ export const searchWorkers = async (
   lon?: number,
   skills?: string
 ): Promise<WorkerSearch[]> => {
-  const response = await apiClient.get<WorkerSearch[]>('/api/search/workers', {
+  const response = await apiClient.get<any>('/api/search/workers', {
     params: { query, location, city, level, radius, lat, lon, skills }
   });
-  return response.data;
+  return response.data.data;
 };

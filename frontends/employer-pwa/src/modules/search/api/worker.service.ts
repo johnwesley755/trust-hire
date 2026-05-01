@@ -40,6 +40,21 @@ export interface WorkerProfileSummary {
   skills?: string;
   experienceYears?: number;
   level?: string;
+  identityVerified?: boolean;
+  trustScore?: number;
+  reliabilityScore?: number;
+  performanceScore?: number;
+  skillScore?: number;
+  isAvailable?: boolean;
+}
+
+export interface TrustScoreResponse {
+  score: number;
+  identityVerified: boolean;
+  skillsVerifiedCount: number;
+  avgRating: number;
+  reliabilityRate: number;
+  lastUpdated: string;
 }
 
 export const workerService = {
@@ -55,8 +70,8 @@ export const workerService = {
   },
 
   getWorkerById: async (id: string) => {
-    const response = await apiClient.post<WorkerProfileSummary[]>('/api/worker/profiles/by-user-ids', [id]);
-    const worker = response.data[0];
+    const response = await apiClient.post<any>('/api/worker/profiles/by-user-ids', [id]);
+    const worker = response.data.data[0];
 
     if (!worker) {
       throw new Error('Worker not found');
@@ -68,7 +83,7 @@ export const workerService = {
       name: worker.fullName || [worker.firstName, worker.lastName].filter(Boolean).join(' ') || 'Unknown Worker',
       profilePhoto: worker.profileImageUrl || '',
       level: Number((worker.level || 'L1').replace(/\D/g, '')) || 1,
-      trustScore: 450,
+      trustScore: worker.trustScore || 30,
       skills: worker.skills ? worker.skills.split(',').map((skill) => skill.trim()).filter(Boolean) : [],
       experience: worker.experienceYears || 0,
       rating: 4.8,
@@ -81,18 +96,28 @@ export const workerService = {
       bio: worker.bio,
       email: worker.email,
       phoneNumber: worker.phoneNumber,
-      availability: 'AVAILABLE' as const,
+      availability: worker.isAvailable ? 'AVAILABLE' as const : 'BUSY' as const,
       salaryRange: '',
-      verificationStatus: 'VERIFIED' as const,
+      verificationStatus: worker.identityVerified ? 'VERIFIED' as const : 'PENDING' as const,
     } satisfies Worker;
   },
 
   getProfilesByUserIds: async (userIds: string[]): Promise<WorkerProfileSummary[]> => {
-    const response = await apiClient.post<WorkerProfileSummary[]>('/api/worker/profiles/by-user-ids', userIds);
-    return response.data;
+    const response = await apiClient.post<any>('/api/worker/profiles/by-user-ids', userIds);
+    return response.data.data;
   },
 
   incrementProfileView: async (userId: string): Promise<void> => {
     await apiClient.post(`/api/worker/profile/${userId}/view`);
   },
+
+  getTrustScore: async (userId: string): Promise<TrustScoreResponse> => {
+    const response = await apiClient.get<any>(`/api/worker/trust-score/${userId}`);
+    return response.data.data;
+  },
+
+  getWorkerRatings: async (userId: string): Promise<any[]> => {
+    const response = await apiClient.get<any>(`/api/ratings/user/${userId}`);
+    return Array.isArray(response.data) ? response.data : response.data.data || [];
+  }
 };

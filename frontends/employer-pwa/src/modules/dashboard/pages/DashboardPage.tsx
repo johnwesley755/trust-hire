@@ -35,7 +35,7 @@ export default function DashboardPage() {
         queryKey: ['recent-activities'],
         queryFn: async () => {
             const res = await apiClient.get('/api/activities/recent?limit=5');
-            return res.data;
+            return res.data.data;
         }
     });
 

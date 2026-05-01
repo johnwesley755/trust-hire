@@ -59,6 +59,15 @@ public class WorkerProfile {
     @Column(name = "trust_score")
     private Integer trustScore = 0;
 
+    @Builder.Default
+    private Integer totalJobs = 0;
+
+    @Builder.Default
+    private Integer completedJobs = 0;
+
+    @Builder.Default
+    private Integer abscondCount = 0;
+
     @Column(precision = 10, scale = 2)
     private BigDecimal hourlyRate;
 

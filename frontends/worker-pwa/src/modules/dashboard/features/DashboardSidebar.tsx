@@ -92,12 +92,32 @@ interface SidebarContentProps {
 
 const SidebarContent = ({ menuItems, accountItems, onNavigate, onLogout, currentPath }: SidebarContentProps) => {
     const navigate = useNavigate();
+    const { user } = useAuth(); // or useUser()
     return (
         <div className="flex flex-col h-full w-full bg-[#1F3F34] dark:bg-[#002117] p-6 text-[#F5F4EF]/70 overflow-y-auto no-scrollbar">
             {/* Branding */}
             <div className="mb-10 px-4 group cursor-pointer" onClick={() => navigate('/')}>
                 <h1 className="text-xl font-black text-[#FACD15] tracking-tight transition-all group-hover:scale-105">TrustHire</h1>
                 <p className="text-sm font-medium text-[#F5F4EF]/60 tracking-tight mt-1 transition-opacity group-hover:opacity-100">Worker Portal</p>
+            </div>
+
+            {/* Profile Summary in Sidebar */}
+            <div className="mb-8 px-4 flex items-center gap-3 p-4 bg-white/5 rounded-[2rem] border border-white/5">
+                <div className="relative shrink-0">
+                    <img 
+                        src={(user as any)?.profile_image_url || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&auto=format&fit=crop"} 
+                        alt="Profile" 
+                        className="w-10 h-10 rounded-2xl border border-[#FACD15]/30 object-cover"
+                    />
+                    <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-emerald-500 border-2 border-[#1F3F34] rounded-full"></div>
+                </div>
+                <div className="min-w-0">
+                    <p className="text-xs font-black text-[#F5F4EF] truncate tracking-tight">
+                        {(user as any)?.first_name} {(user as any)?.last_name}
+                        {(!(user as any)?.first_name && !(user as any)?.last_name) && (user as any)?.fullName}
+                    </p>
+                    <p className="text-[9px] font-bold text-[#FACD15] uppercase tracking-widest mt-0.5">Level {(user as any)?.level || 1} Worker</p>
+                </div>
             </div>
 
             {/* Main Navigation */}

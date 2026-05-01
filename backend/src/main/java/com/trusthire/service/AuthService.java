@@ -28,6 +28,7 @@ public interface AuthService {
 
     void setOnboarded(String userId, boolean onboarded);
     void setIdentityVerified(String userId, boolean verified);
+    boolean isIdentityVerified(String userId);
 
     List<UserSummaryResponse> getUsersByIds(List<String> userIds);
 }

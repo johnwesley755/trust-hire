@@ -9,7 +9,7 @@ export interface WorkerStats {
 
 export const dashboardService = {
     getWorkerStats: async (): Promise<WorkerStats> => {
-        const response = await apiClient.get('/api/dashboard/worker/stats');
+        const response = await apiClient.get<any>('/api/dashboard/worker/stats');
         return response.data.data;
     }
 };

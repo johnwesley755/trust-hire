@@ -76,13 +76,17 @@ public class WorkerController {
 
     @GetMapping("/trust-score/{userId}")
     public ResponseEntity<ApiResponse<TrustScoreResponse>> getTrustScore(@PathVariable String userId) {
-        // Placeholder implementation matching microservice logic
+        Double avgRating = profileService.getAverageRating(userId);
+        int ratingCount = profileService.getRatingCount(userId);
+        boolean identityVerified = authService.isIdentityVerified(userId);
+        int trustScore = profileService.getTrustScore(userId);
+
         return ResponseEntity.ok(ApiResponse.ok(TrustScoreResponse.builder()
-                .score(450)
-                .identityVerified(false)
-                .skillsVerifiedCount(0)
-                .avgRating(0.0)
-                .reliabilityRate(0.85)
+                .score(trustScore)
+                .identityVerified(identityVerified)
+                .skillsVerifiedCount(profileService.getVerifiedSkillsCount(userId))
+                .avgRating(avgRating != null ? avgRating : 0.0)
+                .reliabilityRate(0.95) // TODO: Calculate from job attendance
                 .lastUpdated(java.time.LocalDateTime.now().toString())
                 .build()));
     }

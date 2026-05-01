@@ -8,6 +8,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @SpringBootApplication
 @EnableJpaAuditing
 @EnableScheduling
+@org.springframework.scheduling.annotation.EnableAsync
 public class TrustHireApplication {
     public static void main(String[] args) {
         SpringApplication.run(TrustHireApplication.class, args);

@@ -17,11 +17,14 @@ import java.util.UUID;
 public class RatingServiceImpl implements RatingService {
 
     private final RatingRepository ratingRepository;
+    private final org.springframework.context.ApplicationEventPublisher eventPublisher;
 
     @Override
     @Transactional
     public Rating submitRating(Rating rating) {
-        return ratingRepository.save(rating);
+        Rating saved = ratingRepository.save(rating);
+        eventPublisher.publishEvent(new com.trusthire.event.WorkerRatedEvent(this, saved.getRateeId()));
+        return saved;
     }
 
     @Override

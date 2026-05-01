@@ -2,8 +2,10 @@ package com.trusthire.service.impl;
 
 import com.trusthire.dto.response.ProfileCompletionStatus;
 import com.trusthire.dto.response.WorkerProfileSummary;
+import com.trusthire.entity.UserMetadata;
 import com.trusthire.entity.WorkerProfile;
 import com.trusthire.entity.WorkerSearchIndex;
+import com.trusthire.repository.UserMetadataRepository;
 import com.trusthire.repository.WorkerProfileRepository;
 import com.trusthire.service.SearchService;
 import com.trusthire.service.WorkerProfileService;
@@ -12,7 +14,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -20,7 +24,10 @@ import java.util.stream.Collectors;
 public class WorkerProfileServiceImpl implements WorkerProfileService {
 
     private final WorkerProfileRepository profileRepository;
+    private final UserMetadataRepository userMetadataRepository;
+    private final com.trusthire.repository.RatingRepository ratingRepository;
     private final SearchService searchService;
+    private final com.trusthire.service.LevelService levelService;
 
     @Override
     @Transactional
@@ -29,11 +36,15 @@ public class WorkerProfileServiceImpl implements WorkerProfileService {
         if (profile.isEmpty()) {
             WorkerProfile newProfile = WorkerProfile.builder()
                     .userId(userId)
-                    .level("L1")
+                    .level("L1 Beginner")
                     .levelNumber(1)
                     .skillScore(30.0)
+                    .trustScore(30) // Initial trust score for L1
                     .isAvailable(true)
                     .profileViews(0L)
+                    .totalJobs(0)
+                    .completedJobs(0)
+                    .abscondCount(0)
                     .build();
             WorkerProfile saved = profileRepository.save(newProfile);
             indexWorker(saved);
@@ -45,17 +56,7 @@ public class WorkerProfileServiceImpl implements WorkerProfileService {
     @Override
     @Transactional
     public WorkerProfile createProfile(String userId) {
-        WorkerProfile profile = profileRepository.findByUserId(userId)
-                .orElseGet(() -> profileRepository.save(WorkerProfile.builder()
-                        .userId(userId)
-                        .level("L1")
-                        .levelNumber(1)
-                        .skillScore(30.0)
-                        .isAvailable(true)
-                        .profileViews(0L)
-                        .build()));
-        indexWorker(profile);
-        return profile;
+        return getProfileByUserId(userId).orElseThrow();
     }
 
     private void indexWorker(WorkerProfile profile) {
@@ -71,6 +72,7 @@ public class WorkerProfileServiceImpl implements WorkerProfileService {
                 .level(profile.getLevel())
                 .isVerified(false) // Default
                 .status(profile.getIsAvailable() ? "AVAILABLE" : "BUSY")
+                .trustScore(profile.getTrustScore())
                 .build());
     }
 
@@ -112,8 +114,22 @@ public class WorkerProfileServiceImpl implements WorkerProfileService {
 
     @Override
     public List<WorkerProfileSummary> getProfileSummariesByUserIds(List<String> userIds) {
-        return profileRepository.findByUserIdIn(userIds).stream()
-                .map(WorkerProfileSummary::fromEntity)
+        List<WorkerProfile> profiles = profileRepository.findByUserIdIn(userIds);
+        
+        // Batch fetch all UserMetadata to avoid N+1 problem
+        List<java.util.UUID> uuids = userIds.stream()
+                .map(id -> {
+                    try { return java.util.UUID.fromString(id); }
+                    catch (Exception e) { return null; }
+                })
+                .filter(java.util.Objects::nonNull)
+                .collect(Collectors.toList());
+        
+        java.util.Map<String, UserMetadata> userMap = userMetadataRepository.findAllById(uuids).stream()
+                .collect(Collectors.toMap(u -> u.getId().toString(), u -> u));
+
+        return profiles.stream()
+                .map(profile -> WorkerProfileSummary.fromEntity(profile, userMap.get(profile.getUserId())))
                 .collect(Collectors.toList());
     }
 
@@ -129,5 +145,31 @@ public class WorkerProfileServiceImpl implements WorkerProfileService {
     @Override
     public long getTotalWorkersCount() {
         return profileRepository.count();
+    }
+
+    @Override
+    public Double getAverageRating(String userId) {
+        return ratingRepository.getAverageRating(userId);
+    }
+
+    @Override
+    public int getRatingCount(String userId) {
+        Integer count = ratingRepository.getRatingCount(userId);
+        return count != null ? count : 0;
+    }
+
+    @Override
+    public int getTrustScore(String userId) {
+        levelService.calculateAndSaveLevel(userId);
+        return profileRepository.findByUserId(userId)
+                .map(WorkerProfile::getTrustScore)
+                .orElse(30);
+    }
+
+    @Override
+    public int getVerifiedSkillsCount(String userId) {
+        return profileRepository.findByUserId(userId)
+                .map(p -> p.getSkills() != null ? p.getSkills().split(",").length : 0)
+                .orElse(0);
     }
 }
