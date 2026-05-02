@@ -1,13 +1,13 @@
-import { useUser } from "../../../core/providers/AuthContext";
+import { useUser } from "../../../providers/AuthContext";
 import { StatsGrid, ApplicationsTable } from "../features/DashboardComponents";
 import { DashboardHeader } from "../components/DashboardHeader";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { applicationService } from "../../jobs/api/application.service";
-import { workerService } from "../../search/api/worker.service";
+import { applicationService } from '../../../services/application.service';
+import { workerService } from "../../../services/worker.service";
 import { Loader2 } from "lucide-react";
-import apiClient from "../../../core/api/apiClient";
-import { dashboardService } from "../api/dashboard.service";
+import apiClient from "../../../api/apiClient";
+import { dashboardService } from "../../../services/dashboard.service";
 
 export default function DashboardPage() {
     const navigate = useNavigate();

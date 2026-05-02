@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { applicationService, type JobApplication } from '../api/application.service';
-import { jobService } from '../api/job.service';
-import { workerService } from '../../search/api/worker.service';
-import { CheckCircle, XCircle, Clock, User, ChevronRight, Loader2, ShieldCheck, MapPin, BadgeCheck, IndianRupee, ArrowLeft, Plus } from 'lucide-react';
+import { applicationService, type JobApplication } from '../../../services/application.service';
+import { jobService } from '../../../services/job.service';
+import { workerService } from '../../../services/worker.service';
+import { CheckCircle, XCircle, Clock, User, ChevronRight, Loader2, MapPin, BadgeCheck, IndianRupee, ArrowLeft, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 

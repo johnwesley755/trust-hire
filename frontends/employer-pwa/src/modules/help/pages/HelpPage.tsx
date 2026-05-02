@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import apiClient from '../../../core/api/apiClient';
+import apiClient from '../../../api/apiClient';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const FAQS = [

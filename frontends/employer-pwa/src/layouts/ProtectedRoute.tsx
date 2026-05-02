@@ -1,5 +1,5 @@
 import React from 'react';
-import { AuthOnboardingGuard } from '../../modules/auth/components/AuthOnboardingGuard';
+import { AuthOnboardingGuard } from '../modules/auth/components/AuthOnboardingGuard';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;

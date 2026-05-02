@@ -1,9 +1,9 @@
 import { Loader2 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
-import { jobService } from '../../jobs/api/job.service';
-import { applicationService } from '../../jobs/api/application.service';
-import { workerService } from '../../search/api/worker.service';
-import { dashboardService } from '../api/dashboard.service';
+import { jobService } from '../../../services/job.service';
+import { applicationService } from '../../../services/application.service';
+import { workerService } from '../../../services/worker.service';
+import { dashboardService } from '../../../services/dashboard.service';
 import { useNavigate } from 'react-router-dom';
 
 export const StatsGrid = () => {

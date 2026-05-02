@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import apiClient from "../../../core/api/apiClient";
+import apiClient from "../../../api/apiClient";
 import { motion, AnimatePresence } from 'framer-motion';
 import { LocationPicker } from "../../jobs/components/LocationPicker";
 

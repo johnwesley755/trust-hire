@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../../core/providers/AuthContext';
-import { authService } from '../api/auth.service';
+import { useAuth } from '../../../providers/AuthContext';
+import { authService } from '../../../services/auth.service';
 
 import { motion } from 'framer-motion';
 import { AdvancedFileUpload } from '../../profile/components/AdvancedFileUpload';

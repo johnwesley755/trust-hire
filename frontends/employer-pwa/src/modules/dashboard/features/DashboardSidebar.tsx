@@ -1,8 +1,7 @@
-import { useUser, useAuth } from "../../../core/providers/AuthContext";
-import { NotificationCenter } from './notifications/NotificationCenter';
+import { useUser, useAuth } from "../../../providers/AuthContext";
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { profileService } from '../../profile/api/profile.service';
+import { profileService } from '../../../services/profile.service';
 
 const menuItems = [
     { name: 'Dashboard', icon: 'dashboard', path: '/dashboard' },

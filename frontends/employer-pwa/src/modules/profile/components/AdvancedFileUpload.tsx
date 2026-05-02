@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import {  } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { mediaService } from '../api/media.service';
+import { mediaService } from '../../../services/media.service';
 
 interface UploadedFile {
     id: string;

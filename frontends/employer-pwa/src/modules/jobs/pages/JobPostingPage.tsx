@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { jobService } from '../api/job.service';
+import { jobService } from '../../../services/job.service';
 import { useNavigate } from 'react-router-dom';
 import { 
     Briefcase, MapPin, Plus, X, 
@@ -20,7 +20,7 @@ export const JobPostingPage = () => {
   const [coords, setCoords] = useState<{lat: number, lon: number} | null>(null);
 
   const mutation = useMutation({
-    mutationFn: (job: Partial<import('../api/job.service').Job>) => jobService.createJob(job),
+    mutationFn: (job: Partial<import('../../../services/job.service').Job>) => jobService.createJob(job),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['employerJobs'] });
       queryClient.invalidateQueries({ queryKey: ['jobs'] });

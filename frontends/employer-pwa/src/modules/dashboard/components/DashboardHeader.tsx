@@ -1,8 +1,8 @@
-import { useUser } from "../../../core/providers/AuthContext";
+import { useUser } from "../../../providers/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { NotificationCenter } from "../features/notifications/NotificationCenter";
 import { useQuery } from "@tanstack/react-query";
-import { profileService } from "../../profile/api/profile.service";
+import { profileService } from "../../../services/profile.service";
 
 export const DashboardHeader = () => {
     const { user } = useUser();

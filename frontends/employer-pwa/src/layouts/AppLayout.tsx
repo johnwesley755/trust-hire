@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { DashboardSidebar, MobileNav } from '../../modules/dashboard/features/DashboardSidebar';
+import { DashboardSidebar, MobileNav } from '../modules/dashboard/features/DashboardSidebar';
 import { Outlet } from 'react-router-dom';
 
 export default function AppLayout() {
