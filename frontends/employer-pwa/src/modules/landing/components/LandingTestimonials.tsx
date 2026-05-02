@@ -3,7 +3,7 @@ export function LandingTestimonials() {
     <section className="py-16 bg-brand-beige relative overflow-hidden">
       <div className="absolute bottom-0 left-0 w-64 h-64 bg-brand-amber/10 organic-blob -z-10"></div>
       <div className="container mx-auto px-6 md:px-12 text-center mb-12">
-        <h2 className="text-3xl md:text-4xl font-extrabold text-brand-forest text-heavy">Real stories from the hearth</h2>
+        <h2 className="text-3xl md:text-4xl font-extrabold text-brand-forest text-heavy">Real stories from our application</h2>
       </div>
       <div className="container mx-auto px-6 md:px-12 grid md:grid-cols-3 gap-6">
         {/* Card 1 */}

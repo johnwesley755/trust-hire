@@ -1,6 +1,36 @@
 import { Link } from "react-router-dom";
+import { useState } from "react";
+import { miscService } from "../../../services/misc.service";
+import { earlyAccessSchema } from '../../../validations/zodSchema';
 
 export function LandingHero() {
+  const [email, setEmail] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleWaitlistSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const validationResult = earlyAccessSchema.safeParse({ email });
+    if (!validationResult.success) {
+        setError(validationResult.error.issues[0].message);
+        return;
+    }
+
+    setIsLoading(true);
+    setError('');
+    try {
+      await miscService.requestEarlyAccess({ email, source: 'employer' });
+      setIsSuccess(true);
+      setEmail('');
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Failed to submit request. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <section className="relative min-h-[80vh] flex items-center pt-[72px] pb-8 overflow-hidden bg-brand-beige">
       {/* Decorative Blobs */}
@@ -23,15 +53,36 @@ export function LandingHero() {
           <p className="text-xl text-brand-forest/80 leading-snug mb-8 max-w-lg">
             Be among the first employers to hire verified blue-collar talent. Secure your spot on India's most trusted hiring network.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4">
-            <Link to="/post-job" className="btn-primary px-10 py-4 uppercase text-lg shadow-[inset_0_-4px_0_rgba(0,0,0,0.1)] hover:translate-y-[-2px] flex items-center justify-center">
-              Post Your First Job
-            </Link>
-            <button className="btn-secondary px-8 py-4 flex items-center gap-3 hover:bg-white">
-              <span className="material-symbols-outlined">how_to_reg</span>
-              Join the Waitlist
-            </button>
-          </div>
+          {isSuccess ? (
+            <div className="bg-emerald-500/10 border border-emerald-500 text-emerald-700 px-6 py-4 rounded-xl flex items-center gap-3">
+              <span className="material-symbols-outlined text-emerald-500">check_circle</span>
+              <p className="font-medium">You're on the list! Check your email for confirmation.</p>
+            </div>
+          ) : (
+            <div className="max-w-lg">
+              <p className="text-[10px] font-bold text-brand-forest/50 mb-3 uppercase tracking-widest">Fields marked with <span className="text-red-500">*</span> are mandatory</p>
+              <form onSubmit={handleWaitlistSubmit} noValidate className="flex flex-col sm:flex-row gap-4">
+                <div className="flex-1 relative">
+                  <input 
+                    type="email" 
+                    placeholder="Enter your work email *" 
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    className="w-full px-6 py-4 rounded-xl border border-brand-forest/20 focus:outline-none focus:ring-2 focus:ring-brand-amber bg-white/80 backdrop-blur-sm"
+                  />
+                </div>
+                <button 
+                  type="submit" 
+                  disabled={isLoading}
+                  className="btn-primary px-8 py-4 uppercase text-lg shadow-[inset_0_-4px_0_rgba(0,0,0,0.1)] hover:translate-y-[-2px] flex items-center justify-center whitespace-nowrap disabled:opacity-70"
+                >
+                  {isLoading ? <span className="material-symbols-outlined animate-spin">autorenew</span> : 'Request Access'}
+                </button>
+              </form>
+            </div>
+          )}
+          {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
           <p className="mt-6 text-sm font-bold text-brand-forest/50 flex items-center gap-2">
             <span className="material-symbols-outlined text-[18px]">verified</span>
             Aadhaar-linked verification for every profile

@@ -38,14 +38,14 @@ export const DashboardSidebar = ({ isOpen, onClose }: { isOpen: boolean, onClose
                 />
             )}
 
-            <aside className={`fixed md:sticky top-0 left-0 h-screen w-64 bg-[#1F3F34] p-6 gap-2 shrink-0 z-70 transition-transform duration-300 md:translate-x-0 ${
+            <aside className={`fixed md:sticky top-0 left-0 h-screen w-64 bg-[#132c23] p-6 gap-2 shrink-0 z-70 transition-transform duration-300 md:translate-x-0 ${
                 isOpen ? 'translate-x-0' : '-translate-x-full'
             } md:flex flex-col`}>
                 {/* Logo Section */}
                 <div className="mb-8 px-2 flex justify-between items-center" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
                     <div>
                         <h1 className="text-xl font-black text-white tracking-tight">TrustHire</h1>
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-[#FACD15] opacity-90">Employer Portal</p>
+                        <p className="text-[10px] font-bold text-[#FACD15] opacity-90">Employer Portal</p>
                     </div>
                     <button onClick={onClose} className="md:hidden text-white/50 hover:text-white">
                         <span className="material-symbols-outlined">close</span>
@@ -73,7 +73,7 @@ export const DashboardSidebar = ({ isOpen, onClose }: { isOpen: boolean, onClose
                                   style={{ fontVariationSettings: isActive ? "'FILL' 1" : "'FILL' 0", fontSize: '20px' }}>
                                 {item.icon}
                             </span>
-                            <span className="text-xs font-bold uppercase tracking-wider">{item.name}</span>
+                            <span className="text-sm font-bold">{item.name}</span>
                         </button>
                     );
                 })}
@@ -88,7 +88,7 @@ export const DashboardSidebar = ({ isOpen, onClose }: { isOpen: boolean, onClose
                         className="flex items-center gap-3 px-4 py-2.5 text-white/60 hover:text-white transition-all text-left"
                     >
                         <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>{item.icon}</span>
-                        <span className="text-xs font-bold uppercase tracking-wider">{item.name}</span>
+                        <span className="text-sm font-bold">{item.name}</span>
                     </button>
                 ) )}
 
@@ -97,7 +97,7 @@ export const DashboardSidebar = ({ isOpen, onClose }: { isOpen: boolean, onClose
                     className="flex items-center gap-3 px-4 py-2.5 text-white/60 hover:text-red-400 transition-all text-left"
                 >
                     <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>logout</span>
-                    <span className="text-xs font-bold uppercase tracking-wider">Logout</span>
+                    <span className="text-sm font-bold">Logout</span>
                 </button>
                 
                 <div className="mt-4 flex items-center gap-3 px-2 py-3 bg-white/5 rounded-2xl relative">

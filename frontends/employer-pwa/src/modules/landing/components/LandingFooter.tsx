@@ -40,7 +40,7 @@ export function LandingFooter() {
         </div>
       </div>
       <div className="border-t border-brand-forest/5 py-6 text-center px-8">
-        <p className="text-brand-forest/40 text-[12px] font-medium">© 2026 TrustHire. Human-centric hiring for a better India.</p>
+        <p className="text-brand-forest/40 text-[12px] font-medium">© {new Date().getFullYear()} TrustHire. All Rights Reserved</p>
       </div>
     </footer>
   );

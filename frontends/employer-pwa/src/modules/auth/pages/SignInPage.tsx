@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../providers/AuthContext';
 import apiClient from '../../../api/apiClient';
 import { motion } from 'framer-motion';
+import { signInSchema } from '../../../validations/zodSchema';
 
 export const SignInPage = () => {
     const [email, setEmail] = useState('');
@@ -17,6 +18,13 @@ export const SignInPage = () => {
         e.preventDefault();
         setIsLoading(true);
         setError('');
+
+        const validationResult = signInSchema.safeParse({ email, password });
+        if (!validationResult.success) {
+            setError(validationResult.error.issues[0].message);
+            setIsLoading(false);
+            return;
+        }
 
         try {
             const response = await apiClient.post('/api/auth/login', {
@@ -54,7 +62,7 @@ export const SignInPage = () => {
                     
                     <div className="max-w-md w-full mx-auto">
                         <header className="mb-10">
-                            <h1 className="font-headline text-[2.5rem] font-extrabold leading-[1.1] tracking-tight mb-4 text-[#1F3F34]">Welcome back to the Hearth.</h1>
+                            <h1 className="font-headline text-[2.5rem] font-extrabold leading-[1.1] tracking-tight mb-4 text-[#1F3F34]">Welcome back to the Trust Hire</h1>
                             <p className="text-on-surface-variant text-lg leading-relaxed">Secure access to India's most trusted hyperlocal workforce.</p>
                         </header>
 
@@ -65,10 +73,12 @@ export const SignInPage = () => {
                             </div>
                         )}
 
-                        <form onSubmit={handleSubmit} className="space-y-6">
+                        <p className="text-xs text-on-surface-variant/70 mb-6 font-medium">Fields marked with <span className="text-red-500">*</span> are mandatory</p>
+
+                        <form onSubmit={handleSubmit} noValidate className="space-y-6">
                             {/* Input Group: Identifier */}
                             <div className="space-y-2">
-                                <label className="font-label text-xs font-bold uppercase tracking-wider text-[#1F3F34]" htmlFor="identifier">Work Email</label>
+                                <label className="font-label text-xs font-bold uppercase tracking-wider text-[#1F3F34]" htmlFor="identifier">Work Email <span className="text-red-500">*</span></label>
                                 <div className="relative">
                                     <input 
                                         className="w-full bg-white border border-gray-200 rounded-md px-5 py-4 focus:ring-2 focus:ring-[#FACD15] transition-all outline-none text-[#1F3F34] placeholder-[#1F3F34]/30" 
@@ -86,7 +96,7 @@ export const SignInPage = () => {
                             {/* Input Group: Password */}
                             <div className="space-y-2">
                                 <div className="flex justify-between items-center">
-                                    <label className="font-label text-xs font-bold uppercase tracking-wider text-[#1F3F34]" htmlFor="password">Password</label>
+                                    <label className="font-label text-xs font-bold uppercase tracking-wider text-[#1F3F34]" htmlFor="password">Password <span className="text-red-500">*</span></label>
                                     <Link className="text-xs font-bold text-secondary hover:underline transition-all" to="/forgot-password">Forgot?</Link>
                                 </div>
                                 <div className="relative">
@@ -105,7 +115,7 @@ export const SignInPage = () => {
 
                             {/* Primary CTA */}
                             <button 
-                                disabled={isLoading || !isFormValid}
+                                disabled={isLoading}
                                 className="w-full bg-[#FACD15] text-[#002117] font-headline font-extrabold py-5 rounded-[12px] uppercase tracking-widest bento-inner-shadow hover:brightness-105 active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2" 
                                 type="submit"
                             >
@@ -171,7 +181,7 @@ export const SignInPage = () => {
             {/* Sticky Footer */}
             <footer className="fixed bottom-0 left-0 w-full py-4 px-8 flex flex-col items-center md:flex-row md:justify-between bg-[#F5F4EF]/90 backdrop-blur-md border-t border-[#1F3F34]/5 z-50">
                 <div className="text-[#1F3F34]/40 font-headline text-sm leading-relaxed pointer-events-auto">
-                    © 2024 TrustHire. Built for the Human Hearth.
+                    © {new Date().getFullYear()} TrustHire. All Rights Reserved
                 </div>
                 <div className="hidden md:flex gap-6 pointer-events-auto">
                     <Link className="text-[#1F3F34]/60 text-sm font-medium hover:underline decoration-[#FACD15] decoration-2 transition-all" to="/privacy">Privacy</Link>

@@ -1,6 +1,36 @@
 import { Link } from "react-router-dom";
+import { useState } from "react";
+import { miscService } from "../../../services/misc.service";
+import { earlyAccessSchema } from '../../../validations/zodSchema';
 
 export function LandingHero() {
+  const [email, setEmail] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleWaitlistSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const validationResult = earlyAccessSchema.safeParse({ email });
+    if (!validationResult.success) {
+        setError(validationResult.error.issues[0].message);
+        return;
+    }
+
+    setIsLoading(true);
+    setError('');
+    try {
+      await miscService.requestEarlyAccess({ email, source: 'worker' });
+      setIsSuccess(true);
+      setEmail('');
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Failed to submit request. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <section className="relative pt-32 pb-20 px-6 md:px-12 max-w-[1440px] mx-auto grid md:grid-cols-2 gap-12 items-center min-h-[800px]">
       {/* Extra Hero Blobs for Visual Interest */}
@@ -20,14 +50,37 @@ export function LandingHero() {
         <p className="mt-8 text-xl md:text-2xl text-primary/80 max-w-xl leading-relaxed">
           Connect with verified employers who value your work. Get insurance, weekly pay, and a path to grow your salary.
         </p>
-        <div className="mt-10 flex flex-col sm:flex-row gap-4 items-center">
-          <Link to="/sign-up" className="bg-primary-fixed text-primary px-10 py-5 rounded-[12px] font-extrabold uppercase text-lg flex items-center justify-center gap-2 shadow-[inset_0_-4px_0_rgba(0,0,0,0.1)] hover:translate-y-0.5 transition-all">
-            Get Started Now
-            <span className="material-symbols-outlined">arrow_forward</span>
-          </Link>
-          <Link to="/sign-in" className="text-primary font-bold border-2 border-primary px-10 py-5 rounded-[12px] hover:bg-primary hover:text-white transition-all">
-            Login
-          </Link>
+        <div className="mt-10">
+          {isSuccess ? (
+            <div className="bg-emerald-500/10 border border-emerald-500 text-emerald-700 px-6 py-4 rounded-xl flex items-center gap-3 max-w-lg">
+              <span className="material-symbols-outlined text-emerald-500">check_circle</span>
+              <p className="font-medium">You're on the list! Check your email for confirmation.</p>
+            </div>
+          ) : (
+            <div className="max-w-lg">
+              <p className="text-xs font-bold text-primary/40 mb-3 uppercase tracking-widest">Fields marked with <span className="text-red-500">*</span> are mandatory</p>
+              <form onSubmit={handleWaitlistSubmit} noValidate className="flex flex-col sm:flex-row gap-4">
+                <div className="flex-1 relative">
+                  <input 
+                    type="email" 
+                    placeholder="Enter your email address *" 
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    className="w-full px-6 py-4 rounded-[12px] border border-primary/20 focus:outline-none focus:ring-2 focus:ring-primary-fixed bg-white/80 backdrop-blur-sm"
+                  />
+                </div>
+                <button 
+                  type="submit" 
+                  disabled={isLoading}
+                  className="bg-primary-fixed text-primary px-8 py-4 rounded-[12px] font-extrabold uppercase text-lg flex items-center justify-center gap-2 shadow-[inset_0_-4px_0_rgba(0,0,0,0.1)] hover:translate-y-0.5 transition-all disabled:opacity-70 whitespace-nowrap"
+                >
+                  {isLoading ? <span className="material-symbols-outlined animate-spin">autorenew</span> : 'Request Access'}
+                </button>
+              </form>
+            </div>
+          )}
+          {error && <p className="text-red-500 text-sm mt-2 max-w-lg">{error}</p>}
         </div>
         <div className="mt-8 flex items-center gap-3">
           <div className="flex -space-x-2">

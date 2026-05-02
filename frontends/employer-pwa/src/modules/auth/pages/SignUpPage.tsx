@@ -5,6 +5,7 @@ import { authService } from '../../../services/auth.service';
 
 import { motion } from 'framer-motion';
 import { AdvancedFileUpload } from '../../profile/components/AdvancedFileUpload';
+import { signUpSchema } from '../../../validations/zodSchema';
 
 interface ApiError {
     response?: {
@@ -51,14 +52,16 @@ export const SignUpPage = () => {
     const handleSendOtp = async (e: React.FormEvent) => {
         e.preventDefault();
         
-        // Prevent wasted API requests
-        if (!formData.email || !formData.phoneNumber || !formData.firstName || !formData.lastName || !formData.password) {
-            setError('Please fill in all mandatory fields before requesting an OTP.');
-            return;
-        }
+        const validationResult = signUpSchema.safeParse({
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            email: formData.email,
+            password: formData.password,
+            phoneNumber: formData.phoneNumber
+        });
 
-        if (formData.phoneNumber.length < 10) {
-            setError('Please enter a valid 10-digit phone number.');
+        if (!validationResult.success) {
+            setError(validationResult.error.issues[0].message);
             return;
         }
 
@@ -321,10 +324,12 @@ export const SignUpPage = () => {
                             </motion.div>
                         )}
 
-                        <form onSubmit={handleSendOtp} className="space-y-6">
+                        <p className="text-xs text-primary/60 mb-6 font-medium">Fields marked with <span className="text-red-500">*</span> are mandatory</p>
+
+                        <form onSubmit={handleSendOtp} noValidate className="space-y-6">
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <label className="block font-label text-xs font-bold text-primary uppercase tracking-wider">First Name</label>
+                                    <label className="block font-label text-xs font-bold text-primary uppercase tracking-wider">First Name <span className="text-red-500">*</span></label>
                                     <input 
                                         className="w-full bg-surface-container-high border border-gray-200 rounded-[4px] px-4 py-3 focus:border-[#FACD15] focus:ring-4 focus:ring-[#FACD15]/10 transition-all outline-none placeholder:text-primary/30" 
                                         placeholder="Rahul" 
@@ -335,7 +340,7 @@ export const SignUpPage = () => {
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="block font-label text-xs font-bold text-primary uppercase tracking-wider">Last Name</label>
+                                    <label className="block font-label text-xs font-bold text-primary uppercase tracking-wider">Last Name <span className="text-red-500">*</span></label>
                                     <input 
                                         className="w-full bg-surface-container-high border border-gray-200 rounded-[4px] px-4 py-3 focus:border-[#FACD15] focus:ring-4 focus:ring-[#FACD15]/10 transition-all outline-none placeholder:text-primary/30" 
                                         placeholder="Sharma" 
@@ -348,7 +353,7 @@ export const SignUpPage = () => {
                             </div>
 
                             <div className="space-y-2">
-                                <label className="block font-label text-xs font-bold text-primary uppercase tracking-wider">Work Email</label>
+                                <label className="block font-label text-xs font-bold text-primary uppercase tracking-wider">Work Email <span className="text-red-500">*</span></label>
                                 <input 
                                     className="w-full bg-surface-container-high border border-gray-200 rounded-[4px] px-4 py-3 focus:border-[#FACD15] focus:ring-4 focus:ring-[#FACD15]/10 transition-all outline-none placeholder:text-primary/30" 
                                     placeholder="rahul@company.com" 
@@ -360,7 +365,7 @@ export const SignUpPage = () => {
                             </div>
 
                             <div className="space-y-2">
-                                <label className="block font-label text-xs font-bold text-primary uppercase tracking-wider">Phone Number</label>
+                                <label className="block font-label text-xs font-bold text-primary uppercase tracking-wider">Phone Number <span className="text-red-500">*</span></label>
                                 <div className="relative">
                                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-primary/60 font-bold">+91</span>
                                     <input 
@@ -376,7 +381,7 @@ export const SignUpPage = () => {
                             </div>
 
                             <div className="space-y-2">
-                                <label className="block font-label text-xs font-bold text-primary uppercase tracking-wider">Password</label>
+                                <label className="block font-label text-xs font-bold text-primary uppercase tracking-wider">Password <span className="text-red-500">*</span></label>
                                 <input 
                                     className="w-full bg-surface-container-high border border-gray-200 rounded-[4px] px-4 py-3 focus:border-[#FACD15] focus:ring-4 focus:ring-[#FACD15]/10 transition-all outline-none placeholder:text-primary/30" 
                                     placeholder="min 8 chars" 
@@ -397,7 +402,7 @@ export const SignUpPage = () => {
 
                             <div className="pt-4">
                                 <button 
-                                    disabled={isLoading || !isFormValid}
+                                    disabled={isLoading}
                                     className="w-full bg-[#FACD15] text-[#002117] font-headline font-extrabold py-5 rounded-[4px] shadow-[inset_0_-2px_0_rgba(0,0,0,0.1)] hover:brightness-105 active:scale-[0.98] transition-all uppercase tracking-wider flex items-center justify-center gap-2" 
                                     type="submit"
                                 >

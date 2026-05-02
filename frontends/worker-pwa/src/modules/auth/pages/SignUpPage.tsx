@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../providers/AuthContext';
 import { authService } from '../../../services/auth.service';
 import { AdvancedFileUpload } from '../../profile/components/AdvancedFileUpload';
+import { signUpSchema } from '../../../validations/zodSchema';
 
 interface ApiError {
     response?: {
@@ -49,14 +50,16 @@ export const SignUpPage = () => {
     const handleSendOtp = async (e?: React.FormEvent) => {
         if (e) e.preventDefault();
         
-        // Comprehensive validation before wasting API calls
-        if (!formData.email || !formData.phoneNumber || !formData.firstName || !formData.lastName || !formData.password) {
-            setError('All fields are mandatory. Please fill in everything before proceeding.');
-            return;
-        }
+        const validationResult = signUpSchema.safeParse({
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            email: formData.email,
+            password: formData.password,
+            phoneNumber: formData.phoneNumber
+        });
 
-        if (formData.phoneNumber.length < 10) {
-            setError('Please enter a valid 10-digit mobile number.');
+        if (!validationResult.success) {
+            setError(validationResult.error.issues[0].message);
             return;
         }
 
@@ -314,7 +317,9 @@ export const SignUpPage = () => {
                             </div>
                         )}
 
-                        <form onSubmit={handleSendOtp} className="space-y-6">
+                        <p className="text-xs text-[#1F3F34]/60 mb-6 font-medium">Fields marked with <span className="text-red-500">*</span> are mandatory</p>
+
+                        <form onSubmit={handleSendOtp} noValidate className="space-y-6">
                             <div className="flex flex-col items-center mb-8">
                                 <label className="text-xs font-bold uppercase tracking-wider text-[#1F3F34]/60 mb-3 self-start">Profile Photo</label>
                                 <AdvancedFileUpload 
@@ -325,7 +330,7 @@ export const SignUpPage = () => {
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="flex flex-col gap-1.5">
-                                    <label className="text-xs font-bold uppercase tracking-wider text-[#1F3F34]">First Name</label>
+                                    <label className="text-xs font-bold uppercase tracking-wider text-[#1F3F34]">First Name <span className="text-red-500">*</span></label>
                                     <input 
                                         className="w-full px-4 py-3.5 bg-surface-container-high border border-gray-200 rounded-xl focus:border-[#FACD15] focus:ring-4 focus:ring-[#FACD15]/10 placeholder:text-[#1F3F34]/30 font-medium transition-all outline-none" 
                                         placeholder="e.g. Rajesh" 
@@ -336,7 +341,7 @@ export const SignUpPage = () => {
                                     />
                                 </div>
                                 <div className="flex flex-col gap-1.5">
-                                    <label className="text-xs font-bold uppercase tracking-wider text-[#1F3F34]">Last Name</label>
+                                    <label className="text-xs font-bold uppercase tracking-wider text-[#1F3F34]">Last Name <span className="text-red-500">*</span></label>
                                     <input 
                                         className="w-full px-4 py-3.5 bg-surface-container-high border border-gray-200 rounded-xl focus:border-[#FACD15] focus:ring-4 focus:ring-[#FACD15]/10 placeholder:text-[#1F3F34]/30 font-medium transition-all outline-none" 
                                         placeholder="e.g. Kumar" 
@@ -349,7 +354,7 @@ export const SignUpPage = () => {
                             </div>
 
                             <div className="flex flex-col gap-1.5">
-                                <label className="text-xs font-bold uppercase tracking-wider text-[#1F3F34]">Mobile Number</label>
+                                <label className="text-xs font-bold uppercase tracking-wider text-[#1F3F34]">Mobile Number <span className="text-red-500">*</span></label>
                                 <div className="relative flex items-center">
                                     <span className="absolute left-4 font-bold text-[#1F3F34]/60">+91</span>
                                     <input 
@@ -365,7 +370,7 @@ export const SignUpPage = () => {
                             </div>
 
                             <div className="flex flex-col gap-1.5">
-                                <label className="text-xs font-bold uppercase tracking-wider text-[#1F3F34]">Email Address</label>
+                                <label className="text-xs font-bold uppercase tracking-wider text-[#1F3F34]">Email Address <span className="text-red-500">*</span></label>
                                 <input 
                                     className="w-full px-4 py-3.5 bg-surface-container-high border border-gray-200 rounded-xl focus:border-[#FACD15] focus:ring-4 focus:ring-[#FACD15]/10 placeholder:text-[#1F3F34]/30 font-medium transition-all outline-none" 
                                     placeholder="rajesh@example.com" 
@@ -377,7 +382,7 @@ export const SignUpPage = () => {
                             </div>
 
                             <div className="flex flex-col gap-1.5">
-                                <label className="text-xs font-bold uppercase tracking-wider text-[#1F3F34]">Password</label>
+                                <label className="text-xs font-bold uppercase tracking-wider text-[#1F3F34]">Password <span className="text-red-500">*</span></label>
                                 <input 
                                     className="w-full px-4 py-3.5 bg-surface-container-high border border-gray-200 rounded-xl focus:border-[#FACD15] focus:ring-4 focus:ring-[#FACD15]/10 placeholder:text-[#1F3F34]/30 font-medium transition-all outline-none" 
                                     placeholder="Min. 8 characters" 
@@ -389,7 +394,7 @@ export const SignUpPage = () => {
                             </div>
 
                             <button 
-                                disabled={isLoading || !isFormValid}
+                                disabled={isLoading}
                                 className="w-full py-4 bg-[#FACD15] text-[#002117] font-headline font-extrabold uppercase tracking-widest rounded-xl shadow-[0_4px_0_0_#C39F00] active:shadow-none active:translate-y-1 transition-all flex items-center justify-center gap-2" 
                                 type="submit"
                             >

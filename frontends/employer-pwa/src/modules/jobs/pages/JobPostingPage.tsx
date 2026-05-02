@@ -257,7 +257,7 @@ export const JobPostingPage = () => {
               {/* CTA Section */}
               <div className="pt-8 flex flex-col md:flex-row items-center justify-between gap-8">
                 <p className="text-xs text-[#1F3F34]/40 font-medium leading-relaxed max-w-sm">
-                  By posting this job, you agree to the <span className="text-[#1F3F34] font-black">Hearth Employer Standards</span> and verified worker protection policies.
+                  By posting this job, you agree to the <span className="text-[#1F3F34] font-black">Trust Hire Employer Standards</span> and verified worker protection policies.
                 </p>
                 <button 
                   type="submit" 

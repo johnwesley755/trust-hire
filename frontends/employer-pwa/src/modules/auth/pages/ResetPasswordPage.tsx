@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { ShieldCheck, Lock, Eye, EyeOff, CheckCircle2, ArrowRight } from 'lucide-react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { authService } from '../../../services/auth.service';
+import { resetPasswordSchema } from '../../../validations/zodSchema';
 
 export default function ResetPasswordPage() {
     const [searchParams] = useSearchParams();
@@ -24,13 +25,9 @@ export default function ResetPasswordPage() {
             return;
         }
 
-        if (password !== confirmPassword) {
-            setError('Passwords do not match.');
-            return;
-        }
-
-        if (password.length < 8) {
-            setError('Password must be at least 8 characters long.');
+        const validationResult = resetPasswordSchema.safeParse({ password, confirmPassword });
+        if (!validationResult.success) {
+            setError(validationResult.error.issues[0].message);
             return;
         }
 
@@ -114,9 +111,11 @@ export default function ResetPasswordPage() {
                         </div>
                     </div>
 
-                    <form onSubmit={handleSubmit} className="space-y-6">
+                    <p className="text-[10px] font-bold text-brand-muted/70 mb-4 uppercase tracking-widest text-center">Fields marked with <span className="text-red-500">*</span> are mandatory</p>
+
+                    <form onSubmit={handleSubmit} noValidate className="space-y-6">
                         <div className="space-y-2">
-                            <label className="text-[10px] font-bold text-brand-muted uppercase tracking-widest ml-1">New Password</label>
+                            <label className="text-[10px] font-bold text-brand-muted uppercase tracking-widest ml-1">New Password <span className="text-red-500">*</span></label>
                             <div className="relative group">
                                 <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-brand-secondary/30 group-focus-within:text-brand-primary transition-colors" />
                                 <input 
@@ -138,7 +137,7 @@ export default function ResetPasswordPage() {
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-[10px] font-bold text-brand-muted uppercase tracking-widest ml-1">Confirm Password</label>
+                            <label className="text-[10px] font-bold text-brand-muted uppercase tracking-widest ml-1">Confirm Password <span className="text-red-500">*</span></label>
                             <div className="relative group">
                                 <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-brand-secondary/30 group-focus-within:text-brand-primary transition-colors" />
                                 <input 

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import { authService } from '../../../services/auth.service';
+import { forgotPasswordSchema } from '../../../validations/zodSchema';
 
 export default function ForgotPasswordPage() {
     const [email, setEmail] = useState('');
@@ -14,6 +15,13 @@ export default function ForgotPasswordPage() {
         e.preventDefault();
         setIsLoading(true);
         setError(null);
+
+        const validationResult = forgotPasswordSchema.safeParse({ email });
+        if (!validationResult.success) {
+            setError(validationResult.error.issues[0].message);
+            setIsLoading(false);
+            return;
+        }
 
         try {
             await authService.forgotPassword(email);
@@ -78,7 +86,7 @@ export default function ForgotPasswordPage() {
 
                 <footer className="w-full py-8 bg-[#F5F4EF] border-t border-[#1F3F34]/10">
                     <div className="max-w-7xl mx-auto px-8 flex flex-col md:flex-row justify-between items-center gap-4">
-                        <p className="text-[0.875rem] text-[#1F3F34]/60 font-body">© 2024 TrustHire. Built for the Human Hearth.</p>
+                        <p className="text-[0.875rem] text-[#1F3F34]/60 font-body">© {new Date().getFullYear()} TrustHire. All Rights Reserved</p>
                         <nav className="flex gap-6 text-[0.875rem] font-bold">
                             <Link className="hover:text-[#FACD15] transition-colors" to="/privacy">Privacy Policy</Link>
                             <Link className="hover:text-[#FACD15] transition-colors" to="/terms">Terms of Service</Link>
@@ -130,10 +138,12 @@ export default function ForgotPasswordPage() {
                             </div>
                         )}
 
-                        <form onSubmit={handleSubmit} className="space-y-8">
+                        <p className="text-xs text-[#1F3F34]/60 mb-6 font-medium">Fields marked with <span className="text-red-500">*</span> are mandatory</p>
+
+                        <form onSubmit={handleSubmit} noValidate className="space-y-6">
                             <div className="space-y-2">
                                 <label className="text-[0.75rem] font-bold text-[#1F3F34] uppercase tracking-wider" htmlFor="identifier">
-                                    Email Address
+                                    Email Address <span className="text-red-500">*</span>
                                 </label>
                                 <input 
                                     className="w-full bg-[#E9E8E3] border-none rounded-[12px] px-4 py-5 text-[#1F3F34] focus:ring-2 focus:ring-[#FACD15] placeholder:text-[#1F3F34]/40" 
@@ -207,7 +217,7 @@ export default function ForgotPasswordPage() {
             {/* Simple Footer */}
             <footer className="w-full py-8 bg-[#F5F4EF] border-t border-[#1F3F34]/10">
                 <div className="max-w-7xl mx-auto px-8 flex flex-col md:flex-row justify-between items-center gap-4">
-                    <p className="text-[0.875rem] text-[#1F3F34]/60 font-body">© 2024 TrustHire. Built for the Human Hearth.</p>
+                    <p className="text-[0.875rem] text-[#1F3F34]/60 font-body">© {new Date().getFullYear()} TrustHire. All Rights Reserved</p>
                     <nav className="flex gap-6 text-[0.875rem] font-bold">
                         <Link className="hover:text-[#FACD15] transition-colors" to="/privacy">Privacy Policy</Link>
                         <Link className="hover:text-[#FACD15] transition-colors" to="/terms">Terms of Service</Link>

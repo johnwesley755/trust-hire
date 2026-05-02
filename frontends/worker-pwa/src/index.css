@@ -13,6 +13,10 @@
   --color-surface-container-lowest: #ffffff;
   --color-on-surface: #1F3F34;
   --color-on-surface-variant: #414845;
+  --color-error: #ba1a1a;
+  --color-error-container: #ffdad6;
+  --color-on-error: #ffffff;
+  --color-on-error-container: #93000a;
   
   /* Brand Typography */
   --font-headline: "Bricolage Grotesque", "Epilogue", sans-serif;
