@@ -8,10 +8,10 @@ import {
   Star,
   Home
 } from 'lucide-react';
-import { useUser } from "../../../core/providers/AuthContext";
+import { useUser } from "../../../providers/AuthContext";
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { useLanguage } from '../../../core/hooks/useLanguage';
+
 
 export const ProfileCard = () => {
   const { user } = useUser();
@@ -80,13 +80,12 @@ export const ProfileCard = () => {
 
 export const ActionTiles = () => {
   const navigate = useNavigate();
-  const { t } = useLanguage();
   
   const actions = [
-    { title: t('dashboard.actions.findJobs'), icon: <Search className="w-4 h-4" />, path: '/search' },
-    { title: t('dashboard.actions.skillTests'), icon: <Award className="w-4 h-4" />, path: '/tests' },
-    { title: t('dashboard.actions.history'), icon: <Briefcase className="w-4 h-4" />, path: '/history' },
-    { title: t('dashboard.actions.verifyId'), icon: <ShieldCheck className="w-4 h-4" />, path: '/verify-identity' },
+    { title: ('dashboard.actions.findJobs'), icon: <Search className="w-4 h-4" />, path: '/search' },
+    { title: ('dashboard.actions.skillTests'), icon: <Award className="w-4 h-4" />, path: '/tests' },
+    { title: ('dashboard.actions.history'), icon: <Briefcase className="w-4 h-4" />, path: '/history' },
+    { title: ('dashboard.actions.verifyId'), icon: <ShieldCheck className="w-4 h-4" />, path: '/verify-identity' },
   ];
 
   return (

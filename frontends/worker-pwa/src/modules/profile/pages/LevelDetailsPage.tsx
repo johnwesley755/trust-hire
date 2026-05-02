@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { levelService } from '../api/level.service';
-import { useUser } from '../../../core/providers/AuthContext';
+import { levelService } from '../../../services/level.service';
+import { useUser } from '../../../providers/AuthContext';
 import { Star, ShieldCheck, Briefcase, Award, ArrowUpCircle, Info } from 'lucide-react';
 import { motion } from 'framer-motion';
 

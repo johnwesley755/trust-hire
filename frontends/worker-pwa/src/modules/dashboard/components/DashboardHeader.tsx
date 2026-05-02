@@ -1,5 +1,5 @@
 import React from 'react';
-import { useUser } from '../../../core/providers/AuthContext';
+import { useUser } from '../../../providers/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { NotificationCenter } from './NotificationCenter';
 

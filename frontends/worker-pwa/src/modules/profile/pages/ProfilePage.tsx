@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { useAuth, useUser } from "../../../core/providers/AuthContext";
+import { useAuth, useUser } from "../../../providers/AuthContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useOutletContext, Link } from "react-router-dom";
-import { profileService, type WorkerProfile } from "../api/profile.service";
-import apiClient from "../../../core/api/apiClient";
+import { profileService, type WorkerProfile } from "../../../services/profile.service";
+import apiClient from "../../../api/apiClient";
 import { ProfileHeroCard } from "../components/ProfileHeroCard";
 import { ProfileStatsCard } from "../components/ProfileStatsCard";
 import { ProfileDetailsForm } from "../components/ProfileDetailsForm";

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { searchWorkers, type WorkerSearch } from '../api/search.service';
+import { searchWorkers, type WorkerSearch } from '../../../services/search.service';
 import { Search, MapPin, Award, ShieldCheck, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 

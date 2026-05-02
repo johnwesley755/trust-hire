@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { useAuth, useUser } from "../../../core/providers/AuthContext";
+import { useAuth, useUser } from "../../../providers/AuthContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { profileService, type EmployerProfile } from "../api/profile.service";
-import apiClient from "../../../core/api/apiClient";
+import { profileService, type EmployerProfile } from "../../../services/profile.service";
+import apiClient from "../../../api/apiClient";
 import { 
     User, Mail, MapPin, Building2, LogOut, ShieldCheck, 
     Camera, Loader2, Globe, ExternalLink, 

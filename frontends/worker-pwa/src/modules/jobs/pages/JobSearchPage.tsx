@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { searchJobs } from '../api/search.service';
-import { jobService } from '../api/job.service';
-import { applicationService } from '../api/application.service';
-import { profileService } from '../../profile/api/profile.service';
+import { searchJobs } from '../../../services/search.service';
+import { jobService } from '../../../services/job.service';
+import { applicationService } from '../../../services/application.service';
+import { profileService } from '../../../services/profile.service';
 import { Search, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, useSearchParams } from 'react-router-dom';

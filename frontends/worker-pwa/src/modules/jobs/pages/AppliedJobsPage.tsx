@@ -1,10 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useOutletContext } from "react-router-dom";
-import { applicationService } from "../api/application.service";
-import { jobService } from "../api/job.service";
+import { applicationService } from "../../../services/application.service";
+import { jobService } from "../../../services/job.service";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
-import { useUser } from "../../../core/providers/AuthContext";
+import { useUser } from "../../../providers/AuthContext";
 
 export default function AppliedJobsPage() {
   const navigate = useNavigate();

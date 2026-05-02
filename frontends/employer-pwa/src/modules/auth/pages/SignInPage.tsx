@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../../core/providers/AuthContext';
-import apiClient from '../../../core/api/apiClient';
+import { useAuth } from '../../../providers/AuthContext';
+import apiClient from '../../../api/apiClient';
 import { motion } from 'framer-motion';
 
 export const SignInPage = () => {

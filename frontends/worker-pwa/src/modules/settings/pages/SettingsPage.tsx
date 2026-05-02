@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import apiClient from '../../../core/api/apiClient';
-import { useAuth } from '../../../core/providers/AuthContext';
+import apiClient from '../../../api/apiClient';
+import { useAuth } from '../../../providers/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface UserSettings {

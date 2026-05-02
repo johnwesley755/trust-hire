@@ -1,10 +1,10 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { jobService } from '../api/job.service';
-import { applicationService } from '../api/application.service';
-import { profileService } from '../../profile/api/profile.service';
+import { jobService } from '../../../services/job.service';
+import { applicationService } from '../../../services/application.service';
+import { profileService } from '../../../services/profile.service';
 import { useState } from 'react';
-import { formatMissingProfileFields, getMissingProfileFields } from '../../../core/utils/profileCompletion';
+import { formatMissingProfileFields, getMissingProfileFields } from '../../../utils/profileCompletion';
 import { motion } from 'framer-motion';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';

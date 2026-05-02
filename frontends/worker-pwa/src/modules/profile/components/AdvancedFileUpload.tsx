@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { mediaService } from '../api/media.service';
+import { mediaService } from '../../../services/media.service';
 
 interface UploadedFile {
     id: string;

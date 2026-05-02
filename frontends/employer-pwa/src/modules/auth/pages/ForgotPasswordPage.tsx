@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
-import { authService } from '../api/auth.service';
+import { authService } from '../../../services/auth.service';
 
 export default function ForgotPasswordPage() {
     const [email, setEmail] = useState('');

@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { workerService } from '../api/worker.service';
+import { workerService } from '../../../services/worker.service';
 import { 
   ShieldCheck, 
   Star, 

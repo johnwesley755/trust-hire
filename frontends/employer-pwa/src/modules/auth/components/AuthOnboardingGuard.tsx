@@ -1,7 +1,7 @@
-import { useAuth, useUser } from "../../../core/providers/AuthContext";
+import { useAuth, useUser } from "../../../providers/AuthContext";
 import { useEffect, useState, useRef } from "react";
 import { Navigate, useLocation } from "react-router-dom";
-import apiClient from "../../../core/api/apiClient";
+import apiClient from "../../../api/apiClient";
 
 export const AuthOnboardingGuard = ({ children }: { children: React.ReactNode }) => {
   const { isSignedIn, isLoaded, updateUser } = useAuth();

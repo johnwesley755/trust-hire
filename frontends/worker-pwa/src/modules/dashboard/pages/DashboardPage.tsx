@@ -1,11 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
-import { searchJobs } from '../../jobs/api/search.service';
-import { profileService } from '../../profile/api/profile.service';
-import { jobService } from '../../jobs/api/job.service';
-import { applicationService } from '../../jobs/api/application.service';
-import { dashboardService } from '../api/dashboard.service';
+import { searchJobs } from '../../../services/search.service';
+import { profileService } from '../../../services/profile.service';
+import { jobService } from '../../../services/job.service'; 
+import { applicationService } from '../../../services/application.service';
+import { dashboardService } from '../../../services/dashboard.service';
 import { useNavigate } from 'react-router-dom';
-import { useLanguage } from '../../../core/hooks/useLanguage';
 import { useState, useEffect } from 'react';
 
 // New Modular Components
@@ -13,11 +12,10 @@ import { StatsSection } from '../components/StatsSection';
 import { JobBentoCard, FeaturedJobCard } from '../components/JobBentoCard';
 import { ProgressSidePanel } from '../components/ProgressSidePanel';
 import { Loader2 } from 'lucide-react';
-import apiClient from '../../../core/api/apiClient';
+import apiClient from '../../../api/apiClient';
 
 export default function DashboardPage() {
   const navigate = useNavigate();
-  useLanguage();
   const [coords, setCoords] = useState<{lat: number, lon: number} | null>(null);
 
   useEffect(() => {
@@ -96,7 +94,7 @@ export default function DashboardPage() {
 
   // Map earnings from job statistics or mock for design
   const totalEarnings = visibleJobs.reduce((acc, job) => acc + (job.budget || 0), 0);
-  const formattedEarnings = `₹${(totalEarnings / 10).toLocaleString()}`; // Scaling for realism in demo
+  // const formattedEarnings = `₹${(totalEarnings / 10).toLocaleString()}`; // Scaling for realism in demo
 
   return (
     <div className="p-4 md:p-8 pr-8 lg:pr-16 w-full relative">

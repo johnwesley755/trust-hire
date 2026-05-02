@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useAuth } from "../../../core/providers/AuthContext";
+import { useAuth } from "../../../providers/AuthContext";
 
 export function LandingNavbar() {
   const { isSignedIn } = useAuth();

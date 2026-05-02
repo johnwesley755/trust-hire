@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { jobService } from '../api/job.service';
-import { applicationService } from '../api/application.service';
+import { jobService } from '../../../services/job.service';
+import { applicationService } from '../../../services/application.service';
 import { 
     PlusCircle, 
     Plus, 

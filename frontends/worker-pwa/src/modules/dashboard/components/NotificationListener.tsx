@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useSocket } from '../../../core/providers/SocketProvider';
+import { useSocket } from '../../../providers/SocketProvider';
 import { toast } from 'sonner';
 import { Bell, CheckCircle2, Info, AlertTriangle } from 'lucide-react';
 import React from 'react';

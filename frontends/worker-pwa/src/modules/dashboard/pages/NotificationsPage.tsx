@@ -1,6 +1,6 @@
 import React from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { notificationService, type AppNotification } from '../api/notification.service';
+import { notificationService, type AppNotification } from '../../../services/notification.service';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Bell, CheckCircle2, Info, AlertTriangle, ChevronLeft, CheckCheck } from 'lucide-react';
