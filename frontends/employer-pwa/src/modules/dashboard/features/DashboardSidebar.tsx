@@ -1,4 +1,5 @@
 import { useUser, useAuth } from "../../../providers/AuthContext";
+import logo from "../../../assets/logo.png";
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { profileService } from '../../../services/profile.service';
@@ -42,10 +43,15 @@ export const DashboardSidebar = ({ isOpen, onClose }: { isOpen: boolean, onClose
                 isOpen ? 'translate-x-0' : '-translate-x-full'
             } md:flex flex-col`}>
                 {/* Logo Section */}
-                <div className="mb-8 px-2 flex justify-between items-center" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
-                    <div>
-                        <h1 className="text-xl font-black text-white tracking-tight">TrustHire</h1>
-                        <p className="text-[10px] font-bold text-[#FACD15] opacity-90">Employer Portal</p>
+                <div className="mb-10 px-2 flex justify-between items-center" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
+                    <div className="flex items-center gap-3 group">
+                        <div className="w-10 h-10 bg-white rounded-xl shadow-lg flex items-center justify-center p-1 group-hover:scale-105 transition-transform duration-300">
+                            <img src={logo} alt="TrustHire" className="w-full h-full object-contain" />
+                        </div>
+                        <div>
+                            <h1 className="text-xl font-black text-white tracking-tight">TrustHire</h1>
+                            <p className="text-[10px] font-bold text-[#FACD15] opacity-90">Employer Portal</p>
+                        </div>
                     </div>
                     <button onClick={onClose} className="md:hidden text-white/50 hover:text-white">
                         <span className="material-symbols-outlined">close</span>

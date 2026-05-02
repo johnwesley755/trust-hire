@@ -88,15 +88,22 @@ interface SidebarContentProps {
   currentPath: string;
 }
 
+import logo from "../../../assets/logo.png";
+
 const SidebarContent = ({ menuItems, accountItems, onNavigate, onLogout, currentPath }: SidebarContentProps) => {
     const navigate = useNavigate();
     const { user } = useAuth(); // or useUser()
     return (
         <div className="flex flex-col h-full w-full bg-[#1F3F34] dark:bg-[#002117] p-6 text-[#F5F4EF]/70 overflow-y-auto no-scrollbar">
             {/* Branding */}
-            <div className="mb-10 px-4 group cursor-pointer" onClick={() => navigate('/')}>
-                <h1 className="text-xl font-black text-[#FACD15] tracking-tight transition-all group-hover:scale-105">TrustHire</h1>
-                <p className="text-sm font-medium text-[#F5F4EF]/60 tracking-tight mt-1 transition-opacity group-hover:opacity-100">Worker Portal</p>
+            <div className="mb-10 px-4 flex items-center gap-3 group cursor-pointer" onClick={() => navigate('/')}>
+                <div className="w-10 h-10 bg-white rounded-xl shadow-lg flex items-center justify-center p-1 group-hover:scale-105 transition-transform duration-300">
+                    <img src={logo} alt="TrustHire" className="w-full h-full object-contain" />
+                </div>
+                <div>
+                    <h1 className="text-xl font-black text-[#FACD15] tracking-tight">TrustHire</h1>
+                    <p className="text-[10px] font-bold text-[#F5F4EF]/60 uppercase tracking-tight">Worker Portal</p>
+                </div>
             </div>
 
             {/* Profile Summary in Sidebar */}

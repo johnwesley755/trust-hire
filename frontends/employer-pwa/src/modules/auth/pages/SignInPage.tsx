@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../providers/AuthContext';
 import apiClient from '../../../api/apiClient';
-import { motion } from 'framer-motion';
 import { signInSchema } from '../../../validations/zodSchema';
 import { AuthHeader } from '../components/AuthHeader';
 import { AuthFooter } from '../components/AuthFooter';
@@ -14,7 +13,7 @@ export const SignInPage = () => {
     const [error, setError] = useState('');
     const { login } = useAuth();
     const navigate = useNavigate();
-    const isFormValid = email && password;
+    // const isFormValid = email && password;
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();

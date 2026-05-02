@@ -146,7 +146,7 @@ export const SignUpPage = () => {
         }
     };
 
-    const isFormValid = formData.firstName && formData.lastName && formData.email && formData.phoneNumber && formData.password;
+    // const isFormValid = formData.firstName && formData.lastName && formData.email && formData.phoneNumber && formData.password;
 
     if (otpSent) {
         return (

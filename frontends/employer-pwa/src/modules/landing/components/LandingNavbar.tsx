@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "../../../providers/AuthContext";
+import logo from "../../../assets/logo.png";
 
 export function LandingNavbar() {
   const { isSignedIn } = useAuth();
@@ -8,7 +9,12 @@ export function LandingNavbar() {
     <nav className="fixed top-0 w-full h-[72px] z-50 bg-white/80 backdrop-blur-md border-b border-brand-amber/20 shadow-sm transition-all duration-300">
       <div className="h-1 bg-brand-amber absolute top-0 left-0 w-1/4 shadow-[0_0_10px_#FACD15]"></div>
       <div className="flex justify-between items-center px-6 md:px-12 h-full max-w-[1440px] mx-auto">
-        <Link to="/" className="text-2xl font-black text-brand-forest tracking-tight">TrustHire</Link>
+        <Link to="/" className="flex items-center gap-3 group">
+          <div className="w-12 h-12 bg-white rounded-2xl shadow-lg flex items-center justify-center p-1.5 group-hover:scale-110 transition-transform duration-300">
+            <img src={logo} alt="TrustHire" className="w-full h-full object-contain" />
+          </div>
+          <span className="text-2xl font-black text-brand-forest tracking-tight">TrustHire</span>
+        </Link>
         
         <div className="hidden md:flex items-center gap-8">
           <a className="text-brand-forest font-bold border-b-2 border-brand-amber pb-1" href="#how-it-works">How It Works</a>
