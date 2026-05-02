@@ -110,7 +110,7 @@ export const WorkerProfilePage = () => {
                 <div className="flex-1 z-10 space-y-6">
                   <div>
                     <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-2 uppercase">{worker?.name}</h1>
-                    <p className="text-lg text-[#1F3F34]/70 font-medium">Senior Multi-Technical Specialist • {worker?.city || 'Bengaluru, KA'}</p>
+                    <p className="text-lg text-[#1F3F34]/70 font-medium">Senior Multi-Technical Specialist • {worker?.city || 'Chennai, TN'}</p>
                   </div>
 
                   {/* Metrics Grid inside Hero */}

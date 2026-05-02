@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { AuthProvider } from './providers/AuthContext.tsx'
 import { QueryProvider } from './providers/QueryProvider.tsx'
 import { SocketProvider } from './providers/SocketProvider.tsx'
-import { LanguageProvider } from './providers/LanguageContext.tsx'
+import { LanguageProvider } from './providers/LanguageProvider.tsx'
 import './index.css'
 import App from './App.tsx'
 

@@ -30,7 +30,7 @@ export default function LandingPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-surface font-body text-on-surface antialiased selection:bg-primary-fixed selection:text-primary">
+    <div className="min-h-screen bg-surface font-body text-on-surface antialiased selection:bg-primary-fixed selection:text-primary overflow-x-hidden">
       <LandingNavbar />
       <main>
         <LandingHero />

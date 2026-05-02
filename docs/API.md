@@ -576,7 +576,7 @@ client.publish({
 
 **Subscribe** (Worker):
 ```javascript
-client.subscribe('/topic/jobs/bengaluru', (frame) => {
+client.subscribe('/topic/jobs/chennai', (frame) => {
   const job = JSON.parse(frame.body);
   console.log('New job posted:', job);
 });

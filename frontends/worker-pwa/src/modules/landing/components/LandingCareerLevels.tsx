@@ -80,7 +80,7 @@ export function LandingCareerLevels() {
             
             <div className="mt-8 pt-8 border-t border-primary/5 flex items-center gap-2 text-emerald-600">
               <span className="material-symbols-outlined font-bold">verified</span>
-              <span className="font-bold text-sm uppercase tracking-wider">Top Rated in Bengaluru</span>
+              <span className="font-bold text-sm uppercase tracking-wider">Top Rated in Chennai</span>
             </div>
           </div>
           

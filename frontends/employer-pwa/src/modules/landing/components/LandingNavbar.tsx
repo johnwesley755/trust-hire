@@ -36,13 +36,13 @@ export function LandingNavbar() {
                 onChange={(e) => setTargetLang(e.target.value)}
                 className="bg-transparent text-[10px] font-bold text-brand-forest focus:outline-none cursor-pointer"
               >
-                <option value="hi">Hindi</option>
                 <option value="ta">Tamil</option>
                 <option value="te">Telugu</option>
                 <option value="ml">Malayalam</option>
                 <option value="kn">Kannada</option>
                 <option value="mr">Marathi</option>
                 <option value="bn">Bengali</option>
+                <option value="hi">Hindi</option>
               </select>
               <div className="w-[1px] h-3 bg-brand-forest/20"></div>
               <button 
@@ -110,13 +110,13 @@ export function LandingNavbar() {
                     onChange={(e) => setTargetLang(e.target.value)}
                     className="w-full bg-brand-forest/5 border border-brand-forest/10 rounded-xl px-4 py-3 text-sm font-bold text-brand-forest"
                   >
-                    <option value="hi">Hindi (हिन्दी)</option>
                     <option value="ta">Tamil (தமிழ்)</option>
                     <option value="te">Telugu (తెలుగు)</option>
                     <option value="ml">Malayalam (മലയാളം)</option>
                     <option value="kn">Kannada (ಕನ್ನಡ)</option>
                     <option value="mr">Marathi (मराठी)</option>
                     <option value="bn">Bengali (বাংলা)</option>
+                    <option value="hi">Hindi (हिन्दी)</option>
                   </select>
                   <button 
                     onClick={() => {

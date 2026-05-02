@@ -110,24 +110,24 @@ export function LandingHero() {
           <img alt="Confident Indian professional worker" className="w-full h-full object-cover blob-1 shadow-2xl" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCxXORgcKyt9uJ1oFKJ5sJmbKddzEoRKxA-AegAZOCHU5zT58-mjYDmywPjTdrD3nXA7-n4nmfs6uBUDotIHp5koWQaEtXiEZQH5dfUTw_FKs79egOeslzk_DjdzEXhJoymi5-aDYoQUvPVmgyMt2DwVUJhRvP1xNXbxnJnYZZPlq38VDxppqh6_3wPnkkg2_ij-nEXySW0IPojhUqYy-fxTazhj-QDWTq33joAKmalMj3Tt1V0MWeqxHkPRfXBpaoUntYeV4WC4og"/>
           
           {/* Floating Card 1 */}
-          <div className="absolute -top-4 -left-8 bg-white p-4 rounded-2xl shadow-xl flex items-center gap-4 animate-bounce" style={{ animationDuration: "3s" }}>
-            <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
-              <span className="material-symbols-outlined font-bold">trending_up</span>
+          <div className="absolute -top-4 -left-4 md:-left-8 bg-white p-3 md:p-4 rounded-2xl shadow-xl flex items-center gap-3 md:gap-4 animate-bounce" style={{ animationDuration: "3s" }}>
+            <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
+              <span className="material-symbols-outlined font-bold text-sm md:text-base">trending_up</span>
             </div>
             <div>
-              <p className="text-xs font-bold text-primary/60 uppercase tracking-wider">New Salary</p>
-              <p className="text-xl font-extrabold text-primary">₹22,000</p>
+              <p className="text-[10px] font-bold text-primary/60 uppercase tracking-wider">New Salary</p>
+              <p className="text-lg md:text-xl font-extrabold text-primary">₹22,000</p>
             </div>
           </div>
 
           {/* Floating Card 2 */}
-          <div className="absolute bottom-12 -right-8 bg-white p-4 rounded-2xl shadow-xl flex items-center gap-4 animate-bounce" style={{ animationDuration: "4s", animationDelay: "0.5s" }}>
-            <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center text-amber-600">
-              <span className="material-symbols-outlined font-bold">military_tech</span>
+          <div className="absolute bottom-12 -right-4 md:-right-8 bg-white p-3 md:p-4 rounded-2xl shadow-xl flex items-center gap-3 md:gap-4 animate-bounce" style={{ animationDuration: "4s", animationDelay: "0.5s" }}>
+            <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-amber-100 flex items-center justify-center text-amber-600">
+              <span className="material-symbols-outlined font-bold text-sm md:text-base">military_tech</span>
             </div>
             <div>
-              <p className="text-xs font-bold text-primary/60 uppercase tracking-wider">Skill Level</p>
-              <p className="text-xl font-extrabold text-primary">Level Up L3</p>
+              <p className="text-[10px] font-bold text-primary/60 uppercase tracking-wider">Skill Level</p>
+              <p className="text-lg md:text-xl font-extrabold text-primary">Level Up L3</p>
             </div>
           </div>
         </div>
