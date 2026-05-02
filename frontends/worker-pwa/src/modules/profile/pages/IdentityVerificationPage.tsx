@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { verificationService } from '../api/verification.service';
-import apiClient from '../../../core/api/apiClient';
+import { verificationService } from '../../../services/verification.service';
+import apiClient from '../../../api/apiClient';
 import { HelpCircle, ArrowLeft } from 'lucide-react';
 import { AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../../core/providers/AuthContext';
+import { useAuth } from '../../../providers/AuthContext';
 
 // Modular Components
 import AadhaarStep from '../components/verification/AadhaarStep';

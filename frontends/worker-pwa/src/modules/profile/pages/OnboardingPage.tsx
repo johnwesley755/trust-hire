@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
-import { useAuth, useUser } from "../../../core/providers/AuthContext";
+import { useAuth, useUser } from "../../../providers/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
-import apiClient from "../../../core/api/apiClient";
+import apiClient from "../../../api/apiClient";
 import { 
   motion, 
   AnimatePresence 

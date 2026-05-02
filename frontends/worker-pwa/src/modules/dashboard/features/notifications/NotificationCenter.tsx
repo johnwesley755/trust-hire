@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { notificationService, type Notification } from '../../api/notification.service';
+import { notificationService, type Notification } from '../../../../services/notification.service';
 import { Bell, BellOff, CheckCircle2, Info, AlertTriangle } from 'lucide-react';
-import { useSocket } from '../../../../core/providers/SocketProvider';
+import { useSocket } from '../../../../providers/SocketProvider';
 
 interface NotificationCenterProps {
     position?: 'top' | 'bottom';

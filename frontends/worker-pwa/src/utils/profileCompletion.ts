@@ -1,4 +1,4 @@
-import type { WorkerProfile } from '../api/profile.service';
+import type { WorkerProfile } from '../../api/profile.service';
 
 const REQUIRED_FIELDS: Array<keyof WorkerProfile> = [
   'fullName',

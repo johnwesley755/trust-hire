@@ -1,8 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Briefcase, CheckCircle, Loader2, ChevronRight } from 'lucide-react';
-import type { JobSearch } from '../api/search.service';
-import type { Job } from '../api/job.service';
+import type { JobSearch } from '../../../services/search.service';
+import type { Job } from '../../../services/job.service';
 
 interface JobSearchResultCardProps {
   job: JobSearch | Job;

@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { DashboardSidebar } from '../../modules/dashboard/features/DashboardSidebar';
-import { DashboardHeader } from '../../modules/dashboard/components/DashboardHeader';
+import { DashboardSidebar } from '../modules/dashboard/features/DashboardSidebar';
+import { DashboardHeader } from '../modules/dashboard/components/DashboardHeader';
 import { Outlet, useLocation } from 'react-router-dom';
 
 export default function AppLayout() {

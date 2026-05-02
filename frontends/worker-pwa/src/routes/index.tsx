@@ -1,5 +1,5 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
-import { SignedIn } from '../core/providers/AuthContext';
+import { SignedIn } from '../providers/AuthContext.tsx';
 import LandingPage from '../modules/landing/pages/LandingPage.tsx';
 import DashboardPage from '../modules/dashboard/pages/DashboardPage.tsx';
 import { IdentityVerificationPage } from '../modules/profile/pages/IdentityVerificationPage.tsx';
@@ -15,12 +15,11 @@ import ProfilePage from '../modules/profile/pages/ProfilePage.tsx';
 import AppliedJobsPage from '../modules/jobs/pages/AppliedJobsPage.tsx';
 import OnboardingPage from '../modules/profile/pages/OnboardingPage.tsx';
 import { SettingsPage } from '../modules/settings/pages/SettingsPage.tsx';
-import { HelpPage } from '../modules/help/pages/HelpPage.tsx';
-import NotificationsPage from '../modules/dashboard/pages/NotificationsPage.tsx';
+import { HelpPage } from '../modules/help/HelpPage.tsx';
 
-import AppLayout from '../core/layouts/AppLayout.tsx';
-import RootLayout from '../core/layouts/RootLayout.tsx';
-import ProtectedRoute from '../core/layouts/ProtectedRoute.tsx';
+import AppLayout from '../layouts/AppLayout.tsx';
+import RootLayout from '../layouts/RootLayout.tsx';
+import ProtectedRoute from '../layouts/ProtectedRoute.tsx';
 
 export const router = createBrowserRouter([
   {

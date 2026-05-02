@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { skillTestService } from '../api/skill-test.service';
-import type { SkillTest } from '../api/skill-test.service';
+import { skillTestService } from '../../../services/skill-test.service';
+import type { SkillTest } from '../../../services/skill-test.service';
 import { Clock, Trophy, ChevronRight, Play } from 'lucide-react';
 import { useState } from 'react';
 import { motion } from 'framer-motion';

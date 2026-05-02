@@ -1,4 +1,4 @@
-import { useAuth } from '../providers/AuthContext';
+import { useAuth } from './AuthContext';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import type { ReactNode } from 'react';

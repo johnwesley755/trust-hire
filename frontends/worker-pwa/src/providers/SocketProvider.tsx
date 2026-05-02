@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import type { ReactNode } from 'react';
-import { useAuth } from '../providers/AuthContext';
+import { useAuth } from './AuthContext';
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 

@@ -1,7 +1,6 @@
 import React from 'react';
-import { useAuth } from "../../../core/providers/AuthContext";
+import { useAuth } from "../../../providers/AuthContext";
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useLanguage } from '../../../core/hooks/useLanguage';
 
 interface DashboardSidebarProps {
   isOpen?: boolean;
@@ -12,20 +11,19 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ isOpen, onCl
     const { logout } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
-    const { t } = useLanguage();
     
     const menuItems = [
-        { name: t('sidebar.dashboard'), icon: 'dashboard', path: '/dashboard' },
-        { name: t('sidebar.findJobs'), icon: 'search', path: '/search' },
+        { name: 'Dashboard', icon: 'dashboard', path: '/dashboard' },
+        { name: 'Find Jobs', icon: 'search', path: '/search' },
         { name: 'Applied Jobs', icon: 'work_history', path: '/applied-jobs' },
-        { name: t('sidebar.skillTests'), icon: 'psychology', path: '/tests' },
-        { name: t('sidebar.profile'), icon: 'person', path: '/profile' },
+        { name: 'Skill Tests', icon: 'psychology', path: '/tests' },
+        { name: 'Profile', icon: 'person', path: '/profile' },
     ];
 
     const accountItems = [
-        { name: t('sidebar.verifyIdentity'), icon: 'verified_user', path: '/verify-identity' },
-        { name: t('sidebar.settings'), icon: 'settings', path: '/settings' },
-        { name: t('sidebar.help'), icon: 'help', path: '/help' },
+        { name: 'Verify Identity', icon: 'verified_user', path: '/verify-identity' },
+        { name: 'Settings', icon: 'settings', path: '/settings' },
+        { name: 'Help', icon: 'help', path: '/help' },
     ];
 
     const handleNavigate = (path: string) => {

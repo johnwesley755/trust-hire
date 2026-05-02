@@ -1,4 +1,4 @@
-import apiClient from '../../../core/api/apiClient';
+import apiClient from '../api/apiClient';
 
 export interface JobApplication {
   id?: string;

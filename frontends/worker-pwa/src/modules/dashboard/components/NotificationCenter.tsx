@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { notificationService, type AppNotification } from '../api/notification.service';
+import { notificationService, type AppNotification } from '../../../services/notification.service';
 import { Bell, BellOff, CheckCircle2, Info, AlertTriangle, Clock, Trash2 } from 'lucide-react';
-import { useSocket } from '../../../core/providers/SocketProvider';
+import { useSocket } from '../../../providers/SocketProvider';
 import { formatDistanceToNow } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import React from 'react';
