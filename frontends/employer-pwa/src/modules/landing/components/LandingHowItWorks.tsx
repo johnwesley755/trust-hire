@@ -1,10 +1,24 @@
+import { useTranslate } from "../../../hooks/useTranslate";
+
 export function LandingHowItWorks() {
+  const originalTexts = {
+    heading: "Three steps to peace of mind",
+    s1_title: "Post Your Need",
+    s1_desc: "Describe the role, salary, and location. Our AI categorizes your job instantly.",
+    s2_title: "Review Verified",
+    s2_desc: "Choose from pre-screened, Aadhaar-verified workers with real past performance data.",
+    s3_title: "Hire & Start",
+    s3_desc: "Communicate directly via our platform and onboard with a single click.",
+  };
+
+  const { t } = useTranslate(originalTexts);
+
   return (
     <section className="py-16 bg-brand-beige relative overflow-hidden" id="how-it-works">
       <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-brand-amber/5 organic-blob opacity-50"></div>
       <div className="absolute -bottom-20 -left-20 w-[300px] h-[300px] bg-emerald-100/30 organic-blob opacity-40"></div>
       <div className="container mx-auto px-6 md:px-12 text-center mb-12">
-        <h2 className="text-3xl md:text-4xl font-extrabold text-brand-forest text-heavy">Three steps to peace of mind</h2>
+        <h2 className="text-3xl md:text-4xl font-extrabold text-brand-forest text-heavy">{t('heading')}</h2>
       </div>
       <div className="container mx-auto px-6 md:px-12 relative">
         <div className="grid md:grid-cols-3 gap-6">
@@ -14,8 +28,8 @@ export function LandingHowItWorks() {
             <div className="w-14 h-14 bg-brand-amber rounded-DEFAULT flex items-center justify-center mb-6">
               <span className="material-symbols-outlined text-brand-forest text-2xl">post_add</span>
             </div>
-            <h3 className="text-xl font-bold text-brand-forest mb-3">Post Your Need</h3>
-            <p className="text-brand-forest/70 leading-relaxed text-sm">Describe the role, salary, and location. Our AI categorizes your job instantly.</p>
+            <h3 className="text-xl font-bold text-brand-forest mb-3">{t('s1_title')}</h3>
+            <p className="text-brand-forest/70 leading-relaxed text-sm">{t('s1_desc')}</p>
           </div>
           {/* Step 2 */}
           <div className="bg-white p-8 rounded-lg relative group hover:-translate-y-2 transition-transform shadow-sm">
@@ -23,8 +37,8 @@ export function LandingHowItWorks() {
             <div className="w-14 h-14 bg-brand-amber rounded-DEFAULT flex items-center justify-center mb-6">
               <span className="material-symbols-outlined text-brand-forest text-2xl">fact_check</span>
             </div>
-            <h3 className="text-xl font-bold text-brand-forest mb-3">Review Verified</h3>
-            <p className="text-brand-forest/70 leading-relaxed text-sm">Choose from pre-screened, Aadhaar-verified workers with real past performance data.</p>
+            <h3 className="text-xl font-bold text-brand-forest mb-3">{t('s2_title')}</h3>
+            <p className="text-brand-forest/70 leading-relaxed text-sm">{t('s2_desc')}</p>
           </div>
           {/* Step 3 */}
           <div className="bg-white p-8 rounded-lg relative group hover:-translate-y-2 transition-transform shadow-sm">
@@ -32,8 +46,8 @@ export function LandingHowItWorks() {
             <div className="w-14 h-14 bg-brand-amber rounded-DEFAULT flex items-center justify-center mb-6">
               <span className="material-symbols-outlined text-brand-forest text-2xl">handshake</span>
             </div>
-            <h3 className="text-xl font-bold text-brand-forest mb-3">Hire & Start</h3>
-            <p className="text-brand-forest/70 leading-relaxed text-sm">Communicate directly via our platform and onboard with a single click.</p>
+            <h3 className="text-xl font-bold text-brand-forest mb-3">{t('s3_title')}</h3>
+            <p className="text-brand-forest/70 leading-relaxed text-sm">{t('s3_desc')}</p>
           </div>
         </div>
       </div>

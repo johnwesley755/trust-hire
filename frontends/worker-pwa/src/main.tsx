@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { AuthProvider } from './providers/AuthContext.tsx'
 import { QueryProvider } from './providers/QueryProvider.tsx'
 import { SocketProvider } from './providers/SocketProvider.tsx'
+import { LanguageProvider } from './providers/LanguageContext.tsx'
 import './index.css'
 import App from './App.tsx'
 
@@ -11,9 +12,9 @@ createRoot(document.getElementById('root')!).render(
     <AuthProvider>
       <QueryProvider>
         <SocketProvider>
-   
+          <LanguageProvider>
             <App />
-   
+          </LanguageProvider>
         </SocketProvider>
       </QueryProvider>
     </AuthProvider>

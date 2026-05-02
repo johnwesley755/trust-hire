@@ -46,7 +46,8 @@ public class SecurityConfig {
                     "/api/auth/forgot-password",
                     "/api/auth/reset-password",
                     "/api/auth/webhooks/**",
-                    "/api/early-access",
+                    "/api/early-access/**",
+                    "/api/translate/**",
                     "/ws/**"
                 ).permitAll());
 

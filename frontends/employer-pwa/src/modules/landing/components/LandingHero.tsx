@@ -1,13 +1,29 @@
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { miscService } from "../../../services/misc.service";
 import { earlyAccessSchema } from '../../../validations/zodSchema';
+import { useLanguage } from "../../../providers/LanguageContext";
 
 export function LandingHero() {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState('');
+
+  const { translations, translate } = useLanguage();
+
+  const originalTexts = {
+    heading: "Hire Verified Workers. Zero Risk.",
+    subheading: "Be among the first employers to hire verified blue-collar talent. Secure your spot on India's most trusted hiring network."
+  };
+
+  useEffect(() => {
+    const handleTrigger = () => {
+      translate(originalTexts);
+    };
+    window.addEventListener('trigger-translation', handleTrigger);
+    return () => window.removeEventListener('trigger-translation', handleTrigger);
+  }, [translate]);
 
   const handleWaitlistSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,26 +48,25 @@ export function LandingHero() {
   };
 
   return (
-    <section className="relative min-h-[80vh] flex items-center pt-[72px] pb-8 overflow-hidden bg-brand-beige">
+    <section className="relative min-h-[80vh] flex items-center pt-[72px] pb-8 overflow-x-hidden bg-brand-beige">
       {/* Decorative Blobs */}
-      <div className="absolute -top-24 -left-24 w-96 h-96 bg-brand-amber/20 organic-blob blur-3xl opacity-50"></div>
-      <div className="absolute top-1/2 -right-48 w-[500px] h-[500px] bg-emerald-900/10 organic-blob-alt blur-3xl"></div>
+      <div className="absolute -top-24 -left-24 w-64 h-64 md:w-96 md:h-96 bg-brand-amber/20 organic-blob blur-3xl opacity-50 -z-10"></div>
+      <div className="absolute top-1/2 -right-24 md:-right-48 w-80 h-80 md:w-[500px] md:h-[500px] bg-emerald-900/10 organic-blob-alt blur-3xl -z-10"></div>
       
-      <div className="container mx-auto px-6 md:px-12 grid md:grid-cols-2 gap-8 items-center relative">
+      <div className="container mx-auto px-4 md:px-12 grid md:grid-cols-2 gap-8 items-center relative">
         <div className="z-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-forest/5 text-brand-forest text-xs font-bold uppercase tracking-wider mb-6">
-            <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            Early Access Now Open
+          <div className="flex items-center justify-between mb-6">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-forest/5 text-brand-forest text-[10px] md:text-xs font-bold uppercase tracking-wider">
+              <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              Early Access Now Open
+            </div>
           </div>
-          <h1 className="text-5xl md:text-[68px] font-extrabold leading-[0.95] text-brand-forest text-heavy mb-6">
-            Hire Verified Workers. <br/>
-            <span className="relative">
-              Zero Risk.
-              <span className="absolute bottom-1 left-0 w-full h-3 bg-brand-amber -z-10 opacity-60"></span>
-            </span>
+
+          <h1 className="text-4xl md:text-[68px] font-extrabold leading-[1.1] text-brand-forest text-heavy mb-6">
+            {translations.heading || originalTexts.heading}
           </h1>
-          <p className="text-xl text-brand-forest/80 leading-snug mb-8 max-w-lg">
-            Be among the first employers to hire verified blue-collar talent. Secure your spot on India's most trusted hiring network.
+          <p className="text-lg md:text-xl text-brand-forest/80 leading-snug mb-8 max-w-lg">
+            {translations.subheading || originalTexts.subheading}
           </p>
           {isSuccess ? (
             <div className="bg-emerald-500/10 border border-emerald-500 text-emerald-700 px-6 py-4 rounded-xl flex items-center gap-3">

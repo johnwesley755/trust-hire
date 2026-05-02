@@ -1,13 +1,29 @@
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { miscService } from "../../../services/misc.service";
 import { earlyAccessSchema } from '../../../validations/zodSchema';
+import { useLanguage } from "../../../providers/LanguageContext";
 
 export function LandingHero() {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState('');
+  
+  const { translations, translate } = useLanguage();
+
+  const originalTexts = {
+    heading: "Your Skills Deserve Better Pay. We Make That Happen.",
+    subheading: "Connect with verified employers who value your work. Get insurance, weekly pay, and a path to grow your salary."
+  };
+
+  useEffect(() => {
+    const handleTrigger = () => {
+      translate(originalTexts);
+    };
+    window.addEventListener('trigger-translation', handleTrigger);
+    return () => window.removeEventListener('trigger-translation', handleTrigger);
+  }, [translate]);
 
   const handleWaitlistSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,23 +48,19 @@ export function LandingHero() {
   };
 
   return (
-    <section className="relative pt-32 pb-20 px-6 md:px-12 max-w-[1440px] mx-auto grid md:grid-cols-2 gap-12 items-center min-h-[800px]">
+    <section className="relative pt-24 md:pt-32 pb-20 px-4 md:px-12 max-w-[1440px] mx-auto grid md:grid-cols-2 gap-12 items-center min-h-[600px] md:min-h-[800px] overflow-x-hidden">
       {/* Extra Hero Blobs for Visual Interest */}
-      <div className="absolute top-1/4 -left-20 w-64 h-64 bg-primary-fixed/10 blob-1 -z-10 blur-2xl"></div>
-      <div className="absolute top-10 right-1/4 w-40 h-40 bg-secondary-container/30 blob-4 -z-10 opacity-60"></div>
-      <div className="absolute bottom-1/4 right-0 w-96 h-96 bg-secondary-container/20 blob-3 -z-10 blur-3xl"></div>
+      <div className="absolute top-1/4 -left-20 w-48 h-48 md:w-64 md:h-64 bg-primary-fixed/10 blob-1 -z-10 blur-2xl"></div>
+      <div className="absolute top-10 right-1/4 w-32 h-32 md:w-40 md:h-40 bg-secondary-container/30 blob-4 -z-10 opacity-60"></div>
+      <div className="absolute bottom-1/4 right-0 w-64 h-64 md:w-96 md:h-96 bg-secondary-container/20 blob-3 -z-10 blur-3xl"></div>
       
       <div className="relative z-10">
-        <h1 className="text-[48px] md:text-[68px] font-extrabold text-primary leading-[1.1] text-heavy">
-          Your Skills Deserve <br/>
-          <span className="relative inline-block">
-            Better Pay.
-            <span className="absolute -bottom-2 left-0 w-full h-4 bg-primary-fixed -z-10 rounded-full"></span>
-          </span>
-          <br/>We Make That Happen.
+
+        <h1 className="text-[36px] md:text-[68px] font-extrabold text-primary leading-[1.1] text-heavy">
+          {translations.heading || originalTexts.heading}
         </h1>
-        <p className="mt-8 text-xl md:text-2xl text-primary/80 max-w-xl leading-relaxed">
-          Connect with verified employers who value your work. Get insurance, weekly pay, and a path to grow your salary.
+        <p className="mt-6 md:mt-8 text-lg md:text-2xl text-primary/80 max-w-xl leading-relaxed">
+          {translations.subheading || originalTexts.subheading}
         </p>
         <div className="mt-10">
           {isSuccess ? (
