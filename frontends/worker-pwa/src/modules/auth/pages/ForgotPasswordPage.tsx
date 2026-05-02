@@ -50,14 +50,14 @@ export default function ForgotPasswordPage() {
                                     Check your Email
                                 </h1>
                                 <p className="text-[1rem] leading-[1.6] text-[#1F3F34]/70">
-                                    We've sent a password reset link to <span className="font-bold text-[#1F3F34]">{email}</span>. Click the link in the email to securely reset your password.
+                                    We've sent a 6-digit reset code to <span className="font-bold text-[#1F3F34]">{email}</span>. Use the code on the next page to securely reset your password.
                                 </p>
                             </div>
                             <button 
-                                onClick={() => navigate('/sign-in')}
+                                onClick={() => navigate('/reset-password')}
                                 className="w-full bg-[#FACD15] text-[#1F3F34] font-extrabold rounded-[12px] py-4 text-center shadow-[inset_0_-2px_0_rgba(0,0,0,0.1)] active:scale-[0.98] transition-all hover:bg-[#eac012]"
                             >
-                                BACK TO LOGIN
+                                ENTER RESET CODE
                             </button>
                         </div>
                     </section>

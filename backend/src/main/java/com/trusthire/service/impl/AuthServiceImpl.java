@@ -137,13 +137,17 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public void processForgotPassword(String email) {
+    public void processForgotPassword(String email, String role) {
         UserMetadata user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
 
-        String resetToken = UUID.randomUUID().toString();
+        if (role != null && !user.getRole().name().equalsIgnoreCase(role)) {
+            throw new BadRequestException("No account found for this email in the " + role.toLowerCase() + " platform.");
+        }
+
+        String resetToken = String.format("%06d", new java.util.Random().nextInt(999999));
         user.setResetToken(resetToken);
-        user.setResetTokenExpiry(LocalDateTime.now().plusHours(1));
+        user.setResetTokenExpiry(LocalDateTime.now().plusMinutes(15));
         userRepository.save(user);
 
         try {
@@ -159,8 +163,8 @@ public class AuthServiceImpl implements AuthService {
             Map<String, Object> body = new HashMap<>();
             body.put("sender", Map.of("name", fromName, "email", fromEmail));
             body.put("to", Collections.singletonList(Map.of("email", email)));
-            body.put("subject", "TrustHire - Password Reset");
-            body.put("textContent", String.format("Hello,\n\nUse this token to reset your password:\n%s\n\nThis expires in 1 hour.", resetToken));
+            body.put("subject", "TrustHire - Password Reset Code");
+            body.put("htmlContent", getResetPasswordHtmlTemplate(resetToken));
 
             HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
             restTemplate.postForEntity("https://api.brevo.com/v3/smtp/email", entity, String.class);
@@ -170,6 +174,46 @@ public class AuthServiceImpl implements AuthService {
             throw new RuntimeException("Failed to send reset email.");
         }
     }
+
+    private String getResetPasswordHtmlTemplate(String code) {
+        return "<!DOCTYPE html>" +
+                "<html>" +
+                "<head>" +
+                "<style>" +
+                "  body { font-family: 'Inter', -apple-system, sans-serif; background-color: #f5f4ef; color: #1b1c19; margin: 0; padding: 40px 0; }" +
+                "  .container { max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }" +
+                "  .header { background-color: #1f3f34; padding: 40px 30px; text-align: center; border-bottom: 4px solid #facd15; }" +
+                "  .header h1 { color: #ffffff; margin: 0; font-size: 28px; font-weight: 900; letter-spacing: -0.5px; }" +
+                "  .header p { color: #facd15; margin: 5px 0 0 0; font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; }" +
+                "  .content { padding: 40px 30px; text-align: center; }" +
+                "  .content h2 { font-size: 22px; margin-top: 0; color: #1f3f34; text-align: left; }" +
+                "  .content p { font-size: 16px; line-height: 1.6; color: #4a4b48; margin-bottom: 24px; text-align: left; }" +
+                "  .otp-box { background-color: rgba(250, 205, 21, 0.1); border: 2px dashed #facd15; padding: 20px; border-radius: 8px; margin: 30px auto; max-width: 250px; text-align: center; font-size: 32px; font-weight: 900; letter-spacing: 8px; color: #1f3f34; }" +
+                "  .footer { background-color: #f9f9f9; padding: 20px 30px; text-align: center; border-top: 1px solid #eeeeee; }" +
+                "  .footer p { margin: 0; font-size: 12px; color: #888888; }" +
+                "</style>" +
+                "</head>" +
+                "<body>" +
+                "  <div class='container'>" +
+                "    <div class='header'>" +
+                "      <h1>TrustHire</h1>" +
+                "      <p>Password Security</p>" +
+                "    </div>" +
+                "    <div class='content'>" +
+                "      <h2>Reset your password</h2>" +
+                "      <p>We received a request to reset your password. Use the following 6-digit code to complete the process. This code is valid for 15 minutes.</p>" +
+                "      <div class='otp-box'>" + code + "</div>" +
+                "      <p style='text-align: left;'>If you did not request a password reset, please ignore this email or contact support if you have concerns.</p>" +
+                "      <p style='text-align: left;'>Best regards,<br><strong>The TrustHire Team</strong></p>" +
+                "    </div>" +
+                "    <div class='footer'>" +
+                "      <p>&copy; " + java.time.Year.now().getValue() + " TrustHire. All rights reserved.</p>" +
+                "    </div>" +
+                "  </div>" +
+                "</body>" +
+                "</html>";
+    }
+
 
     @Override
     @Transactional

@@ -14,6 +14,8 @@ import ResetPasswordPage from '../modules/auth/pages/ResetPasswordPage.tsx';
 import ProfilePage from '../modules/profile/pages/ProfilePage.tsx';
 import AppliedJobsPage from '../modules/jobs/pages/AppliedJobsPage.tsx';
 import OnboardingPage from '../modules/profile/pages/OnboardingPage.tsx';
+import TermsPage from '../modules/landing/pages/TermsPage.tsx';
+import PrivacyPage from '../modules/landing/pages/PrivacyPage.tsx';
 import { SettingsPage } from '../modules/settings/pages/SettingsPage.tsx';
 import { HelpPage } from '../modules/help/HelpPage.tsx';
 
@@ -44,6 +46,14 @@ export const router = createBrowserRouter([
       {
         path: '/reset-password',
         element: <ResetPasswordPage />,
+      },
+      {
+        path: '/terms',
+        element: <TermsPage />,
+      },
+      {
+        path: '/privacy',
+        element: <PrivacyPage />,
       },
       {
         element: (

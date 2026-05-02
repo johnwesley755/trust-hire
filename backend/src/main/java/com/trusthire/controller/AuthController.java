@@ -59,7 +59,8 @@ public class AuthController {
     @PostMapping("/forgot-password")
     public ResponseEntity<ApiResponse<String>> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
         String email = request.getEmail();
-        authService.processForgotPassword(email);
+        String role = request.getRole();
+        authService.processForgotPassword(email, role);
         return ResponseEntity.ok(ApiResponse.ok("Reset email sent successfully", "sent"));
     }
 

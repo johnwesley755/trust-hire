@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState } from 'react';
 import { ShieldCheck, Lock, Eye, EyeOff, CheckCircle2, ArrowRight } from 'lucide-react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { authService } from '../../../services/auth.service';
@@ -9,8 +8,8 @@ import { AuthFooter } from '../components/AuthFooter';
 
 export default function ResetPasswordPage() {
     const [searchParams] = useSearchParams();
-    const token = searchParams.get('token');
-    
+    const [tokenFromUrl] = useState(searchParams.get('token') || '');
+    const [token, setToken] = useState(tokenFromUrl);
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
@@ -22,8 +21,8 @@ export default function ResetPasswordPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         
-        if (!token) {
-            setError('Missing reset token. Please use the link from your email.');
+        if (!token || token.length < 6) {
+            setError('Please enter the 6-digit reset code sent to your email.');
             return;
         }
 
@@ -40,152 +39,219 @@ export default function ResetPasswordPage() {
             await authService.resetPassword({ token, password });
             setIsSuccess(true);
         } catch (err: any) {
-            setError(err.response?.data?.error || 'Failed to reset password. The link may have expired.');
+            setError(err.response?.data?.error || 'Failed to reset password. The code may be invalid or expired.');
         } finally {
             setIsLoading(false);
         }
     };
 
-    if (!token && !isSuccess) {
-        return (
-            <div className="min-h-screen bg-brand-bg flex flex-col antialiased">
-                <AuthHeader />
-                <div className="flex-1 flex items-center justify-center p-6 text-center pt-24">
-                <div className="bg-white p-10 rounded-4xl border border-brand-border space-y-6 max-w-md shadow-xl">
-                    <div className="w-16 h-16 bg-red-50 rounded-2xl flex items-center justify-center mx-auto text-red-500">
-                         <ShieldCheck className="w-8 h-8 opacity-20" />
-                    </div>
-                    <h2 className="text-2xl font-black text-brand-secondary">Invalid Link</h2>
-                    <p className="text-brand-muted font-bold text-sm">This password reset link is invalid or has expired. Please request a new one.</p>
-                    <Link to="/forgot-password" className="w-full py-4 bg-brand-secondary text-brand-primary rounded-2xl font-black text-xs tracking-widest uppercase hover:bg-neutral-800 transition-all border-none flex items-center justify-center">
-                        Request New Link
-                    </Link>
-                </div>
-                </div>
-                <AuthFooter />
-            </div>
-        );
-    }
-
     if (isSuccess) {
         return (
-            <div className="min-h-screen bg-brand-bg flex flex-col antialiased relative overflow-hidden">
+            <div className="bg-[#F5F4EF] text-[#1F3F34] font-headline min-h-screen flex flex-col antialiased">
                 <AuthHeader />
-                <div className="flex-1 flex items-center justify-center p-6 pt-24 relative overflow-hidden">
-                <div className="absolute inset-0 cloud-grid opacity-[0.05] pointer-events-none" />
-                <motion.div 
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="w-full max-w-md bg-white rounded-4xl border border-brand-border p-10 text-center space-y-8 shadow-2xl relative z-10"
-                >
-                    <div className="w-20 h-20 bg-emerald-50 rounded-3xl flex items-center justify-center mx-auto border-2 border-emerald-100">
-                        <CheckCircle2 className="w-10 h-10 text-emerald-500" />
-                    </div>
-                    <div className="space-y-3">
-                        <h2 className="text-3xl font-black text-brand-secondary tracking-tight">Success!</h2>
-                        <p className="text-brand-muted font-bold text-sm leading-relaxed">
-                            Your password has been updated. You can now log in with your new credentials.
-                        </p>
-                    </div>
-                    <button 
-                        onClick={() => navigate('/sign-in')}
-                        className="w-full py-4 bg-brand-secondary text-brand-primary rounded-2xl font-black text-xs tracking-widest uppercase hover:bg-neutral-800 transition-all shadow-lg flex items-center justify-center gap-2 group"
-                    >
-                        Login Now
-                        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                    </button>
-                </motion.div>
-                </div>
+                <main className="flex-1 flex flex-col md:flex-row pt-20">
+                    <section className="w-full md:w-1/2 flex items-start justify-center p-8 md:p-16 lg:p-24 bg-[#F5F4EF] pt-12 md:pt-24 lg:pt-32">
+                        <div className="max-w-md w-full space-y-8">
+                            <div>
+                                <div className="w-16 h-16 bg-[#1F3F34] rounded-2xl flex items-center justify-center mb-8">
+                                    <CheckCircle2 className="w-8 h-8 text-[#FACD15]" />
+                                </div>
+                                <h1 className="text-[3.5rem] font-extrabold leading-[1.1] tracking-[-0.02em] mb-4 text-[#1F3F34]">
+                                    Success!
+                                </h1>
+                                <p className="text-[1rem] leading-[1.6] text-[#1F3F34]/70">
+                                    Your password has been updated. You can now log in with your new credentials.
+                                </p>
+                            </div>
+                            <button 
+                                onClick={() => navigate('/sign-in')}
+                                className="w-full bg-[#FACD15] text-[#1F3F34] font-extrabold rounded-[12px] py-4 text-center shadow-[inset_0_-2px_0_rgba(0,0,0,0.1)] active:scale-[0.98] transition-all hover:bg-[#eac012] flex items-center justify-center gap-2"
+                            >
+                                LOGIN NOW
+                                <ArrowRight className="w-5 h-5" />
+                            </button>
+                        </div>
+                    </section>
+                    <section className="w-full md:w-1/2 bg-[#EFEEE9] relative overflow-hidden flex items-center justify-center min-h-[400px]">
+                        <div className="absolute top-[-10%] left-[-10%] w-[400px] h-[400px] bg-[#FACD15] opacity-10 rounded-full blur-3xl"></div>
+                        <div className="absolute bottom-[-10%] right-[-5%] w-[500px] h-[500px] bg-[#1F3F34] opacity-5 rounded-full blur-3xl"></div>
+                        <div className="relative z-10 w-full h-full flex items-center justify-center p-12">
+                            <div className="relative w-full max-w-lg aspect-square">
+                                <div className="absolute inset-0 bg-[#FACD15] organic-blob-mask scale-110"></div>
+                                <div className="absolute inset-0 organic-blob-mask overflow-hidden shadow-2xl">
+                                    <img 
+                                        alt="Success Illustration" 
+                                        className="w-full h-full object-cover grayscale-[0.1]" 
+                                        src="https://images.unsplash.com/photo-1551836022-d5d88e9218df?q=80&w=2070&auto=format&fit=crop" 
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </main>
                 <AuthFooter />
+                <style>{`
+                    .organic-blob-mask {
+                        mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%23FF0066' d='M44.7,-76.4C58.8,-69.2,71.8,-59.1,79.6,-46.2C87.4,-33.4,90.1,-17.7,88.5,-2.6C86.9,12.5,81,26.9,72.6,39.8C64.2,52.7,53.3,64.1,40.4,72.4C27.5,80.7,12.7,85.8,-2.1,89.5C-17,93.2,-34,95.4,-48.2,89.4C-62.4,83.4,-73.8,69.2,-81.4,54.1C-89,39,-92.8,23,-93.2,7.1C-93.5,-8.8,-90.4,-24.5,-83,-38.4C-75.6,-52.3,-63.9,-64.4,-50.2,-71.8C-36.5,-79.2,-20.8,-81.8,-5.1,-73.1C10.7,-64.3,26.4,-83.5,44.7,-76.4Z' transform='translate(100 100)' /%3E%3C/svg%3E");
+                        mask-size: contain;
+                        mask-repeat: no-repeat;
+                        mask-position: center;
+                    }
+                `}</style>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-brand-bg flex flex-col antialiased relative overflow-hidden">
+        <div className="bg-[#F5F4EF] text-[#1F3F34] font-headline min-h-screen flex flex-col antialiased">
             <AuthHeader />
-            <div className="flex-1 flex items-center justify-center p-6 pt-24 relative overflow-hidden">
-            <div className="absolute inset-0 cloud-grid opacity-[0.05] pointer-events-none" />
-            
-            <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="w-full max-w-md bg-white/80 backdrop-blur-2xl rounded-4xl border border-brand-border p-10 md:p-12 shadow-2xl relative z-10"
-            >
-                <div className="space-y-10">
-                    <div className="flex flex-col items-center gap-6">
-                        <div className="w-16 h-16 bg-brand-primary rounded-3xl flex items-center justify-center shadow-xl">
-                            <ShieldCheck className="w-9 h-9 text-brand-secondary" />
-                        </div>
-                        <div className="text-center space-y-2">
-                            <h2 className="text-3xl font-black text-brand-secondary tracking-tight">New Password</h2>
-                            <p className="text-brand-muted font-bold text-sm">Please enter and confirm your new password below.</p>
-                        </div>
-                    </div>
 
-                    <p className="text-[10px] font-bold text-brand-muted/70 mb-4 uppercase tracking-widest text-center">Fields marked with <span className="text-red-500">*</span> are mandatory</p>
-
-                    <form onSubmit={handleSubmit} noValidate className="space-y-6">
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-bold text-brand-muted uppercase tracking-widest ml-1">New Password <span className="text-red-500">*</span></label>
-                            <div className="relative group">
-                                <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-brand-secondary/30 group-focus-within:text-brand-primary transition-colors" />
-                                <input 
-                                    type={showPassword ? 'text' : 'password'}
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    className="w-full bg-white border border-brand-border/50 rounded-2xl py-5 pl-14 pr-12 text-brand-secondary font-bold focus:outline-none focus:ring-4 focus:ring-brand-primary/10 focus:border-brand-primary transition-all placeholder:text-brand-muted/20 text-sm shadow-sm"
-                                    placeholder="Minimum 8 characters"
-                                    required
-                                />
-                                <button 
-                                    type="button"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-5 top-1/2 -translate-y-1/2 text-brand-muted hover:text-brand-secondary transition-colors"
-                                >
-                                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                                </button>
-                            </div>
-                        </div>
-
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-bold text-brand-muted uppercase tracking-widest ml-1">Confirm Password <span className="text-red-500">*</span></label>
-                            <div className="relative group">
-                                <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-brand-secondary/30 group-focus-within:text-brand-primary transition-colors" />
-                                <input 
-                                    type={showPassword ? 'text' : 'password'}
-                                    value={confirmPassword}
-                                    onChange={(e) => setConfirmPassword(e.target.value)}
-                                    className="w-full bg-white border border-brand-border/50 rounded-2xl py-5 pl-14 pr-12 text-brand-secondary font-bold focus:outline-none focus:ring-4 focus:ring-brand-primary/10 focus:border-brand-primary transition-all placeholder:text-brand-muted/20 text-sm shadow-sm"
-                                    placeholder="Repeat new password"
-                                    required
-                                />
-                            </div>
+            <main className="flex-1 flex flex-col md:flex-row pt-20">
+                {/* Left Side: Reset Password Form */}
+                <section className="w-full md:w-1/2 flex items-start justify-center p-8 md:p-16 lg:p-24 bg-[#F5F4EF] pt-12 md:pt-8 lg:pt-4">
+                    <div className="max-w-lg w-full">
+                        <div className="mb-10 text-left">
+                            <h1 className="text-[3.5rem] font-extrabold leading-[1.1] tracking-[-0.02em] mb-4 text-[#1F3F34]">
+                                New Password
+                            </h1>
+                            <p className="text-[1.125rem] leading-[1.6] text-[#1F3F34]/70">
+                                Please enter the 6-digit code from your email and set your new password.
+                            </p>
                         </div>
 
                         {error && (
-                            <motion.div 
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                className="bg-red-50 text-red-500 p-4 rounded-xl text-xs font-bold border border-red-100 flex items-center gap-2"
-                            >
-                                <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                            <div className="mb-6 p-4 bg-red-50 border border-red-100 text-red-500 font-bold text-sm rounded-xl flex items-center gap-3">
+                                <span className="material-symbols-outlined">error</span>
                                 {error}
-                            </motion.div>
+                            </div>
                         )}
 
-                        <button 
-                            type="submit"
-                            disabled={isLoading}
-                            className={`w-full py-5 bg-brand-secondary text-brand-primary rounded-2xl font-black text-xs tracking-widest uppercase hover:bg-neutral-800 transition-all shadow-xl shadow-brand-secondary/10 active:scale-[0.98] ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                        >
-                            {isLoading ? 'Resetting...' : 'Update Password'}
-                        </button>
-                    </form>
-                </div>
-            </motion.div>
-            </div>
+                        <p className="text-xs text-[#1F3F34]/60 mb-6 font-medium">Fields marked with <span className="text-red-500">*</span> are mandatory</p>
+
+                        <form onSubmit={handleSubmit} noValidate className="space-y-6">
+                            <div className="space-y-2">
+                                <label className="text-[0.75rem] font-bold text-[#1F3F34] uppercase tracking-wider">
+                                    Reset Code <span className="text-red-500">*</span>
+                                </label>
+                                <div className="relative group">
+                                    <ShieldCheck className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-[#1F3F34]/30 group-focus-within:text-[#1F3F34] transition-colors" />
+                                    <input 
+                                        type="text"
+                                        value={token}
+                                        onChange={(e) => setToken(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                                        className="w-full bg-[#E9E8E3] border-none rounded-[12px] py-5 pl-14 pr-4 text-[#1F3F34] font-black tracking-[0.5em] focus:ring-2 focus:ring-[#FACD15] placeholder:text-[#1F3F34]/20 text-xl text-center"
+                                        placeholder="000000"
+                                        maxLength={6}
+                                        required
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-[0.75rem] font-bold text-[#1F3F34] uppercase tracking-wider">
+                                    New Password <span className="text-red-500">*</span>
+                                </label>
+                                <div className="relative group">
+                                    <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-[#1F3F34]/30 group-focus-within:text-[#1F3F34] transition-colors" />
+                                    <input 
+                                        type={showPassword ? 'text' : 'password'}
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        className="w-full bg-[#E9E8E3] border-none rounded-[12px] py-5 pl-14 pr-12 text-[#1F3F34] font-bold focus:ring-2 focus:ring-[#FACD15] placeholder:text-[#1F3F34]/40 text-lg"
+                                        placeholder="Minimum 8 characters"
+                                        required
+                                    />
+                                    <button 
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        className="absolute right-5 top-1/2 -translate-y-1/2 text-[#1F3F34]/40 hover:text-[#1F3F34] transition-colors"
+                                    >
+                                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-[0.75rem] font-bold text-[#1F3F34] uppercase tracking-wider">
+                                    Confirm Password <span className="text-red-500">*</span>
+                                </label>
+                                <div className="relative group">
+                                    <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-[#1F3F34]/30 group-focus-within:text-[#1F3F34] transition-colors" />
+                                    <input 
+                                        type={showPassword ? 'text' : 'password'}
+                                        value={confirmPassword}
+                                        onChange={(e) => setConfirmPassword(e.target.value)}
+                                        className="w-full bg-[#E9E8E3] border-none rounded-[12px] py-5 pl-14 pr-12 text-[#1F3F34] font-bold focus:ring-2 focus:ring-[#FACD15] placeholder:text-[#1F3F34]/40 text-lg"
+                                        placeholder="Repeat new password"
+                                        required
+                                    />
+                                </div>
+                            </div>
+
+                            <button 
+                                disabled={isLoading}
+                                className="w-full bg-[#FACD15] text-[#1F3F34] font-extrabold rounded-[12px] py-5 text-center shadow-[inset_0_-2px_0_rgba(0,0,0,0.1)] active:scale-[0.98] transition-all hover:bg-[#eac012] flex items-center justify-center gap-2 text-lg tracking-wider" 
+                                type="submit"
+                            >
+                                {isLoading ? (
+                                    <span className="material-symbols-outlined animate-spin text-xl">progress_activity</span>
+                                ) : (
+                                    <span>UPDATE PASSWORD</span>
+                                )}
+                            </button>
+                        </form>
+
+                        <div className="mt-12 flex justify-start">
+                            <Link className="flex items-center gap-2 text-[#1F3F34] font-bold hover:underline transition-all" to="/sign-in">
+                                <span className="material-symbols-outlined">arrow_back</span>
+                                Back to Login
+                            </Link>
+                        </div>
+                    </div>
+                </section>
+
+                {/* Right Side: Visual Asset */}
+                <section className="w-full md:w-1/2 bg-[#EFEEE9] relative overflow-hidden flex items-center justify-center min-h-[400px]">
+                    <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-[#FACD15] opacity-10 rounded-full blur-3xl"></div>
+                    <div className="absolute bottom-[-10%] right-[-5%] w-[50%] h-[50%] bg-[#1F3F34] opacity-5 rounded-full blur-3xl"></div>
+                    
+                    <div className="absolute top-20 right-20 w-16 h-16 bg-[#1F3F34] opacity-20 organic-blob-mask"></div>
+                    <div className="absolute bottom-40 left-10 w-24 h-24 bg-[#FACD15] opacity-40 organic-blob-mask"></div>
+                    
+                    <div className="relative z-10 w-full h-full flex items-center justify-center p-12">
+                        <div className="relative w-full max-w-lg aspect-square">
+                            <div className="absolute inset-0 bg-[#FACD15] organic-blob-mask scale-110"></div>
+                            <div className="absolute inset-0 organic-blob-mask overflow-hidden shadow-2xl">
+                                <img 
+                                    alt="Security Illustration" 
+                                    className="w-full h-full object-cover grayscale-[0.1]" 
+                                    src="https://images.unsplash.com/photo-1563986768609-322da13575f3?q=80&w=2070&auto=format&fit=crop" 
+                                />
+                            </div>
+                            <div className="absolute bottom-10 right-0 bg-[#FFFFFF] p-6 rounded-[24px] shadow-[0_20px_40px_-10px_rgba(31,63,52,0.08)] max-w-[200px] hidden lg:block">
+                                <div className="flex items-center gap-3 mb-2">
+                                    <div className="w-8 h-8 rounded-full bg-[#FACD15] flex items-center justify-center">
+                                        <span className="material-symbols-outlined text-[18px]">lock_reset</span>
+                                    </div>
+                                    <span className="text-[0.75rem] font-bold">Secure Reset</span>
+                                </div>
+                                <p className="text-[0.85rem] leading-relaxed text-[#1F3F34]/60">Your account security is our top priority. Reset with confidence.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+
             <AuthFooter />
+
+            <style>{`
+                .organic-blob-mask {
+                    mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%23FF0066' d='M44.7,-76.4C58.8,-69.2,71.8,-59.1,79.6,-46.2C87.4,-33.4,90.1,-17.7,88.5,-2.6C86.9,12.5,81,26.9,72.6,39.8C64.2,52.7,53.3,64.1,40.4,72.4C27.5,80.7,12.7,85.8,-2.1,89.5C-17,93.2,-34,95.4,-48.2,89.4C-62.4,83.4,-73.8,69.2,-81.4,54.1C-89,39,-92.8,23,-93.2,7.1C-93.5,-8.8,-90.4,-24.5,-83,-38.4C-75.6,-52.3,-63.9,-64.4,-50.2,-71.8C-36.5,-79.2,-20.8,-81.8,-5.1,-73.1C10.7,-64.3,26.4,-83.5,44.7,-76.4Z' transform='translate(100 100)' /%3E%3C/svg%3E");
+                    mask-size: contain;
+                    mask-repeat: no-repeat;
+                    mask-position: center;
+                }
+            `}</style>
         </div>
     );
 }

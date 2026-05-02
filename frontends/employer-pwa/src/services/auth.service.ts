@@ -42,7 +42,7 @@ export const authService = {
   },
 
   forgotPassword: async (email: string) => {
-    return await apiClient.post('/api/auth/forgot-password', { email });
+    return await apiClient.post('/api/auth/forgot-password', { email, role: 'EMPLOYER' });
   },
 
   resetPassword: async (data: ResetPasswordRequest) => {

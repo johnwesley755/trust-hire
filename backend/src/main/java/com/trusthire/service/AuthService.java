@@ -18,7 +18,7 @@ public interface AuthService {
 
     boolean existsByEmail(String email);
 
-    void processForgotPassword(String email);
+    void processForgotPassword(String email, String role);
 
     void resetPassword(String token, String newPassword);
 
