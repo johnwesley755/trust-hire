@@ -61,6 +61,7 @@ export default function ResetPasswordPage() {
                         Request New Link
                     </Link>
                 </div>
+                </div>
                 <AuthFooter />
             </div>
         );
@@ -94,6 +95,7 @@ export default function ResetPasswordPage() {
                         <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </button>
                 </motion.div>
+                </div>
                 <AuthFooter />
             </div>
         );
@@ -182,6 +184,7 @@ export default function ResetPasswordPage() {
                     </form>
                 </div>
             </motion.div>
+            </div>
             <AuthFooter />
         </div>
     );
