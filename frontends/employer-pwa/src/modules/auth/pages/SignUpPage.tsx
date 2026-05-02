@@ -6,6 +6,8 @@ import { authService } from '../../../services/auth.service';
 import { motion } from 'framer-motion';
 import { AdvancedFileUpload } from '../../profile/components/AdvancedFileUpload';
 import { signUpSchema } from '../../../validations/zodSchema';
+import { AuthHeader } from '../components/AuthHeader';
+import { AuthFooter } from '../components/AuthFooter';
 
 interface ApiError {
     response?: {
@@ -291,20 +293,9 @@ export const SignUpPage = () => {
 
     return (
         <div className="min-h-screen bg-surface font-body text-on-surface antialiased selection:bg-primary-fixed selection:text-primary">
-            {/* Minimal Header */}
-            <header className="fixed top-0 left-0 w-full z-50 px-6 py-6 md:px-12 pointer-events-none">
-                <div className="max-w-[1440px] mx-auto flex justify-between items-center pointer-events-auto">
-                    <div className="flex items-center gap-2">
-                        <Link to="/" className="text-2xl font-black text-primary font-headline tracking-tighter">TrustHire</Link>
-                    </div>
-                    <Link className="flex items-center gap-2 text-primary/70 hover:text-primary transition-colors font-bold text-sm" to="/">
-                        <span className="material-symbols-outlined text-[20px]">arrow_back</span>
-                        Home
-                    </Link>
-                </div>
-            </header>
+            <AuthHeader />
 
-            <main className="min-h-screen grid grid-cols-1 lg:grid-cols-2">
+            <main className="min-h-screen grid grid-cols-1 lg:grid-cols-2 pt-24 md:pt-0">
                 {/* Left Side: Registration Form */}
                 <section className="bg-surface-container-lowest flex items-center justify-center px-6 py-24 md:px-12 lg:px-24">
                     <div className="w-full max-w-md">
@@ -488,17 +479,7 @@ export const SignUpPage = () => {
                 </section>
             </main>
 
-            {/* Footer minimized for signup flow */}
-            <footer className="bg-surface py-12 px-6 text-center lg:text-left border-t border-primary/5">
-                <div className="max-w-[1440px] mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-primary/40 text-[10px] font-bold uppercase tracking-widest font-headline">
-                    <p>© 2024 TrustHire. Human-centric recruitment.</p>
-                    <div className="flex gap-8">
-                        <Link className="hover:text-primary transition-colors" to="/privacy">Privacy</Link>
-                        <Link className="hover:text-primary transition-colors" to="/terms">Terms</Link>
-                        <Link className="hover:text-primary transition-colors" to="/support">Support</Link>
-                    </div>
-                </div>
-            </footer>
+            <AuthFooter />
         </div>
     );
 };

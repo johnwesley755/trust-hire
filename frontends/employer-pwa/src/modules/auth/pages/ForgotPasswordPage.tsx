@@ -3,6 +3,8 @@ import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import { authService } from '../../../services/auth.service';
 import { forgotPasswordSchema } from '../../../validations/zodSchema';
+import { AuthHeader } from '../components/AuthHeader';
+import { AuthFooter } from '../components/AuthFooter';
 
 export default function ForgotPasswordPage() {
     const [email, setEmail] = useState('');
@@ -36,13 +38,7 @@ export default function ForgotPasswordPage() {
     if (isSuccess) {
         return (
             <div className="bg-[#F5F4EF] text-[#1F3F34] font-headline min-h-screen flex flex-col antialiased">
-                <header className="fixed top-0 w-full z-50 bg-[#F5F4EF]/80 backdrop-blur-md px-6 py-4 flex justify-between items-center max-w-7xl mx-auto left-0 right-0">
-                    <div className="text-2xl font-black text-[#1F3F34] tracking-tighter">TrustHire</div>
-                    <div className="flex items-center gap-2 text-sm font-bold">
-                        <span className="material-symbols-outlined">help_outline</span>
-                        Help
-                    </div>
-                </header>
+                <AuthHeader />
 
                 <main className="flex-1 flex flex-col md:flex-row pt-20">
                     <section className="w-full md:w-1/2 flex items-start justify-center p-8 md:p-16 lg:p-24 bg-[#F5F4EF] pt-12 md:pt-24 lg:pt-32">
@@ -84,16 +80,7 @@ export default function ForgotPasswordPage() {
                     </section>
                 </main>
 
-                <footer className="w-full py-8 bg-[#F5F4EF] border-t border-[#1F3F34]/10">
-                    <div className="max-w-7xl mx-auto px-8 flex flex-col md:flex-row justify-between items-center gap-4">
-                        <p className="text-[0.875rem] text-[#1F3F34]/60 font-body">© {new Date().getFullYear()} TrustHire. All Rights Reserved</p>
-                        <nav className="flex gap-6 text-[0.875rem] font-bold">
-                            <Link className="hover:text-[#FACD15] transition-colors" to="/privacy">Privacy Policy</Link>
-                            <Link className="hover:text-[#FACD15] transition-colors" to="/terms">Terms of Service</Link>
-                            <Link className="hover:text-[#FACD15] transition-colors" to="/support">Support</Link>
-                        </nav>
-                    </div>
-                </footer>
+                <AuthFooter />
 
                 <style>{`
                     .organic-blob-mask {
@@ -109,14 +96,7 @@ export default function ForgotPasswordPage() {
 
     return (
         <div className="bg-[#F5F4EF] text-[#1F3F34] font-headline min-h-screen flex flex-col antialiased">
-            {/* Top Navigation */}
-            <header className="fixed top-0 w-full z-50 bg-[#F5F4EF]/80 backdrop-blur-md px-6 py-4 flex justify-between items-center max-w-7xl mx-auto left-0 right-0">
-                <div className="text-2xl font-black text-[#1F3F34] tracking-tighter">TrustHire</div>
-                <div className="flex items-center gap-2 text-sm font-bold">
-                    <span className="material-symbols-outlined">help_outline</span>
-                    Help
-                </div>
-            </header>
+            <AuthHeader />
 
             <main className="flex-1 flex flex-col md:flex-row pt-20">
                 {/* Left Side: Forgot Password Form */}
@@ -214,17 +194,7 @@ export default function ForgotPasswordPage() {
                 </section>
             </main>
 
-            {/* Simple Footer */}
-            <footer className="w-full py-8 bg-[#F5F4EF] border-t border-[#1F3F34]/10">
-                <div className="max-w-7xl mx-auto px-8 flex flex-col md:flex-row justify-between items-center gap-4">
-                    <p className="text-[0.875rem] text-[#1F3F34]/60 font-body">© {new Date().getFullYear()} TrustHire. All Rights Reserved</p>
-                    <nav className="flex gap-6 text-[0.875rem] font-bold">
-                        <Link className="hover:text-[#FACD15] transition-colors" to="/privacy">Privacy Policy</Link>
-                        <Link className="hover:text-[#FACD15] transition-colors" to="/terms">Terms of Service</Link>
-                        <Link className="hover:text-[#FACD15] transition-colors" to="/support">Support</Link>
-                    </nav>
-                </div>
-            </footer>
+            <AuthFooter />
 
             <style>{`
                 .organic-blob-mask {

@@ -4,6 +4,8 @@ import { useAuth } from '../../../providers/AuthContext';
 import { authService } from '../../../services/auth.service';
 import { AdvancedFileUpload } from '../../profile/components/AdvancedFileUpload';
 import { signUpSchema } from '../../../validations/zodSchema';
+import { AuthHeader } from '../components/AuthHeader';
+import { AuthFooter } from '../components/AuthFooter';
 
 interface ApiError {
     response?: {
@@ -290,18 +292,9 @@ export const SignUpPage = () => {
 
     return (
         <div className="bg-surface text-on-surface font-body selection:bg-primary-fixed selection:text-on-primary-fixed">
-            <header className="fixed top-0 w-full z-50 bg-[#F5F4EF]/80 backdrop-blur-xl">
-                <nav className="flex justify-between items-center w-full px-6 py-4 mx-auto max-w-[1440px]">
-                    <Link to="/" className="text-2xl font-black text-[#1F3F34] font-headline tracking-tighter">TrustHire</Link>
-                    <div className="hidden md:flex items-center gap-8">
-                        <Link className="text-[#1F3F34]/70 font-bold hover:text-[#1F3F34] transition-colors duration-200" to="/">Home</Link>
-                        <Link className="text-[#1F3F34]/70 font-bold hover:text-[#1F3F34] transition-colors duration-200" to="/explore">Explore</Link>
-                        <span className="material-symbols-outlined text-[#1F3F34]/70 cursor-pointer">language</span>
-                    </div>
-                </nav>
-            </header>
+            <AuthHeader />
 
-            <main className="min-h-screen flex flex-col md:flex-row pt-16">
+            <main className="min-h-screen flex flex-col md:flex-row pt-24 md:pt-16">
                 <section className="flex-1 bg-surface-container-lowest flex items-center justify-center p-8 md:p-16 lg:p-24 relative overflow-hidden">
                     <div className="absolute -top-24 -left-24 w-96 h-96 bg-primary-fixed opacity-10 rounded-full blur-3xl"></div>
                     <div className="w-full max-w-md z-10">
@@ -409,6 +402,10 @@ export const SignUpPage = () => {
                             <p className="text-center text-sm text-[#1F3F34]/60 pt-4 font-medium">
                                 By signing up, you agree to our <Link className="underline font-bold text-[#1F3F34]" to="/terms">Terms</Link> and <Link className="underline font-bold text-[#1F3F34]" to="/privacy">Privacy Policy</Link>.
                             </p>
+
+                            <p className="text-center text-sm text-[#1F3F34]/60 pt-4 font-medium">
+                                Already have an account? <Link className="underline font-bold text-[#1F3F34]" to="/sign-in">Sign in</Link>
+                            </p>
                         </form>
                     </div>
                 </section>
@@ -459,16 +456,7 @@ export const SignUpPage = () => {
                 </section>
             </main>
 
-            <footer className="w-full py-8 px-6 bg-[#F5F4EF] border-t border-[#1F3F34]/10">
-                <div className="flex flex-col md:flex-row justify-between items-center w-full max-w-[1440px] mx-auto gap-4">
-                    <p className="font-body text-sm leading-relaxed text-[#1F3F34]/60 font-medium">© 2024 TrustHire. Human-centric recruitment.</p>
-                    <div className="flex gap-6">
-                        <Link className="text-sm font-bold text-[#1F3F34]/60 hover:text-[#FACD15] transition-colors" to="/privacy">Privacy</Link>
-                        <Link className="text-sm font-bold text-[#1F3F34]/60 hover:text-[#FACD15] transition-colors" to="/terms">Terms</Link>
-                        <Link className="text-sm font-bold text-[#1F3F34]/60 hover:text-[#FACD15] transition-colors" to="/support">Support</Link>
-                    </div>
-                </div>
-            </footer>
+            <AuthFooter />
 
             <style>{`
                 .mask-blob {

@@ -4,6 +4,8 @@ import { useAuth } from '../../../providers/AuthContext';
 import apiClient from '../../../api/apiClient';
 import { motion } from 'framer-motion';
 import { signInSchema } from '../../../validations/zodSchema';
+import { AuthHeader } from '../components/AuthHeader';
+import { AuthFooter } from '../components/AuthFooter';
 
 export const SignInPage = () => {
     const [email, setEmail] = useState('');
@@ -50,13 +52,15 @@ export const SignInPage = () => {
     };
 
     return (
-        <div className="bg-[#F5F4EF] text-[#1F3F34] font-body min-h-screen flex items-center justify-center p-0 md:p-6 selection:bg-primary-fixed selection:text-on-primary-fixed">
+        <div className="bg-[#F5F4EF] text-[#1F3F34] font-body min-h-screen flex flex-col p-0 selection:bg-primary-fixed selection:text-on-primary-fixed antialiased">
+            <AuthHeader />
+            
             {/* Main Auth Container */}
-            <main className="w-full max-w-[1280px] min-h-screen md:min-h-[800px] bg-surface-container-lowest md:rounded-lg overflow-hidden flex flex-col md:flex-row shadow-[0_20px_40px_-10px_rgba(31,63,52,0.08)]">
+            <main className="w-full max-w-[1280px] mx-auto min-h-screen md:min-h-[800px] bg-surface-container-lowest md:rounded-lg overflow-hidden flex flex-col md:flex-row shadow-[0_20px_40px_-10px_rgba(31,63,52,0.08)] mt-24 md:mt-32 mb-12">
                 {/* Left Side: Login Form */}
                 <section className="w-full md:w-1/2 p-8 md:p-16 md:pt-16 flex flex-col justify-start relative">
-                    {/* Brand Anchor */}
-                    <div className="mb-8 md:mb-10">
+                    {/* Brand Anchor removed - handled by AuthHeader */}
+                    <div className="mb-8 md:mb-10 hidden">
                         <Link to="/" className="text-2xl font-headline font-extrabold tracking-tight text-[#1F3F34]">TrustHire</Link>
                     </div>
                     
@@ -178,17 +182,7 @@ export const SignInPage = () => {
                 </section>
             </main>
 
-            {/* Sticky Footer */}
-            <footer className="fixed bottom-0 left-0 w-full py-4 px-8 flex flex-col items-center md:flex-row md:justify-between bg-[#F5F4EF]/90 backdrop-blur-md border-t border-[#1F3F34]/5 z-50">
-                <div className="text-[#1F3F34]/40 font-headline text-sm leading-relaxed pointer-events-auto">
-                    © {new Date().getFullYear()} TrustHire. All Rights Reserved
-                </div>
-                <div className="hidden md:flex gap-6 pointer-events-auto">
-                    <Link className="text-[#1F3F34]/60 text-sm font-medium hover:underline decoration-[#FACD15] decoration-2 transition-all" to="/privacy">Privacy</Link>
-                    <Link className="text-[#1F3F34]/60 text-sm font-medium hover:underline decoration-[#FACD15] decoration-2 transition-all" to="/terms">Terms</Link>
-                    <Link className="text-[#1F3F34]/60 text-sm font-medium hover:underline decoration-[#FACD15] decoration-2 transition-all" to="/support">Support</Link>
-                </div>
-            </footer>
+            <AuthFooter />
 
             <style>{`
                 .organic-blob {

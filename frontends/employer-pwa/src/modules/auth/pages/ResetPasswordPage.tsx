@@ -4,6 +4,8 @@ import { ShieldCheck, Lock, Eye, EyeOff, CheckCircle2, ArrowRight } from 'lucide
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { authService } from '../../../services/auth.service';
 import { resetPasswordSchema } from '../../../validations/zodSchema';
+import { AuthHeader } from '../components/AuthHeader';
+import { AuthFooter } from '../components/AuthFooter';
 
 export default function ResetPasswordPage() {
     const [searchParams] = useSearchParams();
@@ -46,7 +48,9 @@ export default function ResetPasswordPage() {
 
     if (!token && !isSuccess) {
         return (
-            <div className="min-h-screen bg-brand-bg flex items-center justify-center p-6 text-center">
+            <div className="min-h-screen bg-brand-bg flex flex-col antialiased">
+                <AuthHeader />
+                <div className="flex-1 flex items-center justify-center p-6 text-center pt-24">
                 <div className="bg-white p-10 rounded-4xl border border-brand-border space-y-6 max-w-md shadow-xl">
                     <div className="w-16 h-16 bg-red-50 rounded-2xl flex items-center justify-center mx-auto text-red-500">
                          <ShieldCheck className="w-8 h-8 opacity-20" />
@@ -57,13 +61,16 @@ export default function ResetPasswordPage() {
                         Request New Link
                     </Link>
                 </div>
+                <AuthFooter />
             </div>
         );
     }
 
     if (isSuccess) {
         return (
-            <div className="min-h-screen bg-brand-bg flex items-center justify-center p-6 relative overflow-hidden">
+            <div className="min-h-screen bg-brand-bg flex flex-col antialiased relative overflow-hidden">
+                <AuthHeader />
+                <div className="flex-1 flex items-center justify-center p-6 pt-24 relative overflow-hidden">
                 <div className="absolute inset-0 cloud-grid opacity-[0.05] pointer-events-none" />
                 <motion.div 
                     initial={{ opacity: 0, scale: 0.95 }}
@@ -87,12 +94,15 @@ export default function ResetPasswordPage() {
                         <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </button>
                 </motion.div>
+                <AuthFooter />
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-brand-bg flex items-center justify-center p-6 relative overflow-hidden">
+        <div className="min-h-screen bg-brand-bg flex flex-col antialiased relative overflow-hidden">
+            <AuthHeader />
+            <div className="flex-1 flex items-center justify-center p-6 pt-24 relative overflow-hidden">
             <div className="absolute inset-0 cloud-grid opacity-[0.05] pointer-events-none" />
             
             <motion.div 
@@ -172,6 +182,7 @@ export default function ResetPasswordPage() {
                     </form>
                 </div>
             </motion.div>
+            <AuthFooter />
         </div>
     );
 }
