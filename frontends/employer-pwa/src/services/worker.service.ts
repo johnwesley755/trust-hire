@@ -71,7 +71,7 @@ export const workerService = {
 
   getWorkerById: async (id: string) => {
     const response = await apiClient.post<any>('/api/worker/profiles/by-user-ids', [id]);
-    const worker = response.data.data[0];
+    const worker = response.data[0];
 
     if (!worker) {
       throw new Error('Worker not found');
@@ -104,7 +104,7 @@ export const workerService = {
 
   getProfilesByUserIds: async (userIds: string[]): Promise<WorkerProfileSummary[]> => {
     const response = await apiClient.post<any>('/api/worker/profiles/by-user-ids', userIds);
-    return response.data.data;
+    return response.data;
   },
 
   incrementProfileView: async (userId: string): Promise<void> => {
@@ -113,11 +113,11 @@ export const workerService = {
 
   getTrustScore: async (userId: string): Promise<TrustScoreResponse> => {
     const response = await apiClient.get<any>(`/api/worker/trust-score/${userId}`);
-    return response.data.data;
+    return response.data;
   },
 
   getWorkerRatings: async (userId: string): Promise<any[]> => {
     const response = await apiClient.get<any>(`/api/ratings/user/${userId}`);
-    return Array.isArray(response.data) ? response.data : response.data.data || [];
+    return response.data || [];
   }
 };

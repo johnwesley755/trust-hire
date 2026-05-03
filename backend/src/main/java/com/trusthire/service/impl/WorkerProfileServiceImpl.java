@@ -28,6 +28,7 @@ public class WorkerProfileServiceImpl implements WorkerProfileService {
     private final com.trusthire.repository.RatingRepository ratingRepository;
     private final SearchService searchService;
     private final com.trusthire.service.LevelService levelService;
+    private final com.trusthire.service.ActivityService activityService;
 
     @Override
     @Transactional
@@ -36,7 +37,7 @@ public class WorkerProfileServiceImpl implements WorkerProfileService {
         if (profile.isEmpty()) {
             WorkerProfile newProfile = WorkerProfile.builder()
                     .userId(userId)
-                    .level("L1 Beginner")
+                    .level("L1 Entry")
                     .levelNumber(1)
                     .skillScore(30.0)
                     .trustScore(30) // Initial trust score for L1
@@ -48,6 +49,13 @@ public class WorkerProfileServiceImpl implements WorkerProfileService {
                     .build();
             WorkerProfile saved = profileRepository.save(newProfile);
             indexWorker(saved);
+            
+            activityService.logActivity(
+                userId,
+                "PROFILE_CREATED",
+                "Your professional profile has been established",
+                saved.getId().toString()
+            );
             return Optional.of(saved);
         }
         return profile;
@@ -60,6 +68,10 @@ public class WorkerProfileServiceImpl implements WorkerProfileService {
     }
 
     private void indexWorker(WorkerProfile profile) {
+        boolean isVerified = userMetadataRepository.findById(java.util.UUID.fromString(profile.getUserId()))
+                .map(UserMetadata::getIdentityVerified)
+                .orElse(false);
+
         searchService.indexWorker(WorkerSearchIndex.builder()
                 .userId(profile.getUserId())
                 .name(profile.getFullName() != null ? profile.getFullName() : "Anonymous")
@@ -70,7 +82,7 @@ public class WorkerProfileServiceImpl implements WorkerProfileService {
                 .latitude(profile.getLatitude())
                 .longitude(profile.getLongitude())
                 .level(profile.getLevel())
-                .isVerified(false) // Default
+                .isVerified(isVerified)
                 .status(profile.getIsAvailable() ? "AVAILABLE" : "BUSY")
                 .trustScore(profile.getTrustScore())
                 .build());
@@ -81,6 +93,13 @@ public class WorkerProfileServiceImpl implements WorkerProfileService {
     public WorkerProfile updateProfile(WorkerProfile profile) {
         WorkerProfile saved = profileRepository.save(profile);
         indexWorker(saved);
+        
+        activityService.logActivity(
+            saved.getUserId(),
+            "PROFILE_UPDATED",
+            "Professional profile details updated",
+            saved.getId().toString()
+        );
         return saved;
     }
 

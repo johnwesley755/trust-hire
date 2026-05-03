@@ -18,6 +18,7 @@ public class EmployerProfileServiceImpl implements EmployerProfileService {
 
     private final EmployerProfileRepository profileRepository;
     private final UserMetadataRepository userRepository;
+    private final com.trusthire.service.ActivityService activityService;
 
     @Override
     @Transactional
@@ -47,6 +48,13 @@ public class EmployerProfileServiceImpl implements EmployerProfileService {
         userRepository.findById(UUID.fromString(userId)).ifPresent(user -> {
             saved.setProfileImageUrl(user.getProfileImageUrl());
         });
+
+        activityService.logActivity(
+            userId,
+            "PROFILE_CREATED",
+            "Employer account and company profile created",
+            saved.getId().toString()
+        );
         return saved;
     }
 
@@ -71,6 +79,13 @@ public class EmployerProfileServiceImpl implements EmployerProfileService {
         userRepository.findById(UUID.fromString(userId)).ifPresent(user -> {
             saved.setProfileImageUrl(user.getProfileImageUrl());
         });
+
+        activityService.logActivity(
+            userId,
+            "PROFILE_UPDATED",
+            "Company profile and business details updated",
+            saved.getId().toString()
+        );
         return saved;
     }
 }

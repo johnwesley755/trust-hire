@@ -65,11 +65,8 @@ export const AuthOnboardingGuard = ({ children }: { children: React.ReactNode })
     return <Navigate to="/onboarding" replace />;
   }
 
-  // Next level: Identity Verification
-  const isIdentityVerified = user?.identity_verified || false;
-  if (isOnboarded === true && !isIdentityVerified && location.pathname !== "/verify-identity") {
-    return <Navigate to="/verify-identity" replace />;
-  }
-
+  // Next level: Identity Verification (SOFT REQUIREMENT)
+  // Workers can now access dashboard without verification, but will see prompts to verify.
+  
   return <>{children}</>;
 };

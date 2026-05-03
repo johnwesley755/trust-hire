@@ -18,6 +18,7 @@ public class LevelServiceImpl implements LevelService {
 
     private final WorkerProfileRepository workerRepository;
     private final SkillTestResultRepository testResultRepository;
+    private final com.trusthire.repository.UserMetadataRepository userMetadataRepository;
     private final com.trusthire.service.SearchService searchService;
     
     @Lazy
@@ -56,6 +57,10 @@ public class LevelServiceImpl implements LevelService {
         workerRepository.save(worker);
         
         // Update search index
+        boolean isVerified = userMetadataRepository.findById(java.util.UUID.fromString(worker.getUserId()))
+                .map(com.trusthire.entity.UserMetadata::getIdentityVerified)
+                .orElse(false);
+
         searchService.indexWorker(com.trusthire.entity.WorkerSearchIndex.builder()
                 .userId(worker.getUserId())
                 .name(worker.getFullName() != null ? worker.getFullName() : "Anonymous")
@@ -66,10 +71,11 @@ public class LevelServiceImpl implements LevelService {
                 .latitude(worker.getLatitude())
                 .longitude(worker.getLongitude())
                 .level(worker.getLevel())
-                .isVerified(false) // Default
+                .isVerified(isVerified)
                 .status(worker.getIsAvailable() != null && worker.getIsAvailable() ? "AVAILABLE" : "BUSY")
                 .trustScore(worker.getTrustScore())
                 .build());
+
 
         log.info("Recalculated Trust Score for worker {}: Score={}, Level={}", userId, trustScore, worker.getLevel());
     }
@@ -93,7 +99,8 @@ public class LevelServiceImpl implements LevelService {
 
     private double calculateExperienceScore(WorkerProfile worker) {
         // Jobs completed (up to 50)
-        double jobScore = Math.min(worker.getCompletedJobs() / 50.0, 1.0) * 50.0;
+        int completedJobs = worker.getCompletedJobs() != null ? worker.getCompletedJobs() : 0;
+        double jobScore = Math.min(completedJobs / 50.0, 1.0) * 50.0;
         
         // Months on platform (up to 50)
         double monthsOnPlatform = 0;
@@ -128,24 +135,27 @@ public class LevelServiceImpl implements LevelService {
 
     private double calculateReliabilityScore(WorkerProfile worker) {
         // Completion rate (up to 60)
-        int total = worker.getTotalJobs() > 0 ? worker.getTotalJobs() : 1;
-        double completionRate = (double) worker.getCompletedJobs() / total * 100.0;
+        int totalJobs = worker.getTotalJobs() != null ? worker.getTotalJobs() : 0;
+        int completedJobs = worker.getCompletedJobs() != null ? worker.getCompletedJobs() : 0;
+        int total = totalJobs > 0 ? totalJobs : 1;
+        double completionRate = (double) completedJobs / total * 100.0;
         double completionScore = (completionRate / 100.0) * 60.0;
 
         // Stability bonus (up to 40)
         double stabilityScore = 20.0; // Base
 
         // Penalties
-        double penalty = worker.getAbscondCount() * 20.0;
+        int abscondCount = worker.getAbscondCount() != null ? worker.getAbscondCount() : 0;
+        double penalty = abscondCount * 20.0;
 
         return Math.max(0, Math.min(100, completionScore + stabilityScore - penalty));
     }
 
     private String assignLevelName(int score) {
         if (score >= 86) return "L4 Elite";
-        if (score >= 66) return "L3 Pro Worker";
+        if (score >= 66) return "L3 Pro";
         if (score >= 41) return "L2 Skilled";
-        return "L1 Beginner";
+        return "L1 Entry";
     }
 
     private int assignLevelNumber(int score) {

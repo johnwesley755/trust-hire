@@ -4,6 +4,7 @@ import { jobService } from '../../../services/job.service';
 import { applicationService } from '../../../services/application.service';
 import { profileService } from '../../../services/profile.service';
 import { useState } from 'react';
+import { NotificationCenter } from '../../dashboard/components/NotificationCenter';
 import { formatMissingProfileFields, getMissingProfileFields } from '../../../utils/profileCompletion';
 import { motion } from 'framer-motion';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
@@ -175,9 +176,12 @@ export default function JobDetailPage() {
           </button>
           <h1 className="text-xl font-black text-[#1F3F34] tracking-tight">Opportunity Detail</h1>
         </div>
-        <button className="p-2 rounded-full hover:bg-[#FACD15]/10 lg:hidden text-[#1F3F34]">
-          <span className="material-symbols-outlined">menu</span>
-        </button>
+        <div className="flex items-center gap-2">
+          <NotificationCenter />
+          <button className="p-2 rounded-full hover:bg-[#FACD15]/10 lg:hidden text-[#1F3F34]">
+            <span className="material-symbols-outlined">menu</span>
+          </button>
+        </div>
       </header>
 
       {/* Decorative Blobs */}

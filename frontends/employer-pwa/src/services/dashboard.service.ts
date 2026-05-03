@@ -11,6 +11,6 @@ export interface EmployerStats {
 export const dashboardService = {
     getEmployerStats: async (): Promise<EmployerStats> => {
         const response = await apiClient.get('/api/dashboard/employer/stats');
-        return response.data.data;
+        return response.data;
     }
 };

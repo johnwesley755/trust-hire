@@ -3,6 +3,7 @@ import logo from "../../../assets/logo.png";
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { profileService } from '../../../services/profile.service';
+import { NotificationCenter } from "../features/notifications/NotificationCenter";
 
 const menuItems = [
     { name: 'Dashboard', icon: 'dashboard', path: '/dashboard' },
@@ -144,6 +145,7 @@ export const MobileNav = ({ onMenuClick }: { onMenuClick: () => void }) => {
                     <button className="p-2 hover:bg-black/5 rounded-full transition-colors active:scale-90">
                         <span className="material-symbols-outlined text-[#1F3F34]">search</span>
                     </button>
+                    <NotificationCenter />
                 </div>
             </div>
         </header>

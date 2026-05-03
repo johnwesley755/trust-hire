@@ -27,5 +27,5 @@ export const searchWorkers = async (
   const response = await apiClient.get<any>('/api/search/workers', {
     params: { query, location, city, level, radius, lat, lon, skills }
   });
-  return response.data.data;
+  return response.data;
 };

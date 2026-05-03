@@ -48,7 +48,7 @@ export const ProfileHeroCard: React.FC<ProfileHeroCardProps> = ({
             {user?.profile_image_url ? (
               <img 
                 src={user.profile_image_url} 
-                alt={user.firstName || ""} 
+                alt={user.first_name || ""} 
                 className={`w-full h-full object-cover transition-opacity ${isUploadingImage ? 'opacity-50' : ''}`}
               />
             ) : (
@@ -67,18 +67,27 @@ export const ProfileHeroCard: React.FC<ProfileHeroCardProps> = ({
             </div>
           )}
 
-          <div className="absolute -bottom-2 -right-2 bg-[#FACD15] text-[#1F3F34] p-2.5 rounded-xl border-4 border-white shadow-xl rotate-6">
-            <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
-          </div>
+          {profile?.identityVerified && (
+            <div className="absolute -bottom-2 -right-2 bg-emerald-500 text-white p-2 rounded-full border-4 border-white shadow-xl rotate-0 z-40">
+              <span className="material-symbols-outlined text-lg font-bold" style={{ fontVariationSettings: "'FILL' 1" }}>check</span>
+            </div>
+          )}
         </div>
 
         <div className="flex-1 text-center md:text-left space-y-4">
           <div className="space-y-1">
             <h2 className="text-3xl md:text-4xl font-black text-[#1F3F34] tracking-tight leading-none">
-              {profile?.fullName || `${user?.firstName || ''} ${user?.lastName || ''}`.trim()}
+              {profile?.fullName || `${user?.first_name || ''} ${user?.last_name || ''}`.trim()}
             </h2>
             <div className="flex items-center justify-center md:justify-start gap-3 mt-2">
-              <span className="text-[10px] font-black text-[#1F3F34] uppercase tracking-widest bg-[#FACD15] px-3 py-1 rounded-full shadow-sm">Verified Professional</span>
+              {profile?.identityVerified ? (
+                <span className="text-[10px] font-black text-white uppercase tracking-widest bg-emerald-500 px-3 py-1 rounded-full shadow-sm flex items-center gap-1 shrink-0">
+                  <span className="material-symbols-outlined text-[12px] font-bold">verified</span>
+                  Verified Profile
+                </span>
+              ) : (
+                <span className="text-[10px] font-black text-[#1F3F34]/40 uppercase tracking-widest bg-[#F5F4EF] px-3 py-1 rounded-full shadow-sm shrink-0">Standard Profile</span>
+              )}
               <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
             </div>
           </div>
