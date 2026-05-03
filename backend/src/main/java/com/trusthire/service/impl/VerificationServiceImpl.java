@@ -15,6 +15,7 @@ public class VerificationServiceImpl implements VerificationService {
     private final VerificationRecordRepository verificationRepository;
     private final AuthService authService;
     private final org.springframework.context.ApplicationEventPublisher eventPublisher;
+    private final com.trusthire.service.ActivityService activityService;
 
     @Override
     @Transactional
@@ -23,7 +24,16 @@ public class VerificationServiceImpl implements VerificationService {
                 .orElse(VerificationRecord.builder().userId(userId).status("PENDING").build());
         record.setDocImageUrl(url);
         record.setStatus("PENDING");
-        return verificationRepository.save(record);
+        VerificationRecord saved = verificationRepository.save(record);
+
+        activityService.logActivity(
+            userId,
+            "VERIFICATION_STARTED",
+            "Identity verification document uploaded",
+            saved.getId().toString()
+        );
+
+        return saved;
     }
 
     @Override
@@ -38,7 +48,16 @@ public class VerificationServiceImpl implements VerificationService {
         
         eventPublisher.publishEvent(new com.trusthire.event.WorkerVerifiedEvent(this, userId));
         
-        return verificationRepository.save(record);
+        VerificationRecord saved = verificationRepository.save(record);
+
+        activityService.logActivity(
+            userId,
+            "IDENTITY_VERIFIED",
+            "Identity verification completed successfully",
+            saved.getId().toString()
+        );
+
+        return saved;
     }
 
     @Override

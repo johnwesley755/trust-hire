@@ -116,14 +116,23 @@ const SidebarContent = ({ menuItems, accountItems, onNavigate, onLogout, current
                     />
                     <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-emerald-500 border-2 border-[#1F3F34] rounded-full"></div>
                 </div>
-                <div className="min-w-0">
-                    <p className="text-xs font-black text-[#F5F4EF] truncate tracking-tight">
-                        {(user as any)?.first_name} {(user as any)?.last_name}
-                        {(!(user as any)?.first_name && !(user as any)?.last_name) && (user as any)?.fullName}
-                    </p>
-                    <p className="text-[9px] font-bold text-[#FACD15] uppercase tracking-widest mt-0.5">Level {(user as any)?.level || 1} Worker</p>
+                    <div className="min-w-0">
+                        <div className="flex items-center gap-1.5 mb-0.5">
+                            <p className="text-xs font-black text-[#F5F4EF] truncate tracking-tight">
+                                {(user as any)?.first_name} {(user as any)?.last_name}
+                                {(!(user as any)?.first_name && !(user as any)?.last_name) && (user as any)?.fullName}
+                            </p>
+                            {(user as any)?.identityVerified ? (
+                              <div className="bg-emerald-500 text-white p-0.5 rounded-full flex items-center justify-center shadow-sm shrink-0">
+                                <span className="material-symbols-outlined text-[10px] font-bold">check</span>
+                              </div>
+                            ) : (
+                              <span className="text-[8px] font-black uppercase text-red-400 border border-red-400/30 px-1 rounded-sm shrink-0">Unverified</span>
+                            )}
+                        </div>
+                        <p className="text-[9px] font-bold text-[#FACD15] uppercase tracking-widest">Level {(user as any)?.level || 1} Worker</p>
+                    </div>
                 </div>
-            </div>
 
             {/* Main Navigation */}
             <nav className="flex-1 space-y-1">

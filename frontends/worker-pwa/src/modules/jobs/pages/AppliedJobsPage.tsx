@@ -2,6 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { applicationService } from "../../../services/application.service";
 import { jobService } from "../../../services/job.service";
+import { profileService } from '../../../services/profile.service';
+import { NotificationCenter } from '../components/NotificationCenter';
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { useUser } from "../../../providers/AuthContext";
@@ -67,9 +69,7 @@ export default function AppliedJobsPage() {
           <span className="font-['Bricolage_Grotesque'] text-xl font-black text-[#1F3F34] tracking-tight">TrustHire</span>
         </div>
         <div className="flex items-center gap-2">
-          <button className="p-2 hover:bg-[#FACD15]/10 rounded-xl transition-colors text-[#1F3F34]">
-            <span className="material-symbols-outlined">notifications</span>
-          </button>
+          <NotificationCenter />
           <div className="w-8 h-8 rounded-full bg-[#c7ebdb] flex items-center justify-center overflow-hidden border border-[#1F3F34]/10">
             <img 
                src={user?.profileImageUrl || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&auto=format&fit=crop"} 

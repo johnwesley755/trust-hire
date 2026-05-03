@@ -32,10 +32,9 @@ export const StatsSection: React.FC<{ trustScore?: number; nearbyJobs?: number; 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-8">
       <StatCard 
-        label="Trust Score"
-        value={trustScore}
-        suffix="/100"
-        icon="verified"
+        label="Completed Jobs"
+        value={0} // TODO: Pass actual completed jobs count
+        icon="task_alt"
         iconContainerColor="bg-[#c7ebdb]"
         iconColor="text-[#2d4d41]"
       />

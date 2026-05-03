@@ -103,7 +103,7 @@ export const NotificationCenter = () => {
             {isOpen && (
                 <>
                     <div className="fixed inset-0 z-[100]" onClick={() => setIsOpen(false)} />
-                    <div className="absolute right-0 mt-4 w-80 bg-white border border-[#1F3F34]/5 rounded-3xl shadow-2xl z-[101] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                    <div className="absolute right-0 md:right-0 mt-4 w-[calc(100vw-2rem)] md:w-80 bg-white border border-[#1F3F34]/5 rounded-3xl shadow-2xl z-[101] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
                         <div className="p-5 border-b border-[#EFEEE9] flex justify-between items-center bg-[#F5F4EF]/50">
                             <h3 className="text-[10px] font-black uppercase tracking-widest text-[#1F3F34]">Notifications</h3>
                             {notifications.length > 0 && (

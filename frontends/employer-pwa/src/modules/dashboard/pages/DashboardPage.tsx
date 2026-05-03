@@ -13,7 +13,7 @@ export default function DashboardPage() {
     const navigate = useNavigate();
     const { user } = useUser();
 
-    const { data: stats } = useQuery({ 
+    const { data: stats, isLoading: statsLoading } = useQuery({ 
         queryKey: ['employerStats'], 
         queryFn: dashboardService.getEmployerStats 
     });
@@ -35,20 +35,22 @@ export default function DashboardPage() {
         queryKey: ['recent-activities'],
         queryFn: async () => {
             const res = await apiClient.get('/api/activities/recent?limit=5');
-            return res.data.data;
+            return res.data;
         }
     });
 
     const workerIds = [...new Set(applications.map(app => app.workerId))];
     const { data: workers = [], isLoading: workersLoading } = useQuery({
-        queryKey: ['workers-mobile', workerIds],
+        queryKey: ['workers-mobile', workerIds.join(',')],
         queryFn: () => workerService.getProfilesByUserIds(workerIds),
         enabled: workerIds.length > 0
     });
 
     const workersById = new Map(workers.map(w => [w.userId, w]));
 
-    if (appsLoading || workersLoading || activitiesLoading) {
+    const isInitialLoading = (appsLoading || workersLoading || activitiesLoading || statsLoading) && !stats && applications.length === 0;
+
+    if (isInitialLoading) {
         return (
             <div className="flex-1 flex items-center justify-center bg-[#F5F4EF]">
                 <Loader2 className="w-8 h-8 animate-spin text-[#1F3F34]" />
@@ -74,15 +76,16 @@ export default function DashboardPage() {
                             <p className="text-sm font-medium text-secondary opacity-80">Here's your hiring snapshot for today.</p>
                         </section>
 
-                        {/* Mobile Stats Grid (2x2) */}
+                        {/* Mobile Stats Grid (5 cards) */}
                         <section className="grid grid-cols-2 gap-3">
                             {[
                                 { label: 'Active Jobs', val: stats?.activeJobs || 0, icon: 'work', color: 'text-[#456559] bg-[#456559]/10' },
                                 { label: 'Applicants', val: stats?.totalApplicants || 0, icon: 'group', color: 'text-[#231b00] bg-[#FACD15]', border: 'border-2 border-[#FACD15]' },
                                 { label: 'Interviewing', val: stats?.interviewingCount || 0, icon: 'video_chat', color: 'text-[#456559] bg-[#456559]/10' },
-                                { label: 'Hired', val: stats?.totalHired || 0, icon: 'verified_user', color: 'text-[#456559] bg-[#456559]/10' }
+                                { label: 'Hired', val: stats?.totalHired || 0, icon: 'verified_user', color: 'text-[#456559] bg-[#456559]/10' },
+                                { label: 'Alerts', val: stats?.unreadNotifications || 0, icon: 'notifications', color: 'text-[#456559] bg-[#456559]/10', fullWidth: true }
                             ].map((stat, i) => (
-                                <div key={i} className={`bg-white p-5 rounded-3xl shadow-sm border border-black/3 ${stat.border || ''}`}>
+                                <div key={i} className={`bg-white p-5 rounded-3xl shadow-sm border border-black/3 ${stat.border || ''} ${stat.fullWidth ? 'col-span-2' : ''}`}>
                                     <span className={`material-symbols-outlined ${stat.color} p-2 rounded-2xl text-lg mb-3 block w-fit`}>{stat.icon}</span>
                                     <div className="text-2xl font-bold text-brand-secondary">{stat.val}</div>
                                     <div className="text-[10px] font-bold uppercase tracking-wider text-secondary/60">{stat.label}</div>

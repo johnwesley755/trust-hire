@@ -126,7 +126,7 @@ export default function OnboardingPage() {
         }
       );
       updateUser({ onboarded: true });
-      navigate("/verify-identity");
+      navigate("/dashboard");
     } catch (error) {
       console.error("Onboarding failed:", error);
     } finally {

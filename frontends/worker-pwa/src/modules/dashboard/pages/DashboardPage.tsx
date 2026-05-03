@@ -102,7 +102,16 @@ export default function DashboardPage() {
       <section className="mb-8">
         <div className="flex justify-between items-end">
           <div>
-            <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-[#1F3F34]">Namaste, {profile?.fullName?.split(' ')[0] || 'Professional'}!</h2>
+            <div className="flex items-center gap-3">
+              <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-[#1F3F34]">Namaste, {profile?.fullName?.split(' ')[0] || 'Professional'}!</h2>
+              {profile?.identityVerified ? (
+                <div className="bg-emerald-500 text-white p-0.5 rounded-full flex items-center justify-center shadow-sm shrink-0">
+                  <span className="material-symbols-outlined text-[14px] font-bold">check</span>
+                </div>
+              ) : (
+                <span className="text-[10px] font-black uppercase text-red-500 bg-red-50 px-3 py-1 rounded-full border border-red-100 shrink-0">Unverified</span>
+              )}
+            </div>
             <p className="text-[#1F3F34]/60 font-medium tracking-tight">Ready for today's tasks? Here's your overview.</p>
           </div>
           <div className="bg-white px-3 py-1 rounded-full shadow-sm flex items-center gap-1.5 border border-[#c1c8c3]/20">
@@ -110,6 +119,33 @@ export default function DashboardPage() {
             <span className="text-[10px] font-bold uppercase tracking-wider text-[#1F3F34]">Online</span>
           </div>
         </div>
+
+        {/* Verification Prompt Banner */}
+        {!profile?.identityVerified && (
+          <div className="mt-8 bg-[#1F3F34] rounded-[2rem] p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden shadow-2xl shadow-[#1F3F34]/20 group">
+            {/* Background Decoration */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-[#FACD15] opacity-5 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-110 transition-transform duration-700"></div>
+            
+            <div className="flex items-center gap-6 relative z-10">
+              <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center shrink-0">
+                <span className="material-symbols-outlined text-[#FACD15] text-3xl font-bold">verified_user</span>
+              </div>
+              <div className="text-left">
+                <h3 className="text-[#F5F4EF] text-xl font-black uppercase tracking-tight">Get Your Verified Badge</h3>
+                <p className="text-[#F5F4EF]/60 text-sm font-medium max-w-md mt-1 leading-snug">
+                  Verified workers are 4x more likely to get hired. Complete your identity check to earn the green tick of trust.
+                </p>
+              </div>
+            </div>
+
+            <button 
+              onClick={() => navigate('/verify-identity')}
+              className="bg-[#FACD15] text-[#1F3F34] px-8 py-3 rounded-xl font-black uppercase text-xs tracking-widest shadow-lg shadow-[#FACD15]/20 hover:shadow-xl hover:-translate-y-1 transition-all active:scale-95 shrink-0 relative z-10"
+            >
+              Verify Now
+            </button>
+          </div>
+        )}
       </section>
 
       {/* Stats Row */}

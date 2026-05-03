@@ -29,6 +29,7 @@ public class WorkerProfile {
     private String skills;
     
     private Integer experienceYears;
+    @Column(length = 50)
     private String level; // L1, L2, L3, L4
     
     @Builder.Default

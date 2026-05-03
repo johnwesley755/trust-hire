@@ -136,7 +136,25 @@ public class JobServiceImpl implements JobService {
                 applicationRepository.findByJobId(job.getId()).stream()
                     .filter(app -> app.getStatus() == com.trusthire.entity.JobApplication.ApplicationStatus.ACCEPTED)
                     .findFirst()
-                    .ifPresent(app -> eventPublisher.publishEvent(new com.trusthire.event.JobCompletedEvent(this, job.getId(), app.getWorkerId())));
+                    .ifPresent(app -> {
+                        eventPublisher.publishEvent(new com.trusthire.event.JobCompletedEvent(this, job.getId(), app.getWorkerId()));
+                        
+                        // Log for Employer
+                        activityService.logActivity(
+                            employerId,
+                            "JOB_COMPLETED",
+                            "Successfully completed job: " + job.getTitle(),
+                            job.getId().toString()
+                        );
+
+                        // Log for Worker
+                        activityService.logActivity(
+                            app.getWorkerId(),
+                            "JOB_COMPLETED",
+                            "Completed job: " + job.getTitle() + ". Trust score updated!",
+                            job.getId().toString()
+                        );
+                    });
             }
         }
 

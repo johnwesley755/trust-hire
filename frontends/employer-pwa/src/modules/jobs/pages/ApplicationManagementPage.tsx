@@ -215,7 +215,16 @@ export default function ApplicationManagementPage() {
 
                         <div className="space-y-4">
                           <div>
-                            <h3 className="text-2xl font-black text-[#1F3F34] tracking-tight">{worker?.fullName || 'Anonymous Applicant'}</h3>
+                            <div className="flex items-center gap-2">
+                              <h3 className="text-2xl font-black text-[#1F3F34] tracking-tight">{worker?.fullName || 'Anonymous Applicant'}</h3>
+                              {worker?.identityVerified ? (
+                                <div className="bg-emerald-500 text-white p-0.5 rounded-full flex items-center justify-center shadow-sm shrink-0">
+                                  <span className="material-symbols-outlined text-[14px] font-bold">check</span>
+                                </div>
+                              ) : (
+                                <span className="text-[10px] font-black uppercase text-red-500 bg-red-50 px-2 py-0.5 rounded-full border border-red-100 shrink-0">Not Verified</span>
+                              )}
+                            </div>
                             <div className="flex items-center gap-3 mt-1 text-[10px] font-black uppercase tracking-widest text-[#1F3F34]/30">
                               <MapPin className="w-3 h-3 text-[#FACD15]" />
                               {worker?.city || 'Location Pending'}

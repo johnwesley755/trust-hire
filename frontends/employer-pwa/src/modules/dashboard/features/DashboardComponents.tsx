@@ -45,10 +45,18 @@ export const StatsGrid = () => {
             icon: 'verified',
             trendIcon: 'star'
         },
+        { 
+            label: 'Notifications', 
+            value: stats?.unreadNotifications || 0, 
+            trend: 'Recent alerts', 
+            trendColor: 'text-blue-600 bg-blue-50',
+            icon: 'notifications',
+            trendIcon: 'notifications_active'
+        },
     ];
 
     return (
-        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
             {statsData.map((stat) => (
                 <div key={stat.label} className="bg-white p-5 rounded-2xl shadow-sm border border-[#EFEEE9] flex flex-col justify-between hover:shadow-md transition-shadow group">
                     <div className="flex justify-between items-start">
@@ -76,14 +84,14 @@ export const ApplicationsTable = () => {
     const jobIds = jobs?.map(j => j.id).filter((id): id is string => !!id) || [];
     
     const { data: applications, isLoading, isError, error } = useQuery({
-        queryKey: ['recentApplications', jobIds],
+        queryKey: ['recentApplications', jobIds.join(',')],
         queryFn: () => applicationService.getApplicationsForEmployerJobs(jobIds),
         enabled: jobIds.length > 0
     });
 
     const workerIds = applications?.map((application) => application.workerId) || [];
     const { data: workers = [] } = useQuery({
-        queryKey: ['applicationWorkers', workerIds],
+        queryKey: ['applicationWorkers', workerIds.join(',')],
         queryFn: () => workerService.getProfilesByUserIds(workerIds),
         enabled: workerIds.length > 0
     });

@@ -21,7 +21,7 @@ export interface WorkerProfile {
 export const profileService = {
   getProfile: async (): Promise<WorkerProfile> => {
     const response = await apiClient.get<any>('/api/worker/profile');
-    const data = response.data.data;
+    const data = response.data;
     return {
       ...data,
       fullName: data.fullName || '',
@@ -39,7 +39,7 @@ export const profileService = {
 
   updateProfile: async (updates: Partial<WorkerProfile>): Promise<WorkerProfile> => {
     const response = await apiClient.put<any>('/api/worker/profile', updates);
-    return response.data.data;
+    return response.data;
   },
 
   incrementProfileView: async (userId: string): Promise<void> => {

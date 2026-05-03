@@ -3,6 +3,7 @@ import { useAuth, useUser } from "../../../providers/AuthContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useOutletContext, Link } from "react-router-dom";
 import { profileService, type WorkerProfile } from "../../../services/profile.service";
+import { NotificationCenter } from '../../dashboard/components/NotificationCenter';
 import apiClient from "../../../api/apiClient";
 import { ProfileHeroCard } from "../components/ProfileHeroCard";
 import { ProfileStatsCard } from "../components/ProfileStatsCard";
@@ -40,7 +41,7 @@ export default function ProfilePage() {
   useEffect(() => {
     if (!profile) return;
     setProfileForm({
-      fullName: profile.fullName || `${user?.firstName || ''} ${user?.lastName || ''}`.trim(),
+      fullName: profile.fullName || `${user?.first_name || ''} ${user?.last_name || ''}`.trim(),
       bio: profile.bio || "",
       skills: profile.skills || "",
       experienceYears: profile.experienceYears?.toString() || "",
@@ -173,8 +174,11 @@ export default function ProfilePage() {
               </button>
               <h1 className="text-xl font-extrabold text-[#1F3F34] tracking-tight">Worker Profile</h1>
             </div>
-            <div className="w-10 h-10 rounded-full bg-[#e9e8e3] overflow-hidden border-2 border-[#FACD15]">
-              <img src={user?.profile_image_url || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200"} alt="Portrait" className="w-full h-full object-cover" />
+            <div className="flex items-center gap-2">
+              <NotificationCenter />
+              <div className="w-10 h-10 rounded-full bg-[#e9e8e3] overflow-hidden border-2 border-[#FACD15]">
+                <img src={user?.profile_image_url || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200"} alt="Portrait" className="w-full h-full object-cover" />
+              </div>
             </div>
           </div>
         </header>
@@ -191,16 +195,23 @@ export default function ProfilePage() {
                 <div className="w-24 h-24 rounded-lg overflow-hidden bg-[#e9e8e3] rotate-1">
                   <img src={user?.profile_image_url || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200"} alt="Profile" className="w-full h-full object-cover" />
                 </div>
-                <div className="absolute -bottom-2 -right-2 bg-[#FACD15] text-[#1F3F34] p-1 rounded-full shadow-lg">
-                  <span className="material-symbols-outlined text-sm font-bold" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
-                </div>
+                {profile?.identityVerified && (
+                  <div className="absolute -bottom-1 -right-1 bg-emerald-500 text-white p-1 rounded-full shadow-lg border-2 border-white z-20">
+                    <span className="material-symbols-outlined text-xs font-bold" style={{ fontVariationSettings: "'FILL' 1" }}>check</span>
+                  </div>
+                )}
               </div>
               <div className="flex-1 space-y-1">
                 <h2 className="text-2xl font-black text-[#1F3F34] leading-none tracking-tight">{profileForm.fullName}</h2>
                 <p className="text-sm font-bold text-[#1F3F34]/70 leading-tight">{profile?.bio?.split('.')[0] || "Professional Worker"}</p>
                 <div className="flex gap-2 mt-2">
                   <span className="bg-[#c7ebdb] text-[#002117] px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider">Level {profile?.level || '1'}</span>
-                  <span className="bg-[#efeee9] text-[#1F3F34]/60 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider">Verified</span>
+                  {profile?.identityVerified && (
+                    <span className="bg-emerald-500 text-white px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 shrink-0">
+                      <span className="material-symbols-outlined text-[10px] font-bold">verified</span>
+                      Verified
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
