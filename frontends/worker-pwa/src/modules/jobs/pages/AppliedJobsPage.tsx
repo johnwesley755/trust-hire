@@ -3,7 +3,7 @@ import { useNavigate, useOutletContext } from "react-router-dom";
 import { applicationService } from "../../../services/application.service";
 import { jobService } from "../../../services/job.service";
 import { profileService } from '../../../services/profile.service';
-import { NotificationCenter } from '../components/NotificationCenter';
+import { NotificationCenter } from '../../dashboard/components/NotificationCenter';
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { useUser } from "../../../providers/AuthContext";
