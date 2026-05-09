@@ -4,7 +4,7 @@ import { Navigate, useLocation } from "react-router-dom";
 import apiClient from "../../../api/apiClient";
 
 export const AuthOnboardingGuard = ({ children }: { children: React.ReactNode }) => {
-  const { isSignedIn, isLoaded, getToken, updateUser } = useAuth();
+  const { isSignedIn, isLoaded, getToken, updateUser, sessionExpired } = useAuth();
   const { user } = useUser();
   const [isOnboarded, setIsOnboarded] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
@@ -63,6 +63,10 @@ export const AuthOnboardingGuard = ({ children }: { children: React.ReactNode })
 
   if (isOnboarded === false && location.pathname !== "/onboarding") {
     return <Navigate to="/onboarding" replace />;
+  }
+
+  if (isOnboarded === true && location.pathname === "/onboarding") {
+    return <Navigate to="/dashboard" replace />;
   }
 
   // Next level: Identity Verification (SOFT REQUIREMENT)

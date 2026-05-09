@@ -39,7 +39,12 @@ apiClient.interceptors.response.use(
     return response;
   },
   (error) => {
-    if (error.response?.status === 401) {
+    const isAuthEndpoint = error.config?.url && (
+      error.config.url.includes('/api/auth/login') ||
+      error.config.url.includes('/api/auth/register')
+    );
+
+    if (!isAuthEndpoint && (error.response?.status === 401 || error.response?.status === 403)) {
       // Dispatch custom event for session expiry
       window.dispatchEvent(new CustomEvent('auth:expired'));
     }

@@ -103,9 +103,9 @@ export const router = createBrowserRouter([
       {
         path: '/onboarding',
         element: (
-          <SignedIn>
+          <ProtectedRoute>
             <OnboardingPage />
-          </SignedIn>
+          </ProtectedRoute>
         ),
       },
       {

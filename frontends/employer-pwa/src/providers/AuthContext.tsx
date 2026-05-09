@@ -19,6 +19,7 @@ interface AuthContextType {
   user: User | null;
   isSignedIn: boolean;
   isLoaded: boolean;
+  sessionExpired: boolean;
   getToken: () => Promise<string | null>;
   updateUser: (data: Partial<User>) => void;
   login: (token: string, userData: User) => void;
@@ -74,6 +75,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   useEffect(() => {
     const handleAuthExpired = () => {
+      // Immediate logical logout
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      setUser(null);
       setSessionExpired(true);
     };
     window.addEventListener('auth:expired', handleAuthExpired);
@@ -116,7 +121,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     setUser(null);
-    window.location.href = '/sign-in';
+    window.location.href = '/';
   };
 
   useEffect(() => {
@@ -124,7 +129,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, isSignedIn: !!user, isLoaded, getToken, updateUser, login, logout }}>
+    <AuthContext.Provider value={{ user, isSignedIn: !!user, isLoaded, sessionExpired, getToken, updateUser, login, logout }}>
       {children}
       
       {sessionExpired && (
