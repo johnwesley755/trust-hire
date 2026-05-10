@@ -73,9 +73,11 @@ public class AuthController {
         return ResponseEntity.ok(ApiResponse.ok("Password updated successfully", "updated"));
     }
 
-    // GET /api/auth/me
     @GetMapping("/me")
     public ResponseEntity<ApiResponse<UserMetadata>> getCurrentUser(Authentication authentication) {
+        if (authentication == null) {
+            return ResponseEntity.status(401).body(ApiResponse.error("Unauthorized"));
+        }
         String userId = (String) authentication.getPrincipal();
         UserMetadata user = authService.getCurrentUser(userId);
         return ResponseEntity.ok(ApiResponse.ok(user));

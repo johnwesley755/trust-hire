@@ -80,7 +80,11 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOriginPatterns(List.of(
+            "http://localhost:61182",
             "http://localhost:*", 
+            "http://127.0.0.1:*",
+            "http://10.0.2.2:*",      // Android Emulator Bridge
+            "http://192.168.*:*",    // Local Network (Physical Devices)
             "https://*.trusthire.com",
             "https://trust-hire-ellv.vercel.app",
             "https://trust-hire-five.vercel.app"
