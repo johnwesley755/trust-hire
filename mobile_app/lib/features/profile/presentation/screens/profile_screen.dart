@@ -4,20 +4,41 @@ import 'package:animate_do/animate_do.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
+import './personal_info_screen.dart';
+import './company_details_screen.dart';
+import './security_settings_screen.dart';
+import './settings_detail_screen.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final role = ref.watch(authProvider).role;
-    final isWorker = role == 'WORKER';
+    final authState = ref.watch(authProvider);
+    final user = authState.user;
+    final isWorker = authState.role == 'WORKER';
+    final name = (user != null && user['first_name'] != null) 
+      ? '${user['first_name']} ${user['last_name'] ?? ''}' 
+      : 'Hiring Professional';
+    final String? imageUrl = user?['profile_image_url'] as String?;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          const SizedBox(height: 20),
+          FadeInDown(
+            child: const Text(
+              'TrustHire',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w900,
+                color: AppColors.primary,
+                letterSpacing: -0.5,
+              ),
+            ),
+          ),
           const SizedBox(height: 20),
           FadeInDown(
             child: Row(
@@ -29,8 +50,9 @@ class ProfileScreen extends ConsumerWidget {
                     color: AppColors.accent.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(28),
                     border: Border.all(color: AppColors.accent.withOpacity(0.5), width: 2),
+                    image: imageUrl != null ? DecorationImage(image: NetworkImage(imageUrl!), fit: BoxFit.cover) : null,
                   ),
-                  child: const Icon(LucideIcons.user, color: AppColors.primary, size: 40),
+                  child: imageUrl == null ? const Icon(LucideIcons.user, color: AppColors.primary, size: 40) : null,
                 ),
                 const SizedBox(width: 20),
                 Expanded(
@@ -38,7 +60,7 @@ class ProfileScreen extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Habib Mohammed',
+                        name,
                         style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                           fontWeight: FontWeight.w900,
                         ),
@@ -73,17 +95,17 @@ class ProfileScreen extends ConsumerWidget {
           _ProfileOption(
             icon: LucideIcons.userCircle,
             label: 'Personal Information',
-            onTap: () {},
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const PersonalInfoScreen())),
           ),
           _ProfileOption(
             icon: isWorker ? LucideIcons.shieldCheck : LucideIcons.building,
             label: isWorker ? 'Identity Verification' : 'Company Details',
-            onTap: () {},
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => isWorker ? const Scaffold(body: Center(child: Text('Coming Soon'))) : const CompanyDetailsScreen())),
           ),
           _ProfileOption(
             icon: LucideIcons.lock,
             label: 'Security & Password',
-            onTap: () {},
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const SecuritySettingsScreen())),
           ),
           
           const SizedBox(height: 32),
@@ -92,12 +114,12 @@ class ProfileScreen extends ConsumerWidget {
           _ProfileOption(
             icon: LucideIcons.bell,
             label: 'Notification Settings',
-            onTap: () {},
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsDetailScreen(title: 'Notification Settings'))),
           ),
           _ProfileOption(
             icon: LucideIcons.languages,
             label: 'Language Preferences',
-            onTap: () {},
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsDetailScreen(title: 'Language Preferences'))),
           ),
           
           const SizedBox(height: 32),
@@ -106,12 +128,12 @@ class ProfileScreen extends ConsumerWidget {
           _ProfileOption(
             icon: LucideIcons.helpCircle,
             label: 'Help Center',
-            onTap: () {},
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsDetailScreen(title: 'Help Center'))),
           ),
           _ProfileOption(
             icon: LucideIcons.fileText,
             label: 'Terms & Privacy Policy',
-            onTap: () {},
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsDetailScreen(title: 'Terms & Privacy'))),
           ),
           
           const SizedBox(height: 48),

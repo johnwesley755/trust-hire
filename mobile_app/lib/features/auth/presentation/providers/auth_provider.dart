@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../data/repositories/auth_repository.dart';
@@ -9,12 +10,16 @@ class AuthState {
   final String? error;
   final bool isAuthenticated;
   final String? role;
+  final bool onboarded;
+  final Map<String, dynamic>? user;
 
   AuthState({
     this.isLoading = false,
     this.error,
     this.isAuthenticated = false,
     this.role,
+    this.onboarded = false,
+    this.user,
   });
 
   AuthState copyWith({
@@ -22,12 +27,16 @@ class AuthState {
     String? error,
     bool? isAuthenticated,
     String? role,
+    bool? onboarded,
+    Map<String, dynamic>? user,
   }) {
     return AuthState(
       isLoading: isLoading ?? this.isLoading,
       error: error ?? this.error,
       isAuthenticated: isAuthenticated ?? this.isAuthenticated,
       role: role ?? this.role,
+      onboarded: onboarded ?? this.onboarded,
+      user: user ?? this.user,
     );
   }
 }
@@ -44,26 +53,59 @@ class AuthNotifier extends StateNotifier<AuthState> {
   Future<void> _checkInitialAuth() async {
     final token = await _storage.read(key: 'token');
     final role = await _storage.read(key: 'role');
+    final onboardedStr = await _storage.read(key: 'onboarded');
+    final userJson = await _storage.read(key: 'user');
+    
+    Map<String, dynamic>? user;
+    if (userJson != null) {
+      try {
+        user = jsonDecode(userJson);
+      } catch (_) {}
+    }
+
     if (token != null) {
-      state = state.copyWith(isAuthenticated: true, role: role);
+      state = state.copyWith(
+        isAuthenticated: true, 
+        role: role,
+        onboarded: onboardedStr == 'true',
+        user: user,
+      );
+      // Fetch fresh user data on startup
+      await _fetchCurrentUser();
+    }
+  }
+
+  Future<void> _fetchCurrentUser() async {
+    try {
+      final responseBody = await _repository.getCurrentUser();
+      final userData = responseBody['data'];
+      state = state.copyWith(user: userData);
+    } catch (e) {
+      print('Error fetching current user: $e');
     }
   }
 
   Future<bool> login(String email, String password) async {
     state = state.copyWith(isLoading: true, error: null);
     try {
-      final response = await _repository.login(email, password);
-      final token = response['token'];
-      final userData = response['user'];
+      final responseBody = await _repository.login(email, password);
+      final responseData = responseBody['data'];
+      final token = responseData['token'];
+      final userData = responseData['user'];
       final role = userData['role'];
+      final onboarded = userData['onboarded'] ?? false;
 
       await _storage.write(key: 'token', value: token);
       await _storage.write(key: 'role', value: role);
+      await _storage.write(key: 'onboarded', value: onboarded.toString());
+      await _storage.write(key: 'user', value: jsonEncode(userData));
 
       state = state.copyWith(
         isLoading: false,
         isAuthenticated: true,
         role: role,
+        onboarded: onboarded,
+        user: userData,
       );
       return true;
     } catch (e) {
@@ -90,23 +132,61 @@ class AuthNotifier extends StateNotifier<AuthState> {
   Future<bool> register(Map<String, dynamic> data) async {
     state = state.copyWith(isLoading: true, error: null);
     try {
-      final response = await _repository.register(data);
-      final token = response['token'];
-      final userData = response['user'];
-      final role = userData['role'];
+      final responseBody = await _repository.register(data);
+      print('Registration Response: $responseBody');
+      
+      if (responseBody == null || responseBody['data'] == null) {
+        throw 'Invalid response from server: Missing data';
+      }
+
+      final responseData = responseBody['data'] as Map<String, dynamic>;
+      final token = responseData['token'] as String?;
+      final userData = responseData['user'] as Map<String, dynamic>?;
+
+      if (token == null || userData == null) {
+        throw 'Invalid response from server: Missing token or user data';
+      }
+
+      final role = userData['role'] as String?;
+      final onboarded = userData['onboarded'] as bool? ?? false;
 
       await _storage.write(key: 'token', value: token);
-      await _storage.write(key: 'role', value: role);
+      if (role != null) {
+        await _storage.write(key: 'role', value: role);
+      }
+      await _storage.write(key: 'onboarded', value: onboarded.toString());
 
       state = state.copyWith(
         isLoading: false,
         isAuthenticated: true,
         role: role,
+        onboarded: onboarded,
+        user: userData,
       );
       return true;
     } catch (e) {
+      print('Registration Error: $e');
       state = state.copyWith(isLoading: false, error: e.toString());
       return false;
+    }
+  }
+
+  Future<void> sync(String role) async {
+    try {
+      final responseBody = await _repository.sync(role);
+      final responseData = responseBody['data'];
+      
+      // The sync endpoint returns the UserMetadata object directly in 'data'
+      final onboarded = responseData['onboarded'] ?? false;
+
+      await _storage.write(key: 'onboarded', value: onboarded.toString());
+      await _storage.write(key: 'user', value: jsonEncode(responseData));
+      state = state.copyWith(
+        onboarded: onboarded,
+        user: responseData,
+      );
+    } catch (e) {
+      print('Sync Error: $e');
     }
   }
 

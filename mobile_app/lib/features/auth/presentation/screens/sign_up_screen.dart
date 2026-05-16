@@ -26,6 +26,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _otpController = TextEditingController();
   
   XFile? _pickedFile;
   bool _otpSent = false;
@@ -64,6 +65,34 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     }
   }
 
+  void _showToast(String message, {bool isError = false}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Icon(
+              isError ? LucideIcons.alertCircle : LucideIcons.checkCircle,
+              color: Colors.white,
+              size: 20,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                message,
+                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: isError ? Colors.red.shade700 : AppColors.primary,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        margin: const EdgeInsets.all(24),
+        duration: const Duration(seconds: 4),
+      ),
+    );
+  }
+
   Future<void> _handleRegister(String otp) async {
     setState(() {
       _isLoading = true;
@@ -90,7 +119,11 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
       if (!mounted) return;
       setState(() => _isLoading = false);
 
-      if (!success) {
+      if (success) {
+        _showToast('Registration successful! Welcome to TrustHire.');
+        // Pop the auth screens so the main app can show Onboarding
+        Navigator.of(context).pop();
+      } else {
         setState(() => _error = ref.read(authProvider).error);
       }
     } catch (e) {
@@ -135,20 +168,64 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
             
             if (_error != null)
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.red.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.red.withOpacity(0.2)),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(LucideIcons.alertCircle, color: Colors.red, size: 20),
-                      const SizedBox(width: 12),
-                      Expanded(child: Text(_error!, style: const TextStyle(color: Colors.red, fontSize: 12))),
-                    ],
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                child: Dismissible(
+                  key: UniqueKey(),
+                  direction: DismissDirection.horizontal,
+                  onDismissed: (_) => setState(() => _error = null),
+                  child: FadeInDown(
+                    duration: const Duration(milliseconds: 300),
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.red.shade50,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: Colors.red.shade100),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.red.withOpacity(0.05),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.red.shade100,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(LucideIcons.alertCircle, color: Colors.red, size: 18),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Action Required',
+                                  style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 13),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  _error!.contains('DioException') 
+                                    ? 'Connection error. Please check your internet or try again later.'
+                                    : _error!, 
+                                  style: TextStyle(color: Colors.red.shade900, fontSize: 12),
+                                ),
+                              ],
+                            ),
+                          ),
+                          IconButton(
+                            onPressed: () => setState(() => _error = null),
+                            icon: const Icon(LucideIcons.x, size: 16, color: Colors.red),
+                            visualDensity: VisualDensity.compact,
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -299,7 +376,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
           Center(
             child: Pinput(
               length: 6,
-              onCompleted: _handleRegister,
+              controller: _otpController,
               defaultPinTheme: PinTheme(
                 width: 56,
                 height: 64,
@@ -314,12 +391,24 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
           ),
           
           const SizedBox(height: 48),
-          if (_isLoading)
-            const Center(child: CircularProgressIndicator())
-          else
-            const Center(child: Text('Enter the code to finish registration', style: TextStyle(color: AppColors.textSecondary))),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: _isLoading ? null : () => _handleRegister(_otpController.text),
+              child: _isLoading 
+                ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                : const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text('COMPLETE REGISTRATION'),
+                      SizedBox(width: 8),
+                      Icon(LucideIcons.check, size: 18),
+                    ],
+                  ),
+            ),
+          ),
           
-          const SizedBox(height: 48),
+          const SizedBox(height: 24),
           Center(
             child: TextButton(
               onPressed: () {

@@ -68,9 +68,11 @@ public class WorkerProfileServiceImpl implements WorkerProfileService {
     }
 
     private void indexWorker(WorkerProfile profile) {
-        boolean isVerified = userMetadataRepository.findById(java.util.UUID.fromString(profile.getUserId()))
-                .map(UserMetadata::getIdentityVerified)
-                .orElse(false);
+        UserMetadata userMetadata = userMetadataRepository.findById(java.util.UUID.fromString(profile.getUserId()))
+                .orElse(null);
+        
+        boolean isVerified = userMetadata != null && userMetadata.getIdentityVerified() != null && userMetadata.getIdentityVerified();
+        String imageUrl = userMetadata != null ? userMetadata.getProfileImageUrl() : null;
 
         searchService.indexWorker(WorkerSearchIndex.builder()
                 .userId(profile.getUserId())
@@ -83,6 +85,7 @@ public class WorkerProfileServiceImpl implements WorkerProfileService {
                 .longitude(profile.getLongitude())
                 .level(profile.getLevel())
                 .isVerified(isVerified)
+                .profileImageUrl(imageUrl)
                 .status(profile.getIsAvailable() ? "AVAILABLE" : "BUSY")
                 .trustScore(profile.getTrustScore())
                 .build());

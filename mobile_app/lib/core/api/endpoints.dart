@@ -19,7 +19,7 @@ class Endpoints {
   // --- Jobs ---
   static const String jobs = "/api/jobs"; // GET (all), POST (create)
   static const String jobById = "/api/jobs"; // + /{id}
-  static const String employerActiveJobs = "/api/jobs/employer/active";
+  static const String employerActiveJobs = "/api/jobs/employer";
   
   // --- Job Applications ---
   static const String applyJob = "/api/jobs/applications"; // POST
@@ -56,7 +56,7 @@ class Endpoints {
   // --- Notifications ---
   static const String notifications = "/api/notifications";
   static const String unreadNotificationCount = "/api/notifications/unread/count";
-  static const String markNotificationsRead = "/api/notifications/read/all";
+  static const String markNotificationsRead = "/api/notifications/read-all";
 
   // --- Verification ---
   static const String uploadVerificationDoc = "/api/verification/upload-doc";

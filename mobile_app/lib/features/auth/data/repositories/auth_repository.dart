@@ -26,15 +26,24 @@ class AuthRepository {
   }
 
   Future<String> uploadMedia(XFile file) async {
+    final bytes = await file.readAsBytes();
     final formData = FormData.fromMap({
-      'file': await MultipartFile.fromFile(file.path, filename: file.name),
+      'file': MultipartFile.fromBytes(
+        bytes,
+        filename: file.name,
+      ),
     });
     final response = await _api.dio.post(Endpoints.mediaUpload, data: formData);
-    return response.data['data']['url']; // Assuming 'url' is the field in the response
+    return response.data['data']['url'];
   }
 
   Future<Map<String, dynamic>> sync(String role) async {
     final response = await _api.dio.post(Endpoints.sync, data: {'role': role});
+    return response.data;
+  }
+
+  Future<Map<String, dynamic>> getCurrentUser() async {
+    final response = await _api.dio.get(Endpoints.me);
     return response.data;
   }
 }

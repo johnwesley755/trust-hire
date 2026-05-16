@@ -6,6 +6,8 @@ import 'package:trust_hire/features/auth/presentation/screens/role_selection_scr
 import 'package:trust_hire/features/shared/presentation/screens/main_shell.dart';
 import 'package:trust_hire/features/shared/presentation/widgets/session_expired_overlay.dart';
 
+import 'package:trust_hire/features/profile/presentation/screens/onboarding_screen.dart';
+
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(
@@ -22,12 +24,23 @@ class TrustHireApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authProvider);
 
+    Widget home;
+    if (authState.isAuthenticated) {
+      if (authState.onboarded) {
+        home = const MainShell();
+      } else {
+        home = const OnboardingScreen();
+      }
+    } else {
+      home = const RoleSelectionScreen();
+    }
+
     return MaterialApp(
+      key: ValueKey('${authState.isAuthenticated}_${authState.onboarded}'),
       title: 'TrustHire',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
-      // Toggle between shell and login based on auth state
-      home: authState.isAuthenticated ? const MainShell() : const RoleSelectionScreen(),
+      home: home,
       builder: (context, child) {
         return Stack(
           children: [

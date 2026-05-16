@@ -1,23 +1,17 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'endpoints.dart';
 
 class ApiClient {
-  late final Dio dio;
-  final _storage = const FlutterSecureStorage();
-  final VoidCallback? onSessionExpired;
+  final Dio dio = Dio();
+  final FlutterSecureStorage _storage = const FlutterSecureStorage();
+  final Function? onSessionExpired;
 
   ApiClient({this.onSessionExpired}) {
-    dio = Dio(BaseOptions(
-      baseUrl: Endpoints.baseUrl,
-      connectTimeout: const Duration(seconds: 15),
-      receiveTimeout: const Duration(seconds: 15),
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-    ));
+    // Force the baseUrl to be absolute
+    dio.options.baseUrl = Endpoints.baseUrl;
+    dio.options.connectTimeout = const Duration(seconds: 10);
+    dio.options.receiveTimeout = const Duration(seconds: 10);
 
     dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) async {
@@ -25,18 +19,32 @@ class ApiClient {
         if (token != null) {
           options.headers['Authorization'] = 'Bearer $token';
         }
+        
+        // Ensure Content-Type is set for POST/PUT/PATCH to avoid octet-stream on Web
+        if (options.method != 'GET' && options.data != null) {
+          options.headers['Content-Type'] = 'application/json';
+        }
+        
+        // Ensure the URL is absolute if it's not already
+        if (!options.path.startsWith('http')) {
+          options.path = '${Endpoints.baseUrl}${options.path.startsWith('/') ? '' : '/'}${options.path}';
+        }
+        
+        print('API REQUEST: [${options.method}] ${options.path}');
         return handler.next(options);
       },
+      onResponse: (response, handler) {
+        print('API RESPONSE: [${response.statusCode}] ${response.requestOptions.path}');
+        return handler.next(response);
+      },
       onError: (DioException e, handler) {
+        print('API ERROR: [${e.response?.statusCode}] ${e.requestOptions.path} -> ${e.message}');
         if (e.response?.statusCode == 401 || e.response?.statusCode == 403) {
-          // Check if it's NOT an auth endpoint to avoid looping/misleading modals during login
           final url = e.requestOptions.path;
           final isAuthEndpoint = url.contains(Endpoints.login) || 
-                               url.contains(Endpoints.register);
+                                url.contains(Endpoints.register);
 
           if (!isAuthEndpoint) {
-            // Trigger global session expired event
-            // In Flutter, we can use a StreamController or a shared state provider for this
             _handleSessionExpired();
           }
         }
@@ -48,5 +56,12 @@ class ApiClient {
   void _handleSessionExpired() {
     onSessionExpired?.call();
     print("SESSION EXPIRED: Redirecting to Login...");
+  }
+
+  String resolveMediaUrl(String? path) {
+    if (path == null || path.isEmpty) return '';
+    if (path.startsWith('http')) return path;
+    final cleanPath = path.startsWith('/') ? path.substring(1) : path;
+    return '${Endpoints.baseUrl}/$cleanPath';
   }
 }

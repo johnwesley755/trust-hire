@@ -6,25 +6,17 @@ class NotificationRepository {
 
   NotificationRepository(this._api);
 
-  Future<List<dynamic>> getMyNotifications() async {
+  Future<List<dynamic>> getNotifications() async {
     final response = await _api.dio.get(Endpoints.notifications);
-    return response.data;
+    return response.data['data'] as List? ?? [];
   }
 
   Future<int> getUnreadCount() async {
-    final response = await _api.dio.get('${Endpoints.notifications}/unread/count');
-    return response.data;
-  }
-
-  Future<void> markAsRead(String id) async {
-    await _api.dio.patch('${Endpoints.notifications}/$id/read');
+    final response = await _api.dio.get(Endpoints.unreadNotificationCount);
+    return (response.data['data'] as num? ?? 0).toInt();
   }
 
   Future<void> markAllAsRead() async {
-    await _api.dio.patch('${Endpoints.notifications}/read-all');
-  }
-
-  Future<void> deleteNotification(String id) async {
-    await _api.dio.delete('${Endpoints.notifications}/$id');
+    await _api.dio.patch(Endpoints.markNotificationsRead);
   }
 }

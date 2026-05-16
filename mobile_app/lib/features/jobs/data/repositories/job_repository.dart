@@ -7,13 +7,13 @@ class JobRepository {
   JobRepository(this._api);
 
   Future<List<dynamic>> getAllJobs() async {
-    final response = await _api.dio.get(Endpoints.jobDetails);
-    return response.data;
+    final response = await _api.dio.get(Endpoints.jobs);
+    return response.data['data'] as List? ?? [];
   }
 
   Future<Map<String, dynamic>> getJobDetails(String id) async {
-    final response = await _api.dio.get('${Endpoints.jobDetails}/$id');
-    return response.data;
+    final response = await _api.dio.get('${Endpoints.jobById}/$id');
+    return response.data['data'];
   }
 
   Future<void> applyForJob(String jobId) async {
@@ -21,12 +21,22 @@ class JobRepository {
   }
 
   Future<List<dynamic>> getEmployerJobs() async {
-    final response = await _api.dio.get('${Endpoints.jobDetails}/employer');
-    return response.data;
+    final response = await _api.dio.get(Endpoints.employerActiveJobs);
+    return response.data['data'] as List? ?? [];
   }
 
   Future<Map<String, dynamic>> createJob(Map<String, dynamic> jobData) async {
-    final response = await _api.dio.post(Endpoints.jobDetails, data: jobData);
-    return response.data;
+    final response = await _api.dio.post(Endpoints.jobs, data: jobData);
+    return response.data['data'];
+  }
+
+  Future<Map<String, dynamic>> getEmployerStats() async {
+    final response = await _api.dio.get(Endpoints.employerDashboardStats);
+    return response.data['data'] as Map<String, dynamic>? ?? {};
+  }
+
+  Future<Map<String, dynamic>> getWorkerStats() async {
+    final response = await _api.dio.get(Endpoints.workerDashboardStats);
+    return response.data['data'];
   }
 }
