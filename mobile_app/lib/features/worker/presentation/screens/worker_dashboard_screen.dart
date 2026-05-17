@@ -59,6 +59,16 @@ class _WorkerDashboardScreenState extends ConsumerState<WorkerDashboardScreen> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      const Text(
+                        'TrustHire',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w900,
+                          color: AppColors.primary,
+                          letterSpacing: -0.5,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
                       Text(
                         'Namaste, $firstName!',
                         style: Theme.of(context).textTheme.displayMedium,
