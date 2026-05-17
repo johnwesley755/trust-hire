@@ -23,8 +23,21 @@ class _IdentityVerificationScreenState extends ConsumerState<IdentityVerificatio
   XFile? _selfieFile;
   bool _isUploading = false;
   String? _errorMessage;
-
   final ImagePicker _picker = ImagePicker();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final user = ref.read(authProvider).user;
+      final isVerified = user?['identity_verified'] ?? false;
+      if (isVerified) {
+        setState(() {
+          _currentStep = 3;
+        });
+      }
+    });
+  }
 
   Future<void> _pickDocument(ImageSource source) async {
     try {

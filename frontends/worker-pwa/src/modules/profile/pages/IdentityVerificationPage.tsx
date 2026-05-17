@@ -5,7 +5,7 @@ import apiClient from '../../../api/apiClient';
 import { HelpCircle, ArrowLeft } from 'lucide-react';
 import { AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../../providers/AuthContext';
+import { useAuth, useUser } from '../../../providers/AuthContext';
 
 // Modular Components
 import AadhaarStep from '../components/verification/AadhaarStep';
@@ -18,6 +18,7 @@ export const IdentityVerificationPage = () => {
   const [livePreview, setLivePreview] = useState<string | null>(null);
   const navigate = useNavigate();
   const { updateUser } = useAuth();
+  const { user } = useUser();
 
   const { data: status, refetch } = useQuery({
     queryKey: ['verificationStatus'],
@@ -63,7 +64,7 @@ export const IdentityVerificationPage = () => {
   };
 
   // If already verified or just finished step 2 and waiting/success
-  const isFinalStatus = status?.status === 'VERIFIED' || (status?.status === 'PENDING' && step === 3);
+  const isFinalStatus = user?.identity_verified === true || status?.status === 'VERIFIED' || (status?.status === 'PENDING' && step === 3);
 
   return (
     <div className="min-h-screen bg-[#faf9f4] font-body text-[#1b1c19] selection:bg-[#ffe081] selection:text-[#1b1c19] relative overflow-hidden flex flex-col antialiased">
