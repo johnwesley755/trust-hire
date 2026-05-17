@@ -18,6 +18,7 @@ import java.util.UUID;
 public class JobResponse {
     private UUID id;
     private String employerId;
+    private String employerName;
     private String title;
     private String description;
     private String industry;
@@ -39,6 +40,7 @@ public class JobResponse {
         return JobResponse.builder()
                 .id(job.getId())
                 .employerId(job.getEmployerId())
+                .employerName(job.getEmployerName())
                 .title(job.getTitle())
                 .description(job.getDescription())
                 .industry(job.getIndustry())

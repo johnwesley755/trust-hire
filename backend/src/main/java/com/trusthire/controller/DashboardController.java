@@ -28,6 +28,9 @@ public class DashboardController {
 
     @GetMapping("/worker/stats")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getWorkerStats(Authentication auth) {
+        if (auth == null) {
+            return ResponseEntity.status(401).body(ApiResponse.error("Unauthorized"));
+        }
         String userId = (String) auth.getPrincipal();
         Map<String, Object> stats = new HashMap<>();
         
@@ -44,6 +47,9 @@ public class DashboardController {
 
     @GetMapping("/employer/stats")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getEmployerStats(Authentication auth) {
+        if (auth == null) {
+            return ResponseEntity.status(401).body(ApiResponse.error("Unauthorized"));
+        }
         String userId = (String) auth.getPrincipal();
         Map<String, Object> stats = new HashMap<>();
         

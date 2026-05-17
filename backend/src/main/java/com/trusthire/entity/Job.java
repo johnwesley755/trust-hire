@@ -27,6 +27,8 @@ public class Job {
     @Column(nullable = false)
     private String employerId;
 
+    private String employerName;
+
     @Column(nullable = false)
     private String title;
 

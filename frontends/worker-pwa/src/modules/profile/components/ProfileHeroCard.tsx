@@ -67,7 +67,7 @@ export const ProfileHeroCard: React.FC<ProfileHeroCardProps> = ({
             </div>
           )}
 
-          {profile?.identityVerified && (
+          {user?.identity_verified && (
             <div className="absolute -bottom-2 -right-2 bg-emerald-500 text-white p-2 rounded-full border-4 border-white shadow-xl rotate-0 z-40">
               <span className="material-symbols-outlined text-lg font-bold" style={{ fontVariationSettings: "'FILL' 1" }}>check</span>
             </div>
@@ -80,7 +80,7 @@ export const ProfileHeroCard: React.FC<ProfileHeroCardProps> = ({
               {profile?.fullName || `${user?.first_name || ''} ${user?.last_name || ''}`.trim()}
             </h2>
             <div className="flex items-center justify-center md:justify-start gap-3 mt-2">
-              {profile?.identityVerified ? (
+              {user?.identity_verified ? (
                 <span className="text-[10px] font-black text-white uppercase tracking-widest bg-emerald-500 px-3 py-1 rounded-full shadow-sm flex items-center gap-1 shrink-0">
                   <span className="material-symbols-outlined text-[12px] font-bold">verified</span>
                   Verified Profile

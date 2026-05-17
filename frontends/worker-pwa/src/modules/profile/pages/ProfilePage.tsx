@@ -195,7 +195,7 @@ export default function ProfilePage() {
                 <div className="w-24 h-24 rounded-lg overflow-hidden bg-[#e9e8e3] rotate-1">
                   <img src={user?.profile_image_url || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200"} alt="Profile" className="w-full h-full object-cover" />
                 </div>
-                {profile?.identityVerified && (
+                 {user?.identity_verified && (
                   <div className="absolute -bottom-1 -right-1 bg-emerald-500 text-white p-1 rounded-full shadow-lg border-2 border-white z-20">
                     <span className="material-symbols-outlined text-xs font-bold" style={{ fontVariationSettings: "'FILL' 1" }}>check</span>
                   </div>
@@ -206,7 +206,7 @@ export default function ProfilePage() {
                 <p className="text-sm font-bold text-[#1F3F34]/70 leading-tight">{profile?.bio?.split('.')[0] || "Professional Worker"}</p>
                 <div className="flex gap-2 mt-2">
                   <span className="bg-[#c7ebdb] text-[#002117] px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider">Level {profile?.level || '1'}</span>
-                  {profile?.identityVerified && (
+                  {user?.identity_verified && (
                     <span className="bg-emerald-500 text-white px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 shrink-0">
                       <span className="material-symbols-outlined text-[10px] font-bold">verified</span>
                       Verified
@@ -475,6 +475,7 @@ export default function ProfilePage() {
           <div className="lg:col-span-1">
             <ProfileSideActions 
               onLogout={logout}
+              user={user}
             />
           </div>
         </div>

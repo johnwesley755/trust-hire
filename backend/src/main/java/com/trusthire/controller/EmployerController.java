@@ -26,6 +26,13 @@ public class EmployerController {
                 .orElseGet(() -> ResponseEntity.status(404).body(ApiResponse.error("Profile not found")));
     }
 
+    @GetMapping("/profile/{userId}")
+    public ResponseEntity<ApiResponse<EmployerProfile>> getProfileByUserId(@PathVariable String userId) {
+        return profileService.getProfileByUserId(userId)
+                .map(profile -> ResponseEntity.ok(ApiResponse.ok(profile)))
+                .orElseGet(() -> ResponseEntity.status(404).body(ApiResponse.error("Profile not found")));
+    }
+
     @PostMapping("/profile")
     public ResponseEntity<ApiResponse<EmployerProfile>> createProfile(Authentication authentication, @Valid @RequestBody EmployerProfileRequest request) {
         String userId = (String) authentication.getPrincipal();
