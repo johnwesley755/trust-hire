@@ -32,9 +32,10 @@ public class EmployerProfileServiceImpl implements EmployerProfileService {
             return profileRepository.save(newProfile);
         });
 
-        // Fetch UserMetadata to get the profile image
+        // Fetch UserMetadata to get the profile image and verification status
         userRepository.findById(UUID.fromString(userId)).ifPresent(user -> {
             profile.setProfileImageUrl(user.getProfileImageUrl());
+            profile.setIsVerified(user.getIdentityVerified() != null && user.getIdentityVerified());
         });
 
         return Optional.of(profile);
@@ -47,6 +48,7 @@ public class EmployerProfileServiceImpl implements EmployerProfileService {
         EmployerProfile saved = profileRepository.save(profile);
         userRepository.findById(UUID.fromString(userId)).ifPresent(user -> {
             saved.setProfileImageUrl(user.getProfileImageUrl());
+            saved.setIsVerified(user.getIdentityVerified() != null && user.getIdentityVerified());
         });
 
         activityService.logActivity(
@@ -78,6 +80,7 @@ public class EmployerProfileServiceImpl implements EmployerProfileService {
         EmployerProfile saved = profileRepository.save(profile);
         userRepository.findById(UUID.fromString(userId)).ifPresent(user -> {
             saved.setProfileImageUrl(user.getProfileImageUrl());
+            saved.setIsVerified(user.getIdentityVerified() != null && user.getIdentityVerified());
         });
 
         activityService.logActivity(

@@ -103,7 +103,7 @@ class _WorkerProfileScreenState extends ConsumerState<WorkerProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final String name = widget.worker['name'] ?? 'Verified Worker';
-    final String? imageUrl = widget.worker['profileImageUrl'];
+    final String? imageUrl = widget.worker['profileImageUrl'] ?? widget.worker['profile_image_url'];
     final String level = '${widget.worker['level'] ?? 'L1'} Specialist';
     final double rating = ((widget.worker['trustScore'] ?? 0) / 20.0).toDouble();
     final List<String> skills = (widget.worker['skills'] as String? ?? '').split(',').where((s) => s.isNotEmpty).toList();
@@ -180,34 +180,7 @@ class _WorkerProfileScreenState extends ConsumerState<WorkerProfileScreen> {
                   _buildSkills(skills),
                   const SizedBox(height: 32),
                   _buildTrustScoreDetails(),
-                  const SizedBox(height: 40),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: _handleHireNow,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 20),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                      ),
-                      child: const Text('HIRE NOW', style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1)),
-                    ),
-                  ),
                   const SizedBox(height: 20),
-                  SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton(
-                      onPressed: () {},
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 20),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                        side: const BorderSide(color: AppColors.primary),
-                      ),
-                      child: const Text('MESSAGE', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold)),
-                    ),
-                  ),
-                  const SizedBox(height: 40),
                 ],
               ),
             ),

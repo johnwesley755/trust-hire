@@ -25,7 +25,9 @@ class TrustHireApp extends ConsumerWidget {
     final authState = ref.watch(authProvider);
 
     Widget home;
-    if (authState.isAuthenticated) {
+    if (authState.isLoading) {
+      home = const SplashScreen();
+    } else if (authState.isAuthenticated) {
       if (authState.onboarded) {
         home = const MainShell();
       } else {
@@ -49,6 +51,37 @@ class TrustHireApp extends ConsumerWidget {
           ],
         );
       },
+    );
+  }
+}
+
+class SplashScreen extends StatelessWidget {
+  const SplashScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppTheme.lightTheme.scaffoldBackgroundColor,
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              'TrustHire',
+              style: TextStyle(
+                fontSize: 32,
+                fontWeight: FontWeight.w900,
+                color: Color(0xFF1F3F34), // AppColors.primary
+                letterSpacing: -1,
+              ),
+            ),
+            const SizedBox(height: 24),
+            const CircularProgressIndicator(
+              color: Color(0xFF1F3F34),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

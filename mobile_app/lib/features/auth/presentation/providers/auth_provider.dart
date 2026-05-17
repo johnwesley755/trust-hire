@@ -14,7 +14,7 @@ class AuthState {
   final Map<String, dynamic>? user;
 
   AuthState({
-    this.isLoading = false,
+    this.isLoading = true,
     this.error,
     this.isAuthenticated = false,
     this.role,
@@ -73,6 +73,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       // Fetch fresh user data on startup
       await _fetchCurrentUser();
     }
+    state = state.copyWith(isLoading: false);
   }
 
   Future<void> _fetchCurrentUser() async {

@@ -102,11 +102,6 @@ class ProfileScreen extends ConsumerWidget {
             label: isWorker ? 'Identity Verification' : 'Company Details',
             onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => isWorker ? const Scaffold(body: Center(child: Text('Coming Soon'))) : const CompanyDetailsScreen())),
           ),
-          _ProfileOption(
-            icon: LucideIcons.lock,
-            label: 'Security & Password',
-            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const SecuritySettingsScreen())),
-          ),
           
           const SizedBox(height: 32),
           _buildSectionTitle('PREFERENCES'),
@@ -127,13 +122,13 @@ class ProfileScreen extends ConsumerWidget {
           const SizedBox(height: 16),
           _ProfileOption(
             icon: LucideIcons.helpCircle,
-            label: 'Help Center',
-            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsDetailScreen(title: 'Help Center'))),
+            label: 'Help & Support',
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsDetailScreen(title: 'Help & Support'))),
           ),
           _ProfileOption(
             icon: LucideIcons.fileText,
-            label: 'Terms & Privacy Policy',
-            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsDetailScreen(title: 'Terms & Privacy'))),
+            label: 'Guidelines',
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsDetailScreen(title: 'Guidelines'))),
           ),
           
           const SizedBox(height: 48),

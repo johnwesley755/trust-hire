@@ -54,19 +54,19 @@ class _WorkerSearchScreenState extends ConsumerState<WorkerSearchScreen> {
                   Expanded(
                     child: TextField(
                       controller: _searchController,
-                      onSubmitted: (val) {
-                        ref.read(workerSearchProvider.notifier).searchWorkers(query: val);
+                      onChanged: (val) {
+                        ref.read(workerSearchProvider.notifier).updateFilters(query: val);
                       },
                       decoration: const InputDecoration(
                         hintText: 'Search by skills, name, or level...',
-                        prefixIcon: Icon(LucideIcons.users, size: 20),
+                        prefixIcon: Icon(LucideIcons.search, size: 20),
                         contentPadding: EdgeInsets.symmetric(vertical: 12),
                       ),
                     ),
                   ),
                   const SizedBox(width: 12),
                   GestureDetector(
-                    onTap: () => ref.read(workerSearchProvider.notifier).searchWorkers(query: _searchController.text),
+                    onTap: () => _showFilterBottomSheet(context),
                     child: Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
@@ -115,17 +115,149 @@ class _WorkerSearchScreenState extends ConsumerState<WorkerSearchScreen> {
                 ...workers.map((worker) => _WorkerCard(
                   worker: worker,
                   name: worker['name'] ?? 'Verified Worker',
-                  role: 'Certified Professional',
+                  role: (worker['skills'] as String? ?? '').split(',').firstWhere((s) => s.trim().isNotEmpty, orElse: () => 'Professional'),
                   level: '${worker['level'] ?? 'L1'} Specialist',
                   rating: ((worker['trustScore'] ?? 0) / 20.0).toDouble(),
-                  skills: (worker['skills'] as String? ?? '').split(',').where((s) => s.isNotEmpty).toList(),
+                  skills: (worker['skills'] as String? ?? '').split(',').where((s) => s.trim().isNotEmpty).toList(),
+                  location: worker['city'] ?? worker['location'] ?? 'Location not specified',
                   imageUrl: worker['profileImageUrl'],
                   delay: 100,
+
                 )).toList(),
             ],
           ),
         ),
       ],
+    );
+  }
+
+  void _showFilterBottomSheet(BuildContext context) {
+    final searchState = ref.read(workerSearchProvider);
+    String location = searchState.city;
+    String level = searchState.level;
+    String skill = searchState.skill;
+    
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(32))),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+                left: 24, right: 24, top: 32
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Filter Talent', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900)),
+                  const SizedBox(height: 24),
+                  
+                  // Location Filter
+                  const Text('Location (City)', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.textSecondary)),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: TextEditingController(text: location),
+                    onChanged: (val) => location = val,
+                    decoration: InputDecoration(
+                      hintText: 'e.g. Chennai, Mumbai...',
+                      prefixIcon: const Icon(LucideIcons.mapPin, size: 20, color: AppColors.primary),
+                      filled: true,
+                      fillColor: AppColors.background,
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Skill Filter
+                  const Text('Primary Skill', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.textSecondary)),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: TextEditingController(text: skill),
+                    onChanged: (val) => skill = val,
+                    decoration: InputDecoration(
+                      hintText: 'e.g. ELECTRICAL, COOKING...',
+                      prefixIcon: const Icon(LucideIcons.briefcase, size: 20, color: AppColors.primary),
+                      filled: true,
+                      fillColor: AppColors.background,
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  
+                  // Level Filter
+                  const Text('Professional Level', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.textSecondary)),
+                  const SizedBox(height: 8),
+                  DropdownButtonFormField<String>(
+                    value: level.isEmpty ? null : level,
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: AppColors.background,
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                    ),
+                    hint: const Text('Select Level'),
+                    items: const [
+                      DropdownMenuItem(value: 'L1', child: Text('L1 Entry Specialist')),
+                      DropdownMenuItem(value: 'L2', child: Text('L2 Intermediate')),
+                      DropdownMenuItem(value: 'L3', child: Text('L3 Advanced')),
+                      DropdownMenuItem(value: 'L4', child: Text('L4 Master')),
+                    ],
+                    onChanged: (val) {
+                      setModalState(() => level = val ?? '');
+                    },
+                  ),
+                  
+                  const SizedBox(height: 40),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () {
+                            ref.read(workerSearchProvider.notifier).clearFilters();
+                            _searchController.clear();
+                            Navigator.pop(context);
+                          },
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                            side: const BorderSide(color: AppColors.error),
+                          ),
+                          child: const Text('CLEAR ALL', style: TextStyle(color: AppColors.error, fontWeight: FontWeight.bold)),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        flex: 2,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            ref.read(workerSearchProvider.notifier).updateFilters(
+                              city: location,
+                              level: level,
+                              skill: skill,
+                            );
+                            Navigator.pop(context);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          ),
+                          child: const Text('APPLY FILTERS', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 32),
+                ],
+              ),
+            );
+          }
+        );
+      }
     );
   }
 }
@@ -137,6 +269,7 @@ class _WorkerCard extends ConsumerWidget {
   final String level;
   final double rating;
   final List<String> skills;
+  final String location;
   final String? imageUrl;
   final int delay;
 
@@ -147,6 +280,7 @@ class _WorkerCard extends ConsumerWidget {
     required this.level,
     required this.rating,
     required this.skills,
+    required this.location,
     this.imageUrl,
     required this.delay,
   });
@@ -233,6 +367,21 @@ class _WorkerCard extends ConsumerWidget {
                             style: const TextStyle(color: AppColors.primary, fontSize: 8, fontWeight: FontWeight.w900),
                           ),
                         ),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            const Icon(LucideIcons.mapPin, size: 12, color: AppColors.textSecondary),
+                            const SizedBox(width: 4),
+                            Expanded(
+                              child: Text(
+                                location,
+                                style: const TextStyle(color: AppColors.textSecondary, fontSize: 11),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
                   ),
@@ -257,30 +406,16 @@ class _WorkerCard extends ConsumerWidget {
                 )).toList(),
               ),
               const SizedBox(height: 24),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => WorkerProfileScreen(worker: worker))),
-                      style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: AppColors.primary),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      ),
-                      child: const Text('VIEW PROFILE'),
-                    ),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton(
+                  onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => WorkerProfileScreen(worker: worker))),
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: AppColors.primary),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Hiring request sent to $name!'))
-                        );
-                      },
-                      child: const Text('HIRE NOW'),
-                    ),
-                  ),
-                ],
+                  child: const Text('VIEW PROFILE'),
+                ),
               ),
             ],
           ),
