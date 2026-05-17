@@ -6,6 +6,7 @@ import { applicationService } from '../../../services/application.service';
 import { dashboardService } from '../../../services/dashboard.service';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import { useUser } from '../../../providers/AuthContext';
 
 // New Modular Components
 import { StatsSection } from '../components/StatsSection';
@@ -17,6 +18,7 @@ import apiClient from '../../../api/apiClient';
 export default function DashboardPage() {
   const navigate = useNavigate();
   const [coords, setCoords] = useState<{lat: number, lon: number} | null>(null);
+  const { user } = useUser();
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -104,7 +106,7 @@ export default function DashboardPage() {
           <div>
             <div className="flex items-center gap-3">
               <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-[#1F3F34]">Namaste, {profile?.fullName?.split(' ')[0] || 'Professional'}!</h2>
-              {profile?.identityVerified ? (
+              {user?.identity_verified ? (
                 <div className="bg-emerald-500 text-white p-0.5 rounded-full flex items-center justify-center shadow-sm shrink-0">
                   <span className="material-symbols-outlined text-[14px] font-bold">check</span>
                 </div>
@@ -121,7 +123,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Verification Prompt Banner */}
-        {!profile?.identityVerified && (
+        {!user?.identity_verified && (
           <div className="mt-8 bg-[#1F3F34] rounded-[2rem] p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden shadow-2xl shadow-[#1F3F34]/20 group">
             {/* Background Decoration */}
             <div className="absolute top-0 right-0 w-32 h-32 bg-[#FACD15] opacity-5 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-110 transition-transform duration-700"></div>

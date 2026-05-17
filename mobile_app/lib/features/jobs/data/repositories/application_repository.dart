@@ -8,7 +8,10 @@ class ApplicationRepository {
 
   Future<List<dynamic>> getMyApplications() async {
     final response = await _api.dio.get('/api/jobs/applications/my');
-    return response.data;
+    if (response.data is Map) {
+      return response.data['data'] as List? ?? [];
+    }
+    return response.data as List? ?? [];
   }
 
   Future<List<dynamic>> getJobApplications(String jobId) async {

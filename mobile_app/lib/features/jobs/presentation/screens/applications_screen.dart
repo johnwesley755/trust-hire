@@ -1,13 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../providers/worker_applications_provider.dart';
 
-class ApplicationsScreen extends StatelessWidget {
+class ApplicationsScreen extends ConsumerStatefulWidget {
   const ApplicationsScreen({super.key});
 
   @override
+  ConsumerState<ApplicationsScreen> createState() => _ApplicationsScreenState();
+}
+
+class _ApplicationsScreenState extends ConsumerState<ApplicationsScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(workerApplicationsProvider.notifier).fetchApplications();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final applicationsState = ref.watch(workerApplicationsProvider);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -34,42 +51,75 @@ class ApplicationsScreen extends StatelessWidget {
         ),
         
         Expanded(
-          child: ListView(
-            padding: const EdgeInsets.all(24),
-            children: [
-              _ApplicationCard(
-                jobTitle: 'Senior Delivery Partner',
-                company: 'Amazon Logistics',
-                status: 'PENDING',
-                date: 'Applied 2 days ago',
-                delay: 100,
-              ),
-              _ApplicationCard(
-                jobTitle: 'Warehouse Supervisor',
-                company: 'BigBasket',
-                status: 'INTERVIEWING',
-                date: 'Updated 5h ago',
-                delay: 200,
-              ),
-              _ApplicationCard(
-                jobTitle: 'Forklift Operator',
-                company: 'DHL Express',
-                status: 'ACCEPTED',
-                date: 'Offer received yesterday',
-                delay: 300,
-              ),
-              _ApplicationCard(
-                jobTitle: 'Logistics Coordinator',
-                company: 'Delhivery',
-                status: 'REJECTED',
-                date: 'Closed 1 week ago',
-                delay: 400,
-              ),
-            ],
+          child: RefreshIndicator(
+            onRefresh: () => ref.read(workerApplicationsProvider.notifier).fetchApplications(),
+            child: applicationsState.isLoading
+                ? const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(24.0),
+                      child: CircularProgressIndicator(),
+                    ),
+                  )
+                : applicationsState.applications.isEmpty
+                    ? ListView(
+                        children: const [
+                          Padding(
+                            padding: EdgeInsets.all(48.0),
+                            child: Center(
+                              child: Text(
+                                'You haven\'t applied to any jobs yet.',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(color: AppColors.textSecondary),
+                              ),
+                            ),
+                          ),
+                        ],
+                      )
+                    : ListView.builder(
+                        padding: const EdgeInsets.all(24),
+                        itemCount: applicationsState.applications.length,
+                        itemBuilder: (context, index) {
+                          final app = applicationsState.applications[index];
+                          final job = app['job'] as Map<String, dynamic>? ?? {};
+                          final jobTitle = job['title'] ?? 'Job Opportunity';
+                          final company = job['employerName'] ?? job['industry'] ?? 'Registered Partner';
+                          final status = app['status'] ?? 'PENDING';
+                          
+                          final dateStr = app['appliedAt'] != null 
+                              ? 'Applied ${_formatDate(app['appliedAt'])}' 
+                              : 'Applied recently';
+
+                          return _ApplicationCard(
+                            jobTitle: jobTitle,
+                            company: company,
+                            status: status,
+                            date: dateStr,
+                            delay: index * 100,
+                          );
+                        },
+                      ),
           ),
         ),
       ],
     );
+  }
+
+  String _formatDate(String dateString) {
+    try {
+      final dateTime = DateTime.parse(dateString);
+      final difference = DateTime.now().difference(dateTime);
+      if (difference.inDays > 7) {
+        return '${dateTime.day}/${dateTime.month}/${dateTime.year}';
+      } else if (difference.inDays >= 1) {
+        return '${difference.inDays} days ago';
+      } else if (difference.inHours >= 1) {
+        return '${difference.inHours}h ago';
+      } else {
+        return 'recently';
+      }
+    } catch (_) {
+      return 'recently';
+    }
   }
 }
 
@@ -91,7 +141,7 @@ class _ApplicationCard extends StatelessWidget {
   Color _getStatusColor() {
     switch (status) {
       case 'PENDING': return Colors.orange;
-      case 'INTERVIEWING': return AppColors.primary;
+      case 'REVIEWING': return AppColors.primary;
       case 'ACCEPTED': return AppColors.success;
       case 'REJECTED': return AppColors.error;
       default: return AppColors.textTertiary;
@@ -164,3 +214,4 @@ class _ApplicationCard extends StatelessWidget {
     );
   }
 }
+

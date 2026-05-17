@@ -3,9 +3,12 @@ import { Link } from 'react-router-dom';
 
 interface ProfileSideActionsProps {
   onLogout: () => void;
+  user: any;
 }
 
-export const ProfileSideActions: React.FC<ProfileSideActionsProps> = ({ onLogout }) => {
+export const ProfileSideActions: React.FC<ProfileSideActionsProps> = ({ onLogout, user }) => {
+  const isVerified = user?.identity_verified === true;
+
   return (
     <div className="space-y-6">
       {/* Quick Actions Card */}
@@ -35,23 +38,46 @@ export const ProfileSideActions: React.FC<ProfileSideActionsProps> = ({ onLogout
       </div>
 
       {/* Verification Badge Card */}
-      <div className="bg-[#FACD15]/10 rounded-[2rem] p-8 border-2 border-[#FACD15] border-dashed group hover:border-solid transition-all duration-500">
-        <div className="flex items-center gap-5 mb-5">
-          <div className="w-14 h-14 rounded-2xl bg-[#FACD15] flex items-center justify-center text-[#1F3F34] shadow-lg group-hover:rotate-6 transition-transform">
-            <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>security</span>
+      {isVerified ? (
+        <div className="bg-[#FACD15]/10 rounded-[2rem] p-8 border-2 border-[#FACD15] border-dashed group hover:border-solid transition-all duration-500">
+          <div className="flex items-center gap-5 mb-5">
+            <div className="w-14 h-14 rounded-2xl bg-[#FACD15] flex items-center justify-center text-[#1F3F34] shadow-lg group-hover:rotate-6 transition-transform">
+              <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>security</span>
+            </div>
+            <div>
+              <h4 className="font-black text-[#1F3F34] text-lg tracking-tight leading-none">Trust Score High</h4>
+              <p className="text-[10px] text-[#1F3F34]/50 font-black uppercase tracking-widest mt-1">Verified Identity</p>
+            </div>
           </div>
-          <div>
-            <h4 className="font-black text-[#1F3F34] text-lg tracking-tight leading-none">Trust Score High</h4>
-            <p className="text-[10px] text-[#1F3F34]/50 font-black uppercase tracking-widest mt-1">Verified Identity</p>
-          </div>
+          <p className="text-sm text-[#1F3F34]/80 font-medium leading-relaxed mb-6">
+            This profile has been manually audited by the TrustHire compliance team. All certifications are currently active and verified.
+          </p>
+          <button className="text-[10px] font-black uppercase text-[#1F3F34] underline decoration-[#FACD15] decoration-4 underline-offset-8 hover:decoration-[#1F3F34] transition-all">
+            Review Audit Log
+          </button>
         </div>
-        <p className="text-sm text-[#1F3F34]/80 font-medium leading-relaxed mb-6">
-          This profile has been manually audited by the TrustHire compliance team. All certifications are currently active and verified.
-        </p>
-        <button className="text-[10px] font-black uppercase text-[#1F3F34] underline decoration-[#FACD15] decoration-4 underline-offset-8 hover:decoration-[#1F3F34] transition-all">
-          Review Audit Log
-        </button>
-      </div>
+      ) : (
+        <div className="bg-amber-50 rounded-[2rem] p-8 border-2 border-amber-300 border-dashed group hover:border-solid transition-all duration-500">
+          <div className="flex items-center gap-5 mb-5">
+            <div className="w-14 h-14 rounded-2xl bg-amber-400 flex items-center justify-center text-white shadow-lg group-hover:rotate-6 transition-transform">
+              <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>gpp_maybe</span>
+            </div>
+            <div>
+              <h4 className="font-black text-amber-800 text-lg tracking-tight leading-none">Unverified Profile</h4>
+              <p className="text-[10px] text-amber-600 font-black uppercase tracking-widest mt-1">Verification Required</p>
+            </div>
+          </div>
+          <p className="text-sm text-amber-700 font-medium leading-relaxed mb-6">
+            Your identity has not been verified yet. Complete the Aadhaar and Biometric steps to get verified instantly.
+          </p>
+          <Link 
+            to="/verify-identity" 
+            className="inline-flex items-center gap-2 text-[10px] font-black uppercase text-amber-800 underline decoration-amber-400 decoration-4 underline-offset-8 hover:decoration-amber-800 transition-all"
+          >
+            Verify Identity Now <span className="material-symbols-outlined text-xs">arrow_forward</span>
+          </Link>
+        </div>
+      )}
 
       {/* Recent Activity */}
       <div className="p-4 px-8">

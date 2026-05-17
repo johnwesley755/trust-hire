@@ -36,6 +36,10 @@ public class JobServiceImpl implements JobService {
     @Transactional
     public Job createJob(String employerId, Job job) {
         job.setEmployerId(employerId);
+        String companyName = employerProfileService.getProfileByUserId(employerId)
+                .map(p -> p.getCompanyName())
+                .orElse("Registered Partner");
+        job.setEmployerName(companyName);
         Job saved = jobRepository.save(job);
         indexJob(saved);
 
@@ -59,9 +63,7 @@ public class JobServiceImpl implements JobService {
     }
 
     private void indexJob(Job job) {
-        String companyName = employerProfileService.getProfileByUserId(job.getEmployerId())
-                .map(p -> p.getCompanyName())
-                .orElse("Registered Partner");
+        String companyName = job.getEmployerName() != null ? job.getEmployerName() : "Registered Partner";
 
         searchService.indexJob(JobSearchIndex.builder()
                 .jobId(job.getId())
@@ -183,5 +185,25 @@ public class JobServiceImpl implements JobService {
     @Override
     public long getTotalJobsCount() {
         return jobRepository.count();
+    }
+
+    @org.springframework.context.event.EventListener(org.springframework.boot.context.event.ApplicationReadyEvent.class)
+    @Transactional
+    public void reindexAllJobsOnStartup() {
+        try {
+            List<Job> allJobs = jobRepository.findAll();
+            for (Job job : allJobs) {
+                String companyName = employerProfileService.getProfileByUserId(job.getEmployerId())
+                        .map(p -> p.getCompanyName())
+                        .orElse("Registered Partner");
+                job.setEmployerName(companyName);
+                jobRepository.save(job);
+                indexJob(job);
+            }
+            System.out.println(">>> SUCCESSFULLY RE-INDEXED ALL " + allJobs.size() + " JOBS IN SEARCH INDEX AND DATABASE ON APPLICATION READY!");
+        } catch (Exception e) {
+            System.err.println(">>> FAILED TO RE-INDEX JOBS: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 }

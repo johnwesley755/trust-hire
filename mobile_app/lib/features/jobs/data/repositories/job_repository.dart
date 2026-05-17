@@ -39,4 +39,22 @@ class JobRepository {
     final response = await _api.dio.get(Endpoints.workerDashboardStats);
     return response.data['data'];
   }
+
+  Future<List<dynamic>> getMyApplications() async {
+    final response = await _api.dio.get(Endpoints.myApplications);
+    return response.data['data'] as List? ?? [];
+  }
+
+  Future<List<dynamic>> searchJobs({String? query, String? city}) async {
+    final response = await _api.dio.get(
+      Endpoints.searchJobs,
+      queryParameters: {
+        if (query != null && query.isNotEmpty) 'query': query,
+        if (city != null && city.isNotEmpty) 'city': city,
+      },
+    );
+    return response.data['data'] as List? ?? [];
+  }
 }
+
+

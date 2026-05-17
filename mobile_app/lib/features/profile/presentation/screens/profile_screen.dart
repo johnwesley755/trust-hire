@@ -8,6 +8,7 @@ import './personal_info_screen.dart';
 import './company_details_screen.dart';
 import './security_settings_screen.dart';
 import './settings_detail_screen.dart';
+import './identity_verification_screen.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -17,6 +18,7 @@ class ProfileScreen extends ConsumerWidget {
     final authState = ref.watch(authProvider);
     final user = authState.user;
     final isWorker = authState.role == 'WORKER';
+    final isVerified = user?['identity_verified'] ?? false;
     final name = (user != null && user['first_name'] != null) 
       ? '${user['first_name']} ${user['last_name'] ?? ''}' 
       : 'Hiring Professional';
@@ -69,11 +71,13 @@ class ProfileScreen extends ConsumerWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
-                          color: AppColors.primary,
+                          color: isVerified ? AppColors.success : AppColors.textTertiary,
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Text(
-                          isWorker ? 'VERIFIED WORKER' : 'VERIFIED EMPLOYER',
+                          isVerified 
+                            ? (isWorker ? 'VERIFIED WORKER' : 'VERIFIED EMPLOYER')
+                            : (isWorker ? 'UNVERIFIED WORKER' : 'UNVERIFIED EMPLOYER'),
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 10,
@@ -100,7 +104,12 @@ class ProfileScreen extends ConsumerWidget {
           _ProfileOption(
             icon: isWorker ? LucideIcons.shieldCheck : LucideIcons.building,
             label: isWorker ? 'Identity Verification' : 'Company Details',
-            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => isWorker ? const Scaffold(body: Center(child: Text('Coming Soon'))) : const CompanyDetailsScreen())),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => isWorker ? const IdentityVerificationScreen() : const CompanyDetailsScreen(),
+              ),
+            ),
           ),
           
           const SizedBox(height: 32),

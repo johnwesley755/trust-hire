@@ -34,10 +34,13 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   double? _lng;
 
   // Worker Specific
+  final _fullNameController = TextEditingController();
   final _skillsController = TextEditingController();
   final _experienceController = TextEditingController();
   final _hourlyRateController = TextEditingController();
   List<String> _selectedSkills = [];
+  String _selectedLevel = 'L1';
+  String? _profileImageUrl;
 
   // Employer Specific
   final _companyNameController = TextEditingController();
@@ -51,11 +54,42 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _fetchUserData();
+    });
+  }
+
+  Future<void> _fetchUserData() async {
+    try {
+      final response = await ref.read(apiClientProvider).dio.get('/api/auth/me');
+      if (response.data != null && response.data['data'] != null) {
+        final user = response.data['data'];
+        if (mounted) {
+          setState(() {
+            final firstName = user['first_name'] ?? '';
+            final lastName = user['last_name'] ?? '';
+            if (_fullNameController.text.isEmpty) {
+              _fullNameController.text = '$firstName $lastName'.trim();
+            }
+            _profileImageUrl ??= user['profile_image_url'];
+          });
+        }
+      }
+    } catch (e) {
+      debugPrint('Failed to fetch user data: $e');
+    }
+  }
+
+
+  @override
   void dispose() {
     _pageController.dispose();
     _bioController.dispose();
     _addressController.dispose();
     _cityController.dispose();
+    _fullNameController.dispose();
     _skillsController.dispose();
     _experienceController.dispose();
     _hourlyRateController.dispose();
@@ -130,15 +164,19 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     try {
       if (auth.role == 'WORKER') {
         await repo.updateWorkerProfile({
+          'fullName': _fullNameController.text,
           'bio': _bioController.text,
           'skills': _selectedSkills.join(', '),
           'experienceYears': int.tryParse(_experienceController.text) ?? 0,
           'hourlyRate': double.tryParse(_hourlyRateController.text) ?? 0.0,
+          'level': _selectedLevel,
           'location': _addressController.text,
+          'address': _addressController.text,
           'city': _cityController.text,
           'latitude': _lat,
           'longitude': _lng,
           'isAvailable': true,
+          if (_profileImageUrl != null) 'profileImageUrl': _profileImageUrl,
         });
       } else {
         await repo.updateEmployerProfile({
@@ -240,7 +278,25 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         title: 'Tell us about yourself',
         subtitle: 'Let potential employers know who you are and what you do.',
         content: [
-          _buildTextField('Professional Bio', _bioController, LucideIcons.user, maxLines: 4),
+          if (_profileImageUrl != null)
+            Center(
+              child: Container(
+                margin: const EdgeInsets.only(bottom: 24),
+                width: 100,
+                height: 100,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: AppColors.primary, width: 2),
+                  image: DecorationImage(
+                    image: NetworkImage(ref.read(apiClientProvider).resolveMediaUrl(_profileImageUrl!)),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+            ),
+          _buildTextField('Full Name', _fullNameController, LucideIcons.user),
+          const SizedBox(height: 24),
+          _buildTextField('Professional Bio', _bioController, LucideIcons.fileText, maxLines: 4),
         ],
       ),
       _buildStep(
@@ -250,6 +306,23 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           _buildTextField('Years of Experience', _experienceController, LucideIcons.briefcase, keyboardType: TextInputType.number),
           const SizedBox(height: 24),
           _buildTextField('Expected Hourly Rate (₹)', _hourlyRateController, LucideIcons.indianRupee, keyboardType: TextInputType.number),
+          const SizedBox(height: 24),
+          const Text('Professional Level', style: TextStyle(fontWeight: FontWeight.bold)),
+          const SizedBox(height: 12),
+          DropdownButtonFormField<String>(
+            value: _selectedLevel,
+            items: const [
+              DropdownMenuItem(value: 'L1', child: Text('L1 Entry Specialist')),
+              DropdownMenuItem(value: 'L2', child: Text('L2 Intermediate')),
+              DropdownMenuItem(value: 'L3', child: Text('L3 Advanced')),
+              DropdownMenuItem(value: 'L4', child: Text('L4 Master')),
+            ],
+            onChanged: (val) => setState(() => _selectedLevel = val ?? 'L1'),
+            decoration: InputDecoration(
+              prefixIcon: const Icon(LucideIcons.barChart2),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+          ),
           const SizedBox(height: 24),
           const Text('Select Skills', style: TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 12),

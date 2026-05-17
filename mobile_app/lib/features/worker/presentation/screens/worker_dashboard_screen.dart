@@ -1,129 +1,200 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
+import '../providers/worker_dashboard_provider.dart';
+import '../../../shared/presentation/screens/notification_screen.dart';
+import '../../../shared/presentation/providers/notification_provider.dart';
 
-class WorkerDashboardScreen extends StatelessWidget {
+class WorkerDashboardScreen extends ConsumerStatefulWidget {
   const WorkerDashboardScreen({super.key});
 
   @override
+  ConsumerState<WorkerDashboardScreen> createState() => _WorkerDashboardScreenState();
+}
+
+class _WorkerDashboardScreenState extends ConsumerState<WorkerDashboardScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(workerDashboardProvider.notifier).refreshDashboard();
+      ref.read(notificationProvider.notifier).refreshNotifications();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 20),
-          FadeInDown(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Namaste, Habib!',
-                      style: Theme.of(context).textTheme.displayMedium,
-                    ),
-                    Text(
-                      'Ready to find your next opportunity?',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppColors.textSecondary,
+    final auth = ref.watch(authProvider);
+    final dashboardState = ref.watch(workerDashboardProvider);
+    final notificationState = ref.watch(notificationProvider);
+
+    final firstName = auth.user?['first_name'] ?? 'Habib';
+    
+    final appliedJobs = dashboardState.stats['appliedJobs']?.toString() ?? '0';
+    final trustScore = dashboardState.stats['trustScore']?.toString() ?? '0.0';
+    final level = dashboardState.stats['level']?.toString() ?? 'L1';
+    final unreadNotifications = notificationState.unreadCount.toString();
+
+    return RefreshIndicator(
+      onRefresh: () async {
+        await Future.wait([
+          ref.read(workerDashboardProvider.notifier).refreshDashboard(),
+          ref.read(notificationProvider.notifier).refreshNotifications(),
+        ]);
+      },
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 20),
+            FadeInDown(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Namaste, $firstName!',
+                        style: Theme.of(context).textTheme.displayMedium,
+                      ),
+                      Text(
+                        'Ready to find your next opportunity?',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const NotificationScreen(),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: AppColors.border),
+                      ),
+                      child: Badge(
+                        label: Text(unreadNotifications),
+                        child: const Icon(LucideIcons.bell, color: AppColors.primary),
                       ),
                     ),
-                  ],
-                ),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppColors.border),
                   ),
-                  child: const Badge(
-                    label: Text('2'),
-                    child: Icon(LucideIcons.bell, color: AppColors.primary),
+                ],
+              ),
+            ),
+            const SizedBox(height: 32),
+            
+            // Stats Grid
+            if (dashboardState.isLoading)
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(24.0),
+                  child: CircularProgressIndicator(),
+                ),
+              )
+            else
+              GridView.count(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                crossAxisCount: 2,
+                mainAxisSpacing: 16,
+                crossAxisSpacing: 16,
+                childAspectRatio: 1.4,
+                children: [
+                  _StatCard(
+                    label: 'APPLIED',
+                    value: appliedJobs,
+                    icon: LucideIcons.fileText,
+                    color: AppColors.primary,
+                    delay: 100,
                   ),
-                ),
-              ],
+                  _StatCard(
+                    label: 'LEVEL',
+                    value: level,
+                    icon: LucideIcons.trendingUp,
+                    color: AppColors.accent,
+                    delay: 200,
+                  ),
+                  _StatCard(
+                    label: 'UNREAD NOTIFS',
+                    value: unreadNotifications,
+                    icon: LucideIcons.bell,
+                    color: AppColors.success,
+                    delay: 300,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const NotificationScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                  _StatCard(
+                    label: 'TRUST SCORE',
+                    value: trustScore,
+                    icon: LucideIcons.star,
+                    color: Colors.orange,
+                    delay: 400,
+                  ),
+                ],
+              ),
+            
+            const SizedBox(height: 32),
+            FadeInUp(
+              delay: const Duration(milliseconds: 500),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Recent Activity',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  TextButton(
+                    onPressed: () {},
+                    child: const Text('See All'),
+                  ),
+                ],
+              ),
             ),
-          ),
-          const SizedBox(height: 32),
-          
-          // Stats Grid
-          GridView.count(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            crossAxisCount: 2,
-            mainAxisSpacing: 16,
-            crossAxisSpacing: 16,
-            childAspectRatio: 1.4,
-            children: [
-              _StatCard(
-                label: 'APPLIED',
-                value: '12',
-                icon: LucideIcons.fileText,
-                color: AppColors.primary,
-                delay: 100,
-              ),
-              _StatCard(
-                label: 'INTERVIEWS',
-                value: '3',
-                icon: LucideIcons.calendar,
-                color: AppColors.accent,
-                delay: 200,
-              ),
-              _StatCard(
-                label: 'TOTAL HIRED',
-                value: '8',
-                icon: LucideIcons.checkCircle,
-                color: AppColors.success,
-                delay: 300,
-              ),
-              _StatCard(
-                label: 'TRUST SCORE',
-                value: '4.8',
-                icon: LucideIcons.star,
-                color: Colors.orange,
-                delay: 400,
-              ),
-            ],
-          ),
-          
-          const SizedBox(height: 32),
-          FadeInUp(
-            delay: const Duration(milliseconds: 500),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Recent Activity',
-                  style: Theme.of(context).textTheme.titleLarge,
+            
+            const SizedBox(height: 16),
+            if (dashboardState.applications.isEmpty)
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 24.0),
+                  child: Text('No recent activity yet.'),
                 ),
-                TextButton(
-                  onPressed: () {},
-                  child: const Text('See All'),
-                ),
-              ],
-            ),
-          ),
-          
-          const SizedBox(height: 16),
-          _ActivityItem(
-            title: 'Application Viewed',
-            subtitle: 'Amazon Delivery Associate',
-            time: '2h ago',
-            icon: LucideIcons.eye,
-            delay: 600,
-          ),
-          _ActivityItem(
-            title: 'New Job Match',
-            subtitle: 'Warehouse Supervisor',
-            time: '5h ago',
-            icon: LucideIcons.zap,
-            delay: 700,
-          ),
-        ],
+              )
+            else
+              ...dashboardState.applications.take(2).map((app) {
+                final job = app['job'] as Map<String, dynamic>? ?? {};
+                final jobTitle = job['title'] ?? 'Job';
+                final status = app['status'] ?? 'PENDING';
+                return _ActivityItem(
+                  title: 'Application $status',
+                  subtitle: jobTitle,
+                  time: 'Just now',
+                  icon: LucideIcons.briefcase,
+                  delay: 600,
+                );
+              }).toList(),
+          ],
+        ),
       ),
     );
   }
@@ -135,6 +206,7 @@ class _StatCard extends StatelessWidget {
   final IconData icon;
   final Color color;
   final int delay;
+  final VoidCallback? onTap;
 
   const _StatCard({
     required this.label,
@@ -142,43 +214,47 @@ class _StatCard extends StatelessWidget {
     required this.icon,
     required this.color,
     required this.delay,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return FadeInUp(
       delay: Duration(milliseconds: delay),
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: AppColors.border),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Icon(icon, color: color, size: 20),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  value,
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.w900,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: AppColors.border),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Icon(icon, color: color, size: 20),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    value,
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                      fontWeight: FontWeight.w900,
+                    ),
                   ),
-                ),
-                Text(
-                  label,
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    fontSize: 8,
-                    letterSpacing: 1,
+                  Text(
+                    label,
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      fontSize: 8,
+                      letterSpacing: 1,
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
