@@ -19,30 +19,33 @@ class ApiClient {
         if (token != null) {
           options.headers['Authorization'] = 'Bearer $token';
         }
-        
+
         // Ensure Content-Type is set for POST/PUT/PATCH to avoid octet-stream on Web
         if (options.method != 'GET' && options.data != null) {
           options.headers['Content-Type'] = 'application/json';
         }
-        
+
         // Ensure the URL is absolute if it's not already
         if (!options.path.startsWith('http')) {
-          options.path = '${Endpoints.baseUrl}${options.path.startsWith('/') ? '' : '/'}${options.path}';
+          options.path =
+              '${Endpoints.baseUrl}${options.path.startsWith('/') ? '' : '/'}${options.path}';
         }
-        
+
         print('API REQUEST: [${options.method}] ${options.path}');
         return handler.next(options);
       },
       onResponse: (response, handler) {
-        print('API RESPONSE: [${response.statusCode}] ${response.requestOptions.path}');
+        print(
+            'API RESPONSE: [${response.statusCode}] ${response.requestOptions.path}');
         return handler.next(response);
       },
       onError: (DioException e, handler) {
-        print('API ERROR: [${e.response?.statusCode}] ${e.requestOptions.path} -> ${e.message}');
+        print(
+            'API ERROR: [${e.response?.statusCode}] ${e.requestOptions.path} -> ${e.message}');
         if (e.response?.statusCode == 401 || e.response?.statusCode == 403) {
           final url = e.requestOptions.path;
-          final isAuthEndpoint = url.contains(Endpoints.login) || 
-                                url.contains(Endpoints.register);
+          final isAuthEndpoint =
+              url.contains(Endpoints.login) || url.contains(Endpoints.register);
 
           if (!isAuthEndpoint) {
             _handleSessionExpired();
