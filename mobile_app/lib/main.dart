@@ -68,17 +68,23 @@ class SplashGate extends StatefulWidget {
     required this.isAuthLoading,
   });
 
+  // Keep a static variable to remember if the splash has already completed
+  static bool hasSplashRun = false;
+
   @override
   State<SplashGate> createState() => _SplashGateState();
 }
 
 class _SplashGateState extends State<SplashGate> {
-  bool _splashCompleted = false;
+  late bool _splashCompleted;
 
   @override
   void initState() {
     super.initState();
-    _startTimer();
+    _splashCompleted = SplashGate.hasSplashRun;
+    if (!_splashCompleted) {
+      _startTimer();
+    }
   }
 
   void _startTimer() async {
@@ -86,6 +92,7 @@ class _SplashGateState extends State<SplashGate> {
     if (mounted) {
       setState(() {
         _splashCompleted = true;
+        SplashGate.hasSplashRun = true;
       });
     }
   }

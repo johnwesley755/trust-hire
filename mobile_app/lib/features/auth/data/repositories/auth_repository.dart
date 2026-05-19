@@ -46,4 +46,18 @@ class AuthRepository {
     final response = await _api.dio.get(Endpoints.me);
     return response.data;
   }
+
+  Future<void> forgotPassword(String email, String role) async {
+    await _api.dio.post(
+      Endpoints.forgotPassword,
+      data: {'email': email, 'role': role},
+    );
+  }
+
+  Future<void> resetPassword(String token, String password) async {
+    await _api.dio.post(
+      Endpoints.resetPassword,
+      data: {'token': token, 'password': password},
+    );
+  }
 }
