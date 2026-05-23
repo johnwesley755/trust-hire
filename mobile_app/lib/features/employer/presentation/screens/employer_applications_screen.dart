@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:animate_do/animate_do.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../dashboard/presentation/providers/dashboard_provider.dart';
 import '../../../../core/providers/api_provider.dart';
 import '../../../profile/presentation/screens/worker_profile_screen.dart';
 
@@ -263,10 +262,12 @@ class _ApplicationCard extends ConsumerWidget {
     try {
       final id = application['id'];
       await ref.read(apiClientProvider).dio.patch('/api/jobs/applications/$id/status', queryParameters: {'status': status});
+      if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Application $status!')));
       onStatusUpdated();
     } catch (e) {
       print('Error updating status: $e');
+      if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to update status.')));
     }
   }

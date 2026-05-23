@@ -136,7 +136,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       final responseBody = await _repository.register(data);
       print('Registration Response: $responseBody');
       
-      if (responseBody == null || responseBody['data'] == null) {
+      if (responseBody['data'] == null) {
         throw 'Invalid response from server: Missing data';
       }
 
