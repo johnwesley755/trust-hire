@@ -6,6 +6,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:dio/dio.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
+import '../../../shared/presentation/widgets/trust_hire_header.dart';
 
 class JobPostingScreen extends ConsumerStatefulWidget {
   const JobPostingScreen({super.key});
@@ -28,6 +29,8 @@ class _JobPostingScreenState extends ConsumerState<JobPostingScreen> {
   bool _isDetectingLocation = false;
   double? _lat;
   double? _lon;
+  DateTime? _expiryDate;
+
 
   @override
   void dispose() {
@@ -125,7 +128,10 @@ class _JobPostingScreenState extends ConsumerState<JobPostingScreen> {
         'latitude': _lat,
         'longitude': _lon,
         'status': 'OPEN',
+        if (_expiryDate != null)
+          'expiresAt': _expiryDate!.toIso8601String().split('T').first,
       });
+
       
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -139,7 +145,8 @@ class _JobPostingScreenState extends ConsumerState<JobPostingScreen> {
       _budgetController.clear();
       _experienceController.clear();
       _selectedSkills = [];
-      setState(() { _lat = null; _lon = null; });
+      setState(() { _lat = null; _lon = null; _expiryDate = null; });
+
       
       ref.read(dashboardProvider.notifier).refreshDashboard();
     } catch (e) {
@@ -159,7 +166,7 @@ class _JobPostingScreenState extends ConsumerState<JobPostingScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 20),
-            FadeInDown(child: const Text('TrustHire', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: AppColors.primary))),
+            FadeInDown(child: const TrustHireHeader()),
             const SizedBox(height: 4),
             FadeInDown(child: Text('Post New Job', style: Theme.of(context).textTheme.displaySmall)),
             const SizedBox(height: 32),
@@ -197,6 +204,78 @@ class _JobPostingScreenState extends ConsumerState<JobPostingScreen> {
                 Expanded(child: _buildTextField('Experience (Years)', _experienceController, LucideIcons.history, hint: 'e.g. 2')),
               ],
             ),
+
+            const SizedBox(height: 20),
+            _buildSectionTitle('JOB EXPIRY DATE'),
+            GestureDetector(
+              onTap: () async {
+                final picked = await showDatePicker(
+                  context: context,
+                  initialDate: DateTime.now().add(const Duration(days: 7)),
+                  firstDate: DateTime.now().add(const Duration(days: 1)),
+                  lastDate: DateTime.now().add(const Duration(days: 365)),
+                  helpText: 'Select job expiry date',
+                  builder: (context, child) => Theme(
+                    data: Theme.of(context).copyWith(
+                      colorScheme: const ColorScheme.light(
+                        primary: AppColors.primary,
+                        onPrimary: Colors.white,
+                        surface: Colors.white,
+                      ),
+                    ),
+                    child: child!,
+                  ),
+                );
+                if (picked != null) setState(() => _expiryDate = picked);
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                decoration: BoxDecoration(
+                  color: _expiryDate != null
+                      ? AppColors.primary.withOpacity(0.05)
+                      : AppColors.background,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: _expiryDate != null
+                        ? AppColors.primary.withOpacity(0.3)
+                        : AppColors.border,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      LucideIcons.calendarClock,
+                      size: 20,
+                      color: _expiryDate != null ? AppColors.primary : AppColors.textTertiary,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        _expiryDate != null
+                            ? '${_expiryDate!.day} ${["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][_expiryDate!.month - 1]} ${_expiryDate!.year}'
+                            : 'Tap to select expiry date...',
+                        style: TextStyle(
+                          color: _expiryDate != null ? AppColors.primary : AppColors.textTertiary,
+                          fontWeight: _expiryDate != null ? FontWeight.bold : FontWeight.normal,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                    if (_expiryDate != null)
+                      GestureDetector(
+                        onTap: () => setState(() => _expiryDate = null),
+                        child: const Icon(LucideIcons.x, size: 16, color: AppColors.textTertiary),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 6),
+            const Text(
+              'Job will auto-close on this date.',
+              style: TextStyle(fontSize: 11, color: AppColors.textTertiary),
+            ),
+
             
             const SizedBox(height: 32),
             _buildSectionTitle('REQUIRED SKILLS'),

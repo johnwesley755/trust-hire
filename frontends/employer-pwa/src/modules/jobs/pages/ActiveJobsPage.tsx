@@ -15,8 +15,10 @@ import {
     Shield,
     Sun,
     Package,
-    Tag
+    Tag,
+    CalendarClock
 } from 'lucide-react';
+
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useMemo } from 'react';
@@ -59,7 +61,8 @@ export function ActiveJobsPage() {
 
     const isLoading = isLoadingJobs || (jobIds.length > 0 && isLoadingApps);
 
-    const getSectorIcon = (industry: string) => {
+    const getSectorIcon = (industry?: string) => {
+        if (!industry) return <Tag className="w-4 h-4" />;
         const ind = industry.toLowerCase();
         if (ind.includes('culinary') || ind.includes('hospitality') || ind.includes('cook')) return <Utensils className="w-4 h-4" />;
         if (ind.includes('construct') || ind.includes('infra')) return <Layers className="w-4 h-4" />;
@@ -68,6 +71,37 @@ export function ActiveJobsPage() {
         if (ind.includes('logistic') || ind.includes('ware')) return <Package className="w-4 h-4" />;
         return <Tag className="w-4 h-4" />;
     };
+
+    const getExpiryBadge = (expiresAt?: string) => {
+        if (!expiresAt) return null;
+        const expiry = new Date(expiresAt);
+        const now = new Date();
+        const diffMs = expiry.getTime() - now.getTime();
+        const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+
+        if (diffDays < 0) {
+            return (
+                <span className="flex items-center gap-1.5 px-3 py-1.5 bg-[#ffdad6] text-[#ba1a1a] text-[9px] font-black uppercase tracking-widest rounded-xl">
+                    <CalendarClock className="w-3 h-3" /> Expired
+                </span>
+            );
+        }
+        if (diffDays === 0) {
+            return (
+                <span className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-100 text-orange-700 text-[9px] font-black uppercase tracking-widest rounded-xl">
+                    <CalendarClock className="w-3 h-3" /> Expires today
+                </span>
+            );
+        }
+        const color = diffDays <= 3 ? 'bg-orange-100 text-orange-700' : 'bg-[#c7ebdb] text-[#4a6b5e]';
+        return (
+            <span className={`flex items-center gap-1.5 px-3 py-1.5 text-[9px] font-black uppercase tracking-widest rounded-xl ${color}`}>
+                <CalendarClock className="w-3 h-3" /> {diffDays}d left
+            </span>
+        );
+    };
+
+
 
     if (isLoading) return (
         <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
@@ -120,9 +154,12 @@ export function ActiveJobsPage() {
                                         }`}>
                                             {isUrgent ? 'URGENT' : 'ACTIVE'}
                                         </span>
-                                        <span className="text-[10px] font-mono text-[#1F3F34]/30 font-bold uppercase tracking-widest">
-                                            #{job.id?.slice(-4).toUpperCase() || 'TEMP'}
-                                        </span>
+                                        <div className="flex items-center gap-2">
+                                            {getExpiryBadge(job.expiresAt)}
+                                            <span className="text-[10px] font-mono text-[#1F3F34]/30 font-bold uppercase tracking-widest">
+                                                #{job.id?.slice(-4).toUpperCase() || 'TEMP'}
+                                            </span>
+                                        </div>
                                     </div>
 
                                     <h3 className="text-2xl font-black text-[#1F3F34] bricolage leading-tight mb-4 group-hover:text-[#C39F00] transition-colors uppercase tracking-tight">

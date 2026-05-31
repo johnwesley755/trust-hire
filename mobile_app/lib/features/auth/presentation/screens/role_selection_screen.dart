@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'dart:ui';
 import '../../../../core/theme/app_colors.dart';
 import 'sign_in_screen.dart';
 
@@ -10,20 +11,29 @@ class RoleSelectionScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF5F4EF),
       body: Stack(
         children: [
-          // Background blobs (Mirroring React organic blobs)
+          // Background blobs
           Positioned(
-            top: -100,
+            top: -50,
             right: -100,
             child: FadeInDown(
               duration: const Duration(seconds: 2),
-              child: Container(
-                width: 300,
-                height: 300,
-                decoration: BoxDecoration(
-                  color: AppColors.accent.withOpacity(0.1),
-                  shape: BoxShape.circle,
+              child: ImageFiltered(
+                imageFilter: ImageFilter.blur(sigmaX: 60, sigmaY: 60),
+                child: Container(
+                  width: 300,
+                  height: 300,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFACD15).withOpacity(0.15),
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(150),
+                      topRight: Radius.circular(200),
+                      bottomLeft: Radius.circular(210),
+                      bottomRight: Radius.circular(150),
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -37,9 +47,16 @@ class RoleSelectionScreen extends StatelessWidget {
                 children: [
                   const SizedBox(height: 40),
                   FadeInLeft(
-                    child: Text(
+                    child: const Text(
                       'Welcome to\nTrustHire.',
-                      style: Theme.of(context).textTheme.displayLarge,
+                      style: TextStyle(
+                        fontFamily: 'Epilogue',
+                        fontSize: 40,
+                        fontWeight: FontWeight.w900,
+                        color: Color(0xFF1F3F34),
+                        height: 1.1,
+                        letterSpacing: -1.0,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -47,8 +64,12 @@ class RoleSelectionScreen extends StatelessWidget {
                     delay: const Duration(milliseconds: 200),
                     child: Text(
                       'How do you want to use\nthe platform today?',
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: AppColors.textSecondary,
+                      style: TextStyle(
+                        fontFamily: 'Be Vietnam Pro',
+                        fontSize: 16,
+                        color: const Color(0xFF1F3F34).withOpacity(0.6),
+                        fontWeight: FontWeight.w600,
+                        height: 1.5,
                       ),
                     ),
                   ),
@@ -120,23 +141,23 @@ class _RoleCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(32),
             boxShadow: [
               BoxShadow(
-                color: AppColors.primary.withOpacity(0.05),
-                blurRadius: 20,
+                color: const Color(0xFF1F3F34).withOpacity(0.04),
+                blurRadius: 30,
                 offset: const Offset(0, 10),
               ),
             ],
-            border: Border.all(color: AppColors.border),
+            border: Border.all(color: Colors.transparent),
           ),
           child: Row(
             children: [
               Container(
-                width: 56,
-                height: 56,
+                width: 64,
+                height: 64,
                 decoration: BoxDecoration(
-                  color: AppColors.accent.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(16),
+                  color: const Color(0xFFFAF6E3),
+                  borderRadius: BorderRadius.circular(20),
                 ),
-                child: Icon(icon, color: AppColors.primary),
+                child: Icon(icon, color: const Color(0xFF1F3F34), size: 28),
               ),
               const SizedBox(width: 20),
               Expanded(
@@ -145,22 +166,28 @@ class _RoleCard extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        color: AppColors.primary,
+                      style: const TextStyle(
+                        fontFamily: 'Epilogue',
+                        fontSize: 20,
+                        fontWeight: FontWeight.w900,
+                        color: Color(0xFF1F3F34),
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 6),
                     Text(
                       subtitle,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppColors.textSecondary,
+                      style: TextStyle(
+                        fontFamily: 'Be Vietnam Pro',
                         fontSize: 12,
+                        color: const Color(0xFF1F3F34).withOpacity(0.5),
+                        fontWeight: FontWeight.w500,
+                        height: 1.4,
                       ),
                     ),
                   ],
                 ),
               ),
-              const Icon(LucideIcons.chevronRight, color: AppColors.textTertiary),
+              Icon(LucideIcons.chevronRight, color: const Color(0xFF1F3F34).withOpacity(0.4)),
             ],
           ),
         ),

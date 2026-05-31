@@ -70,7 +70,30 @@ export const JobSearchResultCard: React.FC<JobSearchResultCardProps> = ({
           <span className="material-symbols-outlined text-[14px]" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span> 
           Verified
         </div>
+        {(() => {
+          const expiresAt = (job as any).expiresAt as string | undefined;
+          if (!expiresAt) return null;
+          const exp = new Date(expiresAt);
+          const days = Math.ceil((exp.getTime() - Date.now()) / 86400000);
+          if (days < 0) return (
+            <div className="px-4 py-2 bg-[#ffdad6] text-[#ba1a1a] text-[10px] font-black uppercase tracking-[0.15em] rounded-xl flex items-center gap-2 shadow-sm">
+              <span className="material-symbols-outlined text-[14px]">event_busy</span> Expired
+            </div>
+          );
+          if (days === 0) return (
+            <div className="px-4 py-2 bg-orange-100 text-orange-700 text-[10px] font-black uppercase tracking-[0.15em] rounded-xl flex items-center gap-2 shadow-sm">
+              <span className="material-symbols-outlined text-[14px]">event_upcoming</span> Closes Today
+            </div>
+          );
+          const cls = days <= 3 ? 'bg-orange-100 text-orange-700' : 'bg-[#e8f5e9] text-[#2e7d32]';
+          return (
+            <div className={`px-4 py-2 text-[10px] font-black uppercase tracking-[0.15em] rounded-xl flex items-center gap-2 shadow-sm ${cls}`}>
+              <span className="material-symbols-outlined text-[14px]">event_available</span> {days}d left
+            </div>
+          );
+        })()}
       </div>
+
 
       <button 
         onClick={(e) => {

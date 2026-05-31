@@ -10,12 +10,12 @@ import { useUser } from '../../../providers/AuthContext';
 
 // New Modular Components
 import { StatsSection } from '../components/StatsSection';
-import { JobBentoCard, FeaturedJobCard } from '../components/JobBentoCard';
 import { ProgressSidePanel } from '../components/ProgressSidePanel';
 import { Loader2 } from 'lucide-react';
 import apiClient from '../../../api/apiClient';
 
-export default function DashboardPage() {
+export default function TrackerPage() {
+
   const navigate = useNavigate();
   const [coords, setCoords] = useState<{lat: number, lon: number} | null>(null);
   const { user } = useUser();
@@ -70,33 +70,6 @@ export default function DashboardPage() {
 
   const appliedJobIds = new Set(myApplications.map((app) => app.jobId));
   console.log('Jobs with applications:', appliedJobIds.size);
-
-  const visibleJobs = (jobs && jobs.length > 0)
-    ? jobs.map((job) => ({
-        id: job.jobId,
-        title: job.title,
-        description: job.description,
-        location: job.location,
-        budget: Number(job.budget),
-        industry: job.industry,
-        isApplied: job.isApplied || appliedJobIds.has(job.jobId)
-      }))
-    : allJobs
-        .filter((job) => job.status === 'OPEN')
-        .slice(0, 4)
-        .map((job) => ({
-          id: job.id || '',
-          title: job.title,
-          description: job.description,
-          location: job.city || job.address || job.location,
-          budget: Number(job.budget),
-          industry: job.industry,
-          isApplied: (job as any).isApplied || appliedJobIds.has(job.id || '')
-        }));
-
-  // Map earnings from job statistics or mock for design
-  const totalEarnings = visibleJobs.reduce((acc, job) => acc + (job.budget || 0), 0);
-  // const formattedEarnings = `₹${(totalEarnings / 10).toLocaleString()}`; // Scaling for realism in demo
 
   return (
     <div className="p-4 md:p-8 pr-8 lg:pr-16 w-full relative">
@@ -153,124 +126,64 @@ export default function DashboardPage() {
       {/* Stats Row */}
       <StatsSection 
         trustScore={stats?.trustScore || profile?.trustScore || 0} 
-        nearbyJobs={visibleJobs.length} 
+        nearbyJobs={allJobs.length} 
         earnings={stats?.appliedJobs ? `₹${(stats.appliedJobs * 1200).toLocaleString()}` : "₹0"} 
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* Main Content: Recommended Jobs */}
-        <div className="lg:col-span-8 space-y-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-extrabold text-[#1F3F34] flex items-center gap-2 tracking-tight">
-              <span className="w-2 h-6 bg-[#FACD15] rounded-full"></span>
-              Recommended For You
-            </h2>
-            <button 
-              onClick={() => navigate('/search')}
-              className="text-xs font-bold text-[#414845] hover:text-[#1F3F34] transition-colors uppercase tracking-widest"
-            >
-              View All Jobs
-            </button>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {visibleJobs.length > 0 ? (
-              <>
-                {/* First Job as Featured */}
-                <FeaturedJobCard 
-                  job={visibleJobs[0]} 
-                  onApply={() => navigate(`/job/${visibleJobs[0].id}`)} 
-                  onClick={() => navigate(`/job/${visibleJobs[0].id}`)} 
-                />
-                {/* Remaining Jobs as Bento Cards */}
-                {visibleJobs.slice(1).map((job) => (
-                  <JobBentoCard 
-                    key={job.id} 
-                    job={job} 
-                    onApply={() => navigate(`/job/${job.id}`)} 
-                    onClick={() => navigate(`/job/${job.id}`)} 
-                  />
-                ))}
-              </>
-            ) : (
-                <div className="col-span-full py-20 bg-white rounded-[2rem] border-2 border-dashed border-[#c1c8c3]/30 flex flex-col items-center justify-center text-center space-y-4">
-                  <div className="w-16 h-16 bg-[#f5f4ef] rounded-full flex items-center justify-center text-[#414845]/30">
-                    <span className="material-symbols-outlined text-4xl">search_off</span>
-                  </div>
-                  <h4 className="font-extrabold text-[#1F3F34]">No matching jobs yet</h4>
-                  <p className="text-sm text-[#414845] max-w-xs mx-auto">Try updating your skills or expanding your location preferences.</p>
-                  <button 
-                    onClick={() => navigate('/profile')}
-                    className="text-[0.65rem] font-extrabold uppercase text-[#1F3F34] bg-[#FACD15] px-6 py-2 rounded-full hover:shadow-lg transition-all active:scale-95"
-                  >
-                    Update Profile
-                  </button>
-                </div>
-            )}
-          </div>
-
-          <div className="bg-[#EFEEE9] p-8 rounded-[2rem] border-2 border-dashed border-[#c1c8c3]/30 flex flex-col items-center justify-center text-center space-y-4 mt-8">
-            <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-[#414845]">
-              <span className="material-symbols-outlined">explore</span>
-            </div>
-            <div>
-              <h4 className="font-extrabold text-[#1F3F34]">Need more options?</h4>
-              <p className="text-sm text-[#414845] max-w-xs mx-auto">Your next big opportunity might be just a click away.</p>
-            </div>
-            <button 
-              onClick={() => navigate('/search')}
-              className="text-[0.65rem] font-extrabold uppercase text-[#1F3F34] bg-white px-6 py-2 rounded-full hover:bg-[#FACD15] transition-all border border-[#c1c8c3]/20"
-            >
-              Explore Job Marketplace
-            </button>
-          </div>
+        {/* Progress Panel */}
+        <div className="lg:col-span-4 space-y-6">
+          <ProgressSidePanel level={profile?.level} progress={75} />
         </div>
 
-        {/* Right Sidebar: Progress & Actions */}
-        <div className="lg:col-span-4 sticky top-24 space-y-6">
-          <ProgressSidePanel level={profile?.level} progress={75} />
-          
-          {/* Recent Activity Card */}
-          <div className="bg-white rounded-[2rem] p-6 border border-[#EFEEE9] shadow-sm">
-            <div className="flex justify-between items-center mb-6 px-1">
-              <h4 className="text-[10px] font-bold text-[#1F3F34]/40 uppercase tracking-widest">Recent Activity</h4>
-              <span className="w-2 h-2 bg-[#FACD15] rounded-full animate-pulse"></span>
+        {/* Recent Activity Card */}
+        <div className="lg:col-span-8 space-y-6">
+          <div className="bg-white rounded-[2rem] p-6 lg:p-10 border border-[#EFEEE9] shadow-sm">
+            <div className="flex justify-between items-center mb-8 px-1">
+              <div>
+                <h2 className="text-xl font-extrabold text-[#1F3F34] flex items-center gap-2 tracking-tight">
+                  <span className="w-2 h-6 bg-[#FACD15] rounded-full"></span>
+                  Recent Activity
+                </h2>
+                <p className="text-[10px] font-bold text-[#1F3F34]/40 uppercase tracking-widest mt-1">Timeline of your engagements</p>
+              </div>
+              <span className="w-3 h-3 bg-[#FACD15] rounded-full animate-pulse shadow-[0_0_10px_rgba(250,205,21,0.5)]"></span>
             </div>
             <div className="space-y-4">
               {activitiesLoading ? (
-                <div className="flex justify-center py-8">
-                  <Loader2 className="w-6 h-6 animate-spin text-[#1F3F34]/20" />
+                <div className="flex justify-center py-12">
+                  <Loader2 className="w-8 h-8 animate-spin text-[#1F3F34]/20" />
                 </div>
               ) : activities.length > 0 ? (
                 activities.map((activity: any, i: number) => (
-                  <div key={i} className="flex items-start gap-4 p-3 rounded-2xl border border-dashed border-[#EFEEE9] group hover:border-[#FACD15] transition-colors cursor-pointer">
-                    <div className="w-10 h-10 rounded-xl bg-[#EFEEE9]/50 flex items-center justify-center group-hover:bg-[#FACD15]/10 transition-colors shrink-0">
-                      <span className="material-symbols-outlined text-[#1F3F34]/40 group-hover:text-[#1F3F34]">
+                  <div key={i} className="flex items-start gap-4 p-4 rounded-2xl border border-dashed border-[#EFEEE9] group hover:border-[#FACD15] transition-colors cursor-pointer bg-white">
+                    <div className="w-12 h-12 rounded-xl bg-[#EFEEE9]/50 flex items-center justify-center group-hover:bg-[#FACD15]/10 transition-colors shrink-0">
+                      <span className="material-symbols-outlined text-[#1F3F34]/40 group-hover:text-[#1F3F34] text-xl">
                         {activity.type === 'JOB_APPLIED' ? 'description' : 
                          activity.type === 'APPLICATION_STATUS_CHANGED' ? 'notifications_active' : 'history'}
                       </span>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-[10px] font-bold text-[#1F3F34]/40 uppercase tracking-widest">
+                      <p className="text-xs font-bold text-[#1F3F34]/40 uppercase tracking-widest mb-1">
                         {new Date(activity.createdAt).toLocaleDateString()}
                       </p>
-                      <p className="text-xs font-black text-[#1F3F34] leading-tight mb-1">{activity.description}</p>
-                      <p className="text-[9px] font-bold text-[#1F3F34]/30 uppercase tracking-tighter">{activity.type.replace('_', ' ')}</p>
+                      <p className="text-sm font-black text-[#1F3F34] leading-tight mb-1">{activity.description}</p>
+                      <p className="text-[10px] font-bold text-[#1F3F34]/30 uppercase tracking-tighter">{activity.type.replace(/_/g, ' ')}</p>
                     </div>
                   </div>
                 ))
               ) : (
-                <div className="text-center py-8">
-                  <p className="text-[10px] font-bold text-[#1F3F34]/20 uppercase tracking-widest">No recent activity</p>
+                <div className="text-center py-12 bg-[#EFEEE9]/30 rounded-2xl border-2 border-dashed border-[#1F3F34]/10">
+                  <span className="material-symbols-outlined text-[#1F3F34]/20 text-4xl mb-2">history</span>
+                  <p className="text-sm font-bold text-[#1F3F34]/40 tracking-tight">No recent activity</p>
+                  <p className="text-[10px] font-bold text-[#1F3F34]/30 uppercase tracking-widest mt-1">Start applying to jobs to build your timeline</p>
                 </div>
               )}
-              <button className="w-full py-3 text-[10px] font-bold text-[#1F3F34]/40 uppercase tracking-widest hover:text-[#1F3F34] transition-colors">
-                View All Activity
-              </button>
             </div>
           </div>
         </div>
       </div>
+
     </div>
   );
 }

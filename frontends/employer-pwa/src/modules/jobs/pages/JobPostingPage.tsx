@@ -6,9 +6,10 @@ import {
     Briefcase, MapPin, Plus, X, 
     ChevronRight, Loader2, 
     HardHat,
-    CheckCircle, Lightbulb, IndianRupee
+    CheckCircle, Lightbulb, IndianRupee, CalendarClock
 } from 'lucide-react';
 import { LocationPicker } from '../components/LocationPicker';
+
 
 export const JobPostingPage = () => {
   const navigate = useNavigate();
@@ -32,6 +33,8 @@ export const JobPostingPage = () => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
 
+    const expiresAtRaw = formData.get('expiresAt') as string;
+
     const jobData = {
       title: formData.get('title') as string,
       description: formData.get('description') as string,
@@ -45,9 +48,11 @@ export const JobPostingPage = () => {
       city: city,
       requiredSkills: skills,
       status: 'OPEN' as const,
+      expiresAt: expiresAtRaw || undefined,
     };
     mutation.mutate(jobData);
   };
+
 
   const addSkill = () => {
     if (skillInput && !skills.includes(skillInput)) {
@@ -227,6 +232,25 @@ export const JobPostingPage = () => {
                     />
                   </div>
                 </div>
+
+                {/* Expiry Date */}
+                <div className="space-y-2">
+                  <label className="block text-[10px] font-black uppercase tracking-widest text-[#1F3F34]/40 ml-1 flex items-center gap-2">
+                    <CalendarClock className="w-3 h-3" /> Job Expiry Date
+                  </label>
+                  <div className="relative">
+                    <CalendarClock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#FACD15] pointer-events-none" />
+                    <input 
+                      name="expiresAt"
+                      type="date"
+                      required
+                      min={new Date(Date.now() + 86400000).toISOString().split('T')[0]}
+                      className="w-full bg-[#F5F4EF] border-2 border-transparent focus:border-[#FACD15] rounded-2xl pl-12 pr-4 py-4.5 text-sm font-bold text-[#1F3F34] focus:outline-none transition-all"
+                    />
+                  </div>
+                  <p className="text-[10px] font-medium text-[#1F3F34]/40 ml-1">The job listing will auto-close on this date.</p>
+                </div>
+
 
                 <div className="space-y-2">
                   <label className="block text-[10px] font-black uppercase tracking-widest text-[#1F3F34]/40 ml-1">Required Skills</label>

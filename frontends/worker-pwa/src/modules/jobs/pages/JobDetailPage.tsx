@@ -128,16 +128,16 @@ export default function JobDetailPage() {
           {/* Action Cluster */}
           <div className="flex flex-col gap-4 items-center">
             <button 
-              onClick={() => navigate('/dashboard')}
+              onClick={() => navigate('/search')}
               className="inline-flex items-center justify-center px-10 py-5 bg-[#1F3F34] text-[#FACD15] font-['Bricolage_Grotesque'] font-extrabold uppercase tracking-wider rounded-xl shadow-[inset_0_-2px_0_rgba(0,0,0,0.2)] hover:scale-105 active:scale-95 transition-all duration-300"
             >
               Back to Dashboard
             </button>
             <button 
-              onClick={() => navigate('/applied-jobs')}
-              className="text-[#414845] font-bold text-sm uppercase tracking-widest hover:text-[#1F3F34] transition-colors mt-2"
+              onClick={() => navigate('/search')}
+              className="text-[#1F3F34]/60 hover:text-[#1F3F34] transition-colors p-2"
             >
-              View Application Details
+              <span className="material-symbols-outlined">arrow_back</span>
             </button>
           </div>
 
@@ -241,11 +241,27 @@ export default function JobDetailPage() {
             <div className="bg-[#EFEEE9] rounded-[24px] p-6 flex flex-col justify-between aspect-square">
               <span className="material-symbols-outlined text-[#1F3F34] text-3xl">event_upcoming</span>
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-[#1F3F34]/40">Timeline</p>
-                <p className="text-lg font-black text-[#1F3F34]">14 Days</p>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-[#1F3F34]/40">Application Deadline</p>
+                {job.expiresAt ? (() => {
+                  const exp = new Date(job.expiresAt);
+                  const days = Math.ceil((exp.getTime() - Date.now()) / 86400000);
+                  return (
+                    <>
+                      <p className="text-lg font-black text-[#1F3F34]">
+                        {exp.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
+                      </p>
+                      <p className={`text-[10px] font-bold uppercase tracking-wide mt-0.5 ${
+                        days < 0 ? 'text-red-500' : days <= 3 ? 'text-orange-500' : 'text-[#4a6b5e]'
+                      }`}>
+                        {days < 0 ? 'Expired' : days === 0 ? 'Today' : `${days} days left`}
+                      </p>
+                    </>
+                  );
+                })() : <p className="text-lg font-black text-[#1F3F34]">Open-ended</p>}
               </div>
             </div>
           </section>
+
 
           {/* Scope Card */}
           <div className="bg-white rounded-[24px] p-8 lg:p-10 shadow-sm border border-transparent transition-all hover:shadow-xl hover:shadow-[#1F3F34]/5 group relative overflow-hidden">
@@ -351,14 +367,34 @@ export default function JobDetailPage() {
           {/* Timeline Card */}
           <div className="bg-white rounded-[24px] p-8 flex items-center gap-6 group hover:shadow-xl transition-all">
             <div className="w-16 h-16 rounded-2xl bg-[#FACD15]/20 flex items-center justify-center text-[#1F3F34] group-hover:-rotate-3 transition-transform">
-              <span className="material-symbols-outlined text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>bolt</span>
+              <span className="material-symbols-outlined text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>event_upcoming</span>
             </div>
-            <div>
-              <p className="text-xs font-bold uppercase tracking-widest opacity-60 mb-1">Timeline</p>
-              <h4 className="text-lg font-black leading-tight text-[#1F3F34]">Active today</h4>
-              <p className="text-sm font-medium opacity-70">Immediate Integration</p>
+            <div className="min-w-0 flex-1">
+              <p className="text-xs font-bold uppercase tracking-widest opacity-60 mb-1">Application Deadline</p>
+              {job.expiresAt ? (() => {
+                const exp = new Date(job.expiresAt);
+                const days = Math.ceil((exp.getTime() - Date.now()) / 86400000);
+                return (
+                  <>
+                    <h4 className="text-lg font-black leading-tight text-[#1F3F34]">
+                      {exp.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                    </h4>
+                    <p className={`text-sm font-bold mt-0.5 ${
+                      days < 0 ? 'text-red-500' : days <= 3 ? 'text-orange-500' : 'text-[#4a6b5e]'
+                    }`}>
+                      {days < 0 ? 'This job has expired' : days === 0 ? 'Closes today!' : `${days} days remaining`}
+                    </p>
+                  </>
+                );
+              })() : (
+                <>
+                  <h4 className="text-lg font-black leading-tight text-[#1F3F34]">Open-ended</h4>
+                  <p className="text-sm font-medium opacity-70">No expiry date set</p>
+                </>
+              )}
             </div>
           </div>
+
 
           {/* Location Mini Map - Interactive Leaflet */}
           <div className="rounded-[24px] overflow-hidden relative h-48 bg-[#EFEEE9] shadow-sm group">

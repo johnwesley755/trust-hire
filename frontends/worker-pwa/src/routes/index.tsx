@@ -1,9 +1,10 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { SignedIn } from '../providers/AuthContext.tsx';
 import LandingPage from '../modules/landing/pages/LandingPage.tsx';
-import DashboardPage from '../modules/dashboard/pages/DashboardPage.tsx';
+import TrackerPage from '../modules/dashboard/pages/TrackerPage.tsx';
 import { IdentityVerificationPage } from '../modules/profile/pages/IdentityVerificationPage.tsx';
 import JobSearchPage from '../modules/jobs/pages/JobSearchPage.tsx';
+
 import JobDetailPage from '../modules/jobs/pages/JobDetailPage.tsx';
 import { SkillTestsPage } from '../modules/profile/pages/SkillTestsPage.tsx';
 import { LevelDetailsPage } from '../modules/profile/pages/LevelDetailsPage.tsx';
@@ -63,9 +64,10 @@ export const router = createBrowserRouter([
         ),
         children: [
           {
-            path: '/dashboard',
-            element: <DashboardPage />,
+            path: '/tracker',
+            element: <TrackerPage />,
           },
+
           {
             path: '/tests',
             element: <SkillTestsPage />,

@@ -126,7 +126,7 @@ export default function OnboardingPage() {
         }
       );
       updateUser({ onboarded: true });
-      navigate("/dashboard");
+      navigate("/search");
     } catch (error) {
       console.error("Onboarding failed:", error);
     } finally {

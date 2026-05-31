@@ -13,12 +13,13 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ isOpen, onCl
     const location = useLocation();
     
     const menuItems = [
-        { name: 'Dashboard', icon: 'dashboard', path: '/dashboard' },
         { name: 'Find Jobs', icon: 'search', path: '/search' },
+        { name: 'Activity Tracker', icon: 'monitoring', path: '/tracker' },
         { name: 'Applied Jobs', icon: 'work_history', path: '/applied-jobs' },
         { name: 'Skill Tests', icon: 'psychology', path: '/tests' },
         { name: 'Profile', icon: 'person', path: '/profile' },
     ];
+
 
     const accountItems = [
         { name: 'Verify Identity', icon: 'verified_user', path: '/verify-identity' },
