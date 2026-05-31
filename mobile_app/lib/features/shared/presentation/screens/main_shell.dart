@@ -7,7 +7,7 @@ import 'package:trust_hire/features/jobs/presentation/screens/job_search_screen.
 import 'package:trust_hire/features/profile/presentation/screens/profile_screen.dart';
 import 'package:trust_hire/features/search/presentation/screens/worker_search_screen.dart';
 import 'package:trust_hire/features/worker/presentation/screens/worker_dashboard_screen.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 

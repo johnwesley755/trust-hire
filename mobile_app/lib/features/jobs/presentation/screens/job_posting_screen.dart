@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:animate_do/animate_do.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:dio/dio.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
-import '../../../../core/providers/api_provider.dart';
 
 class JobPostingScreen extends ConsumerStatefulWidget {
   const JobPostingScreen({super.key});
@@ -80,10 +79,12 @@ class _JobPostingScreenState extends ConsumerState<JobPostingScreen> {
           });
         }
         
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Location & Address detected!')));
       }
     } catch (e) {
-      print('Location Error: $e');
+      debugPrint('Location Error: $e');
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error detecting address: $e')));
     } finally {
       setState(() => _isDetectingLocation = false);

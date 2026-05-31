@@ -56,6 +56,8 @@ app:
   jwt:
     secret: ${JWT_SECRET}
     expiration: 86400000  # 24 hours
+  job:
+    expiry-days: 7  # Jobs are automatically closed after this many days
 
 clerk:
   frontend-api: ${CLERK_FRONTEND_API:https://sure-bengal-96.clerk.accounts.dev}

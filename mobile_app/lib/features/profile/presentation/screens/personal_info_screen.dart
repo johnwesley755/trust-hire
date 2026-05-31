@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:animate_do/animate_do.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
@@ -18,7 +18,6 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
   late TextEditingController _lastNameController;
   late TextEditingController _emailController;
   
-  bool _isLoadingProfile = true;
   String? _imageUrl;
   bool _isVerified = false;
 
@@ -41,12 +40,10 @@ class _PersonalInfoScreenState extends ConsumerState<PersonalInfoScreen> {
         setState(() {
           _imageUrl = data['profileImageUrl'] ?? data['profile_image_url'];
           _isVerified = data['isVerified'] ?? false;
-          _isLoadingProfile = false;
         });
       }
     } catch (e) {
-      print('Error fetching profile: $e');
-      if (mounted) setState(() => _isLoadingProfile = false);
+      debugPrint('Error fetching profile: $e');
     }
   }
 

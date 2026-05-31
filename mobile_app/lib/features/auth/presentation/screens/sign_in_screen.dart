@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:animate_do/animate_do.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../providers/auth_provider.dart';
 import 'sign_up_screen.dart';
+import 'forgot_password_screen.dart';
 
 class SignInScreen extends ConsumerStatefulWidget {
   final String role;
@@ -136,7 +137,12 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                       ),
                     ),
                     TextButton(
-                      onPressed: () {},
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ForgotPasswordScreen(role: widget.role),
+                        ),
+                      ),
                       child: const Text('Forgot?', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                     ),
                   ],
