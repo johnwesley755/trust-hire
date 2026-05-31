@@ -4,6 +4,8 @@ import 'package:animate_do/animate_do.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../providers/worker_applications_provider.dart';
+import './job_details_screen.dart';
+import '../../../shared/presentation/widgets/trust_hire_header.dart';
 
 class ApplicationsScreen extends ConsumerStatefulWidget {
   const ApplicationsScreen({super.key});
@@ -28,23 +30,28 @@ class _ApplicationsScreenState extends ConsumerState<ApplicationsScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        const Padding(
+          padding: EdgeInsets.fromLTRB(24, 20, 24, 8),
+          child: TrustHireHeader(),
+        ),
         Container(
           padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(bottom: Radius.circular(32)),
-          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
+              const Text(
                 'My Applications',
-                style: Theme.of(context).textTheme.displaySmall,
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w900,
+                  color: Color(0xFF1F3F34),
+                  letterSpacing: -0.5,
+                ),
               ),
               const SizedBox(height: 8),
               Text(
                 'Track the status of your active job applications.',
-                style: TextStyle(color: AppColors.textSecondary),
+                style: TextStyle(color: const Color(0xFF1F3F34).withOpacity(0.6), fontWeight: FontWeight.bold),
               ),
             ],
           ),
@@ -84,12 +91,14 @@ class _ApplicationsScreenState extends ConsumerState<ApplicationsScreen> {
                           final jobTitle = job['title'] ?? 'Job Opportunity';
                           final company = job['employerName'] ?? job['industry'] ?? 'Registered Partner';
                           final status = app['status'] ?? 'PENDING';
+                          final jobId = job['id'] as String?;
                           
                           final dateStr = app['appliedAt'] != null 
                               ? 'Applied ${_formatDate(app['appliedAt'])}' 
                               : 'Applied recently';
 
                           return _ApplicationCard(
+                            jobId: jobId,
                             jobTitle: jobTitle,
                             company: company,
                             status: status,
@@ -124,6 +133,7 @@ class _ApplicationsScreenState extends ConsumerState<ApplicationsScreen> {
 }
 
 class _ApplicationCard extends StatelessWidget {
+  final String? jobId;
   final String jobTitle;
   final String company;
   final String status;
@@ -131,6 +141,7 @@ class _ApplicationCard extends StatelessWidget {
   final int delay;
 
   const _ApplicationCard({
+    this.jobId,
     required this.jobTitle,
     required this.company,
     required this.status,
@@ -138,77 +149,95 @@ class _ApplicationCard extends StatelessWidget {
     required this.delay,
   });
 
-  Color _getStatusColor() {
-    switch (status) {
-      case 'PENDING': return Colors.orange;
-      case 'REVIEWING': return AppColors.primary;
-      case 'ACCEPTED': return AppColors.success;
-      case 'REJECTED': return AppColors.error;
-      default: return AppColors.textTertiary;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
+    final isAccepted = status.toUpperCase() == 'ACCEPTED';
+
     return FadeInUp(
       delay: Duration(milliseconds: delay),
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 16),
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(28),
-          border: Border.all(color: AppColors.border),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 50,
-              height: 50,
-              decoration: BoxDecoration(
-                color: _getStatusColor().withOpacity(0.1),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Icon(LucideIcons.briefcase, color: _getStatusColor(), size: 24),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    jobTitle,
-                    style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 15),
-                  ),
-                  Text(
-                    company,
-                    style: const TextStyle(color: AppColors.textSecondary, fontSize: 12, fontWeight: FontWeight.w600),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    date,
-                    style: const TextStyle(color: AppColors.textTertiary, fontSize: 10),
-                  ),
-                ],
+      child: GestureDetector(
+        onTap: () {
+          if (jobId != null) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => JobDetailsScreen(jobId: jobId!)),
+            );
+          }
+        },
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 16),
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            border: Border(
+              left: BorderSide(
+                color: isAccepted ? const Color(0xFFFACD15) : Colors.transparent,
+                width: 4,
               ),
             ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              decoration: BoxDecoration(
-                color: _getStatusColor().withOpacity(0.1),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Text(
-                status,
-                style: TextStyle(
-                  color: _getStatusColor(),
-                  fontSize: 8,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 0.5,
+            boxShadow: [
+              BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4)),
+            ],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: isAccepted ? const Color(0xFFFACD15) : const Color(0xFFE9E8E3),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            status.toUpperCase(),
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: isAccepted ? const Color(0xFF002117) : const Color(0xFF1F3F34).withOpacity(0.6),
+                              letterSpacing: 1,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text('• $date', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: const Color(0xFF1F3F34).withOpacity(0.4))),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      jobTitle,
+                      style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: Color(0xFF1F3F34)),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      company,
+                      style: TextStyle(color: const Color(0xFF1F3F34).withOpacity(0.6), fontSize: 12, fontWeight: FontWeight.w500),
+                    ),
+                  ],
                 ),
               ),
-            ),
-          ],
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE9E8E3),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Icon(
+                  isAccepted ? LucideIcons.hammer : LucideIcons.shield,
+                  color: const Color(0xFF1F3F34),
+                  size: 24,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

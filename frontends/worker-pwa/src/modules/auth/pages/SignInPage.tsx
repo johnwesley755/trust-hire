@@ -42,7 +42,7 @@ export const SignInPage = () => {
             }
 
             login(response.data.token, userData);
-            navigate('/dashboard');
+            navigate('/search');
         } catch (err: unknown) {
             const apiError = err as { response?: { data?: { message?: string } } };
             setError(apiError.response?.data?.message || 'Invalid credentials');

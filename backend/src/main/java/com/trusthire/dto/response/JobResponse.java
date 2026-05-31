@@ -33,7 +33,8 @@ public class JobResponse {
     private Job.JobStatus status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    
+    private LocalDateTime expiresAt;
+
     private boolean isApplied;
 
     public static JobResponse fromEntity(Job job, boolean isApplied) {
@@ -55,6 +56,7 @@ public class JobResponse {
                 .status(job.getStatus())
                 .createdAt(job.getCreatedAt())
                 .updatedAt(job.getUpdatedAt())
+                .expiresAt(job.getExpiresAt())
                 .isApplied(isApplied)
                 .build();
     }

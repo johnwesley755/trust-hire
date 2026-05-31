@@ -8,6 +8,9 @@ import './personal_info_screen.dart';
 import './company_details_screen.dart';
 import './settings_detail_screen.dart';
 import './identity_verification_screen.dart';
+import '../../../help/presentation/screens/help_screen.dart';
+import '../../../help/presentation/screens/guidelines_screen.dart';
+import '../../../shared/presentation/widgets/trust_hire_header.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -28,19 +31,8 @@ class ProfileScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 20),
-          FadeInDown(
-            child: const Text(
-              'TrustHire',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w900,
-                color: AppColors.primary,
-                letterSpacing: -0.5,
-              ),
-            ),
-          ),
-          const SizedBox(height: 20),
+          const TrustHireHeader(),
+          const SizedBox(height: 32),
           FadeInDown(
             child: Row(
               children: [
@@ -48,12 +40,15 @@ class ProfileScreen extends ConsumerWidget {
                   width: 80,
                   height: 80,
                   decoration: BoxDecoration(
-                    color: AppColors.accent.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(28),
-                    border: Border.all(color: AppColors.accent.withOpacity(0.5), width: 2),
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: const Color(0xFFFACD15), width: 3),
+                    boxShadow: [
+                      BoxShadow(color: const Color(0xFFFACD15).withOpacity(0.2), blurRadius: 10, offset: const Offset(0, 4)),
+                    ],
                     image: imageUrl != null ? DecorationImage(image: NetworkImage(imageUrl!), fit: BoxFit.cover) : null,
                   ),
-                  child: imageUrl == null ? const Icon(LucideIcons.user, color: AppColors.primary, size: 40) : null,
+                  child: imageUrl == null ? const Icon(LucideIcons.user, color: Color(0xFF1F3F34), size: 40) : null,
                 ),
                 const SizedBox(width: 20),
                 Expanded(
@@ -62,23 +57,25 @@ class ProfileScreen extends ConsumerWidget {
                     children: [
                       Text(
                         name,
-                        style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                        style: const TextStyle(
+                          fontSize: 22,
                           fontWeight: FontWeight.w900,
+                          color: Color(0xFF1F3F34),
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 8),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
-                          color: isVerified ? AppColors.success : AppColors.textTertiary,
-                          borderRadius: BorderRadius.circular(10),
+                          color: isVerified ? const Color(0xFFFACD15) : const Color(0xFFE9E8E3),
+                          borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
                           isVerified 
                             ? (isWorker ? 'VERIFIED WORKER' : 'VERIFIED EMPLOYER')
                             : (isWorker ? 'UNVERIFIED WORKER' : 'UNVERIFIED EMPLOYER'),
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: isVerified ? const Color(0xFF002117) : const Color(0xFF1F3F34).withOpacity(0.6),
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
                             letterSpacing: 0.5,
@@ -131,12 +128,12 @@ class ProfileScreen extends ConsumerWidget {
           _ProfileOption(
             icon: LucideIcons.helpCircle,
             label: 'Help & Support',
-            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsDetailScreen(title: 'Help & Support'))),
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const HelpScreen())),
           ),
           _ProfileOption(
             icon: LucideIcons.fileText,
             label: 'Guidelines',
-            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsDetailScreen(title: 'Guidelines'))),
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const GuidelinesScreen())),
           ),
           
           const SizedBox(height: 48),
@@ -146,17 +143,21 @@ class ProfileScreen extends ConsumerWidget {
               child: ElevatedButton(
                 onPressed: () => ref.read(authProvider.notifier).logout(),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.background,
-                  foregroundColor: AppColors.error,
+                  backgroundColor: Colors.white,
+                  foregroundColor: const Color(0xFFba1a1a),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    side: BorderSide(color: const Color(0xFFba1a1a).withOpacity(0.2), width: 1.5),
+                  ),
                   elevation: 0,
-                  side: const BorderSide(color: AppColors.error, width: 1.5),
                 ),
                 child: const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(LucideIcons.logOut, size: 20),
                     SizedBox(width: 12),
-                    Text('LOGOUT FROM TRUSTHIRE'),
+                    Text('LOGOUT FROM TRUSTHIRE', style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 0.5)),
                   ],
                 ),
               ),
@@ -172,11 +173,11 @@ class ProfileScreen extends ConsumerWidget {
     return FadeInLeft(
       child: Text(
         title,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 10,
-          fontWeight: FontWeight.bold,
+          fontWeight: FontWeight.w900,
           letterSpacing: 1.5,
-          color: AppColors.textTertiary,
+          color: const Color(0xFF1F3F34).withOpacity(0.5),
         ),
       ),
     );
@@ -207,19 +208,29 @@ class _ProfileOption extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.border),
+              border: Border.all(color: Colors.black.withOpacity(0.05)),
+              boxShadow: [
+                BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4)),
+              ],
             ),
             child: Row(
               children: [
-                Icon(icon, color: AppColors.primary, size: 22),
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFACD15).withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(icon, color: const Color(0xFF1F3F34), size: 20),
+                ),
                 const SizedBox(width: 16),
                 Expanded(
                   child: Text(
                     label,
-                    style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                    style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14, color: Color(0xFF1F3F34)),
                   ),
                 ),
-                const Icon(LucideIcons.chevronRight, color: AppColors.textTertiary, size: 18),
+                Icon(LucideIcons.chevronRight, color: const Color(0xFF1F3F34).withOpacity(0.3), size: 20),
               ],
             ),
           ),

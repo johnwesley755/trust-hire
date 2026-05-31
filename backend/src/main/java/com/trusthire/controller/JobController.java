@@ -1,5 +1,6 @@
 package com.trusthire.controller;
 
+import com.trusthire.dto.request.JobRequest;
 import com.trusthire.dto.response.JobResponse;
 import com.trusthire.entity.Job;
 import com.trusthire.service.JobService;
@@ -22,9 +23,9 @@ public class JobController {
     private final JobService jobService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<Job>> createJob(Authentication authentication, @RequestBody Job job) {
+    public ResponseEntity<ApiResponse<Job>> createJob(Authentication authentication, @RequestBody JobRequest request) {
         String employerId = (String) authentication.getPrincipal();
-        return ResponseEntity.ok(ApiResponse.ok("Job created", jobService.createJob(employerId, job)));
+        return ResponseEntity.ok(ApiResponse.ok("Job created", jobService.createJob(employerId, request)));
     }
 
     @GetMapping
@@ -46,9 +47,9 @@ public class JobController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<Job>> updateJob(Authentication authentication, @PathVariable UUID id, @RequestBody Job updates) {
+    public ResponseEntity<ApiResponse<Job>> updateJob(Authentication authentication, @PathVariable UUID id, @RequestBody JobRequest request) {
         String employerId = (String) authentication.getPrincipal();
-        return ResponseEntity.ok(ApiResponse.ok("Job updated", jobService.updateJob(id, employerId, updates)));
+        return ResponseEntity.ok(ApiResponse.ok("Job updated", jobService.updateJob(id, employerId, request)));
     }
 
     @DeleteMapping("/{id}")

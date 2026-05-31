@@ -9,6 +9,7 @@ import '../../../shared/presentation/screens/notification_screen.dart';
 import './employer_applications_screen.dart';
 import './employer_jobs_screen.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../../shared/presentation/widgets/trust_hire_header.dart';
 
 class EmployerDashboardScreen extends ConsumerWidget {
   const EmployerDashboardScreen({super.key});
@@ -35,49 +36,13 @@ class EmployerDashboardScreen extends ConsumerWidget {
           children: [
             const SizedBox(height: 20),
             FadeInDown(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'TrustHire',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w900,
-                          color: AppColors.primary,
-                          letterSpacing: -0.5,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Hello, $firstName!',
-                        style: Theme.of(context).textTheme.displayMedium,
-                      ),
-                    ],
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => NotificationScreen()),
-                      );
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: AppColors.border),
-                      ),
-                      child: Badge(
-                        label: Text(notificationState.unreadCount.toString()),
-                        child: const Icon(LucideIcons.bell, color: AppColors.primary),
-                      ),
-                    ),
-                  ),
-                ],
+              child: const TrustHireHeader(),
+            ),
+            const SizedBox(height: 12),
+            FadeInDown(
+              child: Text(
+                'Hello, $firstName!',
+                style: Theme.of(context).textTheme.displayMedium,
               ),
             ),
             const SizedBox(height: 32),

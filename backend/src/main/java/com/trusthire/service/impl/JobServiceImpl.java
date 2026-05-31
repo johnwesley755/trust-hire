@@ -1,5 +1,6 @@
 package com.trusthire.service.impl;
 
+import com.trusthire.dto.request.JobRequest;
 import com.trusthire.dto.response.JobResponse;
 import com.trusthire.entity.Job;
 import com.trusthire.exception.ResourceNotFoundException;
@@ -16,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -34,12 +36,20 @@ public class JobServiceImpl implements JobService {
 
     @Override
     @Transactional
-    public Job createJob(String employerId, Job job) {
+    public Job createJob(String employerId, JobRequest request) {
+        Job job = mapRequestToJob(request, new Job());
         job.setEmployerId(employerId);
+
         String companyName = employerProfileService.getProfileByUserId(employerId)
                 .map(p -> p.getCompanyName())
                 .orElse("Registered Partner");
         job.setEmployerName(companyName);
+
+        // Set expiresAt to end-of-day of the supplied date
+        if (request.getExpiresAt() != null) {
+            job.setExpiresAt(request.getExpiresAt().atTime(LocalTime.MAX));
+        }
+
         Job saved = jobRepository.save(job);
         indexJob(saved);
 
@@ -60,6 +70,29 @@ public class JobServiceImpl implements JobService {
         );
 
         return saved;
+    }
+
+    /**
+     * Maps all fields from a JobRequest onto a Job entity (create or update).
+     */
+    private Job mapRequestToJob(JobRequest request, Job job) {
+        if (request.getTitle() != null) job.setTitle(request.getTitle());
+        if (request.getDescription() != null) job.setDescription(request.getDescription());
+        if (request.getIndustry() != null) job.setIndustry(request.getIndustry());
+        if (request.getRequiredSkills() != null) job.setRequiredSkills(request.getRequiredSkills());
+        if (request.getExperienceYearsRequired() != null) job.setExperienceYearsRequired(request.getExperienceYearsRequired());
+        if (request.getBudget() != null) job.setBudget(request.getBudget());
+        if (request.getLocation() != null) job.setLocation(request.getLocation());
+        if (request.getLatitude() != null) job.setLatitude(request.getLatitude());
+        if (request.getLongitude() != null) job.setLongitude(request.getLongitude());
+        if (request.getAddress() != null) job.setAddress(request.getAddress());
+        if (request.getCity() != null) job.setCity(request.getCity());
+        if (request.getStatus() != null) {
+            try {
+                job.setStatus(Job.JobStatus.valueOf(request.getStatus()));
+            } catch (IllegalArgumentException ignored) { /* keep existing status */ }
+        }
+        return job;
     }
 
     private void indexJob(Job job) {
@@ -110,7 +143,7 @@ public class JobServiceImpl implements JobService {
 
     @Override
     @Transactional
-    public Job updateJob(UUID id, String employerId, Job updates) {
+    public Job updateJob(UUID id, String employerId, JobRequest request) {
         Job job = jobRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Job not found"));
         
@@ -118,46 +151,38 @@ public class JobServiceImpl implements JobService {
             throw new UnauthorizedException("You are not the owner of this job");
         }
 
-        if (updates.getTitle() != null) job.setTitle(updates.getTitle());
-        if (updates.getDescription() != null) job.setDescription(updates.getDescription());
-        if (updates.getIndustry() != null) job.setIndustry(updates.getIndustry());
-        if (updates.getRequiredSkills() != null) job.setRequiredSkills(updates.getRequiredSkills());
-        if (updates.getExperienceYearsRequired() != null) job.setExperienceYearsRequired(updates.getExperienceYearsRequired());
-        if (updates.getBudget() != null) job.setBudget(updates.getBudget());
-        if (updates.getLocation() != null) job.setLocation(updates.getLocation());
-        if (updates.getLatitude() != null) job.setLatitude(updates.getLatitude());
-        if (updates.getLongitude() != null) job.setLongitude(updates.getLongitude());
-        if (updates.getCity() != null) job.setCity(updates.getCity());
-        if (updates.getAddress() != null) job.setAddress(updates.getAddress());
-        if (updates.getStatus() != null) {
-            Job.JobStatus oldStatus = job.getStatus();
-            job.setStatus(updates.getStatus());
-            
-            if (updates.getStatus() == Job.JobStatus.COMPLETED && oldStatus != Job.JobStatus.COMPLETED) {
-                // Find hired worker
-                applicationRepository.findByJobId(job.getId()).stream()
-                    .filter(app -> app.getStatus() == com.trusthire.entity.JobApplication.ApplicationStatus.ACCEPTED)
-                    .findFirst()
-                    .ifPresent(app -> {
-                        eventPublisher.publishEvent(new com.trusthire.event.JobCompletedEvent(this, job.getId(), app.getWorkerId()));
-                        
-                        // Log for Employer
-                        activityService.logActivity(
-                            employerId,
-                            "JOB_COMPLETED",
-                            "Successfully completed job: " + job.getTitle(),
-                            job.getId().toString()
-                        );
+        Job.JobStatus oldStatus = job.getStatus();
+        mapRequestToJob(request, job);
 
-                        // Log for Worker
-                        activityService.logActivity(
-                            app.getWorkerId(),
-                            "JOB_COMPLETED",
-                            "Completed job: " + job.getTitle() + ". Trust score updated!",
-                            job.getId().toString()
-                        );
-                    });
-            }
+        // Update expiresAt when provided
+        if (request.getExpiresAt() != null) {
+            job.setExpiresAt(request.getExpiresAt().atTime(LocalTime.MAX));
+        }
+
+        // Fire job-completed event if status changed to COMPLETED
+        if (request.getStatus() != null
+                && job.getStatus() == Job.JobStatus.COMPLETED
+                && oldStatus != Job.JobStatus.COMPLETED) {
+            applicationRepository.findByJobId(job.getId()).stream()
+                .filter(app -> app.getStatus() == com.trusthire.entity.JobApplication.ApplicationStatus.ACCEPTED)
+                .findFirst()
+                .ifPresent(app -> {
+                    eventPublisher.publishEvent(new com.trusthire.event.JobCompletedEvent(this, job.getId(), app.getWorkerId()));
+                    
+                    activityService.logActivity(
+                        employerId,
+                        "JOB_COMPLETED",
+                        "Successfully completed job: " + job.getTitle(),
+                        job.getId().toString()
+                    );
+
+                    activityService.logActivity(
+                        app.getWorkerId(),
+                        "JOB_COMPLETED",
+                        "Completed job: " + job.getTitle() + ". Trust score updated!",
+                        job.getId().toString()
+                    );
+                });
         }
 
         Job saved = jobRepository.save(job);

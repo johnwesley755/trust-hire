@@ -61,10 +61,10 @@ export default function AppliedJobsPage() {
       <header className="lg:hidden flex justify-between items-center px-4 h-16 w-full fixed top-0 bg-[#F5F4EF]/80 backdrop-blur-md z-50 shadow-sm border-b border-[#1F3F34]/5">
         <div className="flex items-center gap-3">
           <button 
-            onClick={() => setIsSidebarOpen(true)}
-            className="p-2 hover:bg-[#FACD15]/10 rounded-xl transition-colors active:scale-95 text-[#1F3F34]"
+            onClick={() => navigate('/tracker')}
+            className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-[#1F3F34] shadow-sm hover:scale-105 transition-transform"
           >
-            <span className="material-symbols-outlined">menu</span>
+            <span className="material-symbols-outlined font-bold">arrow_back</span>
           </button>
           <span className="font-['Bricolage_Grotesque'] text-xl font-black text-[#1F3F34] tracking-tight">TrustHire</span>
         </div>
