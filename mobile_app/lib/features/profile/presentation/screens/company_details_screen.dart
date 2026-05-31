@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../../core/providers/api_provider.dart';
@@ -28,7 +28,6 @@ class _CompanyDetailsScreenState extends ConsumerState<CompanyDetailsScreen> {
 
   Future<void> _fetchProfile() async {
     try {
-      final authRepository = ref.read(authRepositoryProvider);
       final response = await ref.read(apiClientProvider).dio.get('/api/employer/profile');
       final data = response.data['data'];
       
@@ -42,7 +41,7 @@ class _CompanyDetailsScreenState extends ConsumerState<CompanyDetailsScreen> {
         });
       }
     } catch (e) {
-      print('Error fetching employer profile: $e');
+      debugPrint('Error fetching employer profile: $e');
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }

@@ -7,12 +7,12 @@ class DashboardRepository {
   DashboardRepository(this._api);
 
   Future<Map<String, dynamic>> getWorkerStats() async {
-    final response = await _api.dio.get(Endpoints.workerStats);
+    final response = await _api.dio.get(Endpoints.workerDashboardStats);
     return response.data;
   }
 
   Future<Map<String, dynamic>> getEmployerStats() async {
-    final response = await _api.dio.get(Endpoints.employerStats);
+    final response = await _api.dio.get(Endpoints.employerDashboardStats);
     return response.data;
   }
 }

@@ -1,5 +1,4 @@
 import '../../../../core/api/api_client.dart';
-import '../../../../core/api/endpoints.dart';
 
 class ProfileRepository {
   final ApiClient _api;
