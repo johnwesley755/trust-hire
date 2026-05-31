@@ -66,7 +66,7 @@ export const AuthOnboardingGuard = ({ children }: { children: React.ReactNode })
   }
 
   if (isOnboarded === true && location.pathname === "/onboarding") {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/search" replace />;
   }
 
   // Next level: Identity Verification (SOFT REQUIREMENT)

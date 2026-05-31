@@ -56,7 +56,8 @@ export const IdentityVerificationPage = () => {
     try {
       await apiClient.post('/api/auth/sync', { onboarded: true });
       updateUser({ onboarded: true });
-      navigate('/dashboard');
+      toast.success('Identity verified successfully!');
+      navigate('/search');
     } catch (e) {
       console.error(e);
       alert("Synchronization failed. Please check your connection.");

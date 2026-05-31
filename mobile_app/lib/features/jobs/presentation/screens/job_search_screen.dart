@@ -6,6 +6,10 @@ import '../../../../core/theme/app_colors.dart';
 import '../providers/job_search_provider.dart';
 import '../providers/worker_applications_provider.dart';
 import '../../../dashboard/presentation/providers/dashboard_provider.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../../shared/presentation/screens/notification_screen.dart';
+import '../../../shared/presentation/providers/notification_provider.dart';
+import '../../../shared/presentation/widgets/trust_hire_header.dart';
 
 class JobSearchScreen extends ConsumerStatefulWidget {
   const JobSearchScreen({super.key});
@@ -105,6 +109,24 @@ class _JobSearchScreenState extends ConsumerState<JobSearchScreen> {
                   ),
                 ],
               ),
+              if (job['expiresAt'] != null) ...[
+                const SizedBox(height: 8),
+                Builder(builder: (context) {
+                  final exp = DateTime.tryParse(job['expiresAt'].toString());
+                  if (exp == null) return const SizedBox.shrink();
+                  final days = exp.difference(DateTime.now()).inDays;
+                  final label = days < 0 ? 'Expired' : days == 0 ? 'Expires today' : 'Expires in $days days';
+                  final color = days < 0 ? Colors.red : days <= 3 ? Colors.orange : const Color(0xFF4a6b5e);
+                  return Row(
+                    children: [
+                      Icon(LucideIcons.calendarClock, size: 14, color: color),
+                      const SizedBox(width: 6),
+                      Text(label, style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 13)),
+                    ],
+                  );
+                }),
+              ],
+
               const SizedBox(height: 24),
               const Divider(),
               const SizedBox(height: 16),
@@ -230,54 +252,134 @@ class _JobSearchScreenState extends ConsumerState<JobSearchScreen> {
   @override
   Widget build(BuildContext context) {
     final searchState = ref.watch(jobSearchProvider);
+    final auth = ref.watch(authProvider);
+    final notificationState = ref.watch(notificationProvider);
+    
+    final firstName = auth.user?['first_name'] ?? 'Professional';
+    final profileImageUrl = auth.user?['profile_image_url'] as String?;
+    final unreadNotifications = notificationState.unreadCount.toString();
 
     return Column(
       children: [
         // Search Header
+        const Padding(
+          padding: EdgeInsets.fromLTRB(24, 20, 24, 8),
+          child: TrustHireHeader(),
+        ),
+              // const SizedBox(height: 24),
+              // Text(
+              //   'Find Work',
+              //   style: Theme.of(context).textTheme.displaySmall?.copyWith(
+              //     fontWeight: FontWeight.w900,
+              //     color: const Color(0xFF1B3F34),
+              //     letterSpacing: -1,
+              //   ),
+              // ),
         Container(
-          padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(bottom: Radius.circular(32)),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Row(
             children: [
-              Text(
-                'Find Work',
-                style: Theme.of(context).textTheme.displaySmall,
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _searchController,
+              Expanded(
+                child: TextField(
+                  controller: _searchController,
                       onChanged: (val) {
                         ref.read(jobSearchProvider.notifier).search(val);
                       },
-                      decoration: const InputDecoration(
-                        hintText: 'Search jobs, skills, or roles...',
-                        prefixIcon: Icon(LucideIcons.search, size: 20),
-                        contentPadding: EdgeInsets.symmetric(vertical: 12),
+                      decoration: InputDecoration(
+                        hintText: 'Search for opportunities...',
+                        hintStyle: const TextStyle(color: Colors.grey, fontWeight: FontWeight.w500),
+                        prefixIcon: const Icon(LucideIcons.search, size: 20, color: Colors.grey),
+                        contentPadding: const EdgeInsets.symmetric(vertical: 16),
+                        filled: true,
+                        fillColor: const Color(0xFFE9E8E3),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(30),
+                          borderSide: BorderSide.none,
+                        ),
                       ),
                     ),
                   ),
                   const SizedBox(width: 12),
                   Container(
-                    padding: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: AppColors.primary,
-                      borderRadius: BorderRadius.circular(16),
+                      color: const Color(0xFFFACD15),
+                      borderRadius: BorderRadius.circular(30),
                     ),
-                    child: const Icon(LucideIcons.slidersHorizontal, color: Colors.white, size: 20),
+                    child: const Icon(LucideIcons.slidersHorizontal, color: Color(0xFF002117), size: 20),
                   ),
                 ],
               ),
-            ],
-          ),
         ),
         
+        // // Insight Card
+        // Padding(
+        //   padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
+        //   child: Container(
+        //     padding: const EdgeInsets.all(20),
+        //     decoration: BoxDecoration(
+        //       color: const Color(0xFFFACD15),
+        //       borderRadius: BorderRadius.circular(16),
+        //       boxShadow: [
+        //         BoxShadow(
+        //           color: const Color(0xFFFACD15).withOpacity(0.2),
+        //           blurRadius: 20,
+        //           offset: const Offset(0, 10),
+        //         ),
+        //       ],
+        //     ),
+        //     child: Row(
+        //       crossAxisAlignment: CrossAxisAlignment.start,
+        //       children: [
+        //         Container(
+        //           padding: const EdgeInsets.all(8),
+        //           decoration: BoxDecoration(
+        //             color: const Color(0xFF002117).withOpacity(0.1),
+        //             borderRadius: BorderRadius.circular(12),
+        //           ),
+        //           child: const Icon(LucideIcons.lightbulb, color: Color(0xFF002117), size: 24),
+        //         ),
+        //         const SizedBox(width: 16),
+        //         Expanded(
+        //           child: Column(
+        //             crossAxisAlignment: CrossAxisAlignment.start,
+        //             children: [
+        //               const Text(
+        //                 'TRUSTHIRE INSIGHT',
+        //                 style: TextStyle(
+        //                   color: Color(0xFF002117),
+        //                   fontWeight: FontWeight.w900,
+        //                   fontSize: 10,
+        //                   letterSpacing: 1.5,
+        //                 ),
+        //               ),
+        //               const SizedBox(height: 4),
+        //               const Text(
+        //                 "Jobs with 'Urgent' badges receive 4.2x more applications.",
+        //                 style: TextStyle(
+        //                   color: Color(0xFF002117),
+        //                   fontWeight: FontWeight.bold,
+        //                   fontSize: 14,
+        //                   height: 1.2,
+        //                 ),
+        //               ),
+        //               const SizedBox(height: 8),
+        //               Text(
+        //                 'SMART TIP • 2M AGO',
+        //                 style: TextStyle(
+        //                   color: const Color(0xFF002117).withOpacity(0.7),
+        //                   fontWeight: FontWeight.bold,
+        //                   fontSize: 10,
+        //                 ),
+        //               ),
+        //             ],
+        //           ),
+        //         ),
+        //       ],
+        //     ),
+        //   ),
+        // ),
+
         // Results
         Expanded(
           child: searchState.isLoading
@@ -294,24 +396,42 @@ class _JobSearchScreenState extends ConsumerState<JobSearchScreen> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            '${searchState.jobs.length} Jobs Found',
-                            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              color: AppColors.textSecondary,
-                              fontWeight: FontWeight.bold,
-                            ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Nearby Jobs',
+                                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                  color: const Color(0xFF1B3F34),
+                                  fontWeight: FontWeight.w900,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              const Text(
+                                'Based on your skills and location',
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
                           ),
-                          TextButton(
-                            onPressed: () {
-                              _searchController.clear();
-                              ref.read(jobSearchProvider.notifier).search('');
-                            },
-                            child: const Text('Clear Filters'),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFc7ebdb),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: const Text(
+                              'LATEST', 
+                              style: TextStyle(color: Color(0xFF002117), fontSize: 10, fontWeight: FontWeight.bold),
+                            ),
                           ),
                         ],
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 24),
                     
                     if (searchState.jobs.isEmpty)
                       const Center(
@@ -353,8 +473,10 @@ class _JobSearchScreenState extends ConsumerState<JobSearchScreen> {
                           salary: budget,
                           tags: tags,
                           delay: index * 100,
+                          expiresAt: job['expiresAt']?.toString(),
                           onViewDetails: () => _showJobDetailsBottomSheet(context, job),
                         );
+
                       }).toList(),
                   ],
                 ),
@@ -372,6 +494,7 @@ class _JobCard extends StatelessWidget {
   final List<String> tags;
   final int delay;
   final VoidCallback onViewDetails;
+  final String? expiresAt;
 
   const _JobCard({
     required this.title,
@@ -381,7 +504,9 @@ class _JobCard extends StatelessWidget {
     required this.tags,
     required this.delay,
     required this.onViewDetails,
+    this.expiresAt,
   });
+
 
   @override
   Widget build(BuildContext context) {
@@ -392,13 +517,15 @@ class _JobCard extends StatelessWidget {
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(32),
-          border: Border.all(color: AppColors.border),
+          borderRadius: BorderRadius.circular(16),
+          border: const Border(
+            left: BorderSide(color: Color(0xFFFACD15), width: 4),
+          ),
           boxShadow: [
             BoxShadow(
-              color: AppColors.primary.withOpacity(0.02),
+              color: const Color(0xFF1B3F34).withOpacity(0.05),
               blurRadius: 20,
-              offset: const Offset(0, 10),
+              offset: const Offset(0, 4),
             ),
           ],
         ),
@@ -407,22 +534,33 @@ class _JobCard extends StatelessWidget {
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFACD15),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: const Text('URGENT', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFF002117), letterSpacing: 1)),
+                      ),
+                      const SizedBox(height: 8),
                       Text(
                         title,
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.w900,
+                          color: const Color(0xFF1B3F34),
                         ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         company,
                         style: const TextStyle(
-                          color: AppColors.primary,
+                          color: Color(0xFF1B3F34),
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
                         ),
@@ -430,26 +568,21 @@ class _JobCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: AppColors.background,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Icon(LucideIcons.bookmark, color: AppColors.textTertiary, size: 20),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(salary, style: const TextStyle(color: Color(0xFF1B3F34), fontSize: 16, fontWeight: FontWeight.w900, letterSpacing: -0.5)),
+                    const Text('PER MONTH', style: TextStyle(color: Colors.grey, fontSize: 10, fontWeight: FontWeight.w900)),
+                  ],
                 ),
               ],
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
             Row(
               children: [
-                const Icon(LucideIcons.mapPin, size: 14, color: AppColors.textSecondary),
+                const Icon(LucideIcons.mapPin, size: 14, color: Colors.grey),
                 const SizedBox(width: 4),
-                Text(location, style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
-                const SizedBox(width: 16),
-                const Icon(LucideIcons.banknote, size: 14, color: AppColors.textSecondary),
-                const SizedBox(width: 4),
-                Text(salary, style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+                Text(location, style: const TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.w600)),
               ],
             ),
             const SizedBox(height: 20),
@@ -460,15 +593,15 @@ class _JobCard extends StatelessWidget {
                 children: tags.map((tag) => Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: AppColors.accent.withOpacity(0.1),
+                    color: const Color(0xFFFACD15).withOpacity(0.15),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
                     tag.toUpperCase(),
                     style: const TextStyle(
-                      color: AppColors.primary,
+                      color: Color(0xFF1B3F34),
                       fontWeight: FontWeight.w900,
-                      fontSize: 8,
+                      fontSize: 10,
                       letterSpacing: 1,
                     ),
                   ),
@@ -478,10 +611,38 @@ class _JobCard extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFFACD15),
+                  foregroundColor: const Color(0xFF002117),
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
                 onPressed: onViewDetails,
-                child: const Text('VIEW DETAILS'),
+                child: const Text('VIEW DETAILS', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 1)),
               ),
             ),
+            // Expiry chip below the button
+            if (expiresAt != null)
+              Builder(builder: (context) {
+                final exp = DateTime.tryParse(expiresAt!);
+                if (exp == null) return const SizedBox.shrink();
+                final days = exp.difference(DateTime.now()).inDays;
+                final label = days < 0 ? 'Expired' : days == 0 ? 'Expires today' : 'Expires in $days days';
+                final color = days < 0 ? Colors.red.shade100 : days <= 3 ? Colors.orange.shade100 : const Color(0xFFe8f5e9);
+                final textColor = days < 0 ? Colors.red.shade700 : days <= 3 ? Colors.orange.shade700 : const Color(0xFF2e7d32);
+                return Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(LucideIcons.calendarClock, size: 12, color: textColor),
+                      const SizedBox(width: 4),
+                      Text(label, style: TextStyle(color: textColor, fontSize: 11, fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                );
+              }),
           ],
         ),
       ),

@@ -13,7 +13,9 @@ export interface Job {
   address?: string;
   city?: string;
   status?: 'OPEN' | 'CLOSED' | 'IN_PROGRESS' | 'COMPLETED';
+  expiresAt?: string;
 }
+
 
 export const jobService = {
   getJobById: async (id: string): Promise<Job> => {

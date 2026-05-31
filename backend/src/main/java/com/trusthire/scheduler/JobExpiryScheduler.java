@@ -5,7 +5,6 @@ import com.trusthire.repository.JobRepository;
 import com.trusthire.service.SearchService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,28 +20,29 @@ public class JobExpiryScheduler {
     private final JobRepository jobRepository;
     private final SearchService searchService;
 
-    @Value("${app.job.expiry-days:7}")
-    private int expiryDays;
-
-    // Run every minute to check for expired jobs
+    /**
+     * Runs every minute. Finds all OPEN jobs whose employer-specified expiresAt
+     * timestamp is in the past and marks them CLOSED.
+     *
+     * Jobs with no expiresAt set are left untouched (legacy / no-expiry behaviour).
+     */
     @Scheduled(fixedRate = 60000)
     @Transactional
     public void expireJobs() {
-        log.info(">>> JobExpiryScheduler: Checking for expired jobs (Threshold: {} days)...", expiryDays);
-        
-        LocalDateTime expiryThreshold = LocalDateTime.now().minusDays(expiryDays);
-        
-        List<Job> expiredJobs = jobRepository.findByStatusAndCreatedAtBefore(
-                Job.JobStatus.OPEN, 
-                expiryThreshold
+        LocalDateTime now = LocalDateTime.now();
+        log.info(">>> JobExpiryScheduler: Checking for jobs past their expiry date at {}...", now);
+
+        List<Job> expiredJobs = jobRepository.findByStatusAndExpiresAtBeforeAndExpiresAtIsNotNull(
+                Job.JobStatus.OPEN,
+                now
         );
 
         if (!expiredJobs.isEmpty()) {
-            log.info(">>> JobExpiryScheduler: Found {} expired jobs. Expiring them...", expiredJobs.size());
+            log.info(">>> JobExpiryScheduler: Found {} expired jobs. Closing them...", expiredJobs.size());
             for (Job job : expiredJobs) {
                 job.setStatus(Job.JobStatus.CLOSED);
                 Job savedJob = jobRepository.save(job);
-                
+
                 // Update status in the search index
                 searchService.indexJob(com.trusthire.entity.JobSearchIndex.builder()
                         .jobId(savedJob.getId())
@@ -60,9 +60,11 @@ public class JobExpiryScheduler {
                         .requiredSkills(savedJob.getRequiredSkills() != null ? String.join(",", savedJob.getRequiredSkills()) : "")
                         .build());
 
-                log.info(">>> JobExpiryScheduler: Job '{}' (ID: {}) status updated to CLOSED in DB and Search Index.", 
-                        savedJob.getTitle(), savedJob.getId());
+                log.info(">>> JobExpiryScheduler: Job '{}' (ID: {}) expired on {} — status set to CLOSED.",
+                        savedJob.getTitle(), savedJob.getId(), savedJob.getExpiresAt());
             }
+        } else {
+            log.debug(">>> JobExpiryScheduler: No expired jobs found.");
         }
     }
 }

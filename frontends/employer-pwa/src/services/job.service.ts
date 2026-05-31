@@ -17,6 +17,8 @@ export interface Job {
   status?: 'OPEN' | 'CLOSED' | 'IN_PROGRESS' | 'COMPLETED';
   createdAt?: string;
   updatedAt?: string;
+  /** ISO date string (YYYY-MM-DD) set by the employer at posting time */
+  expiresAt?: string;
 }
 
 export const jobService = {

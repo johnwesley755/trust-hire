@@ -6,6 +6,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../providers/search_provider.dart';
 import '../../../../core/providers/api_provider.dart';
 import '../../../profile/presentation/screens/worker_profile_screen.dart';
+import '../../../shared/presentation/widgets/trust_hire_header.dart';
 
 class WorkerSearchScreen extends ConsumerStatefulWidget {
   const WorkerSearchScreen({super.key});
@@ -34,16 +35,8 @@ class _WorkerSearchScreenState extends ConsumerState<WorkerSearchScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'TrustHire',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w900,
-                  color: AppColors.primary,
-                  letterSpacing: -0.5,
-                ),
-              ),
-              const SizedBox(height: 4),
+              const TrustHireHeader(),
+              const SizedBox(height: 12),
               Text(
                 'Find Talent',
                 style: Theme.of(context).textTheme.displaySmall,
