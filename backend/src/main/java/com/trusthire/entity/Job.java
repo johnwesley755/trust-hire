@@ -64,6 +64,8 @@ public class Job {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
+    private LocalDateTime expiresAt;
+
     public enum JobStatus {
         OPEN, CLOSED, IN_PROGRESS, COMPLETED
     }
