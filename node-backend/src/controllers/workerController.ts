@@ -128,10 +128,10 @@ export const getTrustScore = async (req: Request, res: Response) => {
   try {
     const userId = req.params.userId as string;
     const profile = await prisma.worker_profiles.findUnique({ where: { user_id: userId } });
-    const user = await prisma.user_metadata.findUnique({ where: { id: userId } });
+    const verification = await prisma.verification_records.findFirst({ where: { user_id: userId, status: 'APPROVED' } });
 
     const trustScore = profile?.trust_score || 0;
-    const identityVerified = user?.identity_verified || false;
+    const identityVerified = !!verification;
     const avgRating = profile?.performance_score || 0.0;
 
     res.json(ApiResponse.ok({
