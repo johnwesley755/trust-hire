@@ -29,8 +29,7 @@ export const register = async (req: Request, res: Response) => {
         created_at: new Date(),
         updated_at: new Date(),
         email_verified: false,
-        onboarded: false,
-        identity_verified: false
+        onboarded: false
       }
     });
 
@@ -123,7 +122,72 @@ export const getUsersByIds = async (req: Request, res: Response) => {
   res.json(ApiResponse.ok(users));
 };
 
+export const oauthSync = async (req: Request, res: Response) => {
+  try {
+    const { email, firstName, lastName, profileImageUrl, role } = req.body;
+    if (!email) {
+      return res.status(400).json(ApiResponse.error("Email is required"));
+    }
+
+    let user = await prisma.user_metadata.findUnique({ where: { email } });
+    if (!user) {
+      const newId = uuidv4();
+      user = await prisma.user_metadata.create({
+        data: {
+          id: newId,
+          email,
+          first_name: firstName || 'Worker',
+          last_name: lastName || '',
+          profile_image_url: profileImageUrl,
+          role: role || 'WORKER',
+          created_at: new Date(),
+          updated_at: new Date(),
+          email_verified: true,
+          onboarded: true,
+        }
+      });
+
+      if ((role || 'WORKER') === 'WORKER') {
+        await prisma.worker_profiles.create({
+          data: {
+            user_id: newId,
+            full_name: `${firstName || 'Worker'} ${lastName || ''}`.trim(),
+            level: 'L1',
+            level_number: 1,
+            level_score: 100,
+            experience_years: 1,
+            created_at: new Date(),
+            updated_at: new Date(),
+          }
+        }).catch((e: any) => console.warn("Worker profile auto-creation notice:", e.message));
+      }
+    } else {
+      user = await prisma.user_metadata.update({
+        where: { id: user.id },
+        data: {
+          profile_image_url: profileImageUrl || user.profile_image_url,
+          first_name: firstName || user.first_name,
+          last_name: lastName || user.last_name,
+          updated_at: new Date(),
+        }
+      });
+    }
+
+    const token = jwt.sign(
+      { sub: user.id, role: user.role },
+      process.env.JWT_SECRET as string,
+      { expiresIn: '30d' }
+    );
+
+    res.json(ApiResponse.ok("OAuth sync successful", { token, user }));
+  } catch (err: any) {
+    console.error("OAuth sync error:", err);
+    res.status(500).json(ApiResponse.error(err.message));
+  }
+};
+
 export const handleLegacyWebhook = (req: Request, res: Response) => {
   console.log("Received legacy webhook sync event:", req.body.type);
   res.sendStatus(200);
 };
+

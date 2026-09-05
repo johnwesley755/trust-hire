@@ -8,271 +8,303 @@ datasource db {
 }
 
 model early_access_requests {
-  id         String    @id @db.Uuid
-  created_at DateTime? @db.Timestamp(6)
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   email      String    @db.VarChar(255)
-  source     String    @db.VarChar(255)
+  source     String    @db.VarChar(50)
+  created_at DateTime? @default(now()) @db.Timestamp(6)
+
+  @@unique([email, source])
 }
 
 model employer_profiles {
-  id              String    @id @db.Uuid
-  address         String?   @db.VarChar(255)
-  business_tier   String?   @db.VarChar(255)
-  city            String?   @db.VarChar(255)
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id         String    @unique @db.VarChar(255)
   company_name    String?   @db.VarChar(255)
-  company_website String?   @db.VarChar(255)
-  created_at      DateTime? @db.Timestamp(6)
-  industry        String?   @db.VarChar(255)
-  is_verified     Boolean?
-  latitude        Float?
-  location        String?   @db.VarChar(255)
-  longitude       Float?
+  industry        String?   @db.VarChar(100)
+  company_website String?
   profile_bio     String?
-  updated_at      DateTime? @db.Timestamp(6)
-  user_id         String    @unique(map: "uk_jodnbq59inse5oqo0ge2om87l") @db.VarChar(255)
+  business_tier   String?   @db.VarChar(50)
+  is_verified     Boolean?  @default(false)
+  location        String?   @db.VarChar(255)
+  city            String?   @db.VarChar(255)
+  address         String?
+  latitude        Float?
+  longitude       Float?
+  created_at      DateTime? @default(now()) @db.Timestamp(6)
+  updated_at      DateTime? @default(now()) @db.Timestamp(6)
 
   @@index([user_id], map: "idx_employer_profiles_user_id")
 }
 
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model flyway_schema_history_auth {
+  installed_rank Int      @id(map: "flyway_schema_history_auth_pk")
+  version        String?  @db.VarChar(50)
+  description    String   @db.VarChar(200)
+  type           String   @db.VarChar(20)
+  script         String   @db.VarChar(1000)
+  checksum       Int?
+  installed_by   String   @db.VarChar(100)
+  installed_on   DateTime @default(now()) @db.Timestamp(6)
+  execution_time Int
+  success        Boolean
+
+  @@index([success], map: "flyway_schema_history_auth_s_idx")
+}
+
 model job_applications {
-  id           String    @id @db.Uuid
-  applied_at   DateTime? @db.Timestamp(6)
-  cover_letter String?
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   job_id       String    @db.Uuid
-  status       String?   @db.VarChar(255)
   worker_id    String    @db.VarChar(255)
-  jobs         jobs      @relation(fields: [job_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fkqt4m3c9yiioi16kwsyjrl0cpl")
+  status       String?   @default("PENDING") @db.VarChar(50)
+  cover_letter String?
+  applied_at   DateTime? @default(now()) @db.Timestamp(6)
+  jobs         jobs      @relation(fields: [job_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([job_id], map: "idx_job_applications_job_id")
+  @@index([worker_id], map: "idx_job_applications_worker_id")
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model job_required_skills {
-  job_id String  @db.Uuid
-  skill  String? @db.VarChar(255)
-  jobs   jobs    @relation(fields: [job_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fkdhntylyihw6svi8i512l3egoa")
+  job_id String @db.Uuid
+  skill  String @db.VarChar(255)
+  jobs   jobs   @relation(fields: [job_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@ignore
 }
 
 model job_search_index {
   job_id          String    @id @db.Uuid
-  address         String?   @db.VarChar(255)
-  budget          Float?
-  city            String?   @db.VarChar(255)
-  description     String?
-  indexed_at      DateTime? @db.Timestamp(6)
-  category        String?   @db.VarChar(255)
-  last_updated_at DateTime? @db.Timestamp(6)
-  latitude        Float?
-  level           String?   @db.VarChar(255)
-  location        String?   @db.VarChar(255)
-  longitude       Float?
-  required_skills String?   @db.VarChar(255)
-  status          String?   @db.VarChar(255)
   title           String    @db.VarChar(255)
+  description     String?
+  category        String?   @db.VarChar(100)
+  location        String?   @db.VarChar(255)
+  city            String?   @db.VarChar(255)
+  address         String?
+  latitude        Float?
+  longitude       Float?
+  level           String?   @db.VarChar(20)
+  required_skills String?   @db.VarChar(255)
+  budget          Float?
+  status          String?   @db.VarChar(50)
+  indexed_at      DateTime? @default(now()) @db.Timestamp(6)
+  last_updated_at DateTime? @default(now()) @db.Timestamp(6)
   employer_name   String?   @db.VarChar(255)
+
+  @@index([category], map: "idx_job_search_category")
+  @@index([city], map: "idx_job_search_city")
+  @@index([status], map: "idx_job_search_status")
 }
 
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model jobs {
-  id                        String                @id @db.Uuid
-  address                   String?               @db.VarChar(255)
-  budget                    Decimal?              @db.Decimal(10, 2)
-  city                      String?               @db.VarChar(255)
-  created_at                DateTime?             @db.Timestamp(6)
-  description               String?
+  id                        String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   employer_id               String                @db.VarChar(255)
-  experience_years_required Int?
-  industry                  String?               @db.VarChar(255)
-  latitude                  Float?
-  location                  String?               @db.VarChar(255)
-  longitude                 Float?
-  status                    String?               @db.VarChar(255)
   title                     String                @db.VarChar(255)
-  updated_at                DateTime?             @db.Timestamp(6)
+  description               String?
+  industry                  String?               @db.VarChar(100)
+  experience_years_required Int?
+  budget                    Decimal?              @db.Decimal(10, 2)
+  status                    String?               @default("OPEN") @db.VarChar(50)
+  location                  String?               @db.VarChar(255)
+  city                      String?               @db.VarChar(255)
+  address                   String?
+  latitude                  Float?
+  longitude                 Float?
+  created_at                DateTime?             @default(now()) @db.Timestamp(6)
+  updated_at                DateTime?             @default(now()) @db.Timestamp(6)
   employer_name             String?               @db.VarChar(255)
   expires_at                DateTime?             @db.Timestamp(6)
   job_applications          job_applications[]
   job_required_skills       job_required_skills[] @ignore
 
   @@index([employer_id], map: "idx_jobs_employer_id")
+  @@index([status], map: "idx_jobs_status")
 }
 
 model media_assets {
-  id         String    @id @db.Uuid
-  created_at DateTime? @db.Timestamp(6)
-  file_name  String?   @db.VarChar(255)
-  file_size  BigInt?
-  file_type  String?   @db.VarChar(255)
-  owner_id   String    @db.VarChar(255)
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  url        String
   public_id  String    @db.VarChar(255)
-  url        String    @db.VarChar(255)
+  file_name  String?   @db.VarChar(255)
+  file_type  String?   @db.VarChar(50)
+  file_size  BigInt?
+  owner_id   String    @db.VarChar(255)
+  created_at DateTime? @default(now()) @db.Timestamp(6)
 }
 
 model notifications {
-  id         String    @id @db.Uuid
-  created_at DateTime? @db.Timestamp(6)
-  is_read    Boolean?
-  message    String
-  title      String    @db.VarChar(255)
-  type       String?   @db.VarChar(255)
-  updated_at DateTime? @db.Timestamp(6)
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   user_id    String    @db.VarChar(255)
+  title      String    @db.VarChar(255)
+  message    String
+  is_read    Boolean?  @default(false)
+  type       String?   @db.VarChar(50)
+  created_at DateTime? @default(now()) @db.Timestamp(6)
+  updated_at DateTime? @default(now()) @db.Timestamp(6)
+
+  @@index([user_id], map: "idx_notifications_user_id")
 }
 
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model ratings {
-  id          String    @id @db.Uuid
-  comment     String?
-  created_at  DateTime? @db.Timestamp(6)
-  job_id      String    @db.Uuid
-  ratee_id    String    @db.VarChar(255)
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   reviewer_id String    @db.VarChar(255)
+  ratee_id    String    @db.VarChar(255)
+  job_id      String    @db.Uuid
   score       Int
-  updated_at  DateTime? @db.Timestamp(6)
+  comment     String?
+  created_at  DateTime? @default(now()) @db.Timestamp(6)
+  updated_at  DateTime? @default(now()) @db.Timestamp(6)
+
+  @@index([ratee_id], map: "idx_ratings_ratee_id")
 }
 
 model skill_test_questions {
-  id               String      @id @db.Uuid
-  complexity_score Int?
-  correct_option   Int
-  metadata         Json?
-  options          Json
-  points           Int?
-  question_text    String
+  id               String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   test_id          String      @db.Uuid
-  skill_tests      skill_tests @relation(fields: [test_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fkdy97ommjrxcwv2oydabjl7y16")
+  question_text    String
+  options          Json
+  correct_option   Int
+  points           Int?        @default(10)
+  complexity_score Int?        @default(1)
+  metadata         Json?
+  skill_tests      skill_tests @relation(fields: [test_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 }
 
 model skill_test_results {
-  id           String      @id @db.Uuid
-  completed_at DateTime?   @db.Timestamp(6)
-  passed       Boolean
-  score        Int
+  id           String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   worker_id    String      @db.VarChar(255)
   test_id      String      @db.Uuid
-  skill_tests  skill_tests @relation(fields: [test_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fkcf9mj7uq3aeke9exvmjobpp4g")
+  score        Int
+  passed       Boolean
+  completed_at DateTime?   @default(now()) @db.Timestamp(6)
+  skill_tests  skill_tests @relation(fields: [test_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([worker_id], map: "idx_skill_test_results_worker_id")
 }
 
 model skill_tests {
-  id                   String                 @id @db.Uuid
-  category             String                 @db.VarChar(255)
-  created_at           DateTime?              @db.Timestamp(6)
-  description          String?
-  difficulty           String                 @default("Intermediate") @db.VarChar(255)
-  duration_minutes     Int                    @default(30)
-  points               Int?
+  id                   String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   title                String                 @db.VarChar(255)
+  category             String                 @db.VarChar(100)
+  difficulty           String                 @db.VarChar(20)
+  duration_minutes     Int
+  points               Int?                   @default(100)
+  description          String?
+  created_at           DateTime?              @default(now()) @db.Timestamp(6)
   skill_test_questions skill_test_questions[]
   skill_test_results   skill_test_results[]
 }
 
 model support_tickets {
-  id         String    @id @db.Uuid
-  created_at DateTime? @db.Timestamp(6)
-  message    String
-  priority   String?   @db.VarChar(255)
-  status     String?   @db.VarChar(255)
-  subject    String    @db.VarChar(255)
-  updated_at DateTime? @db.Timestamp(6)
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   user_id    String?   @db.VarChar(255)
+  subject    String    @db.VarChar(255)
+  message    String
+  status     String?   @default("OPEN") @db.VarChar(20)
+  priority   String?   @default("NORMAL") @db.VarChar(20)
+  created_at DateTime? @default(now()) @db.Timestamp(6)
+  updated_at DateTime? @default(now()) @db.Timestamp(6)
 }
 
 model user_activities {
-  id          String    @id @db.Uuid
-  created_at  DateTime? @db.Timestamp(6)
-  description String    @db.VarChar(255)
-  target_id   String?   @db.VarChar(255)
-  type        String    @db.VarChar(255)
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   user_id     String    @db.VarChar(255)
+  type        String    @db.VarChar(50)
+  description String
+  target_id   String?   @db.VarChar(255)
+  created_at  DateTime? @default(now()) @db.Timestamp(6)
 }
 
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model user_metadata {
   id                 String    @id @db.Uuid
-  created_at         DateTime? @db.Timestamp(6)
-  email              String    @unique(map: "uk_t6c577xeobkhlrxrmvqnlj0u5") @db.VarChar(255)
-  email_verified     Boolean?
-  first_name         String?   @db.VarChar(255)
-  identity_verified  Boolean?
-  last_name          String?   @db.VarChar(255)
-  onboarded          Boolean?
+  email              String    @unique @db.VarChar(255)
   password_hash      String?   @db.VarChar(255)
   phone_number       String?   @db.VarChar(255)
+  first_name         String?   @db.VarChar(255)
+  last_name          String?   @db.VarChar(255)
   profile_image_url  String?   @db.VarChar(255)
+  role               String?   @db.VarChar(50)
+  email_verified     Boolean?  @default(false)
+  onboarded          Boolean?  @default(false)
+  created_at         DateTime? @db.Timestamp(6)
+  updated_at         DateTime? @db.Timestamp(6)
   reset_token        String?   @db.VarChar(255)
   reset_token_expiry DateTime? @db.Timestamp(6)
-  role               String    @db.VarChar(255)
-  updated_at         DateTime? @db.Timestamp(6)
 }
 
 model user_settings {
   user_id             String    @id @db.VarChar(255)
-  email_notifications Boolean
-  language            String?   @db.VarChar(255)
-  marketing_emails    Boolean
-  push_notifications  Boolean
-  theme               String?   @db.VarChar(255)
-  updated_at          DateTime? @db.Timestamp(6)
+  email_notifications Boolean?  @default(true)
+  push_notifications  Boolean?  @default(true)
+  marketing_emails    Boolean?  @default(false)
+  theme               String?   @default("light") @db.VarChar(20)
+  language            String?   @default("en") @db.VarChar(10)
+  updated_at          DateTime? @default(now()) @db.Timestamp(6)
 }
 
 model verification_records {
-  id               String    @id @db.Uuid
-  confidence_score String?   @db.VarChar(255)
-  created_at       DateTime? @db.Timestamp(6)
-  doc_image_url    String?   @db.VarChar(255)
-  failure_reason   String?   @db.VarChar(255)
-  live_image_url   String?   @db.VarChar(255)
-  status           String?   @db.VarChar(255)
-  updated_at       DateTime? @db.Timestamp(6)
-  user_id          String    @db.VarChar(255)
+  id                String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id           String    @db.VarChar(255)
+  doc_image_url     String?
+  verification_type String?   @db.VarChar(50)
+  status            String?   @default("PENDING") @db.VarChar(50)
+  verified_at       DateTime? @db.Timestamp(6)
+  created_at        DateTime? @default(now()) @db.Timestamp(6)
+  updated_at        DateTime? @default(now()) @db.Timestamp(6)
+  live_image_url    String?   @db.VarChar(255)
+  confidence_score  String?   @db.VarChar(255)
+  failure_reason    String?   @db.VarChar(255)
+
+  @@index([user_id], map: "idx_verification_records_user_id")
 }
 
 model worker_profiles {
-  id                String    @id @db.Uuid
-  address           String?   @db.VarChar(255)
-  bio               String?   @db.VarChar(255)
-  city              String?   @db.VarChar(255)
-  created_at        DateTime? @db.Timestamp(6)
-  experience_score  Float?
-  experience_years  Int?
+  id                String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id           String    @unique @db.VarChar(255)
   full_name         String?   @db.VarChar(255)
-  hourly_rate       Decimal?  @db.Decimal(10, 2)
-  is_available      Boolean?
-  latitude          Float?
-  level             String?   @db.VarChar(255)
-  level_number      Int?
-  level_score       Float?
-  location          String?   @db.VarChar(255)
-  longitude         Float?
-  performance_score Float?
-  profile_views     BigInt?
-  reliability_score Float?
-  skill_score       Float?
+  bio               String?
   skills            String?
-  trust_score       Int?
-  updated_at        DateTime? @db.Timestamp(6)
-  user_id           String    @unique(map: "uk_ljmkjf5tk6w2jt5w4q7rnv3er") @db.VarChar(255)
-  abscond_count     Int?
-  completed_jobs    Int?
-  total_jobs        Int?
+  experience_years  Int?      @default(0)
+  level             String?   @default("L1") @db.VarChar(10)
+  level_number      Int?      @default(1)
+  skill_score       Float?    @default(30.0)
+  experience_score  Float?    @default(0.0)
+  performance_score Float?    @default(0.0)
+  reliability_score Float?    @default(0.0)
+  level_score       Float?    @default(0.0)
+  trust_score       Int?      @default(0)
+  hourly_rate       Decimal?  @db.Decimal(10, 2)
+  profile_views     BigInt?   @default(0)
+  is_available      Boolean?  @default(true)
+  location          String?   @db.VarChar(255)
+  city              String?   @db.VarChar(255)
+  address           String?
+  latitude          Float?
+  longitude         Float?
+  created_at        DateTime? @default(now()) @db.Timestamp(6)
+  updated_at        DateTime? @default(now()) @db.Timestamp(6)
+  abscond_count     Int?      @default(0)
+  completed_jobs    Int?      @default(0)
+  total_jobs        Int?      @default(0)
 
   @@index([user_id], map: "idx_worker_profiles_user_id")
 }
 
 model worker_search_index {
   user_id           String    @id @db.VarChar(255)
-  bio               String?
-  city              String?   @db.VarChar(255)
-  indexed_at        DateTime? @db.Timestamp(6)
-  is_verified       Boolean?
-  last_updated_at   DateTime? @db.Timestamp(6)
-  latitude          Float?
-  level             String?   @db.VarChar(255)
-  location          String?   @db.VarChar(255)
-  longitude         Float?
   name              String    @db.VarChar(255)
-  profile_image_url String?   @db.VarChar(255)
-  skills            String?   @db.VarChar(255)
-  status            String?   @db.VarChar(255)
-  trust_score       Int?
+  bio               String?
+  skills            String?
+  location          String?   @db.VarChar(255)
+  city              String?   @db.VarChar(255)
+  latitude          Float?
+  longitude         Float?
+  level             String?   @db.VarChar(10)
+  is_verified       Boolean?  @default(false)
+  profile_image_url String?
+  status            String?   @default("AVAILABLE") @db.VarChar(50)
+  indexed_at        DateTime? @default(now()) @db.Timestamp(6)
+  last_updated_at   DateTime? @default(now()) @db.Timestamp(6)
+  trust_score       Int?      @default(0)
 }
