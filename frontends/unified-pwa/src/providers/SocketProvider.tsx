@@ -1,7 +1,4 @@
-import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from 'react';
-import { useAuth } from './AuthContext';
-import { Client } from '@stomp/stompjs';
-import SockJS from 'sockjs-client';
+import { createContext, useContext, type ReactNode } from 'react';
 
 interface SocketContextType {
   connected: boolean;
@@ -20,102 +17,19 @@ export const useSocket = () => {
 };
 
 export const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const { getToken, isSignedIn } = useAuth();
-  const [stompClient, setStompClient] = useState<Client | null>(null);
-  const [connected, setConnected] = useState(false);
+  // Websocket connection logic has been completely removed as per request.
+  // Returning a dummy provider so dependent components don't crash.
+  
+  const subscribe = () => {
+    return () => {}; // dummy unsubscribe
+  };
 
-  useEffect(() => {
-    if (!isSignedIn && stompClient) {
-      stompClient.deactivate();
-      setStompClient(null);
-      setConnected(false);
-      return;
-    }
-    if (!isSignedIn) return;
-
-    const initSocket = async () => {
-      const token = await getToken();
-      if (!token) return;
-
-      const wsUrl = import.meta.env.VITE_WS_URL || `${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/ws`;
-
-      const client = new Client({
-        webSocketFactory: () => new SockJS(wsUrl),
-        connectHeaders: {
-          Authorization: `Bearer ${token}`,
-        },
-        reconnectDelay: 5000,
-        heartbeatIncoming: 4000,
-        heartbeatOutgoing: 4000,
-      });
-
-      client.onConnect = () => {
-        setConnected(true);
-      };
-
-      client.onDisconnect = () => {
-        setConnected(false);
-      };
-
-      client.onStompError = (frame) => {
-        console.error('STOMP error:', frame.headers['message'], frame.body);
-      };
-
-      client.activate();
-      setStompClient(client);
-    };
-
-    initSocket();
-
-    return () => {
-      if (stompClient) {
-        stompClient.deactivate();
-      }
-    };
-  }, [isSignedIn, getToken]);
-
-  const subscribe = useCallback((destination: string, callback: (message: any) => void) => {
-    if (!stompClient || !stompClient.connected) {
-      return () => {};
-    }
-
-    try {
-      const subscription = stompClient.subscribe(destination, (message) => {
-        try {
-          callback(JSON.parse(message.body));
-        } catch (err) {
-          console.error('Error parsing socket message:', err);
-        }
-      });
-
-      return () => {
-        if (stompClient.connected) {
-          subscription.unsubscribe();
-        }
-      };
-    } catch (err) {
-      console.error('STOMP subscription error:', err);
-      return () => {};
-    }
-  }, [stompClient]);
-
-  const publish = useCallback((destination: string, body: Record<string, unknown>) => {
-    if (!stompClient || !stompClient.connected) {
-      return;
-    }
-
-    try {
-      stompClient.publish({
-        destination,
-        body: JSON.stringify(body),
-      });
-    } catch (err) {
-      console.error('STOMP publish error:', err);
-    }
-  }, [stompClient]);
+  const publish = () => {
+    // dummy publish
+  };
 
   return (
-    <SocketContext.Provider value={{ connected, subscribe, publish }}>
+    <SocketContext.Provider value={{ connected: false, subscribe, publish }}>
       {children}
     </SocketContext.Provider>
   );

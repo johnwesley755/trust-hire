@@ -6,7 +6,7 @@ export function LandingFinalCTA() {
       <div className="absolute -top-10 -left-10 w-48 h-48 bg-[#FACD15]/20 blob-1 -z-10 animate-pulse"></div>
       <div className="absolute -bottom-10 -right-10 w-48 h-48 bg-[#456559]/20 blob-3 -z-10 animate-pulse" style={{ animationDelay: "1s" }}></div>
       
-      <div className="bg-[#1F3F34] rounded-[60px] p-12 md:p-20 relative overflow-hidden flex flex-col md:flex-row items-center gap-16">
+      <div className="bg-[#0A1931] rounded-[60px] p-12 md:p-20 relative overflow-hidden flex flex-col md:flex-row items-center gap-16">
         <div className="relative z-10 flex-1">
           <h2 className="text-[42px] md:text-[60px] font-extrabold text-white leading-tight font-headline mb-8">
             Start Your <br/><span className="text-[#FACD15]">Better Life</span> Today.
@@ -14,14 +14,14 @@ export function LandingFinalCTA() {
           <div className="flex flex-wrap gap-4">
             <Link 
               to="/sign-up?role=WORKER"
-              className="bg-[#FACD15] text-[#1F3F34] px-10 py-5 rounded-[12px] font-extrabold flex items-center gap-3 hover:brightness-110 transition-all shadow-xl active:scale-95 uppercase text-sm tracking-wider"
+              className="bg-[#FACD15] text-[#0A1931] px-10 py-5 rounded-[12px] font-extrabold flex items-center gap-3 hover:brightness-110 transition-all shadow-xl active:scale-95 uppercase text-sm tracking-wider"
             >
               <span className="material-symbols-outlined font-bold">rocket_launch</span>
               Get Started Now
             </Link>
             <Link 
               to="/sign-in"
-              className="bg-transparent border-2 border-[#FACD15] text-[#FACD15] px-10 py-5 rounded-[12px] font-extrabold hover:bg-[#FACD15] hover:text-[#1F3F34] transition-all active:scale-95 uppercase text-sm tracking-wider flex items-center justify-center"
+              className="bg-transparent border-2 border-[#FACD15] text-[#FACD15] px-10 py-5 rounded-[12px] font-extrabold hover:bg-[#FACD15] hover:text-[#0A1931] transition-all active:scale-95 uppercase text-sm tracking-wider flex items-center justify-center"
             >
               Sign In
             </Link>

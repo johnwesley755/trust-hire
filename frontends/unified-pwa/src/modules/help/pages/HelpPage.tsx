@@ -42,17 +42,17 @@ export const HelpPage = () => {
     };
 
     return (
-        <div className="min-h-screen bg-[#F5F4EF] pb-20 pt-8 px-4 md:px-8">
+        <div className="min-h-screen bg-[#F8FAFC] pb-20 pt-8 px-4 md:px-8">
             <div className="max-w-4xl mx-auto">
                 <header className="mb-12 text-center">
-                    <h1 className="text-4xl font-headline font-extrabold text-[#1F3F34] mb-4">Enterprise Support</h1>
-                    <p className="text-[#1F3F34]/60 max-w-xl mx-auto">Need assistance with your hiring protocol? Our enterprise specialists are here to help.</p>
+                    <h1 className="text-4xl font-headline font-extrabold text-[#0A1931] mb-4">Enterprise Support</h1>
+                    <p className="text-[#0A1931]/60 max-w-xl mx-auto">Need assistance with your hiring protocol? Our enterprise specialists are here to help.</p>
                 </header>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
                     {/* FAQ Section */}
                     <div className="lg:col-span-2 space-y-6">
-                        <h2 className="text-2xl font-headline font-bold text-[#1F3F34] mb-6 flex items-center gap-3">
+                        <h2 className="text-2xl font-headline font-bold text-[#0A1931] mb-6 flex items-center gap-3">
                             <span className="material-symbols-outlined text-[#FACD15]">help_center</span>
                             Employer FAQs
                         </h2>
@@ -61,13 +61,13 @@ export const HelpPage = () => {
                             {FAQS.map((faq, index) => (
                                 <div 
                                     key={index}
-                                    className="bg-white rounded-2xl border border-[#1F3F34]/5 overflow-hidden transition-all hover:shadow-md"
+                                    className="bg-white rounded-2xl border border-[#0A1931]/5 overflow-hidden transition-all hover:shadow-md"
                                 >
                                     <button 
                                         onClick={() => setOpenFaq(openFaq === index ? null : index)}
                                         className="w-full px-6 py-5 text-left flex items-center justify-between gap-4"
                                     >
-                                        <span className="font-bold text-[#1F3F34]">{faq.question}</span>
+                                        <span className="font-bold text-[#0A1931]">{faq.question}</span>
                                         <span className={`material-symbols-outlined transition-transform duration-300 ${openFaq === index ? 'rotate-180' : ''}`}>
                                             expand_more
                                         </span>
@@ -78,7 +78,7 @@ export const HelpPage = () => {
                                                 initial={{ height: 0, opacity: 0 }}
                                                 animate={{ height: 'auto', opacity: 1 }}
                                                 exit={{ height: 0, opacity: 0 }}
-                                                className="px-6 pb-6 text-[#1F3F34]/70 text-sm leading-relaxed"
+                                                className="px-6 pb-6 text-[#0A1931]/70 text-sm leading-relaxed"
                                             >
                                                 {faq.answer}
                                             </motion.div>
@@ -91,7 +91,7 @@ export const HelpPage = () => {
 
                     {/* Contact Form */}
                     <div className="lg:col-span-1">
-                        <div className="bg-[#1F3F34] text-white rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden sticky top-8">
+                        <div className="bg-[#0A1931] text-white rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden sticky top-8">
                             <div className="absolute top-0 right-0 w-32 h-32 bg-[#FACD15] opacity-5 rounded-full -mr-16 -mt-16"></div>
                             
                             <h2 className="text-xl font-headline font-bold mb-6 relative z-10">Direct Protocol</h2>
@@ -138,7 +138,7 @@ export const HelpPage = () => {
                                     </div>
                                     <button 
                                         disabled={isSubmitting}
-                                        className="w-full bg-[#FACD15] text-[#1F3F34] font-black py-4 rounded-2xl hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2 mt-4"
+                                        className="w-full bg-[#FACD15] text-[#0A1931] font-black py-4 rounded-2xl hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2 mt-4"
                                     >
                                         {isSubmitting ? (
                                             <span className="material-symbols-outlined animate-spin">progress_activity</span>

@@ -20,20 +20,20 @@ export const JobBentoCard: React.FC<{ job: Job; onApply?: () => void; onClick?: 
       className="bg-white p-5 rounded-[24px] relative overflow-hidden bento-card shadow-sm hover:shadow-md transition-all border border-[#c1c8c3]/10 h-full flex flex-col cursor-pointer"
     >
       <div className="flex justify-between items-start mb-4">
-        <div className="bg-[#f5f4ef] px-3 py-1 rounded-full text-[0.65rem] font-bold uppercase tracking-tighter text-[#1F3F34]">
+        <div className="bg-[#F8FAFC] px-3 py-1 rounded-full text-[0.65rem] font-bold uppercase tracking-tighter text-[#0A1931]">
           {job.industry || 'General'}
         </div>
         <button className="material-symbols-outlined text-[#414845]/40 hover:text-[#ba1a1a] transition-colors cursor-pointer">
           favorite
         </button>
       </div>
-      <h4 className="text-lg font-extrabold mb-1 text-[#1F3F34]">{job.title}</h4>
+      <h4 className="text-lg font-extrabold mb-1 text-[#0A1931]">{job.title}</h4>
       <p className="text-xs font-bold text-[#414845] mb-4 flex items-center gap-1">
         <span className="material-symbols-outlined text-sm">location_on</span>
         {job.location}
       </p>
       <div className="flex items-center justify-between mt-auto pt-2">
-        <div className="text-[#1F3F34]">
+        <div className="text-[#0A1931]">
           <span className="text-lg font-extrabold">₹{job.budget?.toLocaleString()}</span>
           <span className="text-[0.65rem] font-bold uppercase ml-1">/ day</span>
         </div>
@@ -77,8 +77,8 @@ export const FeaturedJobCard: React.FC<{ job: Job; onApply?: () => void; onClick
       </div>
       <div className="flex-1 w-full">
         <div className="flex justify-between items-start mb-1">
-          <h4 className="text-lg font-extrabold text-[#1F3F34]">{job.title}</h4>
-          <div className="bg-[#c7ebdb] px-3 py-1 rounded-full text-[0.65rem] font-bold uppercase tracking-tighter text-[#2d4d41]">
+          <h4 className="text-lg font-extrabold text-[#0A1931]">{job.title}</h4>
+          <div className="bg-[#d1fae5] px-3 py-1 rounded-full text-[0.65rem] font-bold uppercase tracking-tighter text-[#2d4d41]">
             {job.type || 'Full Time'}
           </div>
         </div>

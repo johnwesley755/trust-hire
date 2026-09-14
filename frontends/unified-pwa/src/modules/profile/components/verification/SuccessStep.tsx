@@ -14,7 +14,7 @@ export default function SuccessStep({ onDashboard }: SuccessStepProps) {
     >
         {/* Success Icon in Organic Blob */}
         <div className="relative mb-12">
-            <div className="bg-white w-48 h-48 flex items-center justify-center organic-blob soft-ambient-shadow border border-[#f5f4ef]">
+            <div className="bg-white w-48 h-48 flex items-center justify-center organic-blob soft-ambient-shadow border border-[#F8FAFC]">
                 <span className="material-symbols-outlined text-[#456559] text-8xl" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
             </div>
             {/* Mini Pulsing Badge */}
@@ -59,17 +59,17 @@ export default function SuccessStep({ onDashboard }: SuccessStepProps) {
 
         {/* Success Graphic / Bento Cards Preview */}
         <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-[#f5f4ef] p-8 rounded-xl flex flex-col gap-4 text-left border border-[#c1c8c3]/10">
+            <div className="bg-[#F8FAFC] p-8 rounded-xl flex flex-col gap-4 text-left border border-[#c1c8c3]/10">
                 <span className="material-symbols-outlined text-[#456559] text-3xl">person_search</span>
                 <h3 className="text-xl font-bold font-headline text-[#1b1c19]">Employer Visibility</h3>
                 <p className="text-[#414845] text-sm leading-relaxed font-body">Top recruiters can now view your verified credentials and contact you directly for premium openings.</p>
             </div>
-            <div className="bg-white p-8 rounded-xl flex flex-col gap-4 text-left soft-ambient-shadow scale-105 relative z-10 border border-[#f5f4ef]">
+            <div className="bg-white p-8 rounded-xl flex flex-col gap-4 text-left soft-ambient-shadow scale-105 relative z-10 border border-[#F8FAFC]">
                 <span className="material-symbols-outlined text-[#456559] text-3xl">stars</span>
                 <h3 className="text-xl font-bold font-headline text-[#1b1c19]">Trust Badge Earned</h3>
                 <p className="text-[#414845] text-sm leading-relaxed font-body">Your "TrustHire Verified" badge increases your profile application success rate by up to 300%.</p>
             </div>
-            <div className="bg-[#f5f4ef] p-8 rounded-xl flex flex-col gap-4 text-left border border-[#c1c8c3]/10">
+            <div className="bg-[#F8FAFC] p-8 rounded-xl flex flex-col gap-4 text-left border border-[#c1c8c3]/10">
                 <span className="material-symbols-outlined text-[#456559] text-3xl">notifications_active</span>
                 <h3 className="text-xl font-bold font-headline text-[#1b1c19]">Smart Alerts</h3>
                 <p className="text-[#414845] text-sm leading-relaxed font-body">We will notify you immediately when a company views your profile or sends an interview request.</p>

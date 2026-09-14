@@ -46,31 +46,31 @@ export const WorkerProfilePage = () => {
   });
 
   if (isLoadingWorker) return (
-    <div className="min-h-screen bg-[#F5F4EF] flex flex-col items-center justify-center gap-4">
-        <Loader2 className="h-12 w-12 text-[#1F3F34] animate-spin" />
-        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#1F3F34]/40">Loading</p>
+    <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center gap-4">
+        <Loader2 className="h-12 w-12 text-[#0A1931] animate-spin" />
+        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#0A1931]/40">Loading</p>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-[#F5F4EF] text-[#1F3F34] font-body selection:bg-[#FACD15] selection:text-[#1F3F34]">
+    <div className="min-h-screen bg-[#F8FAFC] text-[#0A1931] font-body selection:bg-[#FACD15] selection:text-[#0A1931]">
       {/* Main Content Area */}
       <main className="max-w-7xl mx-auto px-8 py-10 relative pb-32">
         {/* Header Actions */}
         <header className="flex justify-between items-center mb-12">
           <button 
             onClick={() => navigate(-1)}
-            className="flex items-center gap-2 text-sm font-bold text-[#1F3F34]/60 hover:text-[#1F3F34] transition-colors"
+            className="flex items-center gap-2 text-sm font-bold text-[#0A1931]/60 hover:text-[#0A1931] transition-colors"
           >
             <ChevronLeft className="w-4 h-4" />
             <span>Back to Worker Search</span>
           </button>
           
           <div className="flex gap-4">
-            <button className="p-3 bg-white rounded-full shadow-sm hover:bg-[#F5F4EF] transition-colors">
+            <button className="p-3 bg-white rounded-full shadow-sm hover:bg-[#F8FAFC] transition-colors">
               <Share2 className="w-5 h-5" />
             </button>
-            <button className="p-3 bg-white rounded-full shadow-sm hover:bg-[#F5F4EF] transition-colors">
+            <button className="p-3 bg-white rounded-full shadow-sm hover:bg-[#F8FAFC] transition-colors">
               <Bookmark className="w-5 h-5" />
             </button>
           </div>
@@ -90,11 +90,11 @@ export const WorkerProfilePage = () => {
                 <div className="absolute -top-10 -right-10 w-48 h-48 bg-[#FACD15]/10 rounded-full blur-3xl"></div>
                 
                 <div className="relative z-10 shrink-0">
-                  <div className="w-40 h-40 md:w-56 md:h-56 rounded-lg overflow-hidden bg-[#F5F4EF] relative shadow-lg">
+                  <div className="w-40 h-40 md:w-56 md:h-56 rounded-lg overflow-hidden bg-[#F8FAFC] relative shadow-lg">
                     {worker?.profilePhoto ? (
                       <img src={worker.profilePhoto} alt={worker.name} className="w-full h-full object-cover" />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-5xl font-black bg-[#FACD15] text-[#1F3F34]">
+                      <div className="w-full h-full flex items-center justify-center text-5xl font-black bg-[#FACD15] text-[#0A1931]">
                         {worker?.name[0]}
                       </div>
                     )}
@@ -127,40 +127,40 @@ export const WorkerProfilePage = () => {
                         </div>
                       )}
                     </div>
-                    <p className="text-lg text-[#1F3F34]/70 font-medium">Senior Multi-Technical Specialist • {worker?.city || 'Bengaluru, KA'}</p>
+                    <p className="text-lg text-[#0A1931]/70 font-medium">Senior Multi-Technical Specialist • {worker?.city || 'Bengaluru, KA'}</p>
                   </div>
 
                   {/* Metrics Grid inside Hero */}
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                    <div className="bg-[#F5F4EF] p-4 rounded-lg flex flex-col justify-center text-center">
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-[#1F3F34]/50 mb-1">Availability</p>
+                    <div className="bg-[#F8FAFC] p-4 rounded-lg flex flex-col justify-center text-center">
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-[#0A1931]/50 mb-1">Availability</p>
                       <p className="text-lg font-extrabold">{worker?.availability === 'AVAILABLE' ? 'NOW' : 'BUSY'}</p>
                     </div>
-                    <div className="bg-[#F5F4EF] p-4 rounded-lg flex flex-col justify-center text-center">
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-[#1F3F34]/50 mb-1">Reliability</p>
+                    <div className="bg-[#F8FAFC] p-4 rounded-lg flex flex-col justify-center text-center">
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-[#0A1931]/50 mb-1">Reliability</p>
                       <p className="text-lg font-extrabold">{((trustScore?.reliabilityRate || 0.95) * 100).toFixed(0)}%</p>
                     </div>
-                    <div className="bg-[#F5F4EF] p-4 rounded-lg flex flex-col justify-center text-center">
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-[#1F3F34]/50 mb-1">Experience</p>
+                    <div className="bg-[#F8FAFC] p-4 rounded-lg flex flex-col justify-center text-center">
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-[#0A1931]/50 mb-1">Experience</p>
                       <p className="text-lg font-extrabold">{worker?.experience || 3} YRS</p>
                     </div>
-                    <div className="bg-[#F5F4EF] p-4 rounded-lg flex flex-col justify-center text-center">
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-[#1F3F34]/50 mb-1">Level</p>
+                    <div className="bg-[#F8FAFC] p-4 rounded-lg flex flex-col justify-center text-center">
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-[#0A1931]/50 mb-1">Level</p>
                       <p className="text-lg font-extrabold">LVL {worker?.level || 1}</p>
                     </div>
                   </div>
 
                   <div className="flex flex-wrap gap-2 pt-2">
-                    <span className="bg-[#1F3F34]/5 px-4 py-2 rounded-full text-xs font-bold font-body">Immediate Start</span>
-                    <span className="bg-[#1F3F34]/5 px-4 py-2 rounded-full text-xs font-bold font-body">Background Checked</span>
-                    <span className="bg-[#1F3F34]/5 px-4 py-2 rounded-full text-xs font-bold font-body">Own Vehicle</span>
+                    <span className="bg-[#0A1931]/5 px-4 py-2 rounded-full text-xs font-bold font-body">Immediate Start</span>
+                    <span className="bg-[#0A1931]/5 px-4 py-2 rounded-full text-xs font-bold font-body">Background Checked</span>
+                    <span className="bg-[#0A1931]/5 px-4 py-2 rounded-full text-xs font-bold font-body">Own Vehicle</span>
                   </div>
                 </div>
               </div>
 
               {/* Right: Trust Widget */}
               <div className="lg:col-span-4 flex flex-col gap-6">
-                <div className="bg-[#1F3F34] text-[#F5F4EF] p-8 rounded-lg relative overflow-hidden flex-1 shadow-2xl">
+                <div className="bg-[#0A1931] text-[#F8FAFC] p-8 rounded-lg relative overflow-hidden flex-1 shadow-2xl">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-[#FACD15] opacity-5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
                   <div className="relative z-10 flex flex-col h-full text-left">
                     <div className="flex items-center gap-3 mb-8">
@@ -171,7 +171,7 @@ export const WorkerProfilePage = () => {
                       <span className="text-6xl font-black text-[#FACD15] leading-none">{worker?.experience || 3}</span>
                       <span className="text-lg font-bold opacity-40">Years Exp.</span>
                     </div>
-                    <p className="text-sm text-[#F5F4EF]/70 mb-8 leading-relaxed font-bold">
+                    <p className="text-sm text-[#F8FAFC]/70 mb-8 leading-relaxed font-bold">
                         Verified professional with a proven track record in the industry.
                     </p>
                   </div>
@@ -184,7 +184,7 @@ export const WorkerProfilePage = () => {
               <section className="mb-12 text-left">
                 <h3 className="text-2xl font-black uppercase tracking-tight mb-4">Professional Bio</h3>
                 <div className="bg-white p-8 rounded-lg shadow-sm">
-                  <p className="text-lg leading-relaxed text-[#1F3F34]/80 font-medium">
+                  <p className="text-lg leading-relaxed text-[#0A1931]/80 font-medium">
                     {worker.bio}
                   </p>
                 </div>
@@ -199,20 +199,20 @@ export const WorkerProfilePage = () => {
                   worker.skills.map((skill, idx) => (
                     <div key={idx} className="bg-white p-6 rounded-lg shadow-sm border-l-4 border-[#FACD15] text-left flex flex-col justify-between">
                       <div className="flex justify-between items-start mb-4">
-                        <div className="w-12 h-12 bg-[#F5F4EF] rounded-lg flex items-center justify-center">
-                          {skill.toLowerCase().includes('electric') ? <Zap className="w-6 h-6 text-[#1F3F34]" /> : 
-                           skill.toLowerCase().includes('hvac') || skill.toLowerCase().includes('ac') ? <Snowflake className="w-6 h-6 text-[#1F3F34]" /> :
-                           <Construction className="w-6 h-6 text-[#1F3F34]" />}
+                        <div className="w-12 h-12 bg-[#F8FAFC] rounded-lg flex items-center justify-center">
+                          {skill.toLowerCase().includes('electric') ? <Zap className="w-6 h-6 text-[#0A1931]" /> : 
+                           skill.toLowerCase().includes('hvac') || skill.toLowerCase().includes('ac') ? <Snowflake className="w-6 h-6 text-[#0A1931]" /> :
+                           <Construction className="w-6 h-6 text-[#0A1931]" />}
                         </div>
-                        <BadgeCheck className="w-6 h-6 text-[#1F3F34]" />
+                        <BadgeCheck className="w-6 h-6 text-[#0A1931]" />
                       </div>
                       <h4 className="text-lg font-black uppercase tracking-tight mb-1">{skill}</h4>
-                      <div className="mt-4 bg-[#F5F4EF] px-3 py-1 rounded inline-block text-[10px] font-bold uppercase tracking-wider w-fit">Verified Skill</div>
+                      <div className="mt-4 bg-[#F8FAFC] px-3 py-1 rounded inline-block text-[10px] font-bold uppercase tracking-wider w-fit">Verified Skill</div>
                     </div>
                   ))
                 ) : (
-                  <div className="col-span-full bg-white p-12 rounded-lg text-center border-2 border-dashed border-[#1F3F34]/10">
-                    <p className="text-[#1F3F34]/40 font-bold uppercase tracking-widest">No skills listed</p>
+                  <div className="col-span-full bg-white p-12 rounded-lg text-center border-2 border-dashed border-[#0A1931]/10">
+                    <p className="text-[#0A1931]/40 font-bold uppercase tracking-widest">No skills listed</p>
                   </div>
                 )}
               </div>

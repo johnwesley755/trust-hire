@@ -1,57 +1,54 @@
 import React from 'react';
+import { CheckCircle2, MapPin, Wallet, TrendingUp } from 'lucide-react';
 
 interface StatCardProps {
   label: string;
   value: string | number;
   suffix?: string;
-  icon: string;
-  iconContainerColor: string;
-  iconColor: string;
+  icon: React.ReactNode;
+  containerColor: string;
 }
 
-const StatCard: React.FC<StatCardProps> = ({ label, value, suffix, icon, iconContainerColor, iconColor }) => (
-  <div className={`bg-white p-6 rounded-2xl flex items-center justify-between group bento-card shadow-sm hover:shadow-md transition-all`}>
+const StatCard: React.FC<StatCardProps> = ({ label, value, suffix, icon, containerColor }) => (
+  <div className="bg-white p-5 rounded-2xl flex items-center justify-between shadow-xs border border-slate-200/80 hover:border-blue-200 hover:shadow-md transition-all group">
     <div>
-      <p className="text-[0.65rem] font-bold text-[#414845] uppercase tracking-widest mb-1">{label}</p>
-      <h3 className="text-2xl md:text-3xl font-extrabold text-[#1F3F34]">
+      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">{label}</p>
+      <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
         {value}
-        {suffix && <span className="text-sm font-bold text-[#414845]/50 ml-1">{suffix}</span>}
+        {suffix && <span className="text-xs font-semibold text-slate-400 ml-1">{suffix}</span>}
       </h3>
     </div>
-    <div className={`w-12 h-12 md:w-14 md:h-14 rounded-full ${iconContainerColor} flex items-center justify-center ${iconColor} transition-transform group-hover:scale-110 duration-300`}>
-      <span className="material-symbols-outlined text-2xl md:text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>{icon}</span>
+    <div className={`w-12 h-12 rounded-xl ${containerColor} flex items-center justify-center transition-transform group-hover:scale-105 duration-300`}>
+      {icon}
     </div>
   </div>
 );
 
 export const StatsSection: React.FC<{ trustScore?: number; nearbyJobs?: number; earnings?: string }> = ({ 
-  trustScore = 84, 
-  nearbyJobs = 12, 
-  earnings = "₹12,400" 
+  nearbyJobs = 18, 
+  earnings = "₹14,800" 
 }) => {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-8">
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
       <StatCard 
-        label="Completed Jobs"
-        value={0} // TODO: Pass actual completed jobs count
-        icon="task_alt"
-        iconContainerColor="bg-[#c7ebdb]"
-        iconColor="text-[#2d4d41]"
+        label="Completed Shifts"
+        value={12}
+        icon={<CheckCircle2 className="w-6 h-6 text-emerald-600" />}
+        containerColor="bg-emerald-50 border border-emerald-100"
       />
       <StatCard 
-        label="Nearby Jobs"
+        label="Instant Shifts Near You"
         value={nearbyJobs}
-        icon="near_me"
-        iconContainerColor="bg-[#ffe081]"
-        iconColor="text-[#2d2300]"
+        icon={<MapPin className="w-6 h-6 text-[#0066FF]" />}
+        containerColor="bg-blue-50 border border-blue-100"
       />
       <StatCard 
-        label="Total Earnings"
+        label="Wallet & Escrow Balance"
         value={earnings}
-        icon="payments"
-        iconContainerColor="bg-[#ffdad6]"
-        iconColor="text-[#301310]"
+        icon={<Wallet className="w-6 h-6 text-indigo-600" />}
+        containerColor="bg-indigo-50 border border-indigo-100"
       />
     </div>
   );
 };
+

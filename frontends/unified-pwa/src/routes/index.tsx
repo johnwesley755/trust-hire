@@ -28,6 +28,8 @@ import AppLayout from '../layouts/AppLayout';
 import RootLayout from '../layouts/RootLayout';
 import ProtectedRoute from '../layouts/ProtectedRoute';
 
+import RoleGuard from '../layouts/RoleGuard';
+
 export const router = createBrowserRouter([
   {
     element: <RootLayout />,
@@ -83,59 +85,69 @@ export const router = createBrowserRouter([
           </ProtectedRoute>
         ),
         children: [
-          /* Employer Specific Routes */
+          /* Employer Specific Routes (Protected by RoleGuard) */
           {
-            path: '/dashboard',
-            element: <DashboardPage />,
-          },
-          {
-            path: '/post-job',
-            element: <JobPostingPage />,
-          },
-          {
-            path: '/jobs',
-            element: <ActiveJobsPage />,
-          },
-          {
-            path: '/find-workers',
-            element: <WorkerSearchPage />,
-          },
-          {
-            path: '/worker/:id',
-            element: <WorkerProfilePage />,
-          },
-          {
-            path: '/applications',
-            element: <ApplicationManagementPage />,
-          },
-
-          /* Worker Specific Routes */
-          {
-            path: '/tracker',
-            element: <TrackerPage />,
-          },
-          {
-            path: '/search',
-            element: <JobSearchPage />,
-          },
-          {
-            path: '/applied-jobs',
-            element: <AppliedJobsPage />,
-          },
-          {
-            path: '/job/:id',
-            element: <JobDetailPage />,
-          },
-          {
-            path: '/tests',
-            element: <SkillTestsPage />,
-          },
-          {
-            path: '/level',
-            element: <LevelDetailsPage />,
+            element: <RoleGuard allowedRoles={['EMPLOYER']} />,
+            children: [
+              {
+                path: '/dashboard',
+                element: <DashboardPage />,
+              },
+              {
+                path: '/post-job',
+                element: <JobPostingPage />,
+              },
+              {
+                path: '/jobs',
+                element: <ActiveJobsPage />,
+              },
+              {
+                path: '/find-workers',
+                element: <WorkerSearchPage />,
+              },
+              {
+                path: '/worker/:id',
+                element: <WorkerProfilePage />,
+              },
+              {
+                path: '/applications',
+                element: <ApplicationManagementPage />,
+              },
+            ]
           },
 
-          /* Shared Routes */
+          /* Worker Specific Routes (Protected by RoleGuard) */
+          {
+            element: <RoleGuard allowedRoles={['WORKER']} />,
+            children: [
+              {
+                path: '/tracker',
+                element: <TrackerPage />,
+              },
+              {
+                path: '/search',
+                element: <JobSearchPage />,
+              },
+              {
+                path: '/applied-jobs',
+                element: <AppliedJobsPage />,
+              },
+              {
+                path: '/job/:id',
+                element: <JobDetailPage />,
+              },
+              {
+                path: '/tests',
+                element: <SkillTestsPage />,
+              },
+              {
+                path: '/level',
+                element: <LevelDetailsPage />,
+              },
+            ]
+          },
+
+          /* Shared Authenticated Routes */
           {
             path: '/profile',
             element: <ProfilePage />,

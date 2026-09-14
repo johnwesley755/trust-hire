@@ -9,7 +9,7 @@ export const notificationService = {
     return res.data;
   },
   getUnreadCount: async (): Promise<number> => {
-    const res = await apiClient.get<{ count: number } | number>('/api/notifications/unread-count');
+    const res = await apiClient.get<{ count: number } | number>('/api/notifications/unread/count');
     if (typeof res.data === 'number') return res.data;
     if (res.data && typeof res.data === 'object' && 'count' in res.data) return (res.data as any).count;
     return 0;

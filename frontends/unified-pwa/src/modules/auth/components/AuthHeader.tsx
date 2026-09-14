@@ -4,23 +4,32 @@ import logo from '../../../assets/logo.png';
 
 export const AuthHeader = () => {
     return (
-        <header className="absolute top-0 left-0 w-full z-50 px-4 py-4 md:px-12 md:py-6 pointer-events-none">
-            <div className="max-w-[1440px] mx-auto flex justify-between items-center pointer-events-auto px-6 py-4">
-                <Link to="/" className="flex items-center gap-3 group">
-                    <div className="w-12 h-12 bg-white rounded-2xl shadow-lg flex items-center justify-center p-1.5 group-hover:scale-110 transition-transform duration-300">
-                        <img src={logo} alt="TrustHire" className="w-full h-full object-contain" />
+        <header className="absolute top-0 left-0 w-full z-50 bg-white/90 backdrop-blur-md border-b border-slate-100 transition-all">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+                <Link to="/" className="flex items-center gap-2.5 group">
+                    <div className="w-10 h-10 flex items-center justify-center group-hover:scale-105 transition-transform">
+                        <img src="/logo.png" alt="TrustHyre Logo" className="w-full h-full object-contain" />
                     </div>
-                    <span className="text-2xl font-black text-brand-forest font-headline tracking-tighter">TrustHire</span>
+                    <div className="flex flex-col">
+                        <span className="text-2xl font-extrabold tracking-tight text-slate-900 leading-none">
+                        Trust<span className="text-brand-500">Hyre</span>
+                        </span>
+                        <span className="text-[11px] font-medium text-slate-400 tracking-wide mt-0.5">VERIFIED WORKFORCE</span>
+                    </div>
                 </Link>
                 <div className="flex items-center gap-6">
-                    <Link className="flex items-center gap-2 text-brand-forest/70 hover:text-brand-forest transition-colors font-bold text-sm" to="/">
+                    <Link className="flex items-center gap-2 text-slate-600 hover:text-brand-500 transition-colors font-bold text-sm" to="/">
                         <span className="material-symbols-outlined text-[20px]">home</span>
                         Home
                     </Link>
-                    <div className="hidden md:flex items-center gap-2 text-brand-forest/70 font-bold text-sm cursor-pointer hover:text-brand-forest transition-colors">
-                        <span className="material-symbols-outlined text-[20px]">help_outline</span>
-                        Help
-                    </div>
+                    <Link className="hidden md:flex items-center gap-2 text-slate-600 font-bold text-sm cursor-pointer hover:text-brand-500 transition-colors" to="/sign-in?role=worker">
+                        <span className="material-symbols-outlined text-[20px]">badge</span>
+                        Candidate Login
+                    </Link>
+                    <Link className="hidden md:flex items-center gap-2 text-slate-600 font-bold text-sm cursor-pointer hover:text-brand-500 transition-colors" to="/sign-in?role=employer">
+                        <span className="material-symbols-outlined text-[20px]">business_center</span>
+                        Employer Login
+                    </Link>
                 </div>
             </div>
         </header>

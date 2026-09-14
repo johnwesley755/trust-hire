@@ -83,14 +83,14 @@ export const NotificationCenter = () => {
         if (t === 'INFO' || t === 'APPLICATION_UPDATE' || t === 'WELCOME') {
             return <Info className="w-4 h-4 text-blue-500" />;
         }
-        return <Bell className="w-4 h-4 text-[#1F3F34]" />;
+        return <Bell className="w-4 h-4 text-[#0A1931]" />;
     };
 
     return (
         <div className="relative">
             <button 
                 onClick={() => setIsOpen(!isOpen)}
-                className="p-2 hover:bg-[#E9E8E3] rounded-full transition-all relative group text-[#1F3F34] cursor-pointer"
+                className="p-2 hover:bg-[#E9E8E3] rounded-full transition-all relative group text-[#0A1931] cursor-pointer"
             >
                 <span className="material-symbols-outlined">notifications</span>
                 {unreadCount > 0 && (
@@ -103,9 +103,9 @@ export const NotificationCenter = () => {
             {isOpen && (
                 <>
                     <div className="fixed inset-0 z-[100]" onClick={() => setIsOpen(false)} />
-                    <div className="absolute right-0 md:right-0 mt-4 w-[calc(100vw-2rem)] md:w-80 bg-white border border-[#1F3F34]/5 rounded-3xl shadow-2xl z-[101] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-                        <div className="p-5 border-b border-[#EFEEE9] flex justify-between items-center bg-[#F5F4EF]/50">
-                            <h3 className="text-[10px] font-black uppercase tracking-widest text-[#1F3F34]">Notifications</h3>
+                    <div className="absolute right-0 md:right-0 mt-4 w-[calc(100vw-2rem)] md:w-80 bg-white border border-[#0A1931]/5 rounded-3xl shadow-2xl z-[101] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                        <div className="p-5 border-b border-[#e2e8f0] flex justify-between items-center bg-[#F8FAFC]/50">
+                            <h3 className="text-[10px] font-black uppercase tracking-widest text-[#0A1931]">Notifications</h3>
                             {notifications.length > 0 && (
                                 <button 
                                     onClick={() => deleteAllMutation.mutate()}
@@ -123,14 +123,14 @@ export const NotificationCenter = () => {
                                     <div 
                                         key={n.id} 
                                         onClick={() => handleNotificationClick(n)}
-                                        className={`p-4 border-b border-[#EFEEE9] cursor-pointer transition-all hover:bg-[#F5F4EF] flex gap-3 ${n.isRead ? 'opacity-40' : ''}`}
+                                        className={`p-4 border-b border-[#e2e8f0] cursor-pointer transition-all hover:bg-[#F8FAFC] flex gap-3 ${n.isRead ? 'opacity-40' : ''}`}
                                     >
-                                        <div className={`w-8 h-8 shrink-0 rounded-lg flex items-center justify-center ${n.isRead ? 'bg-[#EFEEE9]' : 'bg-[#FACD15]/10'}`}>
+                                        <div className={`w-8 h-8 shrink-0 rounded-lg flex items-center justify-center ${n.isRead ? 'bg-[#e2e8f0]' : 'bg-[#FACD15]/10'}`}>
                                             {getIcon(n.type)}
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <div className="flex justify-between items-start gap-2">
-                                                <p className="text-xs font-extrabold leading-tight text-[#1F3F34] truncate">{n.title}</p>
+                                                <p className="text-xs font-extrabold leading-tight text-[#0A1931] truncate">{n.title}</p>
                                                 <button 
                                                     onClick={(e) => {
                                                         e.stopPropagation();
@@ -153,7 +153,7 @@ export const NotificationCenter = () => {
                                 ))
                             ) : (
                                 <div className="p-12 text-center space-y-3">
-                                    <BellOff className="w-8 h-8 text-[#1F3F34]/10 mx-auto" strokeWidth={1} />
+                                    <BellOff className="w-8 h-8 text-[#0A1931]/10 mx-auto" strokeWidth={1} />
                                     <p className="text-[10px] font-bold text-[#414845]/40 uppercase tracking-widest">All caught up</p>
                                 </div>
                             )}
@@ -161,7 +161,7 @@ export const NotificationCenter = () => {
                         
                         <button 
                             onClick={() => deleteAllMutation.mutate()}
-                            className="w-full p-3 bg-[#F5F4EF] text-center border-t border-[#1F3F34]/5 hover:bg-red-50 transition-colors"
+                            className="w-full p-3 bg-[#F8FAFC] text-center border-t border-[#0A1931]/5 hover:bg-red-50 transition-colors"
                         >
                             <p className="text-[8px] font-black text-red-600 uppercase tracking-widest">Wipe All Notifications</p>
                         </button>

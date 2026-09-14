@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, MapPin, ChevronRight } from 'lucide-react';
+import { Search, MapPin, ChevronRight, Zap, ShieldCheck } from 'lucide-react';
 
 interface JobSearchHeroProps {
   query: string;
@@ -17,70 +17,78 @@ export const JobSearchHero: React.FC<JobSearchHeroProps> = ({
   onSearch,
 }) => {
   return (
-    <section className="px-8 pt-10 pb-16 relative overflow-hidden bg-[#f5f4ef] rounded-b-[3rem]">
-      {/* Decorative Blobs */}
-      <div className="absolute -top-20 -right-20 w-80 h-80 bg-[#ffe081] opacity-10 organic-blob pointer-events-none"></div>
-      <div className="absolute bottom-0 -left-10 w-60 h-60 bg-[#c7ebdb] opacity-5 organic-blob pointer-events-none"></div>
+    <section className="px-4 sm:px-6 pt-5 pb-9 relative overflow-hidden bg-gradient-to-b from-[#0066FF]/10 via-[#0066FF]/5 to-transparent rounded-b-[2.5rem] border-b border-blue-100/60">
+      {/* Decorative Gradient Orbs */}
+      <div className="absolute -top-16 -right-16 w-72 h-72 bg-[#0066FF]/15 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 -left-10 w-60 h-60 bg-[#38BDF8]/15 rounded-full blur-2xl pointer-events-none" />
       
-      <div className="max-w-5xl mx-auto relative z-10 px-4 md:px-0">
-        <nav className="flex items-center gap-2 mb-4 text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] text-[#414845]/60">
-          <span>TrustHire</span>
-          <ChevronRight className="w-3 h-3" />
-          <span className="text-[#1b1c19]">Market Intelligence</span>
+      <div className="max-w-5xl mx-auto relative z-10">
+        <nav className="flex items-center gap-1.5 mb-2 text-[10px] font-black uppercase tracking-[0.2em] text-[#0066FF]">
+          <span className="flex items-center gap-1"><ShieldCheck className="w-3.5 h-3.5" /> TrustHyre</span>
+          <ChevronRight className="w-3 h-3 text-slate-400" />
+          <span className="text-slate-700">Hyper-Local Job Portal</span>
         </nav>
         
-        <h1 className="text-3xl md:text-6xl font-black text-[#2d2300] mb-8 tracking-tighter leading-none text-balance">
-          Opportunity Hub
-        </h1>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+          <div>
+            <h1 className="text-2xl sm:text-4xl font-extrabold text-[#0A1931] tracking-tight leading-tight">
+              Instant Shifts & Verified Jobs Near You
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-500 font-medium mt-1">
+              Guaranteed escrow payouts • 1-Click Instant Apply • No interview delays
+            </p>
+          </div>
+          <div className="shrink-0 flex items-center gap-2 bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1.5 rounded-full text-xs font-bold self-start">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+            <span>1,420+ Live Openings</span>
+          </div>
+        </div>
 
-        {/* Bento-style Search Bar */}
-        <div className="bg-white p-3 rounded-[2rem] shadow-[0_20px_40px_-10px_rgba(31,63,52,0.08)] flex flex-col md:flex-row gap-2 border border-[#1F3F34]/5">
-          <div className="flex-grow flex items-center gap-3 px-6 bg-[#f5f4ef] rounded-2xl group focus-within:ring-2 ring-[#FACD15] transition-all">
-            <Search className="w-5 h-5 text-[#727975] group-focus-within:text-[#1F3F34]" />
+        {/* Hyper-local Swiggy-style Search Bar */}
+        <div className="bg-white p-2 rounded-2xl shadow-lg shadow-blue-900/5 flex flex-col md:flex-row gap-2 border border-blue-100">
+          <div className="flex-grow flex items-center gap-2.5 px-4 bg-slate-50 rounded-xl group focus-within:bg-white focus-within:ring-2 ring-[#0066FF] transition-all">
+            <Search className="w-4 h-4 text-slate-400 group-focus-within:text-[#0066FF]" />
             <input 
               type="text" 
-              placeholder="Search roles or expertise..." 
+              placeholder="Search trade (e.g. Electrician, Plumber, Driver, Warehouse)..." 
               value={query}
               onChange={(e) => onQueryChange(e.target.value)}
-              className="bg-transparent border-none focus:ring-0 focus:outline-none w-full py-5 text-sm font-bold text-[#1b1c19] placeholder-[#727975]/50"
+              className="bg-transparent border-none focus:ring-0 focus:outline-none w-full py-2.5 text-xs sm:text-sm font-semibold text-slate-800 placeholder-slate-400"
             />
           </div>
-          <div className="md:w-72 flex items-center gap-3 px-6 bg-[#f5f4ef] rounded-2xl group focus-within:ring-2 ring-[#FACD15] transition-all">
-            <MapPin className="w-5 h-5 text-[#727975] group-focus-within:text-[#1F3F34]" />
+          <div className="md:w-64 flex items-center gap-2.5 px-4 bg-slate-50 rounded-xl group focus-within:bg-white focus-within:ring-2 ring-[#0066FF] transition-all">
+            <MapPin className="w-4 h-4 text-[#0066FF]" />
             <input 
               type="text" 
-              placeholder="Location..." 
+              placeholder="Area / City (e.g. Koramangala)..." 
               value={city}
               onChange={(e) => onCityChange(e.target.value)}
-              className="bg-transparent border-none focus:ring-0 focus:outline-none w-full py-5 text-sm font-bold text-[#1b1c19] placeholder-[#727975]/50"
+              className="bg-transparent border-none focus:ring-0 focus:outline-none w-full py-2.5 text-xs sm:text-sm font-semibold text-slate-800 placeholder-slate-400"
             />
           </div>
           <button 
             onClick={onSearch}
-            className="bg-[#FACD15] text-[#1F3F34] px-10 py-5 rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl shadow-[#FACD15]/20 hover:scale-[1.02] active:scale-95 transition-all"
+            className="bg-[#0066FF] hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold uppercase tracking-wider text-xs shadow-md shadow-blue-500/20 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
-            Find Jobs
+            <Zap className="w-4 h-4 text-amber-300 fill-amber-300" />
+            Find Shifts
           </button>
         </div>
 
-        <div className="flex gap-3 mt-8 flex-wrap">
-          <span className="px-5 py-2.5 bg-[#c7ebdb] text-[#4a6b5e] rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2 shadow-sm">
-            <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span> 
-            1,240 New Roles Today
-          </span>
-          {['Cooking / Chef', 'Construction', 'Logistics', 'Retail', 'Security', 'Agriculture', 'Domestic Help'].map(industry => (
-            <span key={industry} className="px-5 py-2.5 bg-white text-[#414845]/60 rounded-full text-[10px] font-black uppercase tracking-widest border border-[#1F3F34]/5 shadow-sm hover:border-[#FACD15] transition-all cursor-pointer">
+        {/* Category quick filters */}
+        <div className="flex gap-2 mt-3 flex-wrap items-center">
+          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mr-1">Popular:</span>
+          {['Electrician', 'Plumbing', 'Delivery Driver', 'Warehouse', 'Welder', 'Carpenter', 'Facility'].map(industry => (
+            <button
+              key={industry} 
+              onClick={() => onQueryChange(industry)}
+              className="px-3 py-1 bg-white hover:bg-blue-50 text-slate-600 hover:text-[#0066FF] rounded-full text-[10px] font-bold border border-slate-200 hover:border-blue-200 shadow-xs transition-all cursor-pointer"
+            >
               {industry}
-            </span>
+            </button>
           ))}
         </div>
       </div>
-
-      <style>{`
-        .organic-blob {
-            border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
-        }
-      `}</style>
     </section>
   );
 };

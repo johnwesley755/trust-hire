@@ -35,7 +35,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
   return (
     <div className={`relative inline-flex shrink-0 ${className}`}>
       <div
-        className={`${sizeClasses[size]} rounded-full overflow-hidden flex items-center justify-center border-2 border-[#FACD15] shadow-sm bg-[#1F3F34] text-[#FACD15] font-black select-none`}
+        className={`${sizeClasses[size]} rounded-full overflow-hidden flex items-center justify-center border-2 border-[#FACD15] shadow-sm bg-[#0A1931] text-[#FACD15] font-black select-none`}
       >
         {shouldShowImage ? (
           <img
@@ -46,7 +46,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
             className="w-full h-full object-cover"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-[#1F3F34] text-[#FACD15]">
+          <div className="w-full h-full flex items-center justify-center bg-[#0A1931] text-[#FACD15]">
             {name ? (
               <span className="font-extrabold">{initial}</span>
             ) : (

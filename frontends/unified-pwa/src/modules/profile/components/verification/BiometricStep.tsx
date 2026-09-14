@@ -26,13 +26,13 @@ export default function BiometricStep({ onCapture, preview, isPending }: Biometr
         <section className="flex-1 px-8 md:px-16 py-12 md:py-16 flex flex-col justify-center">
             <div className="max-w-xl mx-auto md:mx-0 w-full text-left">
                 <div className="mb-10">
-                    <span className="inline-block px-4 py-1.5 rounded-full bg-[#c7ebdb] text-[#002117] font-bold text-[0.75rem] uppercase tracking-wider mb-6">Security Protocol</span>
+                    <span className="inline-block px-4 py-1.5 rounded-full bg-[#d1fae5] text-[#002117] font-bold text-[0.75rem] uppercase tracking-wider mb-6">Security Protocol</span>
                     <h1 className="font-headline font-extrabold text-4xl md:text-5xl text-[#1b1c19] tracking-tighter leading-[1.1] mb-4">Biometric Match</h1>
                     <p className="text-[#414845] text-lg opacity-80 leading-relaxed font-body">AI cross-referencing your live signature with the logged documentation artifacts. Please ensure clear lighting.</p>
                 </div>
 
                 {/* Circular Capture Area */}
-                <div className="relative group border-2 border-[#e9e8e3] rounded-full w-72 h-72 mx-auto p-4 transition-all cursor-pointer overflow-hidden shadow-2xl bg-[#f5f4ef]/30 mb-12">
+                <div className="relative group border-2 border-[#e9e8e3] rounded-full w-72 h-72 mx-auto p-4 transition-all cursor-pointer overflow-hidden shadow-2xl bg-[#F8FAFC]/30 mb-12">
                     <input 
                         type="file" 
                         accept="image/*" 
@@ -68,10 +68,10 @@ export default function BiometricStep({ onCapture, preview, isPending }: Biometr
         </section>
 
         {/* Right Side: Emotional Anchor (Consistent) */}
-        <section className="hidden md:flex flex-1 bg-[#f5f4ef] relative items-center justify-center overflow-hidden min-h-[400px]">
+        <section className="hidden md:flex flex-1 bg-[#F8FAFC] relative items-center justify-center overflow-hidden min-h-[400px]">
              {/* Decorative Organic Blobs */}
              <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-[#ffe081] opacity-10 rounded-full blur-3xl"></div>
-            <div className="absolute bottom-[-5%] left-[-5%] w-[400px] h-[400px] bg-[#c7ebdb] opacity-20 rounded-full blur-2xl"></div>
+            <div className="absolute bottom-[-5%] left-[-5%] w-[400px] h-[400px] bg-[#d1fae5] opacity-20 rounded-full blur-2xl"></div>
             
             <div className="relative z-10 w-full max-w-2xl px-12 text-left">
                 <div className="relative inline-block">

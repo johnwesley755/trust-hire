@@ -93,7 +93,7 @@ export function ActiveJobsPage() {
                 </span>
             );
         }
-        const color = diffDays <= 3 ? 'bg-orange-100 text-orange-700' : 'bg-[#c7ebdb] text-[#4a6b5e]';
+        const color = diffDays <= 3 ? 'bg-orange-100 text-orange-700' : 'bg-[#d1fae5] text-[#4a6b5e]';
         return (
             <span className={`flex items-center gap-1.5 px-3 py-1.5 text-[9px] font-black uppercase tracking-widest rounded-xl ${color}`}>
                 <CalendarClock className="w-3 h-3" /> {diffDays}d left
@@ -105,149 +105,144 @@ export function ActiveJobsPage() {
 
     if (isLoading) return (
         <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-            <Loader2 className="w-12 h-12 text-[#1F3F34] animate-spin" />
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#1F3F34]/40">Gathering Intelligence...</p>
+            <Loader2 className="w-12 h-12 text-[#0A1931] animate-spin" />
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#0A1931]/40">Gathering Intelligence...</p>
         </div>
     );
 
     return (
-        <div className="min-h-screen bg-[#F5F4EF] text-[#1F3F34] font-body selection:bg-[#FACD15] selection:text-[#1F3F34]">
+        <div className="min-h-screen bg-[#F8FAFC] text-[#0A1931] font-body selection:bg-[#FACD15] selection:text-[#0A1931]">
             {/* Main Content Canvas */}
             <main className="max-w-7xl mx-auto py-10 px-8">
                 {/* Page Header Section */}
                 <section className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-6">
                     <div>
-                        <h1 className="text-4xl font-extrabold bricolage text-[#1F3F34] tracking-tight uppercase">My Active Jobs</h1>
-                        <p className="text-[#1F3F34]/60 font-medium mt-2">
+                        <h1 className="text-4xl font-extrabold bricolage text-[#0A1931] tracking-tight uppercase">My Active Jobs</h1>
+                        <p className="text-[#0A1931]/60 font-medium mt-2">
                             You currently have {jobs.length} active postings across {new Set(jobs.map((j: Job) => j.industry)).size} sectors.
                         </p>
                     </div>
                     <button 
                         onClick={() => navigate('/post-job')}
-                        className="bg-[#FACD15] text-[#1F3F34] px-8 py-4 rounded-xl font-extrabold flex items-center gap-3 shadow-[0_4px_0_0_#C39F00] hover:shadow-none hover:translate-y-[2px] transition-all bricolage uppercase text-sm tracking-widest"
+                        className="bg-[#FACD15] text-[#0A1931] px-8 py-4 rounded-xl font-extrabold flex items-center gap-3 shadow-[0_4px_0_0_#C39F00] hover:shadow-none hover:translate-y-[2px] transition-all bricolage uppercase text-sm tracking-widest"
                     >
                         <PlusCircle className="w-5 h-5" />
                         Post a New Job
                     </button>
                 </section>
 
-                {/* High-Density Bento Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <AnimatePresence>
-                        {jobs.map((job: Job, idx: number) => {
-                            const meta = jobMetadata[job.id!] || { totalCount: 0, newCount: 0, workerIds: [] };
-                            const isUrgent = job.description.toLowerCase().includes('urgent') || idx === 1; // Demo urgency logic
-
-                            return (
-                                <motion.div 
-                                    key={job.id}
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: idx * 0.05 }}
-                                    className="bg-white p-8 rounded-lg group hover:shadow-2xl transition-all duration-500 flex flex-col relative overflow-hidden border border-[#F5F4EF]"
-                                >
-                                    <div className="absolute top-0 right-0 w-32 h-32 bg-[#FACD15]/5 -mr-16 -mt-16 rounded-full blur-2xl group-hover:bg-[#FACD15]/10 transition-colors"></div>
-                                    
-                                    <div className="flex justify-between items-start mb-6 relative z-10">
-                                        <span className={`px-4 py-1.5 text-[10px] font-black rounded-full tracking-widest bricolage uppercase ${
-                                            isUrgent ? 'bg-[#ffdad6] text-[#ba1a1a]' : 'bg-[#c7ebdb] text-[#4a6b5e]'
-                                        }`}>
-                                            {isUrgent ? 'URGENT' : 'ACTIVE'}
-                                        </span>
-                                        <div className="flex items-center gap-2">
-                                            {getExpiryBadge(job.expiresAt)}
-                                            <span className="text-[10px] font-mono text-[#1F3F34]/30 font-bold uppercase tracking-widest">
-                                                #{job.id?.slice(-4).toUpperCase() || 'TEMP'}
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    <h3 className="text-2xl font-black text-[#1F3F34] bricolage leading-tight mb-4 group-hover:text-[#C39F00] transition-colors uppercase tracking-tight">
-                                        {job.title}
-                                    </h3>
-
-                                    <div className="space-y-4 mb-8">
-                                        <div className="flex items-center gap-3 text-[#1F3F34]/60 text-sm font-medium">
-                                            <div className="w-8 h-8 rounded-lg bg-[#F5F4EF] flex items-center justify-center text-[#1F3F34]">
-                                                {getSectorIcon(job.industry)}
-                                            </div>
-                                            <span>{job.industry}</span>
-                                        </div>
-                                        <div className="flex items-center gap-3 text-[#1F3F34]/60 text-sm font-medium">
-                                            <div className="w-8 h-8 rounded-lg bg-[#F5F4EF] flex items-center justify-center text-[#1F3F34]">
-                                                <IndianRupee className="w-4 h-4" />
-                                            </div>
-                                            <span className="font-black text-[#1F3F34]">₹{job.budget?.toLocaleString()} / month</span>
-                                        </div>
-                                        <div className="flex items-center gap-3 text-[#1F3F34]/60 text-sm font-medium">
-                                            <div className="w-8 h-8 rounded-lg bg-[#F5F4EF] flex items-center justify-center text-[#1F3F34]">
-                                                <MapPin className="w-4 h-4" />
-                                            </div>
-                                            <span>{job.location}</span>
-                                        </div>
-                                    </div>
-
-                                    <div className="mt-auto flex items-center justify-between border-t border-[#F5F4EF] pt-6 gap-4">
-                                        <div className="flex -space-x-3">
-                                            {meta.workerIds.length > 0 ? (
-                                                meta.workerIds.map((wid: string) => (
-                                                    <div key={wid} className="w-10 h-10 rounded-full border-4 border-white bg-[#F5F4EF] flex items-center justify-center text-[10px] font-black overflow-hidden shadow-sm">
-                                                        <img 
-                                                            src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${wid}`} 
-                                                            alt="worker" 
-                                                            className="w-full h-full object-cover" 
-                                                        />
-                                                    </div>
-                                                ))
-                                            ) : (
-                                                <div className="w-10 h-10 rounded-full border-4 border-white bg-[#F5F4EF] flex items-center justify-center text-[10px] font-black text-[#1F3F34]/20">
-                                                    0
-                                                </div>
-                                            )}
-                                            {meta.totalCount > 2 && (
-                                                <div className="w-10 h-10 rounded-full border-4 border-white bg-[#F5F4EF] flex items-center justify-center text-[10px] font-black text-[#1F3F34] shadow-sm">
-                                                    +{meta.totalCount - 2}
-                                                </div>
-                                            )}
-                                        </div>
-                                        <div className="text-right">
-                                            <span className="block text-[10px] uppercase font-black tracking-widest text-[#1F3F34]/30 mb-0.5">Applications</span>
-                                            <span className="text-sm font-black text-[#1F3F34]">
-                                                {meta.newCount > 0 ? `${meta.newCount} New` : `${meta.totalCount} Total`}
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    <button 
-                                        onClick={() => navigate('/applications')}
-                                        className="mt-6 w-full bg-[#FACD15] text-[#1F3F34] py-4 rounded-xl font-extrabold flex items-center justify-center gap-3 hover:bg-[#1F3F34] hover:text-white transition-all group/btn bricolage uppercase text-xs tracking-widest shadow-lg shadow-[#FACD15]/10"
-                                    >
-                                        VIEW APPLICATIONS
-                                        <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
-                                    </button>
-                                </motion.div>
-                            );
-                        })}
-
-                        {/* Create New Opening / Empty State Card */}
-                        <motion.button 
+                {jobs.length === 0 ? (
+                    <div className="bg-white rounded-3xl p-12 border border-slate-200 shadow-sm text-center max-w-2xl mx-auto mt-8">
+                        <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <Package className="w-10 h-10 text-slate-300" />
+                        </div>
+                        <h3 className="text-2xl font-black text-[#0A1931] mb-3 uppercase tracking-tight bricolage">No Active Jobs</h3>
+                        <p className="text-slate-500 font-medium mb-8">You currently don't have any active job postings. Once you post a new shift, it will appear here for you to manage applications and track performance.</p>
+                        <button 
                             onClick={() => navigate('/post-job')}
-                            initial={{ opacity: 0, scale: 0.95 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            whileHover={{ scale: 1.02 }}
-                            className="border-4 border-dashed border-[#1F3F34]/10 hover:border-[#FACD15] hover:bg-white transition-all duration-300 rounded-lg p-12 flex flex-col items-center justify-center text-center group bg-transparent min-h-[400px]"
+                            className="inline-flex items-center gap-2 px-8 py-4 bg-[#FACD15] text-[#0A1931] font-extrabold rounded-xl shadow-[0_4px_0_0_#C39F00] hover:shadow-none hover:translate-y-[2px] transition-all bricolage uppercase text-sm tracking-widest"
                         >
-                            <div className="h-20 w-20 bg-[#FACD15]/10 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-[#FACD15] transition-all duration-500">
-                                <Plus className="w-10 h-10 text-[#FACD15] group-hover:text-[#1F3F34]" />
-                            </div>
-                            <h3 className="text-xl font-black bricolage text-[#1F3F34] mb-2 uppercase tracking-tight">Create New Opening</h3>
-                            <p className="text-sm text-[#1F3F34]/40 px-8 font-medium">Find the best local talent by posting a new requirement today.</p>
-                        </motion.button>
-                    </AnimatePresence>
-                </div>
+                            <PlusCircle className="w-5 h-5" /> Post Your First Job
+                        </button>
+                    </div>
+                ) : (
+                    <div className="flex flex-col gap-4">
+                        <AnimatePresence>
+                            {jobs.map((job: Job, idx: number) => {
+                                const meta = jobMetadata[job.id!] || { totalCount: 0, newCount: 0, workerIds: [] };
+                                const isUrgent = job.description.toLowerCase().includes('urgent') || idx === 1;
+
+                                return (
+                                    <motion.div 
+                                        key={job.id}
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: idx * 0.05 }}
+                                        className="bg-white p-6 rounded-2xl group hover:shadow-lg hover:border-[#FACD15] transition-all duration-300 flex flex-col md:flex-row md:items-center justify-between border border-slate-200 relative overflow-hidden"
+                                    >
+                                        {/* Left Side: Job Info */}
+                                        <div className="flex-1 min-w-0 pr-8">
+                                            <div className="flex items-center gap-3 mb-2">
+                                                <h3 className="text-xl font-black text-[#0A1931] bricolage uppercase tracking-tight truncate group-hover:text-[#C39F00] transition-colors">
+                                                    {job.title}
+                                                </h3>
+                                                <span className={`px-2.5 py-0.5 text-[10px] font-black rounded-full tracking-widest bricolage uppercase shrink-0 ${
+                                                    isUrgent ? 'bg-[#ffdad6] text-[#ba1a1a]' : 'bg-[#d1fae5] text-[#4a6b5e]'
+                                                }`}>
+                                                    {isUrgent ? 'URGENT' : 'ACTIVE'}
+                                                </span>
+                                            </div>
+
+                                            <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-[#0A1931]/60 text-sm font-medium">
+                                                <div className="flex items-center gap-2">
+                                                    {getSectorIcon(job.industry)}
+                                                    <span className="truncate max-w-[120px]">{job.industry}</span>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <IndianRupee className="w-4 h-4 text-slate-400" />
+                                                    <span className="font-bold text-[#0A1931]">₹{job.budget?.toLocaleString()}</span>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <MapPin className="w-4 h-4 text-slate-400" />
+                                                    <span className="truncate max-w-[150px]">{job.location}</span>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    {getExpiryBadge(job.expiresAt)}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Right Side: Stats & Action */}
+                                        <div className="flex items-center gap-8 mt-6 md:mt-0 shrink-0 md:border-l md:border-slate-100 md:pl-8">
+                                            <div className="text-center md:text-right">
+                                                <span className="block text-[10px] uppercase font-black tracking-widest text-[#0A1931]/40 mb-1">
+                                                    Applications
+                                                </span>
+                                                <div className="flex items-center gap-3 justify-center md:justify-end">
+                                                    <div className="flex -space-x-2">
+                                                        {meta.workerIds.length > 0 ? (
+                                                            meta.workerIds.map((wid: string) => (
+                                                                <div key={wid} className="w-8 h-8 rounded-full border-2 border-white bg-slate-100 overflow-hidden shrink-0">
+                                                                    <img 
+                                                                        src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${wid}`} 
+                                                                        alt="worker" 
+                                                                        className="w-full h-full object-cover" 
+                                                                    />
+                                                                </div>
+                                                            ))
+                                                        ) : (
+                                                            <div className="w-8 h-8 rounded-full border-2 border-white bg-slate-50 flex items-center justify-center text-[10px] font-bold text-slate-400">
+                                                                0
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                    <span className="text-lg font-black text-[#0A1931]">
+                                                        {meta.totalCount} <span className="text-sm font-bold text-slate-400">Total</span>
+                                                    </span>
+                                                    {meta.newCount > 0 && (
+                                                        <span className="px-2 py-0.5 bg-amber-100 text-amber-700 text-[10px] font-black uppercase rounded-full">
+                                                            {meta.newCount} New
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            <button 
+                                                onClick={() => navigate('/applications')}
+                                                className="hidden md:flex items-center justify-center w-12 h-12 bg-slate-50 text-[#0A1931] hover:bg-[#FACD15] rounded-xl transition-colors group/btn"
+                                            >
+                                                <ArrowRight className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" />
+                                            </button>
+                                        </div>
+                                    </motion.div>
+                                );
+                            })}
+                        </AnimatePresence>
+                    </div>
+                )}
 
                 {/* Pagination/Footer Stats */}
-                <footer className="mt-20 flex flex-col lg:flex-row justify-between items-center bg-[#1F3F34] text-[#F5F4EF] p-8 lg:p-12 rounded-lg gap-8 relative overflow-hidden shadow-2xl">
+                <footer className="mt-20 flex flex-col lg:flex-row justify-between items-center bg-[#0A1931] text-[#F8FAFC] p-8 lg:p-12 rounded-lg gap-8 relative overflow-hidden shadow-2xl">
                     <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-[#FACD15] opacity-5 rounded-full blur-3xl"></div>
                     
                     <div className="flex flex-col sm:flex-row items-center gap-12 relative z-10 w-full lg:w-auto">
@@ -267,13 +262,13 @@ export function ActiveJobsPage() {
                     </div>
 
                     <div className="flex items-center gap-6 relative z-10 bg-white/5 p-2 rounded-full border border-white/10">
-                        <button className="w-12 h-12 rounded-full border border-white/10 hover:bg-[#FACD15] hover:text-[#1F3F34] transition-all flex items-center justify-center group">
+                        <button className="w-12 h-12 rounded-full border border-white/10 hover:bg-[#FACD15] hover:text-[#0A1931] transition-all flex items-center justify-center group">
                             <ChevronLeft className="w-6 h-6 group-hover:-translate-x-0.5 transition-transform" />
                         </button>
                         <div className="px-4 text-xs font-black uppercase tracking-widest bricolage">
                             Page <span className="text-[#FACD15]">01</span> / 03
                         </div>
-                        <button className="w-12 h-12 rounded-full border border-white/10 hover:bg-[#FACD15] hover:text-[#1F3F34] transition-all flex items-center justify-center group">
+                        <button className="w-12 h-12 rounded-full border border-white/10 hover:bg-[#FACD15] hover:text-[#0A1931] transition-all flex items-center justify-center group">
                             <ChevronRight className="w-6 h-6 group-hover:translate-x-0.5 transition-transform" />
                         </button>
                     </div>
@@ -282,7 +277,7 @@ export function ActiveJobsPage() {
 
             {/* Background Decorative Organic Blobs */}
             <div className="fixed top-1/4 -right-40 w-[600px] h-[600px] bg-[#FACD15] opacity-[0.03] rounded-full blur-[120px] -z-10 pointer-events-none organic-blob"></div>
-            <div className="fixed -bottom-40 -left-20 w-[800px] h-[800px] bg-[#1F3F34] opacity-[0.02] rounded-full blur-[150px] -z-10 pointer-events-none organic-blob-alt"></div>
+            <div className="fixed -bottom-40 -left-20 w-[800px] h-[800px] bg-[#0A1931] opacity-[0.02] rounded-full blur-[150px] -z-10 pointer-events-none organic-blob-alt"></div>
         </div>
     );
 }

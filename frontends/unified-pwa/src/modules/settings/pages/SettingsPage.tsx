@@ -80,18 +80,18 @@ export const SettingsPage = () => {
 
     if (isLoading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-[#F5F4EF]">
+            <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC]">
                 <span className="material-symbols-outlined animate-spin text-primary text-4xl">progress_activity</span>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-[#F5F4EF] pb-20 pt-8 px-4 md:px-8">
+        <div className="min-h-screen bg-[#F8FAFC] pb-20 pt-8 px-4 md:px-8">
             <div className="max-w-4xl mx-auto">
                 <header className="mb-8">
-                    <h1 className="text-3xl font-headline font-extrabold text-[#1F3F34]">Settings</h1>
-                    <p className="text-[#1F3F34]/60">Manage your business preferences and account security</p>
+                    <h1 className="text-3xl font-headline font-extrabold text-[#0A1931]">Settings</h1>
+                    <p className="text-[#0A1931]/60">Manage your business preferences and account security</p>
                 </header>
 
                 {/* Feedback Message */}
@@ -126,8 +126,8 @@ export const SettingsPage = () => {
                                 onClick={() => setActiveTab(tab.id as any)}
                                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
                                     activeTab === tab.id 
-                                    ? 'bg-[#FACD15] text-[#1F3F34] font-bold shadow-sm' 
-                                    : 'hover:bg-white/50 text-[#1F3F34]/70'
+                                    ? 'bg-[#FACD15] text-[#0A1931] font-bold shadow-sm' 
+                                    : 'hover:bg-white/50 text-[#0A1931]/70'
                                 }`}
                             >
                                 <span className="material-symbols-outlined">{tab.icon}</span>
@@ -137,7 +137,7 @@ export const SettingsPage = () => {
                     </nav>
 
                     {/* Content Area */}
-                    <div className="flex-1 bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-[#1F3F34]/5">
+                    <div className="flex-1 bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-[#0A1931]/5">
                         <AnimatePresence mode="wait">
                             {activeTab === 'account' && (
                                 <motion.section 
@@ -150,16 +150,16 @@ export const SettingsPage = () => {
                                     <h2 className="text-xl font-headline font-bold mb-4">Business Information</h2>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div className="space-y-1">
-                                            <p className="text-xs font-bold text-[#1F3F34]/40 uppercase tracking-widest">Business Email</p>
-                                            <p className="text-[#1F3F34] font-medium">{user?.email}</p>
+                                            <p className="text-xs font-bold text-[#0A1931]/40 uppercase tracking-widest">Business Email</p>
+                                            <p className="text-[#0A1931] font-medium">{user?.email}</p>
                                         </div>
                                         <div className="space-y-1">
-                                            <p className="text-xs font-bold text-[#1F3F34]/40 uppercase tracking-widest">Plan Tier</p>
-                                            <p className="text-[#1F3F34] font-medium capitalize">Enterprise</p>
+                                            <p className="text-xs font-bold text-[#0A1931]/40 uppercase tracking-widest">Plan Tier</p>
+                                            <p className="text-[#0A1931] font-medium capitalize">Enterprise</p>
                                         </div>
                                     </div>
                                     <div className="pt-6 border-t border-gray-100">
-                                        <p className="text-sm text-[#1F3F34]/60 italic">To update your official company credentials, please provide a business registration certificate to support.</p>
+                                        <p className="text-sm text-[#0A1931]/60 italic">To update your official company credentials, please provide a business registration certificate to support.</p>
                                     </div>
                                 </motion.section>
                             )}
@@ -174,38 +174,38 @@ export const SettingsPage = () => {
                                     <h2 className="text-xl font-headline font-bold mb-6">Security Settings</h2>
                                     <form onSubmit={handlePasswordChange} className="space-y-4 max-w-sm">
                                         <div className="space-y-2">
-                                            <label className="text-xs font-bold text-[#1F3F34]/60 uppercase tracking-widest">Current Password</label>
+                                            <label className="text-xs font-bold text-[#0A1931]/60 uppercase tracking-widest">Current Password</label>
                                             <input 
                                                 type="password" 
                                                 required
                                                 value={passwords.old}
                                                 onChange={e => setPasswords({...passwords, old: e.target.value})}
-                                                className="w-full bg-[#F5F4EF] border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#FACD15] outline-none"
+                                                className="w-full bg-[#F8FAFC] border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#FACD15] outline-none"
                                             />
                                         </div>
                                         <div className="space-y-2">
-                                            <label className="text-xs font-bold text-[#1F3F34]/60 uppercase tracking-widest">New Password</label>
+                                            <label className="text-xs font-bold text-[#0A1931]/60 uppercase tracking-widest">New Password</label>
                                             <input 
                                                 type="password" 
                                                 required
                                                 value={passwords.new}
                                                 onChange={e => setPasswords({...passwords, new: e.target.value})}
-                                                className="w-full bg-[#F5F4EF] border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#FACD15] outline-none"
+                                                className="w-full bg-[#F8FAFC] border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#FACD15] outline-none"
                                             />
                                         </div>
                                         <div className="space-y-2">
-                                            <label className="text-xs font-bold text-[#1F3F34]/60 uppercase tracking-widest">Confirm New Password</label>
+                                            <label className="text-xs font-bold text-[#0A1931]/60 uppercase tracking-widest">Confirm New Password</label>
                                             <input 
                                                 type="password" 
                                                 required
                                                 value={passwords.confirm}
                                                 onChange={e => setPasswords({...passwords, confirm: e.target.value})}
-                                                className="w-full bg-[#F5F4EF] border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#FACD15] outline-none"
+                                                className="w-full bg-[#F8FAFC] border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#FACD15] outline-none"
                                             />
                                         </div>
                                         <button 
                                             disabled={isSaving}
-                                            className="mt-4 w-full bg-[#1F3F34] text-white font-bold py-3 rounded-xl hover:brightness-110 active:scale-95 transition-all flex items-center justify-center"
+                                            className="mt-4 w-full bg-[#0A1931] text-white font-bold py-3 rounded-xl hover:brightness-110 active:scale-95 transition-all flex items-center justify-center"
                                         >
                                             {isSaving ? <span className="material-symbols-outlined animate-spin">progress_activity</span> : 'Update Password'}
                                         </button>
@@ -231,8 +231,8 @@ export const SettingsPage = () => {
                                         ].map(item => (
                                             <div key={item.id} className="flex items-center justify-between gap-4">
                                                 <div>
-                                                    <h3 className="font-bold text-[#1F3F34]">{item.label}</h3>
-                                                    <p className="text-sm text-[#1F3F34]/60">{item.desc}</p>
+                                                    <h3 className="font-bold text-[#0A1931]">{item.label}</h3>
+                                                    <p className="text-sm text-[#0A1931]/60">{item.desc}</p>
                                                 </div>
                                                 <button 
                                                     onClick={() => handleUpdateSettings({ [item.id]: !settings?.[item.id as keyof UserSettings] })}

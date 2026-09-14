@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-// import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import { authService } from '../../../services/auth.service';
 import { forgotPasswordSchema } from '../../../validations/zodSchema';
 import { AuthHeader } from '../components/AuthHeader';
 import { AuthFooter } from '../components/AuthFooter';
+import { motion } from 'framer-motion';
 
 export default function ForgotPasswordPage() {
     const [email, setEmail] = useState('');
@@ -37,173 +37,169 @@ export default function ForgotPasswordPage() {
 
     if (isSuccess) {
         return (
-            <div className="bg-[#F5F4EF] text-[#1F3F34] font-headline min-h-screen flex flex-col antialiased">
+            <div className="bg-slate-50 text-slate-900 font-body min-h-screen flex flex-col selection:bg-brand-500 selection:text-[#002117] antialiased">
                 <AuthHeader />
-
-                <main className="flex-1 flex flex-col md:flex-row pt-20">
-                    <section className="w-full md:w-1/2 flex items-start justify-center p-8 md:p-16 lg:p-24 bg-[#F5F4EF] pt-12 md:pt-24 lg:pt-32">
-                        <div className="max-w-md w-full space-y-8">
-                            <div>
-                                <div className="w-16 h-16 bg-secondary-fixed rounded-2xl flex items-center justify-center mb-8">
-                                    <span className="material-symbols-outlined text-3xl text-on-secondary-fixed">mail</span>
-                                </div>
-                                <h1 className="text-[3.5rem] font-extrabold leading-[1.1] tracking-[-0.02em] mb-4 text-[#1F3F34]">
-                                    Check your Email
-                                </h1>
-                                <p className="text-[1rem] leading-[1.6] text-[#1F3F34]/70">
-                                    We've sent a 6-digit reset code to <span className="font-bold text-[#1F3F34]">{email}</span>. Use the code on the next page to securely reset your password.
-                                </p>
+                <main className="w-full max-w-5xl mx-auto px-4 pt-24 pb-12 flex-1 flex items-center justify-center">
+                    <div className="w-full bg-white rounded-2xl border border-slate-900/10 shadow-xl overflow-hidden grid md:grid-cols-2">
+                        {/* Left Column: Form Content */}
+                        <div className="p-6 md:p-10 flex flex-col justify-center text-center items-center">
+                            <div className="w-16 h-16 bg-brand-50 rounded-2xl flex items-center justify-center mb-6">
+                                <span className="material-symbols-outlined text-3xl text-brand-500">mail</span>
                             </div>
+                            <h1 className="font-headline text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight mb-2">
+                                Check your Email
+                            </h1>
+                            <p className="text-slate-900/60 text-xs md:text-sm font-medium mb-8">
+                                We've sent a 6-digit reset code to <strong className="text-slate-900">{email}</strong>. Use the code on the next page to securely reset your password.
+                            </p>
+                            
                             <button 
                                 onClick={() => navigate('/reset-password')}
-                                className="w-full bg-[#FACD15] text-[#1F3F34] font-extrabold rounded-[12px] py-4 text-center shadow-[inset_0_-2px_0_rgba(0,0,0,0.1)] active:scale-[0.98] transition-all hover:bg-[#eac012]"
+                                className="w-full bg-brand-500 text-slate-900 py-3 rounded-lg font-bold text-xs uppercase tracking-wider shadow-sm hover:brightness-105 active:scale-98 transition-all flex items-center justify-center gap-2"
                             >
-                                ENTER RESET CODE
+                                Enter Reset Code
                             </button>
                         </div>
-                    </section>
-                    <section className="w-full md:w-1/2 bg-[#EFEEE9] relative overflow-hidden flex items-center justify-center min-h-[400px]">
-                        <div className="absolute top-[-10%] left-[-10%] w-[400px] h-[400px] bg-[#FACD15] opacity-10 rounded-full blur-3xl"></div>
-                        <div className="absolute bottom-[-10%] right-[-5%] w-[500px] h-[500px] bg-[#1F3F34] opacity-5 rounded-full blur-3xl"></div>
-                        <div className="relative z-10 w-full h-full flex items-center justify-center p-12">
-                            <div className="relative w-full max-w-lg aspect-square">
-                                <div className="absolute inset-0 bg-[#FACD15] organic-blob-mask scale-110"></div>
-                                <div className="absolute inset-0 organic-blob-mask overflow-hidden shadow-2xl">
-                                    <img 
-                                        alt="Friendly Indian professional" 
-                                        className="w-full h-full object-cover grayscale-[0.1]" 
-                                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuApyBwsWFOE6Cox730L6i7EVXzLYuTNcZ7dflJJG1QrukKlW2Jih6seS1E6ARIOx2V5C_t15jG7ZUaVpYAb--jKo_aPvsuYW1pFcRqyOPeW9MgSnwhMXl5nrXkTuxTnJjt2fDKlSynxS9FWdAo3sJY8FwwEd7V5eAescZKuY7MY92YSbMpYnyiuxOhPTn-7ydU0gMgpOa4yk3J4pUkIk2Zl_OSSFfW_BSikXnXEjSkPiFedITbxHGJkwD3xuMR29RFFbNmCBmHJimc" 
-                                    />
+
+                        {/* Right Column: Visual Brand Card */}
+                        <div className="hidden md:flex bg-slate-900 p-8 flex-col justify-between text-white relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-brand-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                            
+                            <div>
+                                <span className="inline-block bg-brand-500 text-[#002117] text-[10px] font-black uppercase px-2.5 py-1 rounded-md tracking-wider mb-4">
+                                    Secure Recovery
+                                </span>
+                                <h2 className="font-headline text-2xl font-black text-white leading-tight">
+                                    Fast & Secure Account Recovery
+                                </h2>
+                                <p className="text-white/70 text-xs mt-2 leading-relaxed">
+                                    Your account security is our priority. We use 256-bit encryption for all reset operations.
+                                </p>
+                            </div>
+
+                            <div className="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/10 mt-6 space-y-3">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-8 h-8 rounded-lg bg-brand-500 text-[#002117] flex items-center justify-center font-bold">
+                                        <span className="material-symbols-outlined text-base">verified_user</span>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs font-bold text-white">Safe & Secure</p>
+                                        <p className="text-[10px] text-white/60">We'll help you back in safely.</p>
+                                    </div>
                                 </div>
                             </div>
+                            
+                            <div className="text-[10px] text-white/40 mt-4 font-mono">
+                                TrustHire Protocol v2.4 • Supabase Verified
+                            </div>
                         </div>
-                    </section>
+                    </div>
                 </main>
-
                 <AuthFooter />
-
-                <style>{`
-                    .organic-blob-mask {
-                        mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%23FF0066' d='M44.7,-76.4C58.8,-69.2,71.8,-59.1,79.6,-46.2C87.4,-33.4,90.1,-17.7,88.5,-2.6C86.9,12.5,81,26.9,72.6,39.8C64.2,52.7,53.3,64.1,40.4,72.4C27.5,80.7,12.7,85.8,-2.1,89.5C-17,93.2,-34,95.4,-48.2,89.4C-62.4,83.4,-73.8,69.2,-81.4,54.1C-89,39,-92.8,23,-93.2,7.1C-93.5,-8.8,-90.4,-24.5,-83,-38.4C-75.6,-52.3,-63.9,-64.4,-50.2,-71.8C-36.5,-79.2,-20.8,-81.8,-5.1,-73.1C10.7,-64.3,26.4,-83.5,44.7,-76.4Z' transform='translate(100 100)' /%3E%3C/svg%3E");
-                        mask-size: contain;
-                        mask-repeat: no-repeat;
-                        mask-position: center;
-                    }
-                `}</style>
             </div>
         );
     }
 
     return (
-        <div className="bg-[#F5F4EF] text-[#1F3F34] font-headline min-h-screen flex flex-col antialiased">
+        <div className="bg-slate-50 text-slate-900 font-body min-h-screen flex flex-col selection:bg-brand-500 selection:text-[#002117] antialiased">
             <AuthHeader />
-
-            <main className="flex-1 flex flex-col md:flex-row pt-20">
-                {/* Left Side: Forgot Password Form */}
-                <section className="w-full md:w-1/2 flex items-start justify-center p-8 md:p-16 lg:p-24 bg-[#F5F4EF] pt-12 md:pt-8 lg:pt-4">
-                    <div className="max-w-lg w-full">
-                        <div className="mb-10 text-left">
-                            <h1 className="text-[3.5rem] font-extrabold leading-[1.1] tracking-[-0.02em] mb-4 text-[#1F3F34]">
+            
+            <main className="w-full max-w-5xl mx-auto px-4 pt-24 pb-12 flex-1 flex items-center justify-center">
+                <div className="w-full bg-white rounded-2xl border border-slate-900/10 shadow-xl overflow-hidden grid md:grid-cols-2">
+                    
+                    {/* Left Column: Form Content */}
+                    <div className="p-6 md:p-10 flex flex-col justify-center">
+                        <div className="mb-6 text-left">
+                            <h1 className="font-headline text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
                                 Forgot Password?
                             </h1>
-                            <p className="text-[1.125rem] leading-[1.6] text-[#1F3F34]/70">
+                            <p className="text-slate-900/60 text-xs md:text-sm mt-1 font-medium">
                                 Don’t worry, it happens. Enter your email and we’ll send you a reset link.
                             </p>
                         </div>
 
                         {error && (
-                            <div className="mb-6 p-4 bg-error-container border border-error/10 text-error font-bold text-sm rounded-xl flex items-center gap-3">
-                                <span className="material-symbols-outlined">error</span>
-                                {error}
-                            </div>
+                            <motion.div 
+                                initial={{ opacity: 0, y: -6 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 text-xs font-bold rounded-lg flex items-center gap-2"
+                            >
+                                <span className="material-symbols-outlined text-base">error</span>
+                                <span>{error}</span>
+                            </motion.div>
                         )}
 
-                        <p className="text-xs text-[#1F3F34]/60 mb-6 font-medium">Fields marked with <span className="text-red-500">*</span> are mandatory</p>
-
-                        <form onSubmit={handleSubmit} noValidate className="space-y-6">
-                            <div className="space-y-2">
-                                <label className="text-[0.75rem] font-bold text-[#1F3F34] uppercase tracking-wider" htmlFor="identifier">
-                                    Email Address <span className="text-red-500">*</span>
+                        <form onSubmit={handleSubmit} noValidate className="space-y-4">
+                            <div className="space-y-1">
+                                <label className="text-[11px] font-bold text-slate-900 uppercase tracking-wider">
+                                    Email Address
                                 </label>
                                 <input 
-                                    className="w-full bg-[#E9E8E3] border-none rounded-[12px] px-4 py-5 text-[#1F3F34] focus:ring-2 focus:ring-[#FACD15] placeholder:text-[#1F3F34]/40" 
-                                    id="identifier" 
-                                    placeholder="e.g. name@email.com" 
                                     type="email"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
+                                    placeholder="e.g. name@email.com"
                                     required
+                                    className="w-full bg-slate-50 border border-slate-900/10 rounded-lg px-3.5 py-2.5 text-xs text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-brand-500"
                                 />
                             </div>
                             <button 
-                                disabled={isLoading}
-                                className="w-full bg-[#FACD15] text-[#1F3F34] font-extrabold rounded-[12px] py-5 text-center shadow-[inset_0_-2px_0_rgba(0,0,0,0.1)] active:scale-[0.98] transition-all hover:bg-[#eac012] flex items-center justify-center gap-2 text-lg tracking-wider" 
+                                disabled={isLoading || !email}
+                                className="w-full mt-2 bg-brand-500 text-slate-900 py-3 rounded-lg font-bold text-xs uppercase tracking-wider shadow-sm hover:brightness-105 active:scale-98 transition-all flex items-center justify-center gap-2"
                                 type="submit"
                             >
                                 {isLoading ? (
-                                    <span className="material-symbols-outlined animate-spin text-xl">progress_activity</span>
+                                    <span className="material-symbols-outlined animate-spin text-sm">progress_activity</span>
                                 ) : (
-                                    <span>SEND RESET LINK</span>
+                                    <span>Send Reset Link</span>
                                 )}
                             </button>
                         </form>
 
-                        <div className="mt-12 flex justify-start">
-                            <Link className="flex items-center gap-2 text-[#1F3F34] font-bold hover:underline transition-all" to="/sign-in">
-                                <span className="material-symbols-outlined">arrow_back</span>
+                        <div className="mt-8 flex justify-start border-t border-slate-900/5 pt-4">
+                            <Link className="flex items-center gap-2 text-slate-900/60 font-bold hover:text-brand-500 transition-all text-xs uppercase tracking-wider" to="/sign-in">
+                                <span className="material-symbols-outlined text-sm">arrow_back</span>
                                 Back to Login
                             </Link>
                         </div>
                     </div>
-                </section>
 
-                {/* Right Side: Visual & Brand Assets */}
-                <section className="w-full md:w-1/2 bg-[#EFEEE9] relative overflow-hidden flex items-center justify-center min-h-[400px]">
-                    {/* Background Decorative Blobs */}
-                    <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-[#FACD15] opacity-10 rounded-full blur-3xl"></div>
-                    <div className="absolute bottom-[-10%] right-[-5%] w-[50%] h-[50%] bg-[#1F3F34] opacity-5 rounded-full blur-3xl"></div>
-                    
-                    {/* Small Decorative Floating Blobs */}
-                    <div className="absolute top-20 right-20 w-16 h-16 bg-[#1F3F34] opacity-20 organic-blob-mask"></div>
-                    <div className="absolute bottom-40 left-10 w-24 h-24 bg-[#FACD15] opacity-40 organic-blob-mask"></div>
-                    
-                    <div className="relative z-10 w-full h-full flex items-center justify-center p-12">
-                        <div className="relative w-full max-w-lg aspect-square">
-                            {/* Large Amber Blob Shape */}
-                            <div className="absolute inset-0 bg-[#FACD15] organic-blob-mask scale-110"></div>
-                            {/* Hero Image */}
-                            <div className="absolute inset-0 organic-blob-mask overflow-hidden shadow-2xl">
-                                <img 
-                                    alt="Friendly Indian professional" 
-                                    className="w-full h-full object-cover grayscale-[0.1]" 
-                                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuApyBwsWFOE6Cox730L6i7EVXzLYuTNcZ7dflJJG1QrukKlW2Jih6seS1E6ARIOx2V5C_t15jG7ZUaVpYAb--jKo_aPvsuYW1pFcRqyOPeW9MgSnwhMXl5nrXkTuxTnJjt2fDKlSynxS9FWdAo3sJY8FwwEd7V5eAescZKuY7MY92YSbMpYnyiuxOhPTn-7ydU0gMgpOa4yk3J4pUkIk2Zl_OSSFfW_BSikXnXEjSkPiFedITbxHGJkwD3xuMR29RFFbNmCBmHJimc" 
-                                />
-                            </div>
-                            {/* Floating Badge */}
-                            <div className="absolute bottom-10 right-0 bg-[#FFFFFF] p-6 rounded-[24px] shadow-[0_20px_40px_-10px_rgba(31,63,52,0.08)] max-w-[200px] hidden lg:block">
-                                <div className="flex items-center gap-3 mb-2">
-                                    <div className="w-8 h-8 rounded-full bg-[#FACD15] flex items-center justify-center">
-                                        <span className="material-symbols-outlined text-[18px]">verified_user</span>
-                                    </div>
-                                    <span className="text-[0.75rem] font-bold">Safe & Secure</span>
+                    {/* Right Column: Visual Brand Card */}
+                    <div className="hidden md:flex bg-slate-900 p-8 flex-col justify-between text-white relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-brand-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                        
+                        <div>
+                            <span className="inline-block bg-brand-500 text-[#002117] text-[10px] font-black uppercase px-2.5 py-1 rounded-md tracking-wider mb-4">
+                                Password Recovery
+                            </span>
+                            <h2 className="font-headline text-2xl font-black text-white leading-tight">
+                                Get Back to Work Safely
+                            </h2>
+                            <p className="text-white/70 text-xs mt-2 leading-relaxed">
+                                Our password recovery process ensures your account stays secure while getting you back into the platform quickly.
+                            </p>
+                        </div>
+
+                        <div className="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/10 mt-6 space-y-3">
+                            <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-lg bg-brand-500 text-[#002117] flex items-center justify-center font-bold">
+                                    <span className="material-symbols-outlined text-base">shield_lock</span>
                                 </div>
-                                <p className="text-[0.85rem] leading-relaxed text-[#1F3F34]/60">Your trust is our priority. We’ll help you back in safely.</p>
+                                <div>
+                                    <p className="text-xs font-bold text-white">Encrypted Links</p>
+                                    <p className="text-[10px] text-white/60">Your reset links are time-limited and single-use.</p>
+                                </div>
                             </div>
                         </div>
+
+                        <div className="text-[10px] text-white/40 mt-4 font-mono">
+                            TrustHire Protocol v2.4 • Supabase Verified
+                        </div>
                     </div>
-                </section>
+                </div>
             </main>
 
             <AuthFooter />
-
-            <style>{`
-                .organic-blob-mask {
-                    mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%23FF0066' d='M44.7,-76.4C58.8,-69.2,71.8,-59.1,79.6,-46.2C87.4,-33.4,90.1,-17.7,88.5,-2.6C86.9,12.5,81,26.9,72.6,39.8C64.2,52.7,53.3,64.1,40.4,72.4C27.5,80.7,12.7,85.8,-2.1,89.5C-17,93.2,-34,95.4,-48.2,89.4C-62.4,83.4,-73.8,69.2,-81.4,54.1C-89,39,-92.8,23,-93.2,7.1C-93.5,-8.8,-90.4,-24.5,-83,-38.4C-75.6,-52.3,-63.9,-64.4,-50.2,-71.8C-36.5,-79.2,-20.8,-81.8,-5.1,-73.1C10.7,-64.3,26.4,-83.5,44.7,-76.4Z' transform='translate(100 100)' /%3E%3C/svg%3E");
-                    mask-size: contain;
-                    mask-repeat: no-repeat;
-                    mask-position: center;
-                }
-            `}</style>
         </div>
     );
 }

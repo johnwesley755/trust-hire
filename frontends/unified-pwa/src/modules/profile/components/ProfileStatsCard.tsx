@@ -1,4 +1,5 @@
 import React from 'react';
+import { Star, ShieldCheck, Award, TrendingUp } from 'lucide-react';
 
 interface ProfileStatsCardProps {
   level: string;
@@ -7,37 +8,41 @@ interface ProfileStatsCardProps {
 
 export const ProfileStatsCard: React.FC<ProfileStatsCardProps> = ({ level, experienceYears }) => {
   return (
-    <div className="bg-[#1F3F34] rounded-[2rem] p-8 text-white flex flex-col justify-between shadow-2xl relative overflow-hidden group">
-      <div className="absolute -bottom-8 -right-8 w-32 h-32 bg-[#FACD15] opacity-[0.05] rounded-full blur-2xl group-hover:scale-125 transition-transform duration-700" />
-      
-      <div className="flex items-center justify-between mb-8 relative z-10">
-        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#FACD15]">Performance</span>
-        <span className="material-symbols-outlined text-[#FACD15] animate-pulse">trending_up</span>
+    <div className="bg-gradient-to-br from-[#0A1931] to-[#0066FF] rounded-3xl p-6 sm:p-8 text-white flex flex-col justify-between shadow-lg shadow-blue-950/20 relative overflow-hidden group border border-blue-500/20">
+      <div className="flex items-center justify-between mb-6 relative z-10">
+        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-200 flex items-center gap-1">
+          <ShieldCheck className="w-3.5 h-3.5 text-blue-300" /> Trust & Performance
+        </span>
+        <span className="flex items-center gap-1 text-xs font-bold bg-white/20 px-2 py-0.5 rounded-full">
+          <TrendingUp className="w-3 h-3 text-emerald-300" /> Active
+        </span>
       </div>
 
-      <div className="space-y-6 relative z-10">
+      <div className="space-y-5 relative z-10">
         <div className="flex justify-between items-end">
           <div>
-            <p className="text-[10px] text-white/40 font-black uppercase tracking-widest mb-1">Reputation</p>
-            <p className="text-3xl font-black tracking-tight">4.9<span className="text-sm font-bold opacity-30 ml-1">/5.0</span></p>
+            <p className="text-[10px] text-blue-200 font-bold uppercase tracking-widest mb-1">Reputation</p>
+            <p className="text-3xl font-extrabold tracking-tight flex items-center gap-1">
+              4.9 <Star className="w-5 h-5 fill-amber-300 text-amber-300" />
+            </p>
           </div>
           <div className="text-right">
-            <p className="text-[10px] text-white/40 font-black uppercase tracking-widest mb-1">Status</p>
-            <p className="text-3xl font-black text-[#FACD15] tracking-tight">{level || 'Gold Tier'}</p>
+            <p className="text-[10px] text-blue-200 font-bold uppercase tracking-widest mb-1">Partner Tier</p>
+            <p className="text-xl font-extrabold text-amber-300 tracking-tight">{level || 'L1 Certified'}</p>
           </div>
         </div>
 
-        <div className="pt-6 border-t border-white/10">
-          <p className="text-sm font-medium text-white/60 leading-relaxed mb-6">
-            Top 2% of specialists in Chennai. Maintain 4.8+ for Elite Tier access.
+        <div className="pt-4 border-t border-white/15">
+          <p className="text-xs font-medium text-blue-100/80 leading-relaxed mb-4">
+            Top 2% verified workforce specialist. Eligible for instant shift payouts.
           </p>
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-center bg-white/10 p-3 rounded-2xl">
             <div>
-              <p className="text-[10px] text-white/40 font-black uppercase tracking-widest mb-1">System Tenure</p>
-              <p className="text-xl font-black tracking-tight">{experienceYears || 0} YRS ACTIVE</p>
+              <p className="text-[9px] text-blue-200 font-bold uppercase tracking-widest">Industry Experience</p>
+              <p className="text-sm font-extrabold text-white">{experienceYears || 2} Years Active</p>
             </div>
-            <div className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center border border-white/5 group-hover:rotate-12 transition-transform">
-               <span className="material-symbols-outlined text-white/30 text-3xl">military_tech</span>
+            <div className="w-9 h-9 bg-white/20 rounded-xl flex items-center justify-center">
+              <Award className="w-5 h-5 text-amber-300" />
             </div>
           </div>
         </div>

@@ -94,7 +94,7 @@ export const NotificationCenter = () => {
             <button 
                 onClick={() => setIsOpen(!isOpen)}
                 className={`w-10 h-10 flex items-center justify-center rounded-xl transition-all relative group cursor-pointer ${
-                    isOpen ? 'bg-[#1F3F34] text-white' : 'bg-white hover:bg-[#F5F4EF] text-[#1F3F34] border border-[#EFEEE9]'
+                    isOpen ? 'bg-[#0A1931] text-white' : 'bg-white hover:bg-[#F8FAFC] text-[#0A1931] border border-[#e2e8f0]'
                 }`}
             >
                 <Bell className={`w-5 h-5 ${unreadCount > 0 && !isOpen ? 'animate-bounce' : ''}`} />
@@ -108,18 +108,18 @@ export const NotificationCenter = () => {
             {isOpen && (
                 <>
                     <div className="fixed inset-0 z-[100]" onClick={() => setIsOpen(false)} />
-                    <div className="absolute right-0 md:right-0 mt-2 w-[calc(100vw-2rem)] md:w-72 bg-white border border-[#EFEEE9] rounded-2xl shadow-[0_20px_50px_rgba(31,63,52,0.15)] z-[101] overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
-                        <div className="px-4 py-3 border-b border-[#EFEEE9] flex justify-between items-center bg-[#F5F4EF]/30">
+                    <div className="absolute right-0 md:right-0 mt-2 w-[calc(100vw-2rem)] md:w-72 bg-white border border-[#e2e8f0] rounded-2xl shadow-[0_20px_50px_rgba(31,63,52,0.15)] z-[101] overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                        <div className="px-4 py-3 border-b border-[#e2e8f0] flex justify-between items-center bg-[#F8FAFC]/30">
                             <div className="flex items-center gap-2">
-                                <span className="text-[10px] font-black uppercase tracking-[0.15em] text-[#1F3F34]">Notifications</span>
-                                {(isLoading || isRefetching) && <RefreshCw className="w-3 h-3 animate-spin text-[#1F3F34]/30" />}
+                                <span className="text-[10px] font-black uppercase tracking-[0.15em] text-[#0A1931]">Notifications</span>
+                                {(isLoading || isRefetching) && <RefreshCw className="w-3 h-3 animate-spin text-[#0A1931]/30" />}
                             </div>
                             <div className="flex items-center gap-1">
                                 <button 
                                     onClick={handleRefresh}
                                     className="p-1 hover:bg-black/5 rounded-md transition-colors"
                                 >
-                                    <RefreshCw className={`w-3 h-3 text-[#1F3F34]/50 ${isRefetching ? 'animate-spin' : ''}`} />
+                                    <RefreshCw className={`w-3 h-3 text-[#0A1931]/50 ${isRefetching ? 'animate-spin' : ''}`} />
                                 </button>
                                 {notifications.length > 0 && (
                                     <button 
@@ -139,14 +139,14 @@ export const NotificationCenter = () => {
                                     <div 
                                         key={n.id} 
                                         onClick={() => handleNotificationClick(n)}
-                                        className={`px-4 py-3 border-b border-[#EFEEE9] cursor-pointer transition-all hover:bg-[#F5F4EF] flex gap-3 ${n.isRead ? 'opacity-50' : 'bg-white'}`}
+                                        className={`px-4 py-3 border-b border-[#e2e8f0] cursor-pointer transition-all hover:bg-[#F8FAFC] flex gap-3 ${n.isRead ? 'opacity-50' : 'bg-white'}`}
                                     >
-                                        <div className={`mt-0.5 w-7 h-7 shrink-0 rounded-lg flex items-center justify-center ${n.isRead ? 'bg-[#EFEEE9]' : 'bg-[#FACD15]/10'}`}>
+                                        <div className={`mt-0.5 w-7 h-7 shrink-0 rounded-lg flex items-center justify-center ${n.isRead ? 'bg-[#e2e8f0]' : 'bg-[#FACD15]/10'}`}>
                                             {getIcon(n.type)}
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <div className="flex justify-between items-start gap-2">
-                                                <p className="text-[11px] font-black text-[#1F3F34] leading-tight truncate">{n.title}</p>
+                                                <p className="text-[11px] font-black text-[#0A1931] leading-tight truncate">{n.title}</p>
                                                 <button 
                                                     onClick={(e) => {
                                                         e.stopPropagation();
@@ -169,16 +169,16 @@ export const NotificationCenter = () => {
                                 ))
                             ) : (
                                 <div className="p-10 text-center space-y-2">
-                                    <div className="w-10 h-10 bg-[#F5F4EF] rounded-full flex items-center justify-center mx-auto">
-                                        <BellOff className="w-5 h-5 text-[#1F3F34]/20" strokeWidth={1.5} />
+                                    <div className="w-10 h-10 bg-[#F8FAFC] rounded-full flex items-center justify-center mx-auto">
+                                        <BellOff className="w-5 h-5 text-[#0A1931]/20" strokeWidth={1.5} />
                                     </div>
-                                    <p className="text-[10px] font-bold text-[#1F3F34]/30 uppercase tracking-[0.1em]">All caught up</p>
+                                    <p className="text-[10px] font-bold text-[#0A1931]/30 uppercase tracking-[0.1em]">All caught up</p>
                                 </div>
                             )}
                         </div>
                         
-                        <div className="p-2.5 bg-[#F5F4EF]/50 flex justify-between items-center px-4 border-t border-[#EFEEE9]">
-                            <span className="text-[8px] font-bold text-[#1F3F34]/30 uppercase tracking-[0.1em]">Recent Activity</span>
+                        <div className="p-2.5 bg-[#F8FAFC]/50 flex justify-between items-center px-4 border-t border-[#e2e8f0]">
+                            <span className="text-[8px] font-bold text-[#0A1931]/30 uppercase tracking-[0.1em]">Recent Activity</span>
                             <button 
                                 onClick={() => deleteAllMutation.mutate()}
                                 className="text-[8px] font-black text-red-600 uppercase tracking-[0.1em] hover:underline"

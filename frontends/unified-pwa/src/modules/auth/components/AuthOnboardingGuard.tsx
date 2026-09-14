@@ -16,7 +16,7 @@ export const AuthOnboardingGuard = ({ children }: { children: React.ReactNode })
       if (syncStarted.current) return;
 
       if (isSignedIn && user) {
-        // Workers navigate directly to tracker and search
+        // Workers bypass onboarding completely and navigate directly to candidate app
         if (user.role === 'WORKER') {
           setIsOnboarded(true);
           setLoading(false);
@@ -33,7 +33,7 @@ export const AuthOnboardingGuard = ({ children }: { children: React.ReactNode })
 
         syncStarted.current = true;
         try {
-          const response = await apiClient.post('/api/auth/sync', { role: user.role || "EMPLOYER" });
+          const response = await apiClient.post('/api/auth/sync', { role: "EMPLOYER" });
           const syncedUser = response.data;
           setIsOnboarded(!!syncedUser.onboarded);
           updateUser(syncedUser);
@@ -53,8 +53,8 @@ export const AuthOnboardingGuard = ({ children }: { children: React.ReactNode })
 
   if (!isLoaded || loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-[#F5F4EF]">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#1F3F34]"></div>
+      <div className="flex items-center justify-center min-h-screen bg-[#F8FAFC]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#0A1931]"></div>
       </div>
     );
   }
@@ -63,13 +63,18 @@ export const AuthOnboardingGuard = ({ children }: { children: React.ReactNode })
     return <Navigate to="/sign-in" state={{ from: location }} replace />;
   }
 
-  if (isOnboarded === false && location.pathname !== "/onboarding") {
+  // Workers never see onboarding - redirect directly to job search portal
+  if (user?.role === 'WORKER' && location.pathname === "/onboarding") {
+    return <Navigate to="/search" replace />;
+  }
+
+  // Employers only: if not onboarded, redirect to /onboarding
+  if (user?.role === 'EMPLOYER' && isOnboarded === false && location.pathname !== "/onboarding") {
     return <Navigate to="/onboarding" replace />;
   }
 
-  if (isOnboarded === true && location.pathname === "/onboarding") {
-    const target = user?.role === 'EMPLOYER' ? '/dashboard' : '/tracker';
-    return <Navigate to={target} replace />;
+  if (user?.role === 'EMPLOYER' && isOnboarded === true && location.pathname === "/onboarding") {
+    return <Navigate to="/dashboard" replace />;
   }
 
   return <>{children}</>;

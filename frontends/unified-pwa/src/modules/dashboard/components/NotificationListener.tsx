@@ -19,7 +19,7 @@ export const NotificationListener = () => {
                 description: notification.message,
                 icon: getIcon(notification.type),
                 duration: 5000,
-                className: "bg-white rounded-3xl border border-[#1F3F34]/5 shadow-2xl p-5",
+                className: "bg-white rounded-3xl border border-[#0A1931]/5 shadow-2xl p-5",
             });
         });
 
@@ -38,7 +38,7 @@ export const NotificationListener = () => {
             case 'application_update':
                 return <Info className="w-5 h-5 text-blue-500" />;
             default:
-                return <Bell className="w-5 h-5 text-[#1F3F34]" />;
+                return <Bell className="w-5 h-5 text-[#0A1931]" />;
         }
     };
 
