@@ -50,12 +50,12 @@ export default function AadhaarStep({ onUpload, preview, isPending }: AadhaarSte
                 </div>
 
                 {preview && (
-                    <div className="mb-8 p-4 bg-[#c7ebdb]/20 rounded-xl border border-[#c7ebdb] flex items-center gap-4 animate-in fade-in slide-in-from-bottom-2">
+                    <div className="mb-8 p-4 bg-[#d1fae5]/20 rounded-xl border border-[#d1fae5] flex items-center gap-4 animate-in fade-in slide-in-from-bottom-2">
                         <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 border-2 border-white shadow-sm">
                             <img src={preview} alt="ID Preview" className="w-full h-full object-cover" />
                         </div>
                         <div className="flex-1 text-left">
-                            <p className="text-xs font-bold text-[#1F3F34] uppercase tracking-widest">Aadhaar Preview</p>
+                            <p className="text-xs font-bold text-[#0A1931] uppercase tracking-widest">Aadhaar Preview</p>
                             <p className="text-[10px] text-[#414845]">Ready for protocol analysis</p>
                         </div>
                     </div>
@@ -63,7 +63,7 @@ export default function AadhaarStep({ onUpload, preview, isPending }: AadhaarSte
 
                 {/* Reassurance Text */}
                 <div className="flex items-start gap-4 p-5 bg-white rounded-lg border border-[#c1c8c3]/10 shadow-[0_20px_40px_-10px_rgba(31,63,52,0.05)]">
-                    <div className="bg-[#c7ebdb]/30 p-2 rounded-full flex items-center justify-center">
+                    <div className="bg-[#d1fae5]/30 p-2 rounded-full flex items-center justify-center">
                         <span className="material-symbols-outlined text-[#456559] text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>verified_user</span>
                     </div>
                     <div className="flex-1 text-left">
@@ -75,10 +75,10 @@ export default function AadhaarStep({ onUpload, preview, isPending }: AadhaarSte
         </section>
 
         {/* Right Side: Emotional Anchor */}
-        <section className="hidden md:flex flex-1 bg-[#f5f4ef] relative items-center justify-center overflow-hidden min-h-[400px]">
+        <section className="hidden md:flex flex-1 bg-[#F8FAFC] relative items-center justify-center overflow-hidden min-h-[400px]">
             {/* Decorative Organic Blobs */}
             <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-[#ffe081] opacity-10 rounded-full blur-3xl"></div>
-            <div className="absolute bottom-[-5%] left-[-5%] w-[400px] h-[400px] bg-[#c7ebdb] opacity-20 rounded-full blur-2xl"></div>
+            <div className="absolute bottom-[-5%] left-[-5%] w-[400px] h-[400px] bg-[#d1fae5] opacity-20 rounded-full blur-2xl"></div>
             
             <div className="relative z-10 w-full max-w-2xl px-12 text-left">
                 <div className="relative inline-block">

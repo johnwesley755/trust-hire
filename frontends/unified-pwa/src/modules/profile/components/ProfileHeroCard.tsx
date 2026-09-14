@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MapPin, Navigation, Camera, Loader2 } from 'lucide-react';
+import { MapPin, Navigation, Camera, Loader2, Check, ShieldCheck, Zap } from 'lucide-react';
 
 interface ProfileHeroCardProps {
   user: any;
@@ -29,13 +29,13 @@ export const ProfileHeroCard: React.FC<ProfileHeroCardProps> = ({
 }) => {
   return (
     <motion.div 
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white rounded-[2rem] p-8 lg:p-10 shadow-2xl relative overflow-hidden group border border-[#1F3F34]/5"
+      className="bg-white rounded-3xl p-6 sm:p-8 shadow-xs border border-slate-200/80 relative overflow-hidden group"
     >
-      <div className="absolute top-0 right-0 w-64 h-64 bg-[#FACD15] opacity-[0.03] rounded-bl-full pointer-events-none" />
+      <div className="absolute top-0 right-0 w-64 h-64 bg-[#0066FF]/5 rounded-bl-full pointer-events-none" />
       
-      <div className="flex flex-col md:flex-row gap-8 items-center md:items-start relative z-10">
+      <div className="flex flex-col md:flex-row gap-6 sm:gap-8 items-center md:items-start relative z-10">
         <div className="relative group/photo cursor-pointer shrink-0">
           <input 
             type="file" 
@@ -44,7 +44,7 @@ export const ProfileHeroCard: React.FC<ProfileHeroCardProps> = ({
             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-30"
             title="Update Profile Image"
           />
-          <div className="w-32 h-32 rounded-[2rem] overflow-hidden border-4 border-[#F5F4EF] shadow-2xl relative group-hover/photo:scale-105 transition-all bg-[#1F3F34] flex items-center justify-center">
+          <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-2xl overflow-hidden border-4 border-slate-100 shadow-md relative group-hover/photo:scale-105 transition-all bg-[#0A1931] flex items-center justify-center">
             {user?.profileImageUrl || user?.profile_image_url ? (
               <img 
                 src={user.profileImageUrl || user.profile_image_url} 
@@ -56,97 +56,94 @@ export const ProfileHeroCard: React.FC<ProfileHeroCardProps> = ({
                 }}
               />
             ) : (
-              <div className="w-full h-full bg-[#1F3F34] text-[#FACD15] flex items-center justify-center text-4xl font-extrabold">
+              <div className="w-full h-full bg-[#0066FF] text-white flex items-center justify-center text-4xl font-extrabold">
                 {(user?.first_name || user?.firstName || 'U')[0].toUpperCase()}
               </div>
             )}
-            <div className="absolute inset-0 bg-[#1F3F34]/40 flex items-center justify-center opacity-0 group-hover/photo:opacity-100 transition-opacity backdrop-blur-sm">
-              <Camera className="w-10 h-10 text-[#FACD15]" />
+            <div className="absolute inset-0 bg-[#0A1931]/50 flex items-center justify-center opacity-0 group-hover/photo:opacity-100 transition-opacity backdrop-blur-xs">
+              <Camera className="w-8 h-8 text-white" />
             </div>
           </div>
 
           {isUploadingImage && (
-            <div className="absolute inset-0 bg-white/60 backdrop-blur-sm rounded-[2rem] flex items-center justify-center z-20">
-              <Loader2 className="w-8 h-8 text-[#1F3F34] animate-spin" />
+            <div className="absolute inset-0 bg-white/70 backdrop-blur-xs rounded-2xl flex items-center justify-center z-20">
+              <Loader2 className="w-7 h-7 text-[#0066FF] animate-spin" />
             </div>
           )}
 
           {user?.identity_verified && (
-            <div className="absolute -bottom-2 -right-2 bg-emerald-500 text-white p-2 rounded-full border-4 border-white shadow-xl rotate-0 z-40">
-              <span className="material-symbols-outlined text-lg font-bold" style={{ fontVariationSettings: "'FILL' 1" }}>check</span>
+            <div className="absolute -bottom-1.5 -right-1.5 bg-emerald-500 text-white p-1.5 rounded-full border-2 border-white shadow-md z-40">
+              <Check className="w-4 h-4 font-bold" />
             </div>
           )}
         </div>
 
-        <div className="flex-1 text-center md:text-left space-y-4">
+        <div className="flex-1 text-center md:text-left space-y-3">
           <div className="space-y-1">
-            <h2 className="text-3xl md:text-4xl font-black text-[#1F3F34] tracking-tight leading-none">
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-[#0A1931] tracking-tight">
               {profile?.fullName || `${user?.first_name || ''} ${user?.last_name || ''}`.trim()}
             </h2>
-            <div className="flex items-center justify-center md:justify-start gap-3 mt-2">
-              {user?.identity_verified ? (
-                <span className="text-[10px] font-black text-white uppercase tracking-widest bg-emerald-500 px-3 py-1 rounded-full shadow-sm flex items-center gap-1 shrink-0">
-                  <span className="material-symbols-outlined text-[12px] font-bold">verified</span>
-                  Verified Profile
-                </span>
-              ) : (
-                <span className="text-[10px] font-black text-[#1F3F34]/40 uppercase tracking-widest bg-[#F5F4EF] px-3 py-1 rounded-full shadow-sm shrink-0">Standard Profile</span>
-              )}
-              <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
+            <div className="flex items-center justify-center md:justify-start gap-2.5 mt-1">
+              <span className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                Verified Partner
+              </span>
+              <span className="text-[10px] font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-0.5 rounded-full">
+                {profile?.level || 'L1 Certified Pro'}
+              </span>
             </div>
           </div>
 
-          <div className="flex flex-col items-center md:items-start gap-4 pt-2">
+          <div className="flex flex-col items-center md:items-start gap-3 pt-1">
             <AnimatePresence mode="wait">
               {isEditingLocation ? (
                 <motion.div 
-                  key="location-edit"
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  className="flex flex-col sm:flex-row gap-2 bg-[#F5F4EF] p-2 rounded-2xl border border-[#1F3F34]/10 w-full md:w-auto"
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 10 }}
+                  className="flex flex-wrap items-center gap-2 justify-center md:justify-start"
                 >
                   <input 
                     type="text" 
-                    value={locationInput} 
+                    value={locationInput}
                     onChange={(e) => setLocationInput(e.target.value)}
-                    placeholder="Enter operating base..."
-                    className="bg-white border-none rounded-xl px-4 py-2 text-sm font-bold focus:ring-2 focus:ring-[#FACD15] text-[#1F3F34] min-w-[200px]"
+                    placeholder="Enter city / location..."
+                    className="px-3.5 py-1.5 rounded-xl border border-slate-300 text-xs font-semibold focus:ring-2 focus:ring-[#0066FF] outline-none"
                   />
-                  <div className="flex gap-1.5">
-                    <button 
-                      onClick={useCurrentLocation}
-                      className="bg-[#1F3F34] text-[#FACD15] px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-black transition-all active:scale-95"
-                    >
-                      <Navigation className="w-3.5 h-3.5" /> GPS
-                    </button>
-                    <button 
-                      onClick={onUpdateLocation}
-                      className="bg-[#FACD15] text-[#1F3F34] px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:shadow-lg transition-all active:scale-95"
-                    >
-                      Save
-                    </button>
-                    <button 
-                      onClick={() => setIsEditingLocation(false)}
-                      className="bg-white text-[#1F3F34]/60 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border border-[#1F3F34]/10 hover:bg-gray-50 transition-all active:scale-95"
-                    >
-                      Exit
-                    </button>
-                  </div>
+                  <button 
+                    onClick={onUpdateLocation}
+                    className="px-3 py-1.5 bg-[#0066FF] text-white text-xs font-bold rounded-xl hover:bg-blue-700 transition-all cursor-pointer"
+                  >
+                    Save
+                  </button>
+                  <button 
+                    onClick={useCurrentLocation}
+                    className="p-1.5 bg-slate-100 text-slate-700 rounded-xl hover:bg-slate-200 transition-all cursor-pointer"
+                    title="Use Current GPS Location"
+                  >
+                    <Navigation className="w-4 h-4 text-[#0066FF]" />
+                  </button>
+                  <button 
+                    onClick={() => setIsEditingLocation(false)}
+                    className="px-2.5 py-1.5 text-xs text-slate-500 font-bold hover:text-slate-700"
+                  >
+                    Cancel
+                  </button>
                 </motion.div>
               ) : (
-                <button 
-                  onClick={() => {
-                    setLocationInput(profile?.address || profile?.city || profile?.location || "");
-                    setIsEditingLocation(true);
-                  }}
-                  className="flex items-center gap-2.5 px-6 py-2.5 bg-[#F5F4EF] rounded-full border border-[#1F3F34]/5 text-[#1F3F34] hover:border-[#FACD15] hover:bg-white transition-all text-sm font-bold group shadow-sm"
-                >
-                  <MapPin className="w-4 h-4 text-[#FACD15] group-hover:scale-110 transition-transform" /> 
-                  <span className="opacity-80 truncate max-w-[200px] sm:max-w-xs">
-                    {profile?.address || profile?.city || profile?.location || "No Operating Base Defined"}
-                  </span>
-                </button>
+                <div className="flex items-center gap-2 text-xs text-slate-500 font-medium">
+                  <MapPin className="w-3.5 h-3.5 text-[#0066FF]" />
+                  <span>{profile?.location || profile?.city || 'Location not specified'}</span>
+                  <button 
+                    onClick={() => {
+                      setLocationInput(profile?.location || profile?.city || '');
+                      setIsEditingLocation(true);
+                    }}
+                    className="text-[#0066FF] font-bold hover:underline ml-1 cursor-pointer"
+                  >
+                    Edit
+                  </button>
+                </div>
               )}
             </AnimatePresence>
           </div>

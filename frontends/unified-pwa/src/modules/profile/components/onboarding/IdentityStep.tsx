@@ -3,6 +3,7 @@ import { AdvancedFileUpload } from "../../components/AdvancedFileUpload";
 
 interface OnboardingData {
   fullName: string;
+  phoneNumber: string;
   bio: string;
   skills: string[];
   experienceYears: string;
@@ -22,6 +23,8 @@ interface IdentityStepProps {
 }
 
 export default function IdentityStep({ formData, setFormData, onNext }: IdentityStepProps) {
+  const isPhoneValid = !formData.phoneNumber || /^[0-9]{10}$/.test(formData.phoneNumber.replace(/\D/g, ''));
+
   return (
     <motion.div 
         initial={{ opacity: 0, y: 10 }}
@@ -34,23 +37,23 @@ export default function IdentityStep({ formData, setFormData, onNext }: Identity
             {/* Identity Card */}
             <div className="bg-white rounded-xl p-8 md:p-12 shadow-[0_20px_40px_-10px_rgba(31,63,52,0.08)] relative overflow-hidden text-left">
                 {/* Editorial Profile Blob (Decorative) */}
-                <div className="absolute top-0 right-0 w-32 h-32 bg-[#EFEEE9] organic-blob -mr-16 -mt-16"></div>
+                <div className="absolute top-0 right-0 w-32 h-32 bg-[#e2e8f0] organic-blob -mr-16 -mt-16"></div>
                 
                 <div className="relative z-10">
                     <div className="mb-10">
-                        <h1 className="font-headline font-extrabold text-4xl md:text-5xl text-[#1F3F34] tracking-tight mb-4">Identity</h1>
-                        <p className="text-lg text-[#1F3F34]/70 leading-relaxed">Confirm your professional presence on the global grid.</p>
+                        <h1 className="font-headline font-extrabold text-4xl md:text-5xl text-[#0A1931] tracking-tight mb-4">Identity</h1>
+                        <p className="text-lg text-[#0A1931]/70 leading-relaxed">Confirm your verified candidate profile and mobile number.</p>
                     </div>
 
-                    <form className="space-y-8" onSubmit={(e) => { e.preventDefault(); onNext(); }}>
+                    <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); onNext(); }}>
                         {/* Profile Image Section */}
-                        <div className="flex items-center gap-6 mb-8">
+                        <div className="flex items-center gap-6 mb-4">
                             <div className="relative group">
                                 <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-[#e9e8e3] ring-2 ring-[#FACD15] ring-offset-4">
                                     {formData.profile_image_url ? (
                                         <img alt="Profile" className="w-full h-full object-cover" src={formData.profile_image_url} />
                                     ) : (
-                                        <div className="w-full h-full bg-[#f2f1ec] flex items-center justify-center text-[#1F3F34]/20">
+                                        <div className="w-full h-full bg-[#f2f1ec] flex items-center justify-center text-[#0A1931]/20">
                                             <span className="material-symbols-outlined text-4xl">person</span>
                                         </div>
                                     )}
@@ -72,25 +75,53 @@ export default function IdentityStep({ formData, setFormData, onNext }: Identity
                                 </div>
                             </div>
                             <div>
-                                <span className="block font-headline font-bold text-[#1F3F34]">Profile Image</span>
-                                <span className="text-xs text-[#1F3F34]/50 uppercase tracking-widest">Protocol Required</span>
+                                <span className="block font-headline font-bold text-[#0A1931]">Profile Image</span>
+                                <span className="text-xs text-[#0A1931]/50 uppercase tracking-widest">Protocol Verified</span>
                             </div>
                         </div>
 
-                        {/* Form Field */}
+                        {/* Full Name */}
                         <div className="space-y-2 text-left">
-                            <label className="font-headline font-bold text-xs uppercase tracking-widest text-[#1F3F34]" htmlFor="fullname">Full Name</label>
+                            <label className="font-headline font-bold text-xs uppercase tracking-widest text-[#0A1931]" htmlFor="fullname">Full Name *</label>
                             <div className="relative">
-                                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[#1F3F34]/40">person</span>
+                                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[#0A1931]/40">person</span>
                                 <input 
-                                    className="w-full pl-12 pr-4 py-4 bg-[#e9e8e3] border-none rounded-[1rem] focus:ring-2 focus:ring-[#FACD15] text-[#1F3F34] placeholder:text-[#1F3F34]/30 transition-all font-body outline-none" 
+                                    className="w-full pl-12 pr-4 py-4 bg-[#e9e8e3] border-none rounded-[1rem] focus:ring-2 focus:ring-[#FACD15] text-[#0A1931] placeholder:text-[#0A1931]/30 transition-all font-body outline-none" 
                                     id="fullname" 
                                     placeholder="E.g. Arjun Vardhan" 
                                     type="text"
+                                    required
                                     value={formData.fullName}
                                     onChange={(e) => setFormData({...formData, fullName: e.target.value})}
                                 />
                             </div>
+                        </div>
+
+                        {/* Phone Number (Mandatory to prevent duplicate/fake accounts) */}
+                        <div className="space-y-2 text-left">
+                            <div className="flex justify-between items-center">
+                                <label className="font-headline font-bold text-xs uppercase tracking-widest text-[#0A1931]" htmlFor="phone">Mobile Phone Number *</label>
+                                <span className="text-[10px] text-[#0A1931]/60 font-medium">10-Digit Mobile</span>
+                            </div>
+                            <div className="relative">
+                                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[#0A1931]/40">phone</span>
+                                <input 
+                                    className={`w-full pl-12 pr-4 py-4 bg-[#e9e8e3] border-none rounded-[1rem] focus:ring-2 focus:ring-[#FACD15] text-[#0A1931] placeholder:text-[#0A1931]/30 transition-all font-body outline-none ${!isPhoneValid ? 'ring-2 ring-red-500' : ''}`} 
+                                    id="phone" 
+                                    placeholder="9876543210" 
+                                    type="tel"
+                                    required
+                                    maxLength={10}
+                                    value={formData.phoneNumber || ''}
+                                    onChange={(e) => {
+                                        const clean = e.target.value.replace(/\D/g, '');
+                                        setFormData({...formData, phoneNumber: clean});
+                                    }}
+                                />
+                            </div>
+                            <p className="text-[11px] text-[#0A1931]/60">
+                                Required for job dispatch, direct employer calls, and duplicate prevention.
+                            </p>
                         </div>
 
                         {/* CTA Section */}
@@ -98,9 +129,9 @@ export default function IdentityStep({ formData, setFormData, onNext }: Identity
                             <button 
                                 className="w-full bg-[#FACD15] text-[#002117] font-headline font-extrabold py-4 px-8 rounded-[1rem] uppercase tracking-wider flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-95 transition-all shadow-[inset_0_-2px_0_rgba(0,0,0,0.1)] disabled:opacity-50" 
                                 type="submit"
-                                disabled={!formData.fullName}
+                                disabled={!formData.fullName || !(formData.phoneNumber && formData.phoneNumber.length >= 10)}
                             >
-                                Next Protocol
+                                Continue to Expertise
                                 <span className="material-symbols-outlined" data-icon="arrow_forward">arrow_forward</span>
                             </button>
                         </div>
@@ -109,7 +140,7 @@ export default function IdentityStep({ formData, setFormData, onNext }: Identity
             </div>
 
             {/* Contextual Footnote */}
-            <p className="text-center mt-8 text-xs text-[#1F3F34]/40 font-bold uppercase tracking-[0.2em]">Step 01 / 04 • Basic Protocol Verification</p>
+            <p className="text-center mt-8 text-xs text-[#0A1931]/40 font-bold uppercase tracking-[0.2em]">Step 01 / 04 • Candidate Identity Verification</p>
         </div>
 
     </motion.div>

@@ -89,11 +89,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     initAuth();
 
+    let syncInProgress = false;
+
     // 2. Listen to Firebase Auth state changes
     const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
-      if (fbUser) {
+      if (fbUser && !syncInProgress) {
         const token = localStorage.getItem('token');
         if (!token) {
+          syncInProgress = true;
           const targetRole = (localStorage.getItem('target_role') || 'WORKER') as UserRole;
           const nameParts = (fbUser.displayName || 'Worker').split(' ');
           const firstName = nameParts[0] || 'Worker';
@@ -111,19 +114,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             if (payload?.token && payload?.user) {
               login(payload.token, payload.user);
             }
-          } catch (syncErr) {
-            console.warn("Backend oauth sync fallback:", syncErr);
-            const userPayload = {
-              id: fbUser.uid,
-              email: fbUser.email,
-              first_name: firstName,
-              last_name: lastName,
-              profile_image_url: fbUser.photoURL,
-              role: targetRole,
-              onboarded: true,
-            };
-            const idToken = await fbUser.getIdToken().catch(() => 'firebase-token');
-            login(idToken, userPayload);
+          } catch (syncErr: any) {
+            console.error("Backend oauth sync failed:", syncErr);
+            const errorMessage = syncErr?.response?.data?.message || syncErr?.message || "Authentication failed.";
+            alert(`Sign in failed: ${errorMessage}`);
+            await firebaseSignOut(auth);
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+          } finally {
+            syncInProgress = false;
           }
         }
       }
@@ -184,53 +183,31 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     window.location.href = '/';
   };
 
-  const signInWithGoogle = async (targetRole: UserRole = 'WORKER') => {
-    localStorage.setItem('target_role', targetRole);
+  const signInWithGoogle = async () => {
+    localStorage.setItem('target_role', 'WORKER');
     try {
-      const result = await signInWithPopup(auth, googleProvider);
-      const fbUser = result.user;
-      const nameParts = (fbUser.displayName || 'Worker').split(' ');
-      const firstName = nameParts[0] || 'Worker';
-      const lastName = nameParts.slice(1).join(' ') || '';
-
-      const syncRes = await apiClient.post('/api/auth/oauth-sync', {
-        email: fbUser.email,
-        firstName,
-        lastName,
-        profileImageUrl: fbUser.photoURL,
-        role: targetRole,
-      });
-
-      const payload = syncRes.data?.data || syncRes.data;
-      if (payload?.token && payload?.user) {
-        login(payload.token, payload.user);
-      } else {
-        const idToken = await fbUser.getIdToken().catch(() => 'firebase-token');
-        login(idToken, {
-          id: fbUser.uid,
-          email: fbUser.email,
-          first_name: firstName,
-          last_name: lastName,
-          profile_image_url: fbUser.photoURL,
-          role: targetRole,
-          onboarded: true,
-        });
-      }
-      window.location.href = targetRole === 'WORKER' ? '/tracker' : '/dashboard';
+      await signInWithPopup(auth, googleProvider);
+      // Wait for onAuthStateChanged to handle the sync
+      let retries = 0;
+      const checkToken = setInterval(() => {
+        if (localStorage.getItem('token')) {
+          clearInterval(checkToken);
+          window.location.href = '/search';
+        } else if (retries > 40) { // 20 seconds timeout
+          clearInterval(checkToken);
+          // If no token after 20s, it means sync failed or was rejected. 
+          // onAuthStateChanged catch block handles the error alert.
+        }
+        retries++;
+      }, 500);
+      
     } catch (error: any) {
-      console.warn("Firebase Google Auth fallback:", error.message);
-      // Mock / fallback google login for seamless local development
-      const mockGoogleUser = {
-        id: 'google-worker-' + Date.now(),
-        email: 'worker.google@trusthire.in',
-        first_name: 'Verified',
-        last_name: 'Specialist',
-        role: targetRole,
-        onboarded: true,
-        profile_image_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&auto=format&fit=crop'
-      };
-      login('jwt-google-mock-token', mockGoogleUser);
-      window.location.href = targetRole === 'WORKER' ? '/tracker' : '/dashboard';
+      console.warn("Firebase Google Auth error:", error.message);
+      if (error?.response?.status === 403) {
+        alert(error.response?.data?.message || "Employer accounts cannot sign in with Google.");
+      } else if (error.code !== 'auth/popup-closed-by-user') {
+        alert(`Google Sign-In failed: ${error.message}`);
+      }
     }
   };
 
@@ -272,26 +249,26 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       {sessionExpired && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-[#1F3F34]/60 backdrop-blur-md" />
+          <div className="absolute inset-0 bg-[#0A1931]/60 backdrop-blur-md" />
           <div className="bg-white w-full max-w-sm rounded-2xl shadow-2xl relative z-10 overflow-hidden animate-in fade-in zoom-in duration-300">
             <div className="p-6 text-center space-y-4">
               <div className="w-14 h-14 bg-[#FACD15]/10 rounded-2xl flex items-center justify-center mx-auto relative">
                 <ShieldAlert className="w-8 h-8 text-[#FACD15]" />
-                <Clock className="w-5 h-5 text-[#1F3F34] absolute -bottom-1 -right-1" />
+                <Clock className="w-5 h-5 text-[#0A1931] absolute -bottom-1 -right-1" />
               </div>
 
               <div className="space-y-1">
-                <h3 className="text-xl font-black text-[#1F3F34] tracking-tight">
+                <h3 className="text-xl font-black text-[#0A1931] tracking-tight">
                   Session Expired
                 </h3>
-                <p className="text-xs font-medium text-[#1F3F34]/60 leading-relaxed px-2">
+                <p className="text-xs font-medium text-[#0A1931]/60 leading-relaxed px-2">
                   Your session has timed out. Please sign in again.
                 </p>
               </div>
 
               <button
                 onClick={logout}
-                className="w-full bg-[#1F3F34] text-[#FACD15] py-3 rounded-xl font-bold uppercase text-xs tracking-wider hover:brightness-110 active:scale-98 transition-all flex items-center justify-center gap-2 shadow-lg"
+                className="w-full bg-[#0A1931] text-[#FACD15] py-3 rounded-xl font-bold uppercase text-xs tracking-wider hover:brightness-110 active:scale-98 transition-all flex items-center justify-center gap-2 shadow-lg"
               >
                 <LogOut className="w-4 h-4" />
                 Return to Login

@@ -74,14 +74,14 @@ export const IdentityVerificationPage = () => {
       <div className="absolute inset-0 cloud-grid opacity-[0.05] pointer-events-none -z-10" />
       
       {/* TopAppBar - New High Fidelity Design */}
-      <header className="bg-[#f5f4ef]/80 backdrop-blur-xl sticky top-0 z-50 border-b border-[#c1c8c3]/10">
+      <header className="bg-[#F8FAFC]/80 backdrop-blur-xl sticky top-0 z-50 border-b border-[#c1c8c3]/10">
         <div className="flex justify-between items-center w-full px-6 py-4">
           <div className="flex items-center gap-4">
             <button 
               onClick={() => step > 1 ? setStep(step - 1) : navigate(-1)}
               className="p-2 hover:bg-[#c1c8c3]/20 rounded-full transition-all active:scale-95 group"
             >
-              <ArrowLeft className="w-5 h-5 text-[#2d4d41] group-hover:text-[#1F3F34]" />
+              <ArrowLeft className="w-5 h-5 text-[#2d4d41] group-hover:text-[#0A1931]" />
             </button>
             <span className="font-headline font-black tracking-tight text-xl text-[#2d4d41] tracking-tighter">TrustHire</span>
           </div>

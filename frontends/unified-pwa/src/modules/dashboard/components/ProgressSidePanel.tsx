@@ -1,31 +1,30 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ShieldCheck, Award, ChevronRight, CheckCircle2, Circle } from 'lucide-react';
 
 interface ActionCardProps {
   title: string;
   description: string;
-  icon: string;
+  icon: React.ReactNode;
   containerColor: string;
-  hoverColor: string;
-  iconColor: string;
   path: string;
 }
 
-const ActionCard: React.FC<ActionCardProps> = ({ title, description, icon, containerColor, hoverColor, iconColor, path }) => {
+const ActionCard: React.FC<ActionCardProps> = ({ title, description, icon, containerColor, path }) => {
   const navigate = useNavigate();
   return (
     <div 
       onClick={() => navigate(path)}
-      className="bg-white p-4 rounded-2xl flex items-center gap-4 bento-card cursor-pointer group shadow-sm hover:shadow-md transition-all border border-[#c1c8c3]/10"
+      className="bg-white p-4 rounded-2xl flex items-center gap-3.5 cursor-pointer group shadow-xs hover:shadow-md transition-all border border-slate-200/80 hover:border-blue-300"
     >
-      <div className={`w-12 h-12 ${containerColor} rounded-xl flex items-center justify-center ${iconColor} group-hover:${hoverColor} transition-all duration-300`}>
-        <span className="material-symbols-outlined">{icon}</span>
+      <div className={`w-11 h-11 ${containerColor} rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-105 shrink-0`}>
+        {icon}
       </div>
-      <div className="flex-1">
-        <h5 className="text-sm font-extrabold text-[#1F3F34]">{title}</h5>
-        <p className="text-[0.65rem] text-[#414845] font-medium">{description}</p>
+      <div className="flex-1 min-w-0">
+        <h5 className="text-sm font-bold text-slate-900 truncate">{title}</h5>
+        <p className="text-xs text-slate-500 font-medium truncate">{description}</p>
       </div>
-      <span className="material-symbols-outlined text-[#414845] transform group-hover:translate-x-1 transition-transform">chevron_right</span>
+      <ChevronRight className="w-4 h-4 text-slate-400 group-hover:translate-x-1 group-hover:text-[#0066FF] transition-all shrink-0" />
     </div>
   );
 };
@@ -35,76 +34,57 @@ interface ProgressSidePanelProps {
   progress?: number;
 }
 
-export const ProgressSidePanel: React.FC<ProgressSidePanelProps> = ({ level = 'L1 Skilled', progress = 30 }) => {
-  const nextLevel = level.startsWith('L1') ? 'L2 Skilled' : level.startsWith('L2') ? 'L3 Expert' : 'Master';
+export const ProgressSidePanel: React.FC<ProgressSidePanelProps> = ({ level = 'L1 Certified Pro', progress = 70 }) => {
+  const nextLevel = level.startsWith('L1') ? 'L2 Senior Pro' : level.startsWith('L2') ? 'L3 Master Trade' : 'Elite Partner';
 
   return (
-    <div className="space-y-6">
-      <div className="bg-[#1F3F34] text-[#F5F4EF] p-6 rounded-[2rem] relative overflow-hidden bento-card shadow-lg hover:shadow-xl transition-all border border-[#FACD15]/10">
-        <div className="relative z-10">
-          <div className="flex items-center gap-2 mb-6">
-            <span className="material-symbols-outlined text-[#FACD15]">trending_up</span>
-            <span className="text-[0.65rem] font-bold uppercase tracking-widest leading-none">Level Progress</span>
+    <div className="space-y-5">
+      {/* Level Progress Card */}
+      <div className="bg-gradient-to-br from-[#0A1931] to-[#0066FF] text-white p-6 rounded-3xl relative overflow-hidden shadow-lg shadow-blue-950/20 border border-blue-500/20">
+        <div className="relative z-10 space-y-4">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-black uppercase tracking-widest text-blue-200 flex items-center gap-1.5">
+              <ShieldCheck className="w-3.5 h-3.5 text-blue-300" /> TrustScore & Tier
+            </span>
+            <span className="text-xs font-bold bg-white/20 px-2 py-0.5 rounded-full">Top 5%</span>
           </div>
-          <div className="flex justify-between items-end mb-2">
-            <div>
-              <h3 className="text-2xl font-extrabold text-white">{level}</h3>
-              <p className="text-xs text-[#F5F4EF]/60 font-medium tracking-tight">To {nextLevel}</p>
+
+          <div>
+            <div className="flex justify-between items-baseline mb-1">
+              <h3 className="text-xl font-extrabold text-white tracking-tight">{level}</h3>
+              <span className="text-lg font-black text-amber-300">{progress}%</span>
             </div>
-            <span className="text-2xl font-extrabold text-[#FACD15]">{progress}%</span>
+            <p className="text-xs text-blue-100/70 font-medium">To unlock {nextLevel} (Higher payouts & priority dispatch)</p>
           </div>
-          <div className="h-3 w-full bg-[#FFFFFF]/10 rounded-full mb-6 overflow-hidden">
-            <div className="h-full bg-[#FACD15] rounded-full shadow-[0_0_15px_rgba(250,205,21,0.3)]" style={{ width: `${progress}%` }}></div>
+
+          <div className="h-2.5 w-full bg-white/20 rounded-full overflow-hidden">
+            <div className="h-full bg-amber-400 rounded-full shadow-[0_0_12px_rgba(250,205,21,0.5)] transition-all duration-500" style={{ width: `${progress}%` }}></div>
           </div>
-          <div className="space-y-3">
-            <p className="text-[0.65rem] font-bold text-[#F5F4EF]/40 uppercase tracking-widest leading-none">Tasks to unlock L3</p>
-            <div className="flex items-center gap-3 bg-[#FFFFFF]/5 p-3 rounded-xl hover:bg-[#FFFFFF]/10 transition-colors cursor-default">
-              <span className="material-symbols-outlined text-[#FACD15] text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
-              <span className="text-xs font-medium">Complete 5 jobs</span>
+
+          <div className="space-y-2 pt-1">
+            <p className="text-[9px] font-bold text-blue-200 uppercase tracking-widest">To reach {nextLevel}:</p>
+            <div className="flex items-center gap-2 bg-white/10 p-2.5 rounded-xl text-xs">
+              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+              <span className="font-medium text-slate-100">Complete 3 more instant shifts</span>
             </div>
-            <div className="flex items-center gap-3 bg-[#FFFFFF]/5 p-3 rounded-xl border border-[#FFFFFF]/10 hover:bg-[#FFFFFF]/10 transition-colors cursor-default">
-              <span className="material-symbols-outlined text-[#F5F4EF]/30 text-sm">radio_button_unchecked</span>
-              <span className="text-xs font-medium">Pass Expert Skill Test</span>
+            <div className="flex items-center gap-2 bg-white/10 p-2.5 rounded-xl text-xs">
+              <Circle className="w-4 h-4 text-blue-300 shrink-0" />
+              <span className="font-medium text-slate-100">Complete Aadhaar / KYC verification</span>
             </div>
           </div>
         </div>
-        <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-[#FACD15]/5 rounded-full blur-3xl opacity-50"></div>
       </div>
 
-      <h2 className="text-xl font-extrabold text-[#1F3F34] flex items-center gap-2 px-2 tracking-tight">
-        <span className="w-2 h-6 bg-[#FACD15] rounded-full"></span>
-        Quick Actions
-      </h2>
-      
-      <div className="space-y-4">
-        <ActionCard 
-          title="Verify Identity" 
-          description="Unlock premium job access" 
-          icon="fingerprint" 
-          containerColor="bg-[#c7ebdb]/30" 
-          hoverColor="bg-[#FACD15]"
-          iconColor="text-[#1F3F34]"
-          path="/verify-identity"
-        />
-        <ActionCard 
-          title="Take Skill Test" 
-          description="Boost your profile visibility" 
-          icon="quiz" 
-          containerColor="bg-[#ffe081]/30" 
-          hoverColor="bg-[#FACD15]"
-          iconColor="text-[#1F3F34]"
-          path="/tests"
-        />
-        
-        <div className="bg-[#f5f4ef] p-6 rounded-[2rem] text-center border border-[#c1c8c3]/20 shadow-sm relative overflow-hidden group">
-          <div className="mb-4 inline-block p-4 bg-white rounded-full shadow-sm transform group-hover:rotate-12 transition-transform duration-500">
-            <span className="material-symbols-outlined text-4xl text-[#1F3F34]" style={{ fontVariationSettings: "'FILL' 1" }}>redeem</span>
-          </div>
-          <h5 className="text-sm font-extrabold mb-1 text-[#1F3F34]">Refer & Earn</h5>
-          <p className="text-[0.65rem] text-[#414845] font-medium mb-4">Get ₹200 for every friend who joins</p>
-          <button className="w-full py-2.5 rounded-xl border-2 border-[#1F3F34] text-[#1F3F34] text-[0.65rem] font-extrabold uppercase hover:bg-[#1F3F34] hover:text-[#f5f4ef] transition-all active:scale-95">
-            Share Link
-          </button>
+      <div className="space-y-2">
+        <h4 className="text-xs font-black uppercase tracking-wider text-slate-400 px-1">Quick Partner Actions</h4>
+        <div className="space-y-2.5">
+          <ActionCard 
+            title="Complete Identity KYC" 
+            description="Unlock instant 1-hr bank withdrawals" 
+            icon={<ShieldCheck className="w-5 h-5 text-[#0066FF]" />} 
+            containerColor="bg-blue-50"
+            path="/verify-identity"
+          />
         </div>
       </div>
     </div>

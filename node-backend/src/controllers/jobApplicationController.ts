@@ -132,7 +132,7 @@ export const getJobApplications = async (req: Request, res: Response) => {
 
 export const getApplicationsByJobs = async (req: Request, res: Response) => {
   try {
-    const jobIds: string[] = req.body;
+    const { jobIds } = req.body;
     const applications = await prisma.job_applications.findMany({
       where: { job_id: { in: jobIds } }
     });

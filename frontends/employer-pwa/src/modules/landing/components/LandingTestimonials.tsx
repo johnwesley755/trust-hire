@@ -43,7 +43,7 @@ export function LandingTestimonials() {
               src="https://lh3.googleusercontent.com/aida-public/AB6AXuCGpnEpqkSqoKebDlIaU4fUfEVleqGCYNsHmd0CA8-4pTBySmfLl8yxDGRJgjXaI69iBjkimZ0lJcuAoQyRGywV4Z0pmdqElDzzw0geriFcMyr_p9SnIUnN2Wic37dUQNOrbZysyUeFQ42tNd1AkWcJPrVqKHx0D5hyO0WkNAXsZnz3AIRj8bCmVB7wIsUoahvke_x7CuE9pl04sqCWn3F1Dh5xoABtkdITY97BAdbt8zziadkJKaSxbqzRs3DeI_nfgs76tgQE15g" 
             />
           </div>
-          <span className="text-brand-amber text-5xl font-serif mb-1 leading-none">“</span>
+          <span className="text-brand-amber text-5xl  mb-1 leading-none">“</span>
           <p className="text-brand-forest/80 italic mb-6 text-sm">"I finally have time to focus on growth instead of screening IDs. The L3 workers are truly exceptional professionals."</p>
           <p className="font-bold text-brand-forest text-sm">Rohan Deshmukh</p>
           <p className="text-[10px] text-brand-forest/40 uppercase tracking-widest font-black">Founder, UrbanCare</p>

@@ -28,10 +28,9 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ isOpen, onCl
   ];
 
   const workerMenuItems = [
-    { name: 'Activity Tracker', icon: 'monitoring', path: '/tracker' },
     { name: 'Find Jobs', icon: 'search', path: '/search' },
     { name: 'Applied Jobs', icon: 'work_history', path: '/applied-jobs' },
-    { name: 'Skill Tests', icon: 'psychology', path: '/tests' },
+    { name: 'Activity Tracker', icon: 'monitoring', path: '/tracker' },
     { name: 'Career Level', icon: 'stars', path: '/level' },
     { name: 'Profile', icon: 'person', path: '/profile' },
   ];
@@ -65,22 +64,22 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ isOpen, onCl
       )}
 
       <aside
-        className={`fixed md:sticky top-0 left-0 h-screen w-64 md:w-72 bg-[#132c23] p-6 gap-2 shrink-0 z-70 transition-transform duration-300 md:translate-x-0 ${
+        className={`fixed md:sticky top-0 left-0 h-screen w-60 md:w-68 bg-[#0A1931] p-4 gap-1.5 shrink-0 z-70 transition-transform duration-300 md:translate-x-0 ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
-        } md:flex flex-col`}
+        } md:flex flex-col overflow-y-auto no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden`}
       >
         {/* Logo Section */}
         <div
-          className="mb-8 px-2 flex justify-between items-center cursor-pointer"
+          className="mb-4 px-2 flex justify-between items-center cursor-pointer"
           onClick={() => navigate('/')}
         >
-          <div className="flex items-center gap-3 group">
-            <div className="w-10 h-10 bg-white rounded-xl shadow-lg flex items-center justify-center p-1 group-hover:scale-105 transition-transform duration-300">
+          <div className="flex items-center gap-2.5 group">
+            <div className="w-9 h-9 bg-white rounded-xl shadow-md flex items-center justify-center p-1 group-hover:scale-105 transition-transform duration-300">
               <img src={logo} alt="TrustHire" className="w-full h-full object-contain" />
             </div>
             <div>
-              <h1 className="text-xl font-black text-white tracking-tight">TrustHire</h1>
-              <p className="text-[10px] font-bold text-[#FACD15] uppercase tracking-wider">
+              <h1 className="text-lg font-black text-white tracking-tight leading-none">TrustHyre</h1>
+              <p className="text-[9px] font-bold text-[#FACD15] uppercase tracking-wider mt-0.5">
                 {isEmployer ? 'Employer Portal' : 'Worker Portal'}
               </p>
             </div>
@@ -91,57 +90,57 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ isOpen, onCl
         </div>
 
         {/* Profile Card in Sidebar */}
-        <div className="mb-6 px-3 py-3 bg-white/5 rounded-2xl flex items-center gap-3 border border-white/5">
+        <div className="mb-3 px-3 py-2 bg-white/5 rounded-xl flex items-center gap-2.5 border border-white/5">
           <UserAvatar
             src={user?.profileImageUrl}
             name={user?.firstName ? `${user.firstName} ${user.lastName || ''}` : user?.email}
-            size="md"
+            size="sm"
           />
           <div className="flex flex-col truncate flex-1 min-w-0">
-            <span className="text-xs font-black text-white truncate">
+            <span className="text-xs font-black text-white truncate leading-tight">
               {user?.firstName ? `${user.firstName} ${user.lastName || ''}` : user?.email}
             </span>
-            <span className="text-[9px] text-[#FACD15] font-bold uppercase tracking-wider">
+            <span className="text-[8px] text-[#FACD15] font-bold uppercase tracking-wider">
               {isEmployer ? 'Verified Employer' : 'Specialist Worker'}
             </span>
           </div>
         </div>
 
         {/* Main Navigation */}
-        <nav className="flex-1 flex flex-col gap-1 overflow-y-auto pr-1 no-scrollbar">
+        <nav className="flex-1 flex flex-col gap-1 overflow-y-auto no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
           {menuItems.map((item) => {
             const isActive = location.pathname === item.path;
             return (
               <button
                 key={item.name}
                 onClick={() => handleNavigate(item.path)}
-                className={`flex items-center gap-3 px-4 py-3 rounded-full transition-all group ${
+                className={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl transition-all group ${
                   isActive
-                    ? 'bg-[#FACD15] text-[#1F3F34] font-black shadow-lg shadow-[#FACD15]/20'
+                    ? 'bg-[#0066FF] text-white font-black shadow-md shadow-[#0066FF]/20'
                     : 'text-white/70 hover:bg-white/5 hover:text-white font-bold'
                 }`}
               >
                 <span
                   className="material-symbols-outlined"
-                  style={{ fontVariationSettings: isActive ? "'FILL' 1" : "'FILL' 0", fontSize: '20px' }}
+                  style={{ fontVariationSettings: isActive ? "'FILL' 1" : "'FILL' 0", fontSize: '18px' }}
                 >
                   {item.icon}
                 </span>
-                <span className="text-sm tracking-tight">{item.name}</span>
+                <span className="text-xs tracking-tight">{item.name}</span>
               </button>
             );
           })}
         </nav>
 
         {/* Secondary & Actions */}
-        <div className="mt-auto flex flex-col gap-1 pt-6 border-t border-white/10">
+        <div className="mt-auto flex flex-col gap-0.5 pt-3 border-t border-white/10 shrink-0">
           {secondaryItems.map((item) => (
             <button
               key={item.name}
               onClick={() => handleNavigate(item.path)}
-              className="flex items-center gap-3 px-4 py-2 text-white/60 hover:text-white transition-all text-left text-xs font-bold"
+              className="flex items-center gap-2.5 px-3 py-1.5 text-white/60 hover:text-white transition-all text-left text-[11px] font-bold"
             >
-              <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>
                 {item.icon}
               </span>
               <span>{item.name}</span>
@@ -150,9 +149,9 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ isOpen, onCl
 
           <button
             onClick={logout}
-            className="flex items-center gap-3 px-4 py-2 text-red-300/70 hover:text-red-300 transition-all text-left text-xs font-bold mt-1"
+            className="flex items-center gap-2.5 px-3 py-1.5 text-red-300/70 hover:text-red-300 transition-all text-left text-[11px] font-bold"
           >
-            <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>
               logout
             </span>
             <span>Sign Out</span>
@@ -167,20 +166,20 @@ export const MobileNav = ({ onMenuClick }: { onMenuClick: () => void }) => {
   const navigate = useNavigate();
 
   return (
-    <header className="md:hidden fixed top-0 w-full z-40 bg-[#F5F4EF]/90 backdrop-blur-md shadow-[0_2px_12px_rgba(0,0,0,0.05)] border-b border-[#EFEEE9]">
+    <header className="md:hidden fixed top-0 w-full z-40 bg-[#F8FAFC]/90 backdrop-blur-md shadow-[0_2px_12px_rgba(0,0,0,0.05)] border-b border-[#e2e8f0]">
       <div className="flex justify-between items-center px-6 py-4 w-full">
         <div className="flex items-center gap-4">
           <button
             onClick={onMenuClick}
             className="active:scale-95 duration-200 transition-transform w-10 h-10 flex items-center justify-center rounded-full hover:bg-black/5"
           >
-            <span className="material-symbols-outlined text-[#1F3F34] text-2xl">menu</span>
+            <span className="material-symbols-outlined text-[#0A1931] text-2xl">menu</span>
           </button>
           <h1
-            className="text-xl font-black tracking-tight text-[#1F3F34] cursor-pointer"
+            className="text-xl font-black tracking-tight text-[#0A1931] cursor-pointer"
             onClick={() => navigate('/')}
           >
-            TrustHire
+            TrustHyre
           </h1>
         </div>
         <div className="flex items-center gap-3">

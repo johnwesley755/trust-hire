@@ -19,16 +19,16 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({ onMenuClick, c
     : user?.email || 'User';
 
   return (
-    <header className={`sticky top-0 right-0 left-0 h-16 glass-header bg-[#F5F4EF]/80 backdrop-blur-md flex justify-between items-center px-4 md:px-8 z-30 border-b border-[#1F3F34]/5 transition-all ${className || ''}`}>
+    <header className={`sticky top-0 right-0 left-0 h-16 glass-header bg-[#F8FAFC]/80 backdrop-blur-md flex justify-between items-center px-4 md:px-8 z-30 border-b border-[#0A1931]/5 transition-all ${className || ''}`}>
       <div className="flex items-center gap-4">
         <button 
           onClick={onMenuClick}
-          className="lg:hidden p-2 hover:bg-[#1F3F34]/5 rounded-full transition-all text-[#1F3F34]"
+          className="lg:hidden p-2 hover:bg-[#0A1931]/5 rounded-full transition-all text-[#0A1931]"
         >
           <span className="material-symbols-outlined">menu</span>
         </button>
         
-        <div className="text-xl font-black text-[#1F3F34] tracking-tight lg:hidden">
+        <div className="text-xl font-black text-[#0A1931] tracking-tight lg:hidden">
           TrustHire
         </div>
         
@@ -44,7 +44,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({ onMenuClick, c
 
       <div className="flex items-center gap-2 md:gap-4">
         <NotificationCenter />
-        <button className="p-2 hover:bg-[#E9E8E3] rounded-full transition-all text-[#1F3F34]">
+        <button className="p-2 hover:bg-[#E9E8E3] rounded-full transition-all text-[#0A1931]">
           <span className="material-symbols-outlined">chat_bubble</span>
         </button>
         
@@ -52,10 +52,10 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({ onMenuClick, c
         
         <div 
           onClick={() => navigate('/profile')}
-          className="flex items-center gap-3 group cursor-pointer hover:bg-[#1F3F34]/5 p-1.5 rounded-xl transition-all"
+          className="flex items-center gap-3 group cursor-pointer hover:bg-[#0A1931]/5 p-1.5 rounded-xl transition-all"
         >
           <div className="text-right hidden sm:block">
-            <p className="text-xs font-black leading-none text-[#1F3F34]">
+            <p className="text-xs font-black leading-none text-[#0A1931]">
               {displayName}
             </p>
             <p className="text-[10px] text-[#414845] font-bold uppercase mt-1 tracking-tighter">

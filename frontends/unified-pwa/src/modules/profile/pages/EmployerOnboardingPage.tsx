@@ -26,6 +26,7 @@ export default function OnboardingPage() {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     companyName: "",
+    businessPhone: "",
     industry: "",
     companyWebsite: "",
     profileBio: "",
@@ -101,12 +102,17 @@ export default function OnboardingPage() {
           city: formData.city || ""
       });
 
-      await apiClient.post('/api/auth/sync', { role: "EMPLOYER", onboarded: true });
+      await apiClient.post('/api/auth/sync', { 
+        role: "EMPLOYER", 
+        onboarded: true,
+        phone_number: formData.businessPhone || undefined
+      });
       localStorage.setItem('onboarded', 'true');
       navigate("/dashboard");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Onboarding failure:", error);
-      alert("Verification sync failed. Please try again.");
+      const msg = error.response?.data?.message || "Verification sync failed. Please try again.";
+      alert(msg);
     } finally {
       setIsSubmitting(false);
     }
@@ -115,20 +121,20 @@ export default function OnboardingPage() {
   const progress = (step / 3) * 100;
 
   return (
-    <div className="bg-[#F5F4EF] text-[#1F3F34] font-['Bricolage_Grotesque'] antialiased min-h-screen flex flex-col overflow-x-hidden selection:bg-[#FACD15] selection:text-[#002117]">
+    <div className="bg-[#F8FAFC] text-[#0A1931] font-['Bricolage_Grotesque'] antialiased min-h-screen flex flex-col overflow-x-hidden selection:bg-[#FACD15] selection:text-[#002117]">
       
       {/* Top Navigation / Progress Header */}
-      <header className="fixed top-0 left-0 w-full z-50 flex flex-col bg-[#F5F4EF]/80 backdrop-blur-md">
+      <header className="fixed top-0 left-0 w-full z-50 flex flex-col bg-[#F8FAFC]/80 backdrop-blur-md">
         <div className="flex justify-between items-center px-6 py-4 max-w-7xl mx-auto w-full">
-            <div className="text-xl font-black text-[#1F3F34] tracking-tight">
+            <div className="text-xl font-black text-[#0A1931] tracking-tight">
                 TrustHire
             </div>
             <div className="flex items-center gap-4">
                 <div className="hidden md:flex flex-col items-end gap-0.5">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#1F3F34]/60">Step {step} of 3</span>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#1F3F34]">{Math.round(progress)}% Complete</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#0A1931]/60">Step {step} of 3</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#0A1931]">{Math.round(progress)}% Complete</span>
                 </div>
-                <button className="material-symbols-outlined text-[#1F3F34] p-2 hover:bg-[#FACD15]/10 rounded-full transition-colors">
+                <button className="material-symbols-outlined text-[#0A1931] p-2 hover:bg-[#FACD15]/10 rounded-full transition-colors">
                     help_outline
                 </button>
             </div>
@@ -159,47 +165,67 @@ export default function OnboardingPage() {
                                 <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4 leading-tight">
                                     Welcome to TrustHire.
                                 </h1>
-                                <p className="text-lg text-[#1F3F34]/70 leading-relaxed font-medium">
+                                <p className="text-lg text-[#0A1931]/70 leading-relaxed font-medium">
                                     Let's start by getting to know your business. This helps us tailor the hiring experience for your specific needs.
                                 </p>
                             </div>
 
                             <form className="space-y-8" onSubmit={(e) => { e.preventDefault(); nextStep(); }}>
                                 <div className="group">
-                                    <label className="block text-xs font-bold uppercase tracking-widest text-[#1F3F34] mb-3">
-                                        Company Name
+                                    <label className="block text-xs font-bold uppercase tracking-widest text-[#0A1931] mb-3">
+                                        Company Name *
                                     </label>
                                     <div className="relative">
                                         <input 
-                                            className="w-full bg-[#E9E8E3] border-none rounded-xl px-4 py-4 focus:ring-2 focus:ring-[#FACD15] text-[#1F3F34] font-medium transition-all placeholder:text-[#1F3F34]/30" 
+                                            className="w-full bg-[#E9E8E3] border-none rounded-xl px-4 py-4 focus:ring-2 focus:ring-[#FACD15] text-[#0A1931] font-medium transition-all placeholder:text-[#0A1931]/30" 
                                             placeholder="e.g., Reliance Logistics" 
                                             type="text"
                                             value={formData.companyName}
                                             onChange={(e) => setFormData({...formData, companyName: e.target.value})}
                                             required
                                         />
-                                        <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-[#1F3F34]/20">
+                                        <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-[#0A1931]/20">
                                             domain
                                         </span>
                                     </div>
                                 </div>
 
                                 <div className="group">
+                                    <label className="block text-xs font-bold uppercase tracking-widest text-[#0A1931] mb-3">
+                                        Business Phone Number *
+                                    </label>
+                                    <div className="relative">
+                                        <input 
+                                            className="w-full bg-[#E9E8E3] border-none rounded-xl px-4 py-4 focus:ring-2 focus:ring-[#FACD15] text-[#0A1931] font-medium transition-all placeholder:text-[#0A1931]/30" 
+                                            placeholder="9876543210" 
+                                            type="tel"
+                                            maxLength={10}
+                                            value={formData.businessPhone}
+                                            onChange={(e) => setFormData({...formData, businessPhone: e.target.value.replace(/\D/g, '')})}
+                                            required
+                                        />
+                                        <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-[#0A1931]/20">
+                                            phone
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div className="group">
                                     <div className="flex justify-between items-center mb-3">
-                                        <label className="block text-xs font-bold uppercase tracking-widest text-[#1F3F34]">
+                                        <label className="block text-xs font-bold uppercase tracking-widest text-[#0A1931]">
                                             Website
                                         </label>
-                                        <span className="text-[10px] font-bold text-[#1F3F34]/40 uppercase tracking-tighter">Optional</span>
+                                        <span className="text-[10px] font-bold text-[#0A1931]/40 uppercase tracking-tighter">Optional</span>
                                     </div>
                                     <div className="relative">
                                         <input 
-                                            className="w-full bg-[#E9E8E3] border-none rounded-xl px-4 py-4 focus:ring-2 focus:ring-[#FACD15] text-[#1F3F34] font-medium transition-all placeholder:text-[#1F3F34]/30" 
+                                            className="w-full bg-[#E9E8E3] border-none rounded-xl px-4 py-4 focus:ring-2 focus:ring-[#FACD15] text-[#0A1931] font-medium transition-all placeholder:text-[#0A1931]/30" 
                                             placeholder="https://company.com" 
                                             type="url"
                                             value={formData.companyWebsite}
                                             onChange={(e) => setFormData({...formData, companyWebsite: e.target.value})}
                                         />
-                                        <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-[#1F3F34]/20">
+                                        <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-[#0A1931]/20">
                                             language
                                         </span>
                                     </div>
@@ -218,19 +244,19 @@ export default function OnboardingPage() {
                                     </button>
                                 </div>
                             </form>
-                            <p className="mt-8 text-center text-sm text-[#1F3F34]/40 font-medium">
+                            <p className="mt-8 text-center text-sm text-[#0A1931]/40 font-medium">
                                 By continuing, you agree to our Terms of Service.
                             </p>
                         </div>
                     </section>
 
                     {/* Right Section: Visual */}
-                    <section className="hidden lg:flex lg:w-1/2 relative bg-[#EFEEE9] items-center justify-center p-12 overflow-hidden">
+                    <section className="hidden lg:flex lg:w-1/2 relative bg-[#e2e8f0] items-center justify-center p-12 overflow-hidden">
                         <div className="absolute top-[-10%] right-[-10%] w-[60%] h-[60%] bg-[#FACD15]/10 rounded-full blur-3xl"></div>
                         <div className="absolute bottom-[-5%] left-[-5%] w-[40%] h-[40%] bg-[#FACD15]/5 rounded-full blur-3xl"></div>
                         
                         <div className="relative z-10 w-full max-w-lg">
-                            <div className="relative w-full aspect-square bg-white rounded-[48px] p-6 shadow-2xl shadow-[#1F3F34]/5">
+                            <div className="relative w-full aspect-square bg-white rounded-[48px] p-6 shadow-2xl shadow-[#0A1931]/5">
                                 <div className="w-full h-full blob-mask overflow-hidden bg-[#FACD15]/20">
                                     <img 
                                         className="w-full h-full object-cover grayscale-[20%] hover:grayscale-0 transition-all duration-700" 
@@ -243,8 +269,8 @@ export default function OnboardingPage() {
                                         <span className="material-symbols-outlined text-[#002117] text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>verified_user</span>
                                     </div>
                                     <div>
-                                        <p className="text-[10px] font-bold uppercase text-[#1F3F34]/40 leading-none mb-1">Status</p>
-                                        <p className="text-xs font-bold text-[#1F3F34] leading-none">Verified Employer</p>
+                                        <p className="text-[10px] font-bold uppercase text-[#0A1931]/40 leading-none mb-1">Status</p>
+                                        <p className="text-xs font-bold text-[#0A1931] leading-none">Verified Employer</p>
                                     </div>
                                 </div>
                                 <div className="absolute bottom-12 -left-8 bg-white p-5 rounded-[24px] shadow-xl max-w-[200px]">
@@ -257,7 +283,7 @@ export default function OnboardingPage() {
                                 </div>
                             </div>
                             <div className="mt-12 text-center lg:text-left px-4">
-                                <p className="text-[#1F3F34] font-extrabold text-2xl leading-tight font-['Bricolage_Grotesque']">
+                                <p className="text-[#0A1931] font-extrabold text-2xl leading-tight font-['Bricolage_Grotesque']">
                                     Powering over 50,000+ logistics companies across Bharat.
                                 </p>
                             </div>
@@ -276,16 +302,16 @@ export default function OnboardingPage() {
                 >
                     <section className="flex-1 space-y-10 order-2 lg:order-1">
                         <header>
-                            <h1 className="text-4xl lg:text-5xl font-extrabold leading-tight tracking-tight text-[#1F3F34]">
+                            <h1 className="text-4xl lg:text-5xl font-extrabold leading-tight tracking-tight text-[#0A1931]">
                                 Define your <span className="relative">workforce<span className="absolute bottom-1 left-0 w-full h-3 bg-[#FACD15]/30 -z-10"></span></span> niche.
                             </h1>
-                            <p className="mt-4 text-lg text-[#1F3F34]/70 leading-relaxed max-w-lg font-medium">
+                            <p className="mt-4 text-lg text-[#0A1931]/70 leading-relaxed max-w-lg font-medium">
                                 Select the industry sector you operate in and tell us about your company's mission. This helps us match you with specialized talent.
                             </p>
                         </header>
 
                         <div className="space-y-4">
-                            <label className="text-[11px] font-bold uppercase tracking-widest text-[#1F3F34]/50">Select Industry Sector</label>
+                            <label className="text-[11px] font-bold uppercase tracking-widest text-[#0A1931]/50">Select Industry Sector</label>
                             <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
                                 {INDUSTRY_OPTIONS.map(opt => (
                                     <button 
@@ -309,14 +335,14 @@ export default function OnboardingPage() {
 
                         <div className="space-y-4">
                             <div className="flex justify-between items-end">
-                                <label className="text-[11px] font-bold uppercase tracking-widest text-[#1F3F34]/50">Company Bio</label>
-                                <span className={`text-[10px] font-medium ${formData.profileBio.length < 100 ? 'text-red-400' : 'text-[#1F3F34]/40'}`}>
+                                <label className="text-[11px] font-bold uppercase tracking-widest text-[#0A1931]/50">Company Bio</label>
+                                <span className={`text-[10px] font-medium ${formData.profileBio.length < 100 ? 'text-red-400' : 'text-[#0A1931]/40'}`}>
                                     {formData.profileBio.length} / 500 (Min 100)
                                 </span>
                             </div>
                             <div className="relative group">
                                 <textarea 
-                                    className="w-full bg-[#E9E8E3] border-none rounded-2xl p-6 text-[#1F3F34] placeholder:text-[#1F3F34]/30 focus:ring-2 focus:ring-[#FACD15] transition-all resize-none font-medium h-40" 
+                                    className="w-full bg-[#E9E8E3] border-none rounded-2xl p-6 text-[#0A1931] placeholder:text-[#0A1931]/30 focus:ring-2 focus:ring-[#FACD15] transition-all resize-none font-medium h-40" 
                                     placeholder="Share your story, values, and why people love working with you..."
                                     value={formData.profileBio}
                                     onChange={(e) => setFormData({...formData, profileBio: e.target.value.slice(0, 500)})}
@@ -335,7 +361,7 @@ export default function OnboardingPage() {
                             </button>
                             <button 
                                 onClick={nextStep}
-                                className="text-[#1F3F34]/40 hover:text-[#1F3F34] font-bold text-[11px] uppercase tracking-widest transition-colors"
+                                className="text-[#0A1931]/40 hover:text-[#0A1931] font-bold text-[11px] uppercase tracking-widest transition-colors"
                             >
                                 Skip for now
                             </button>
@@ -359,11 +385,11 @@ export default function OnboardingPage() {
                             <div className="absolute bottom-16 right-0 lg:translate-x-1/4 bg-white p-6 rounded-2xl shadow-xl max-w-[200px] border-l-4 border-[#FACD15]">
                                 <div className="flex items-center gap-2 mb-2">
                                     <span className="material-symbols-outlined text-[#FACD15] text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
-                                    <span className="text-[10px] font-bold text-[#1F3F34] uppercase tracking-wider">Trusted Hire</span>
+                                    <span className="text-[10px] font-bold text-[#0A1931] uppercase tracking-wider">Trusted Hire</span>
                                 </div>
-                                <p className="text-xs text-[#1F3F34]/70 italic leading-relaxed font-medium">"Helping us find 50+ specialized welders in less than 48 hours."</p>
+                                <p className="text-xs text-[#0A1931]/70 italic leading-relaxed font-medium">"Helping us find 50+ specialized welders in less than 48 hours."</p>
                             </div>
-                            <div className="absolute top-12 -left-8 bg-[#1F3F34] text-[#FACD15] px-4 py-3 rounded-xl shadow-lg flex items-center gap-3">
+                            <div className="absolute top-12 -left-8 bg-[#0A1931] text-[#FACD15] px-4 py-3 rounded-xl shadow-lg flex items-center gap-3">
                                 <div className="w-8 h-8 rounded-full bg-[#FACD15]/20 flex items-center justify-center">
                                     <span className="material-symbols-outlined text-sm">trending_up</span>
                                 </div>
@@ -387,8 +413,8 @@ export default function OnboardingPage() {
                 >
                     <section className="flex-1 px-8 lg:px-20 py-12 flex flex-col justify-center max-w-3xl">
                         <div className="space-y-2 mb-10">
-                            <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-[#1F3F34] leading-[1.1]">Where are you located?</h1>
-                            <p className="text-lg text-[#1F3F34]/70 max-w-md font-medium">Setting your base helps us connect you with local opportunities and verified talent in your neighborhood.</p>
+                            <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-[#0A1931] leading-[1.1]">Where are you located?</h1>
+                            <p className="text-lg text-[#0A1931]/70 max-w-md font-medium">Setting your base helps us connect you with local opportunities and verified talent in your neighborhood.</p>
                         </div>
                         <div className="space-y-8 font-['Bricolage_Grotesque']">
                             <button 
@@ -400,30 +426,30 @@ export default function OnboardingPage() {
                                         <span className="material-symbols-outlined text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>my_location</span>
                                     </div>
                                     <div className="text-left">
-                                        <span className="block text-xl font-bold text-[#1F3F34]">Use Current Location</span>
-                                        <span className="block text-sm text-[#1F3F34]/60 font-medium">Fastest way to get started</span>
+                                        <span className="block text-xl font-bold text-[#0A1931]">Use Current Location</span>
+                                        <span className="block text-sm text-[#0A1931]/60 font-medium">Fastest way to get started</span>
                                     </div>
                                 </div>
-                                <span className="material-symbols-outlined text-[#1F3F34]/30 group-hover:translate-x-1 transition-transform">arrow_forward_ios</span>
+                                <span className="material-symbols-outlined text-[#0A1931]/30 group-hover:translate-x-1 transition-transform">arrow_forward_ios</span>
                             </button>
 
                             <div className="flex items-center gap-4">
-                                <div className="flex-grow h-px bg-[#1F3F34]/10"></div>
-                                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#1F3F34]/40">Or Enter Manually</span>
-                                <div className="flex-grow h-px bg-[#1F3F34]/10"></div>
+                                <div className="flex-grow h-px bg-[#0A1931]/10"></div>
+                                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#0A1931]/40">Or Enter Manually</span>
+                                <div className="flex-grow h-px bg-[#0A1931]/10"></div>
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-[12px] font-bold uppercase tracking-widest text-[#1F3F34] ml-1">Business Address</label>
+                                <label className="text-[12px] font-bold uppercase tracking-widest text-[#0A1931] ml-1">Business Address</label>
                                 <div className="relative">
                                     <textarea 
-                                        className="w-full bg-[#E9E8E3] border-none rounded-xl p-5 text-[#1F3F34] focus:ring-2 focus:ring-[#FACD15] transition-all placeholder:text-[#1F3F34]/30 font-medium h-32" 
+                                        className="w-full bg-[#E9E8E3] border-none rounded-xl p-5 text-[#0A1931] focus:ring-2 focus:ring-[#FACD15] transition-all placeholder:text-[#0A1931]/30 font-medium h-32" 
                                         placeholder="Street, Building name, Area, City..."
                                         value={formData.businessAddress}
                                         onChange={(e) => setFormData({...formData, businessAddress: e.target.value})}
                                     />
                                     <div className="absolute right-4 bottom-4">
-                                        <span className="material-symbols-outlined text-[#1F3F34]/20">business</span>
+                                        <span className="material-symbols-outlined text-[#0A1931]/20">business</span>
                                     </div>
                                 </div>
                                 {locationError && <p className="text-red-500 text-xs font-bold px-1">{locationError}</p>}
@@ -444,14 +470,14 @@ export default function OnboardingPage() {
                             </button>
                             <button 
                                 onClick={prevStep}
-                                className="text-[#1F3F34]/60 font-bold text-xs uppercase tracking-widest hover:text-[#1F3F34] transition-colors"
+                                className="text-[#0A1931]/60 font-bold text-xs uppercase tracking-widest hover:text-[#0A1931] transition-colors"
                             >
                                 Back to previous
                             </button>
                         </div>
                     </section>
 
-                    <section className="flex-1 relative hidden lg:flex items-center justify-center bg-[#EFEEE9] overflow-hidden">
+                    <section className="flex-1 relative hidden lg:flex items-center justify-center bg-[#e2e8f0] overflow-hidden">
                         <div className="absolute top-0 right-0 w-96 h-96 bg-[#FACD15]/10 rounded-full blur-3xl -mr-20 -mt-20"></div>
                         <div className="absolute bottom-0 left-0 w-80 h-80 bg-[#FACD15]/5 rounded-full blur-3xl -ml-20 -mb-20"></div>
                         <div className="relative w-full h-full flex flex-col items-center justify-center p-12 space-y-8">
@@ -472,12 +498,12 @@ export default function OnboardingPage() {
 
                             {/* Floating Map Card */}
                             <div className="bg-white/90 backdrop-blur-xl p-5 rounded-2xl shadow-2xl flex items-center gap-4 border border-white/50 min-w-[320px] z-30 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                <div className="w-12 h-12 bg-[#1F3F34] rounded-xl flex items-center justify-center text-[#FACD15]">
+                                <div className="w-12 h-12 bg-[#0A1931] rounded-xl flex items-center justify-center text-[#FACD15]">
                                     <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>location_on</span>
                                 </div>
                                 <div>
-                                    <p className="font-bold text-[#1F3F34] text-sm leading-tight">Interactive Mapping</p>
-                                    <p className="text-xs text-[#1F3F34]/60 font-medium italic">Click the map to precisely pin your base</p>
+                                    <p className="font-bold text-[#0A1931] text-sm leading-tight">Interactive Mapping</p>
+                                    <p className="text-xs text-[#0A1931]/60 font-medium italic">Click the map to precisely pin your base</p>
                                 </div>
                             </div>
                         </div>
@@ -496,7 +522,7 @@ export default function OnboardingPage() {
                         <div className="bg-[#FACD15] h-full rounded-full" style={{ width: `${progress}%` }}></div>
                     </div>
                 </div>
-                <span className="text-[10px] font-bold text-[#1F3F34] uppercase tracking-widest">{Math.round(progress)}% Complete</span>
+                <span className="text-[10px] font-bold text-[#0A1931] uppercase tracking-widest">{Math.round(progress)}% Complete</span>
             </div>
         </div>
       )}

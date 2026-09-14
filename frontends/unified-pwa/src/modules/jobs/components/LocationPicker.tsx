@@ -105,7 +105,7 @@ export function LocationPicker({ onLocationSelect, initialPos }: LocationPickerP
           type="button"
           onClick={handleDetect}
           disabled={isDetecting}
-          className="flex items-center gap-2 bg-[#FACD15] text-[#1F3F34] px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-wider shadow-sm hover:scale-105 active:scale-95 transition-all disabled:opacity-50"
+          className="flex items-center gap-2 bg-[#FACD15] text-[#0A1931] px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-wider shadow-sm hover:scale-105 active:scale-95 transition-all disabled:opacity-50"
         >
           {isDetecting ? <Loader2 className="w-3 h-3 animate-spin" /> : <Navigation className="w-3 h-3" />}
           Detect Location
@@ -131,8 +131,8 @@ export function LocationPicker({ onLocationSelect, initialPos }: LocationPickerP
         {isDetecting && (
             <div className="absolute inset-0 bg-white/40 backdrop-blur-[2px] z-1000 flex items-center justify-center">
                 <div className="bg-white p-4 rounded-3xl shadow-2xl flex items-center gap-3">
-                    <Loader2 className="w-5 h-5 text-[#1F3F34] animate-spin" />
-                    <span className="text-xs font-black text-[#1F3F34] uppercase tracking-widest">Pinpointing...</span>
+                    <Loader2 className="w-5 h-5 text-[#0A1931] animate-spin" />
+                    <span className="text-xs font-black text-[#0A1931] uppercase tracking-widest">Pinpointing...</span>
                 </div>
             </div>
         )}

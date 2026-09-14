@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { ShieldCheck, Lock, Eye, EyeOff, CheckCircle2, ArrowRight } from 'lucide-react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { authService } from '../../../services/auth.service';
 import { resetPasswordSchema } from '../../../validations/zodSchema';
 import { AuthHeader } from '../components/AuthHeader';
 import { AuthFooter } from '../components/AuthFooter';
+import { motion } from 'framer-motion';
 
 export default function ResetPasswordPage() {
     const [searchParams] = useSearchParams();
@@ -47,211 +47,210 @@ export default function ResetPasswordPage() {
 
     if (isSuccess) {
         return (
-            <div className="bg-[#F5F4EF] text-[#1F3F34] font-headline min-h-screen flex flex-col antialiased">
+            <div className="bg-slate-50 text-slate-900 font-body min-h-screen flex flex-col selection:bg-brand-500 selection:text-[#002117] antialiased">
                 <AuthHeader />
-                <main className="flex-1 flex flex-col md:flex-row pt-20">
-                    <section className="w-full md:w-1/2 flex items-start justify-center p-8 md:p-16 lg:p-24 bg-[#F5F4EF] pt-12 md:pt-24 lg:pt-32">
-                        <div className="max-w-md w-full space-y-8">
-                            <div>
-                                <div className="w-16 h-16 bg-[#1F3F34] rounded-2xl flex items-center justify-center mb-8">
-                                    <CheckCircle2 className="w-8 h-8 text-[#FACD15]" />
-                                </div>
-                                <h1 className="text-[3.5rem] font-extrabold leading-[1.1] tracking-[-0.02em] mb-4 text-[#1F3F34]">
-                                    Success!
-                                </h1>
-                                <p className="text-[1rem] leading-[1.6] text-[#1F3F34]/70">
-                                    Your password has been updated. You can now log in with your new credentials.
-                                </p>
+                <main className="w-full max-w-5xl mx-auto px-4 pt-24 pb-12 flex-1 flex items-center justify-center">
+                    <div className="w-full bg-white rounded-2xl border border-slate-900/10 shadow-xl overflow-hidden grid md:grid-cols-2">
+                        {/* Left Column: Form Content */}
+                        <div className="p-6 md:p-10 flex flex-col justify-center text-center items-center">
+                            <div className="w-16 h-16 bg-brand-50 rounded-2xl flex items-center justify-center mb-6">
+                                <span className="material-symbols-outlined text-3xl text-brand-500">check_circle</span>
                             </div>
+                            <h1 className="font-headline text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight mb-2">
+                                Password Reset Complete
+                            </h1>
+                            <p className="text-slate-900/60 text-xs md:text-sm font-medium mb-8">
+                                Your password has been successfully updated. You can now securely log in with your new credentials.
+                            </p>
+                            
                             <button 
                                 onClick={() => navigate('/sign-in')}
-                                className="w-full bg-[#FACD15] text-[#1F3F34] font-extrabold rounded-[12px] py-4 text-center shadow-[inset_0_-2px_0_rgba(0,0,0,0.1)] active:scale-[0.98] transition-all hover:bg-[#eac012] flex items-center justify-center gap-2"
+                                className="w-full bg-brand-500 text-slate-900 py-3 rounded-lg font-bold text-xs uppercase tracking-wider shadow-sm hover:brightness-105 active:scale-98 transition-all flex items-center justify-center gap-2"
                             >
-                                LOGIN NOW
-                                <ArrowRight className="w-5 h-5" />
+                                Login Now
                             </button>
                         </div>
-                    </section>
-                    <section className="w-full md:w-1/2 bg-[#EFEEE9] relative overflow-hidden flex items-center justify-center min-h-[400px]">
-                        <div className="absolute top-[-10%] left-[-10%] w-[400px] h-[400px] bg-[#FACD15] opacity-10 rounded-full blur-3xl"></div>
-                        <div className="absolute bottom-[-10%] right-[-5%] w-[500px] h-[500px] bg-[#1F3F34] opacity-5 rounded-full blur-3xl"></div>
-                        <div className="relative z-10 w-full h-full flex items-center justify-center p-12">
-                            <div className="relative w-full max-w-lg aspect-square">
-                                <div className="absolute inset-0 bg-[#FACD15] organic-blob-mask scale-110"></div>
-                                <div className="absolute inset-0 organic-blob-mask overflow-hidden shadow-2xl">
-                                    <img 
-                                        alt="Success Illustration" 
-                                        className="w-full h-full object-cover grayscale-[0.1]" 
-                                        src="https://images.unsplash.com/photo-1551836022-d5d88e9218df?q=80&w=2070&auto=format&fit=crop" 
-                                    />
+
+                        {/* Right Column: Visual Brand Card */}
+                        <div className="hidden md:flex bg-slate-900 p-8 flex-col justify-between text-white relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-brand-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                            
+                            <div>
+                                <span className="inline-block bg-brand-500 text-[#002117] text-[10px] font-black uppercase px-2.5 py-1 rounded-md tracking-wider mb-4">
+                                    Account Secured
+                                </span>
+                                <h2 className="font-headline text-2xl font-black text-white leading-tight">
+                                    Ready to get back to work?
+                                </h2>
+                                <p className="text-white/70 text-xs mt-2 leading-relaxed">
+                                    Your account is fully secured. Return to the platform to start accepting jobs or hiring talent.
+                                </p>
+                            </div>
+
+                            <div className="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/10 mt-6 space-y-3">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-8 h-8 rounded-lg bg-brand-500 text-[#002117] flex items-center justify-center font-bold">
+                                        <span className="material-symbols-outlined text-base">verified</span>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs font-bold text-white">Security Verified</p>
+                                        <p className="text-[10px] text-white/60">All devices remain securely signed out except this one.</p>
+                                    </div>
                                 </div>
                             </div>
+                            
+                            <div className="text-[10px] text-white/40 mt-4 font-mono">
+                                TrustHire Protocol v2.4 • Supabase Verified
+                            </div>
                         </div>
-                    </section>
+                    </div>
                 </main>
                 <AuthFooter />
-                <style>{`
-                    .organic-blob-mask {
-                        mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%23FF0066' d='M44.7,-76.4C58.8,-69.2,71.8,-59.1,79.6,-46.2C87.4,-33.4,90.1,-17.7,88.5,-2.6C86.9,12.5,81,26.9,72.6,39.8C64.2,52.7,53.3,64.1,40.4,72.4C27.5,80.7,12.7,85.8,-2.1,89.5C-17,93.2,-34,95.4,-48.2,89.4C-62.4,83.4,-73.8,69.2,-81.4,54.1C-89,39,-92.8,23,-93.2,7.1C-93.5,-8.8,-90.4,-24.5,-83,-38.4C-75.6,-52.3,-63.9,-64.4,-50.2,-71.8C-36.5,-79.2,-20.8,-81.8,-5.1,-73.1C10.7,-64.3,26.4,-83.5,44.7,-76.4Z' transform='translate(100 100)' /%3E%3C/svg%3E");
-                        mask-size: contain;
-                        mask-repeat: no-repeat;
-                        mask-position: center;
-                    }
-                `}</style>
             </div>
         );
     }
 
     return (
-        <div className="bg-[#F5F4EF] text-[#1F3F34] font-headline min-h-screen flex flex-col antialiased">
+        <div className="bg-slate-50 text-slate-900 font-body min-h-screen flex flex-col selection:bg-brand-500 selection:text-[#002117] antialiased">
             <AuthHeader />
-
-            <main className="flex-1 flex flex-col md:flex-row pt-20">
-                {/* Left Side: Reset Password Form */}
-                <section className="w-full md:w-1/2 flex items-start justify-center p-8 md:p-16 lg:p-24 bg-[#F5F4EF] pt-12 md:pt-8 lg:pt-4">
-                    <div className="max-w-lg w-full">
-                        <div className="mb-10 text-left">
-                            <h1 className="text-[3.5rem] font-extrabold leading-[1.1] tracking-[-0.02em] mb-4 text-[#1F3F34]">
+            
+            <main className="w-full max-w-5xl mx-auto px-4 pt-24 pb-12 flex-1 flex items-center justify-center">
+                <div className="w-full bg-white rounded-2xl border border-slate-900/10 shadow-xl overflow-hidden grid md:grid-cols-2">
+                    
+                    {/* Left Column: Form Content */}
+                    <div className="p-6 md:p-10 flex flex-col justify-center">
+                        <div className="mb-6 text-left">
+                            <h1 className="font-headline text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
                                 New Password
                             </h1>
-                            <p className="text-[1.125rem] leading-[1.6] text-[#1F3F34]/70">
+                            <p className="text-slate-900/60 text-xs md:text-sm mt-1 font-medium">
                                 Please enter the 6-digit code from your email and set your new password.
                             </p>
                         </div>
 
                         {error && (
-                            <div className="mb-6 p-4 bg-red-50 border border-red-100 text-red-500 font-bold text-sm rounded-xl flex items-center gap-3">
-                                <span className="material-symbols-outlined">error</span>
-                                {error}
-                            </div>
+                            <motion.div 
+                                initial={{ opacity: 0, y: -6 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 text-xs font-bold rounded-lg flex items-center gap-2"
+                            >
+                                <span className="material-symbols-outlined text-base">error</span>
+                                <span>{error}</span>
+                            </motion.div>
                         )}
 
-                        <p className="text-xs text-[#1F3F34]/60 mb-6 font-medium">Fields marked with <span className="text-red-500">*</span> are mandatory</p>
-
-                        <form onSubmit={handleSubmit} noValidate className="space-y-6">
-                            <div className="space-y-2">
-                                <label className="text-[0.75rem] font-bold text-[#1F3F34] uppercase tracking-wider">
-                                    Reset Code <span className="text-red-500">*</span>
+                        <form onSubmit={handleSubmit} noValidate className="space-y-4">
+                            <div className="space-y-1">
+                                <label className="text-[11px] font-bold text-slate-900 uppercase tracking-wider">
+                                    6-Digit Reset Code
                                 </label>
-                                <div className="relative group">
-                                    <ShieldCheck className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-[#1F3F34]/30 group-focus-within:text-[#1F3F34] transition-colors" />
-                                    <input 
-                                        type="text"
-                                        value={token}
-                                        onChange={(e) => setToken(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                                        className="w-full bg-[#E9E8E3] border-none rounded-[12px] py-5 pl-14 pr-4 text-[#1F3F34] font-black tracking-[0.5em] focus:ring-2 focus:ring-[#FACD15] placeholder:text-[#1F3F34]/20 text-xl text-center"
-                                        placeholder="000000"
-                                        maxLength={6}
-                                        required
-                                    />
-                                </div>
+                                <input 
+                                    type="text"
+                                    value={token}
+                                    onChange={(e) => setToken(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                                    placeholder="000000"
+                                    maxLength={6}
+                                    required
+                                    className="w-full bg-slate-50 border border-slate-900/10 rounded-lg px-3.5 py-2.5 text-center tracking-[0.5em] text-lg font-black text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                                />
                             </div>
 
-                            <div className="space-y-2">
-                                <label className="text-[0.75rem] font-bold text-[#1F3F34] uppercase tracking-wider">
-                                    New Password <span className="text-red-500">*</span>
+                            <div className="space-y-1">
+                                <label className="text-[11px] font-bold text-slate-900 uppercase tracking-wider">
+                                    New Password
                                 </label>
-                                <div className="relative group">
-                                    <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-[#1F3F34]/30 group-focus-within:text-[#1F3F34] transition-colors" />
+                                <div className="relative">
                                     <input 
                                         type={showPassword ? 'text' : 'password'}
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
-                                        className="w-full bg-[#E9E8E3] border-none rounded-[12px] py-5 pl-14 pr-12 text-[#1F3F34] font-bold focus:ring-2 focus:ring-[#FACD15] placeholder:text-[#1F3F34]/40 text-lg"
                                         placeholder="Minimum 8 characters"
                                         required
+                                        className="w-full bg-slate-50 border border-slate-900/10 rounded-lg px-3.5 py-2.5 text-xs text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-brand-500 pr-10"
                                     />
                                     <button 
                                         type="button"
                                         onClick={() => setShowPassword(!showPassword)}
-                                        className="absolute right-5 top-1/2 -translate-y-1/2 text-[#1F3F34]/40 hover:text-[#1F3F34] transition-colors"
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-900"
                                     >
-                                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                        <span className="material-symbols-outlined text-[18px]">
+                                            {showPassword ? 'visibility_off' : 'visibility'}
+                                        </span>
                                     </button>
                                 </div>
                             </div>
 
-                            <div className="space-y-2">
-                                <label className="text-[0.75rem] font-bold text-[#1F3F34] uppercase tracking-wider">
-                                    Confirm Password <span className="text-red-500">*</span>
+                            <div className="space-y-1">
+                                <label className="text-[11px] font-bold text-slate-900 uppercase tracking-wider">
+                                    Confirm Password
                                 </label>
-                                <div className="relative group">
-                                    <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-[#1F3F34]/30 group-focus-within:text-[#1F3F34] transition-colors" />
-                                    <input 
-                                        type={showPassword ? 'text' : 'password'}
-                                        value={confirmPassword}
-                                        onChange={(e) => setConfirmPassword(e.target.value)}
-                                        className="w-full bg-[#E9E8E3] border-none rounded-[12px] py-5 pl-14 pr-12 text-[#1F3F34] font-bold focus:ring-2 focus:ring-[#FACD15] placeholder:text-[#1F3F34]/40 text-lg"
-                                        placeholder="Repeat new password"
-                                        required
-                                    />
-                                </div>
+                                <input 
+                                    type={showPassword ? 'text' : 'password'}
+                                    value={confirmPassword}
+                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                    placeholder="Repeat new password"
+                                    required
+                                    className="w-full bg-slate-50 border border-slate-900/10 rounded-lg px-3.5 py-2.5 text-xs text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-brand-500"
+                                />
                             </div>
 
                             <button 
-                                disabled={isLoading}
-                                className="w-full bg-[#FACD15] text-[#1F3F34] font-extrabold rounded-[12px] py-5 text-center shadow-[inset_0_-2px_0_rgba(0,0,0,0.1)] active:scale-[0.98] transition-all hover:bg-[#eac012] flex items-center justify-center gap-2 text-lg tracking-wider" 
+                                disabled={isLoading || !token || !password || !confirmPassword}
+                                className="w-full mt-4 bg-brand-500 text-slate-900 py-3 rounded-lg font-bold text-xs uppercase tracking-wider shadow-sm hover:brightness-105 active:scale-98 transition-all flex items-center justify-center gap-2"
                                 type="submit"
                             >
                                 {isLoading ? (
-                                    <span className="material-symbols-outlined animate-spin text-xl">progress_activity</span>
+                                    <span className="material-symbols-outlined animate-spin text-sm">progress_activity</span>
                                 ) : (
-                                    <span>UPDATE PASSWORD</span>
+                                    <span>Update Password</span>
                                 )}
                             </button>
                         </form>
 
-                        <div className="mt-12 flex justify-start">
-                            <Link className="flex items-center gap-2 text-[#1F3F34] font-bold hover:underline transition-all" to="/sign-in">
-                                <span className="material-symbols-outlined">arrow_back</span>
+                        <div className="mt-8 flex justify-start border-t border-slate-900/5 pt-4">
+                            <Link className="flex items-center gap-2 text-slate-900/60 font-bold hover:text-brand-500 transition-all text-xs uppercase tracking-wider" to="/sign-in">
+                                <span className="material-symbols-outlined text-sm">arrow_back</span>
                                 Back to Login
                             </Link>
                         </div>
                     </div>
-                </section>
 
-                {/* Right Side: Visual Asset */}
-                <section className="w-full md:w-1/2 bg-[#EFEEE9] relative overflow-hidden flex items-center justify-center min-h-[400px]">
-                    <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-[#FACD15] opacity-10 rounded-full blur-3xl"></div>
-                    <div className="absolute bottom-[-10%] right-[-5%] w-[50%] h-[50%] bg-[#1F3F34] opacity-5 rounded-full blur-3xl"></div>
-                    
-                    <div className="absolute top-20 right-20 w-16 h-16 bg-[#1F3F34] opacity-20 organic-blob-mask"></div>
-                    <div className="absolute bottom-40 left-10 w-24 h-24 bg-[#FACD15] opacity-40 organic-blob-mask"></div>
-                    
-                    <div className="relative z-10 w-full h-full flex items-center justify-center p-12">
-                        <div className="relative w-full max-w-lg aspect-square">
-                            <div className="absolute inset-0 bg-[#FACD15] organic-blob-mask scale-110"></div>
-                            <div className="absolute inset-0 organic-blob-mask overflow-hidden shadow-2xl">
-                                <img 
-                                    alt="Security Illustration" 
-                                    className="w-full h-full object-cover grayscale-[0.1]" 
-                                    src="https://images.unsplash.com/photo-1563986768609-322da13575f3?q=80&w=2070&auto=format&fit=crop" 
-                                />
-                            </div>
-                            <div className="absolute bottom-10 right-0 bg-[#FFFFFF] p-6 rounded-[24px] shadow-[0_20px_40px_-10px_rgba(31,63,52,0.08)] max-w-[200px] hidden lg:block">
-                                <div className="flex items-center gap-3 mb-2">
-                                    <div className="w-8 h-8 rounded-full bg-[#FACD15] flex items-center justify-center">
-                                        <span className="material-symbols-outlined text-[18px]">lock_reset</span>
-                                    </div>
-                                    <span className="text-[0.75rem] font-bold">Secure Reset</span>
+                    {/* Right Column: Visual Brand Card */}
+                    <div className="hidden md:flex bg-slate-900 p-8 flex-col justify-between text-white relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-brand-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                        
+                        <div>
+                            <span className="inline-block bg-brand-500 text-[#002117] text-[10px] font-black uppercase px-2.5 py-1 rounded-md tracking-wider mb-4">
+                                Secure Reset
+                            </span>
+                            <h2 className="font-headline text-2xl font-black text-white leading-tight">
+                                Protect Your Account
+                            </h2>
+                            <p className="text-white/70 text-xs mt-2 leading-relaxed">
+                                Use a strong, unique password to ensure your account remains secure against unauthorized access.
+                            </p>
+                        </div>
+
+                        <div className="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/10 mt-6 space-y-3">
+                            <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-lg bg-brand-500 text-[#002117] flex items-center justify-center font-bold">
+                                    <span className="material-symbols-outlined text-base">lock</span>
                                 </div>
-                                <p className="text-[0.85rem] leading-relaxed text-[#1F3F34]/60">Your account security is our top priority. Reset with confidence.</p>
+                                <div>
+                                    <p className="text-xs font-bold text-white">Password Requirements</p>
+                                    <p className="text-[10px] text-white/60">Minimum 8 characters with letters & numbers.</p>
+                                </div>
                             </div>
                         </div>
+
+                        <div className="text-[10px] text-white/40 mt-4 font-mono">
+                            TrustHire Protocol v2.4 • Supabase Verified
+                        </div>
                     </div>
-                </section>
+                </div>
             </main>
 
             <AuthFooter />
-
-            <style>{`
-                .organic-blob-mask {
-                    mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%23FF0066' d='M44.7,-76.4C58.8,-69.2,71.8,-59.1,79.6,-46.2C87.4,-33.4,90.1,-17.7,88.5,-2.6C86.9,12.5,81,26.9,72.6,39.8C64.2,52.7,53.3,64.1,40.4,72.4C27.5,80.7,12.7,85.8,-2.1,89.5C-17,93.2,-34,95.4,-48.2,89.4C-62.4,83.4,-73.8,69.2,-81.4,54.1C-89,39,-92.8,23,-93.2,7.1C-93.5,-8.8,-90.4,-24.5,-83,-38.4C-75.6,-52.3,-63.9,-64.4,-50.2,-71.8C-36.5,-79.2,-20.8,-81.8,-5.1,-73.1C10.7,-64.3,26.4,-83.5,44.7,-76.4Z' transform='translate(100 100)' /%3E%3C/svg%3E");
-                    mask-size: contain;
-                    mask-repeat: no-repeat;
-                    mask-position: center;
-                }
-            `}</style>
         </div>
     );
 }

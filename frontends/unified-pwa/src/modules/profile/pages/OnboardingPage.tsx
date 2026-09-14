@@ -1,6 +1,6 @@
 import React from "react";
 import { useAuth } from "../../../providers/AuthContext";
-import WorkerOnboardingPage from "./WorkerOnboardingPage";
+import { Navigate } from "react-router-dom";
 import EmployerOnboardingPage from "./EmployerOnboardingPage";
 
 export default function OnboardingPage() {
@@ -10,5 +10,6 @@ export default function OnboardingPage() {
     return <EmployerOnboardingPage />;
   }
 
-  return <WorkerOnboardingPage />;
+  // Workers never see onboarding - redirect directly to job search portal
+  return <Navigate to="/search" replace />;
 }
