@@ -18,10 +18,20 @@ export const useInitiateVerificationMutation = () => {
   return useMutation({
     mutationFn: ({ docImageUrl, liveImageUrl }: { docImageUrl: string; liveImageUrl: string }) =>
       verificationService.initiate(docImageUrl, liveImageUrl),
-    onSuccess: () => {
+    onSuccess: (data: any) => {
       toast.success('Identity documents dispatched for algorithmic auditing');
-      queryClient.invalidateQueries({ queryKey: queryKeys.verification.status });
-      queryClient.invalidateQueries({ queryKey: queryKeys.auth.me });
+      if (data) {
+        queryClient.setQueryData(queryKeys.verification.status, (old: any) => ({
+          ...(old || {}),
+          ...data,
+          status: data.status || 'PENDING',
+        }));
+        queryClient.setQueryData(queryKeys.auth.me, (old: any) => ({
+          ...(old || {}),
+          isVerified: false,
+          verificationStatus: 'PENDING',
+        }));
+      }
     },
     onError: (error: any) => {
       toast.error(error.message || 'Verification initiation failed');

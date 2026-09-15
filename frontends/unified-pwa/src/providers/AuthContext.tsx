@@ -192,7 +192,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const checkToken = setInterval(() => {
         if (localStorage.getItem('token')) {
           clearInterval(checkToken);
-          window.location.href = '/search';
+          const storedUser = localStorage.getItem('user');
+          let parsed: any = null;
+          try { parsed = storedUser ? JSON.parse(storedUser) : null; } catch {}
+          if (!parsed?.phoneNumber && !parsed?.phone_number) {
+            window.location.href = '/onboarding';
+          } else {
+            window.location.href = '/search';
+          }
         } else if (retries > 40) { // 20 seconds timeout
           clearInterval(checkToken);
           // If no token after 20s, it means sync failed or was rejected. 

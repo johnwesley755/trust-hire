@@ -82,15 +82,15 @@ export const workerService = {
       }
 
       return {
-        id: worker.userId || id,
-        userId: worker.userId || id,
-        name: worker.fullName || [worker.firstName, worker.lastName].filter(Boolean).join(' ') || 'Specialist Worker',
-        profilePhoto: worker.profileImageUrl || '',
+        id: worker.user_id || worker.userId || id,
+        userId: worker.user_id || worker.userId || id,
+        name: worker.full_name || worker.fullName || [worker.first_name || worker.firstName, worker.last_name || worker.lastName].filter(Boolean).join(' ') || 'Specialist Worker',
+        profilePhoto: worker.profile_image_url || worker.profileImageUrl || '',
         level: Number((worker.level || 'L1').replace(/\D/g, '')) || 1,
-        trustScore: worker.trustScore || 30,
+        trustScore: worker.trust_score || worker.trustScore || 30,
         skills: worker.skills ? worker.skills.split(',').map((skill: string) => skill.trim()).filter(Boolean) : [],
-        experience: worker.experienceYears || 0,
-        rating: 4.8,
+        experience: worker.experience_years || worker.experienceYears || 0,
+        rating: worker.rating || 0,
         distance: 0,
         location: worker.city || worker.address || worker.location || '',
         address: worker.address,
@@ -99,24 +99,24 @@ export const workerService = {
         longitude: worker.longitude,
         bio: worker.bio,
         email: worker.email,
-        phoneNumber: worker.phoneNumber,
-        availability: worker.isAvailable ? 'AVAILABLE' : 'BUSY',
-        salaryRange: worker.hourlyRate ? `₹${worker.hourlyRate}/hr` : '',
-        verificationStatus: worker.identityVerified ? 'VERIFIED' : 'PENDING',
+        phoneNumber: worker.phone_number || worker.phoneNumber,
+        availability: (worker.is_available || worker.isAvailable) ? 'AVAILABLE' : 'BUSY',
+        salaryRange: worker.hourly_rate || worker.hourlyRate ? `₹${worker.hourly_rate || worker.hourlyRate}/hr` : '',
+        verificationStatus: (worker.identity_verified || worker.identityVerified) ? 'VERIFIED' : 'PENDING',
       };
     } catch {
       const singleRes = await apiClient.get<any>(`/api/worker/${id}`);
       const worker = singleRes.data;
       return {
-        id: worker.userId || id,
-        userId: worker.userId || id,
-        name: worker.fullName || 'Specialist Worker',
-        profilePhoto: worker.profileImageUrl || '',
+        id: worker.user_id || worker.userId || id,
+        userId: worker.user_id || worker.userId || id,
+        name: worker.full_name || worker.fullName || [worker.first_name || worker.firstName, worker.last_name || worker.lastName].filter(Boolean).join(' ') || 'Specialist Worker',
+        profilePhoto: worker.profile_image_url || worker.profileImageUrl || '',
         level: Number((worker.level || 'L1').replace(/\D/g, '')) || 1,
-        trustScore: worker.trustScore || 30,
+        trustScore: worker.trust_score || worker.trustScore || 30,
         skills: Array.isArray(worker.skills) ? worker.skills : (worker.skills ? worker.skills.split(',') : []),
-        experience: worker.experienceYears || 0,
-        rating: 4.8,
+        experience: worker.experience_years || worker.experienceYears || 0,
+        rating: worker.rating || 0,
         distance: 0,
         location: worker.location || '',
         address: worker.address,
@@ -125,17 +125,39 @@ export const workerService = {
         longitude: worker.longitude,
         bio: worker.bio,
         email: worker.email,
-        phoneNumber: worker.phoneNumber,
+        phoneNumber: worker.phone_number || worker.phoneNumber,
         availability: 'AVAILABLE',
         salaryRange: '',
-        verificationStatus: worker.isVerified ? 'VERIFIED' : 'PENDING',
+        verificationStatus: (worker.identity_verified || worker.identityVerified || worker.isVerified) ? 'VERIFIED' : 'PENDING',
       };
     }
   },
 
   getProfilesByUserIds: async (userIds: string[]): Promise<WorkerProfileSummary[]> => {
     const response = await apiClient.post<any>('/api/worker/profiles/by-user-ids', userIds);
-    return response.data;
+    return (response.data || []).map((worker: any) => ({
+      userId: worker.user_id || worker.userId,
+      fullName: worker.full_name || worker.fullName,
+      firstName: worker.first_name || worker.firstName,
+      lastName: worker.last_name || worker.lastName,
+      email: worker.email,
+      phoneNumber: worker.phone_number || worker.phoneNumber,
+      profileImageUrl: worker.profile_image_url || worker.profileImageUrl,
+      address: worker.address,
+      city: worker.city,
+      latitude: worker.latitude,
+      longitude: worker.longitude,
+      bio: worker.bio,
+      skills: worker.skills,
+      experienceYears: worker.experience_years || worker.experienceYears,
+      level: worker.level,
+      identityVerified: worker.identity_verified || worker.identityVerified,
+      trustScore: worker.trust_score || worker.trustScore,
+      reliabilityScore: worker.reliability_score || worker.reliabilityScore,
+      performanceScore: worker.performance_score || worker.performanceScore,
+      skillScore: worker.skill_score || worker.skillScore,
+      isAvailable: worker.is_available || worker.isAvailable,
+    }));
   },
 
   incrementProfileView: async (userId: string): Promise<void> => {

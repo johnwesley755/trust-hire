@@ -16,9 +16,11 @@ export const AuthOnboardingGuard = ({ children }: { children: React.ReactNode })
       if (syncStarted.current) return;
 
       if (isSignedIn && user) {
-        // Workers bypass onboarding completely and navigate directly to candidate app
+        const hasPhone = Boolean(user.phoneNumber || (user as any).phone_number);
+        
         if (user.role === 'WORKER') {
-          setIsOnboarded(true);
+          const isWorkerOnboarded = Boolean(user.onboarded && hasPhone);
+          setIsOnboarded(isWorkerOnboarded);
           setLoading(false);
           return;
         }
@@ -63,18 +65,15 @@ export const AuthOnboardingGuard = ({ children }: { children: React.ReactNode })
     return <Navigate to="/sign-in" state={{ from: location }} replace />;
   }
 
-  // Workers never see onboarding - redirect directly to job search portal
-  if (user?.role === 'WORKER' && location.pathname === "/onboarding") {
-    return <Navigate to="/search" replace />;
-  }
-
-  // Employers only: if not onboarded, redirect to /onboarding
-  if (user?.role === 'EMPLOYER' && isOnboarded === false && location.pathname !== "/onboarding") {
+  // If user is not onboarded, redirect to /onboarding
+  if (isOnboarded === false && location.pathname !== "/onboarding") {
     return <Navigate to="/onboarding" replace />;
   }
 
-  if (user?.role === 'EMPLOYER' && isOnboarded === true && location.pathname === "/onboarding") {
-    return <Navigate to="/dashboard" replace />;
+  // If user is already onboarded, prevent access to /onboarding
+  if (isOnboarded === true && location.pathname === "/onboarding") {
+    const target = user?.role === 'EMPLOYER' ? '/dashboard' : '/search';
+    return <Navigate to={target} replace />;
   }
 
   return <>{children}</>;

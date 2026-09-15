@@ -19,8 +19,13 @@ export const RatingModal = ({ isOpen, onClose, workerId, workerName, jobId }: Ra
   const mutation = useMutation({
     mutationFn: (data: { rateeId: string; jobId: string; score: number; comment: string }) =>
       ratingService.submitRating(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['ratings', workerId] });
+    onSuccess: (newRating) => {
+      if (newRating) {
+        queryClient.setQueryData(['ratings', workerId], (old: any) => {
+          if (!old) return [newRating];
+          return Array.isArray(old) ? [newRating, ...old] : old;
+        });
+      }
       onClose();
     },
   });

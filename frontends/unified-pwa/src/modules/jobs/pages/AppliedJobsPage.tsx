@@ -111,7 +111,7 @@ export default function AppliedJobsPage() {
               const status = app.status;
               const isReviewing = status === 'REVIEWING';
               const isRejected = status === 'REJECTED';
-              const isOffer = status === 'ACCEPTED';
+              const isOffer = status === 'ACCEPTED' || status === 'APPROVED' || status === 'HIRED';
               
               const statusStep = isOffer ? 3 : isReviewing ? 2 : isRejected ? -1 : 1;
 
@@ -167,7 +167,7 @@ export default function AppliedJobsPage() {
                         <Clock className="w-3.5 h-3.5" /> Shortlisted
                       </span>
                       <span className={`flex items-center gap-1 ${statusStep >= 3 ? 'text-emerald-600 font-bold' : 'text-slate-400'}`}>
-                        <Sparkles className="w-3.5 h-3.5" /> Locked & Dispatched
+                        <Sparkles className="w-3.5 h-3.5" /> Approved & Hired
                       </span>
                     </div>
                     <div className="h-1.5 w-full bg-slate-200 rounded-full overflow-hidden">

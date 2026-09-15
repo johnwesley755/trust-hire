@@ -36,9 +36,25 @@ export const useSubmitSkillTestMutation = (testId: string) => {
       } else {
         toast.error(`Assessment not cleared. Score: ${data?.score || 0}%`);
       }
-      queryClient.invalidateQueries({ queryKey: queryKeys.skillTests.all });
-      queryClient.invalidateQueries({ queryKey: queryKeys.workers.me });
-      queryClient.invalidateQueries({ queryKey: queryKeys.levels.progression });
+      if (data) {
+        queryClient.setQueryData(queryKeys.skillTests.detail(testId), (old: any) => ({
+          ...(old || {}),
+          completed: true,
+          result: data,
+        }));
+        queryClient.setQueryData(queryKeys.workers.me, (old: any) => {
+          if (!old) return old;
+          return {
+            ...old,
+            worker: {
+              ...(old.worker || {}),
+              skillTestsPassed: data.passed
+                ? (old.worker?.skillTestsPassed || 0) + 1
+                : old.worker?.skillTestsPassed,
+            },
+          };
+        });
+      }
     },
     onError: (error: any) => {
       toast.error(error.message || 'Failed to submit test');

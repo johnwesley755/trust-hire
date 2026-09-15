@@ -5,15 +5,15 @@ import { useOutletContext, Link } from "react-router-dom";
 import { profileService, type EmployerProfile } from "../../../services/profile.service";
 import { dashboardService } from "../../../services/dashboard.service";
 import { jobService, type Job } from "../../../services/job.service";
-import { NotificationCenter } from '../../dashboard/components/NotificationCenter';
 import { Building2, MapPin, Briefcase, Edit2, ShieldCheck, Users, Clock, ArrowRight, Activity, Calendar } from "lucide-react";
 import { format } from "date-fns";
+import { EditEmployerProfileModal } from "../components/EditEmployerProfileModal";
 
 export default function EmployerProfileDetailsPage() {
-  const { logout } = useAuth();
   const { user } = useUser();
   const outletCtx = useOutletContext<{ setIsSidebarOpen?: (open: boolean) => void }>() || {};
   const setIsSidebarOpen = outletCtx?.setIsSidebarOpen || (() => {});
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const { data: profile } = useQuery<EmployerProfile>({
     queryKey: ['employerProfile'],
@@ -31,25 +31,8 @@ export default function EmployerProfileDetailsPage() {
   });
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] font-['Plus_Jakarta_Sans',sans-serif] pb-24">
-      {/* MOBILE HEADER */}
-      <header className="lg:hidden bg-white sticky top-0 z-50 border-b border-slate-200 shadow-sm">
-        <div className="flex justify-between items-center px-4 py-3">
-          <div className="flex items-center gap-3">
-            <button 
-              onClick={() => setIsSidebarOpen(true)}
-              className="text-[#0A1931] hover:bg-slate-100 p-2 rounded-full active:scale-95 transition-all"
-            >
-              <span className="material-symbols-outlined text-xl">menu</span>
-            </button>
-            <h1 className="text-lg font-black text-[#0A1931] tracking-tight">TrustHyre</h1>
-          </div>
-          <div className="flex items-center gap-3">
-            <NotificationCenter />
-          </div>
-        </div>
-      </header>
-
+    <div className="min-h-screen bg-[#F8FAFC] pb-24">
+      {/* MOBILE HEADER - Removed because EmployerLayout already provides it */}
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 lg:pt-10 space-y-6">
         
         {/* Page Header (Desktop) */}
@@ -83,8 +66,10 @@ export default function EmployerProfileDetailsPage() {
                   <MapPin className="w-4 h-4 text-slate-400" />
                   {profile?.address || profile?.city || 'Location not specified'}
                 </span>
-                <span className="flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full border border-emerald-200/50 text-xs font-bold">
-                  <ShieldCheck className="w-4 h-4" /> Verified Corporate
+                <span className={`flex items-center gap-1.5 px-3 py-1 rounded-full border text-xs font-bold ${
+                  profile?.isVerified ? 'bg-emerald-50 text-emerald-700 border-emerald-200/50' : 'bg-slate-100 text-slate-600 border-slate-200'
+                }`}>
+                  <ShieldCheck className="w-4 h-4" /> {profile?.isVerified ? 'Verified Corporate' : 'Pending Verification'}
                 </span>
               </div>
             </div>
@@ -94,7 +79,10 @@ export default function EmployerProfileDetailsPage() {
             <Link to="/post-job" className="flex items-center justify-center gap-2 px-5 py-2.5 bg-[#0066FF] hover:bg-[#0052cc] text-white font-bold rounded-xl shadow-md transition-all whitespace-nowrap">
               <Briefcase className="w-4 h-4" /> Post New Shift
             </Link>
-            <button className="flex items-center justify-center gap-2 px-5 py-2.5 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 font-bold rounded-xl shadow-sm transition-all whitespace-nowrap">
+            <button 
+              onClick={() => setIsEditModalOpen(true)}
+              className="flex items-center justify-center gap-2 px-5 py-2.5 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 font-bold rounded-xl shadow-xs transition-all whitespace-nowrap cursor-pointer"
+            >
               <Edit2 className="w-4 h-4" /> Edit Profile
             </button>
           </div>
@@ -171,7 +159,7 @@ export default function EmployerProfileDetailsPage() {
                     </div>
                     <div className="flex flex-wrap items-center gap-4 text-sm text-slate-500 font-medium">
                       <span className="flex items-center gap-1.5"><MapPin className="w-4 h-4 text-slate-400" /> {job.location || job.city || 'Remote'}</span>
-                      <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4 text-slate-400" /> {format(new Date(job.createdAt), 'MMM d, yyyy')}</span>
+                      <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4 text-slate-400" /> {job.createdAt && !isNaN(new Date(job.createdAt).getTime()) ? format(new Date(job.createdAt), 'MMM d, yyyy') : 'N/A'}</span>
                       <span className="flex items-center gap-1.5"><Users className="w-4 h-4 text-slate-400" /> {job.applicationCount || 0} Applicants</span>
                     </div>
                   </div>
@@ -201,6 +189,12 @@ export default function EmployerProfileDetailsPage() {
           )}
         </div>
       </main>
+
+      <EditEmployerProfileModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        profile={profile}
+      />
     </div>
   );
 }

@@ -27,10 +27,19 @@ export const useUpdateEmployerProfileMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (data: any) => employerService.updateProfile(data),
-    onSuccess: () => {
+    onSuccess: (data: any) => {
       toast.success('Employer profile updated successfully');
-      queryClient.invalidateQueries({ queryKey: queryKeys.employers.me });
-      queryClient.invalidateQueries({ queryKey: queryKeys.auth.me });
+      if (data) {
+        queryClient.setQueryData(queryKeys.employers.me, (old: any) => ({
+          ...(old || {}),
+          ...data,
+          employer: { ...(old?.employer || {}), ...(data.employer || data) },
+        }));
+        queryClient.setQueryData(queryKeys.auth.me, (old: any) => ({
+          ...(old || {}),
+          ...data,
+        }));
+      }
     },
     onError: (error: any) => {
       toast.error(error.message || 'Failed to update employer profile');

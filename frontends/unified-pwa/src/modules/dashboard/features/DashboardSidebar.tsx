@@ -23,7 +23,6 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ isOpen, onCl
     { name: 'Search Workers', icon: 'person_search', path: '/find-workers' },
     { name: 'Post a Job', icon: 'add_circle', path: '/post-job' },
     { name: 'My Active Jobs', icon: 'work', path: '/jobs' },
-    { name: 'Applications', icon: 'description', path: '/applications' },
     { name: 'Profile', icon: 'person', path: '/profile' },
   ];
 
@@ -31,22 +30,15 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ isOpen, onCl
     { name: 'Find Jobs', icon: 'search', path: '/search' },
     { name: 'Applied Jobs', icon: 'work_history', path: '/applied-jobs' },
     { name: 'Activity Tracker', icon: 'monitoring', path: '/tracker' },
-    { name: 'Career Level', icon: 'stars', path: '/level' },
     { name: 'Profile', icon: 'person', path: '/profile' },
   ];
 
   const menuItems = isEmployer ? employerMenuItems : workerMenuItems;
 
-  const secondaryItems = isEmployer
-    ? [
-        { name: 'Settings', icon: 'settings', path: '/settings' },
-        { name: 'Help & Support', icon: 'help', path: '/help' },
-      ]
-    : [
-        { name: 'Verify Identity', icon: 'verified_user', path: '/verify-identity' },
-        { name: 'Settings', icon: 'settings', path: '/settings' },
-        { name: 'Help & Support', icon: 'help', path: '/help' },
-      ];
+  const secondaryItems = [
+    { name: 'Settings', icon: 'settings', path: '/settings' },
+    { name: 'Help & Support', icon: 'help', path: '/help' },
+  ];
 
   const handleNavigate = (path: string) => {
     navigate(path);
@@ -74,8 +66,8 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ isOpen, onCl
           onClick={() => navigate('/')}
         >
           <div className="flex items-center gap-2.5 group">
-            <div className="w-9 h-9 bg-white rounded-xl shadow-md flex items-center justify-center p-1 group-hover:scale-105 transition-transform duration-300">
-              <img src={logo} alt="TrustHire" className="w-full h-full object-contain" />
+            <div className="w-9 h-9 bg-white rounded-full overflow-hidden shadow-md flex items-center justify-center p-0.5 group-hover:scale-105 transition-transform duration-300">
+              <img src={logo} alt="TrustHire" className="w-full h-full object-contain rounded-full" />
             </div>
             <div>
               <h1 className="text-lg font-black text-white tracking-tight leading-none">TrustHyre</h1>

@@ -1,11 +1,11 @@
-import { Request, Response } from 'express';
+import { Context } from 'hono';
 import { uploadMedia, deleteMedia } from '../services/cloudinary';
 import { ApiResponse } from '../utils/ApiResponse';
 
-export const upload = async (req: Request, res: Response) => {
-  res.json(ApiResponse.ok("File uploaded"));
+export const upload = async (c: Context) => {
+  return c.json(ApiResponse.ok("File uploaded"));
 };
 
-export const remove = async (req: Request, res: Response) => {
-  res.json(ApiResponse.ok("File deleted"));
+export const remove = async (c: Context) => {
+  return c.json(ApiResponse.ok("File deleted"));
 };

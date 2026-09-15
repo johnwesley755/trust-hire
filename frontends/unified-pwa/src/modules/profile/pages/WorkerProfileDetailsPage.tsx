@@ -3,10 +3,12 @@ import { useAuth, useUser } from "../../../providers/AuthContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useOutletContext, Link } from "react-router-dom";
 import { profileService, type WorkerProfile } from "../../../services/profile.service";
+import { applicationService } from "../../../services/application.service";
 import { NotificationCenter } from '../../dashboard/components/NotificationCenter';
 import apiClient from "../../../api/apiClient";
 import { UserAvatar } from "../../../components/common/UserAvatar";
 import { ShieldCheck, Award, MapPin, MapPinned, Star, History, Camera, Edit2, CheckCircle2, ArrowRight, Zap } from "lucide-react";
+import { EditWorkerProfileModal } from "../components/EditWorkerProfileModal";
 
 export default function WorkerProfileDetailsPage() {
   const { logout } = useAuth();
@@ -14,27 +16,109 @@ export default function WorkerProfileDetailsPage() {
   const outletCtx = useOutletContext<{ setIsSidebarOpen?: (open: boolean) => void }>() || {};
   const setIsSidebarOpen = outletCtx?.setIsSidebarOpen || (() => {});
   const queryClient = useQueryClient();
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isLocating, setIsLocating] = useState(false);
+  const [locationStatus, setLocationStatus] = useState<string | null>(null);
 
   const { data: profile } = useQuery<WorkerProfile>({
     queryKey: ['workerProfile'],
     queryFn: profileService.getWorkerProfile,
   });
 
+  const { data: myApplications = [] } = useQuery({
+    queryKey: ['myApplications'],
+    queryFn: applicationService.getMyApplications,
+  });
+
+  const handleUpdateGPSLocation = () => {
+    if (!navigator.geolocation) {
+      alert("Geolocation is not supported by your browser.");
+      return;
+    }
+
+    setIsLocating(true);
+    setLocationStatus("Detecting GPS coordinates...");
+
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const { latitude, longitude } = pos.coords;
+        try {
+          let detectedCity = profile?.city || 'Local area';
+          let detectedAddress = `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
+
+          try {
+            const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`);
+            if (geoRes.ok) {
+              const geoData = await geoRes.json();
+              const addr = geoData.address;
+              detectedCity = addr.city || addr.town || addr.suburb || addr.state_district || detectedCity;
+              detectedAddress = [addr.suburb || addr.neighbourhood, detectedCity].filter(Boolean).join(', ');
+            }
+          } catch {
+            // fallback
+          }
+
+          await profileService.updateProfile({
+            latitude,
+            longitude,
+            city: detectedCity,
+            address: detectedAddress,
+            location: detectedAddress,
+          });
+
+          queryClient.setQueryData(['workerProfile'], (old: any) => ({
+            ...(old || {}),
+            latitude,
+            longitude,
+            city: detectedCity,
+            address: detectedAddress,
+            location: detectedAddress,
+          }));
+
+          setLocationStatus(`Live: ${detectedAddress}`);
+        } catch (err: any) {
+          console.error("GPS update error:", err);
+          setLocationStatus("Failed to update profile location");
+        } finally {
+          setIsLocating(false);
+        }
+      },
+      (err) => {
+        console.warn("GPS error:", err);
+        setIsLocating(false);
+        setLocationStatus("GPS access denied");
+        alert("Please enable location access in your browser settings to match nearby shifts.");
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  };
+
+  const isVerified = Boolean(user?.identityVerified || (user as any)?.isVerified || (profile as any)?.is_verified || (profile as any)?.isVerified);
+  const completedJobsCount = (profile as any)?.completed_jobs || (profile as any)?.completedJobs || myApplications.filter((a: any) => a.status === 'ACCEPTED' || a.status === 'COMPLETED').length;
+  const ratingDisplay = (profile as any)?.rating ? Number((profile as any).rating).toFixed(1) : (profile?.trustScore ? `${(profile.trustScore / 200).toFixed(1)}` : 'New');
+
   return (
-    <div className="min-h-screen bg-[#F8FAFC] font-['Google_Sans',sans-serif] pb-24">
+    <div className="min-h-screen bg-[#F8FAFC] pb-24">
       {/* MOBILE HEADER */}
       <header className="lg:hidden bg-white sticky top-0 z-50 border-b border-slate-200 shadow-sm">
         <div className="flex justify-between items-center px-4 py-3">
           <div className="flex items-center gap-3">
             <button 
               onClick={() => setIsSidebarOpen(true)}
-              className="text-[#0A1931] hover:bg-slate-100 p-2 rounded-full active:scale-95 transition-all"
+              className="text-[#0A1931] hover:bg-slate-100 p-2 rounded-full active:scale-95 transition-all cursor-pointer"
             >
               <span className="material-symbols-outlined text-xl">menu</span>
             </button>
             <h1 className="text-lg font-black text-[#0A1931] tracking-tight">TrustHyre</h1>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={() => setIsEditModalOpen(true)}
+              className="p-2 text-slate-700 hover:bg-slate-100 rounded-full transition-all cursor-pointer"
+              title="Edit Profile"
+            >
+              <Edit2 className="w-4 h-4" />
+            </button>
             <NotificationCenter />
           </div>
         </div>
@@ -45,11 +129,14 @@ export default function WorkerProfileDetailsPage() {
         {/* Page Header (Desktop) */}
         <div className="hidden lg:flex justify-between items-end mb-8">
           <div>
-            <h1 className="text-3xl font-black text-[#0A1931] tracking-tight">Worker Dossier</h1>
-            <p className="text-slate-500 font-medium mt-1">Manage your identity, skills, and shift history.</p>
+            <h1 className="text-2xl font-black text-[#0A1931] tracking-tight">Worker Dossier</h1>
+            <p className="text-slate-500 font-medium text-sm mt-1">Manage your identity, skills, and shift history.</p>
           </div>
-          <button className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-lg hover:bg-slate-50 font-bold shadow-sm transition-all text-sm">
-            <Edit2 className="w-4 h-4" /> Edit Profile
+          <button 
+            onClick={() => setIsEditModalOpen(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-xl hover:bg-slate-50 font-bold shadow-xs transition-all text-xs cursor-pointer"
+          >
+            <Edit2 className="w-3.5 h-3.5" /> Edit Profile
           </button>
         </div>
 
@@ -77,50 +164,26 @@ export default function WorkerProfileDetailsPage() {
                 <h2 className="text-xl font-black text-[#0A1931]">{profile?.fullName || user?.firstName || 'Worker'}</h2>
                 <p className="text-slate-500 font-medium text-sm mt-0.5">{profile?.skills?.split(',')[0] || 'Specialist'}</p>
 
-                <div className="mt-4 flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full border border-emerald-200/50">
+                <div className={`mt-4 flex items-center gap-1.5 px-3 py-1 rounded-full border ${
+                  isVerified ? 'bg-emerald-50 text-emerald-700 border-emerald-200/50' : 'bg-slate-100 text-slate-600 border-slate-200'
+                }`}>
                   <ShieldCheck className="w-4 h-4" />
-                  <span className="text-xs font-bold">Aadhaar Verified</span>
+                  <span className="text-xs font-bold">{isVerified ? 'Aadhaar Verified' : 'Unverified Worker'}</span>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4 mt-8 pt-6 border-t border-slate-100">
                 <div className="text-center">
                   <p className="text-xs text-slate-500 font-medium uppercase tracking-wide">Jobs Done</p>
-                  <p className="text-xl font-black text-[#0A1931] mt-1">24</p>
+                  <p className="text-xl font-black text-[#0A1931] mt-1">{completedJobsCount}</p>
                 </div>
                 <div className="text-center border-l border-slate-100">
                   <p className="text-xs text-slate-500 font-medium uppercase tracking-wide">Rating</p>
                   <div className="flex items-center justify-center gap-1 mt-1">
-                    <span className="text-xl font-black text-[#0A1931]">4.9</span>
+                    <span className="text-xl font-black text-[#0A1931]">{ratingDisplay}</span>
                     <Star className="w-4 h-4 text-[#FACD15] fill-[#FACD15]" />
                   </div>
                 </div>
-              </div>
-            </div>
-
-            {/* Level & TrustScore */}
-            <div className="bg-gradient-to-br from-[#0A1931] to-[#0066FF] rounded-3xl p-6 text-white shadow-xl shadow-[#0066FF]/10 relative overflow-hidden">
-              <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/10 blur-2xl rounded-full"></div>
-              
-              <div className="flex justify-between items-start relative z-10 mb-6">
-                <div>
-                  <p className="text-xs text-blue-200 font-bold uppercase tracking-wider">Current Tier</p>
-                  <h3 className="text-2xl font-black mt-1">L2 Pro Worker</h3>
-                </div>
-                <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-md">
-                  <Award className="w-6 h-6 text-[#FACD15]" />
-                </div>
-              </div>
-
-              <div className="space-y-2 relative z-10">
-                <div className="flex justify-between text-sm font-medium">
-                  <span className="text-blue-100">TrustScore</span>
-                  <span className="text-white font-bold">840 / 1000</span>
-                </div>
-                <div className="h-2 w-full bg-black/20 rounded-full overflow-hidden">
-                  <div className="h-full bg-[#FACD15] rounded-full shadow-[0_0_10px_rgba(250,205,21,0.5)]" style={{ width: '84%' }}></div>
-                </div>
-                <p className="text-xs text-blue-200 pt-1">Top 15% in your city. Unlocks ₹200 bonus per shift.</p>
               </div>
             </div>
 
@@ -135,9 +198,28 @@ export default function WorkerProfileDetailsPage() {
                   <p className="text-xs text-slate-500 font-medium">Matching area</p>
                 </div>
               </div>
-              <p className="text-sm font-medium text-slate-700">{profile?.address || profile?.city || 'Location not set'}</p>
-              <button className="mt-4 w-full py-2.5 bg-slate-50 hover:bg-slate-100 text-[#0066FF] font-bold text-sm rounded-xl border border-slate-200 transition-colors">
-                Update GPS Location
+              <div className="flex items-start gap-2">
+                <MapPin className="w-4 h-4 text-[#0066FF] mt-0.5 shrink-0" />
+                <p className="text-sm font-semibold text-slate-700">
+                  {profile?.address || profile?.city || profile?.location || 'Location not set'}
+                </p>
+              </div>
+              {profile?.latitude && profile?.longitude && (
+                <p className="text-[11px] text-emerald-600 font-bold mt-1.5 flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                  GPS Live ({profile.latitude.toFixed(2)}°, {profile.longitude.toFixed(2)}°)
+                </p>
+              )}
+              {locationStatus && (
+                <p className="text-xs font-semibold text-blue-600 mt-2">{locationStatus}</p>
+              )}
+              <button 
+                onClick={handleUpdateGPSLocation}
+                disabled={isLocating}
+                className="mt-4 w-full py-2.5 bg-slate-50 hover:bg-slate-100 text-[#0066FF] font-bold text-sm rounded-xl border border-slate-200 transition-colors flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+              >
+                <MapPin className="w-4 h-4" />
+                {isLocating ? 'Detecting Location...' : 'Update GPS Location'}
               </button>
             </div>
 
@@ -145,23 +227,6 @@ export default function WorkerProfileDetailsPage() {
 
           {/* RIGHT COLUMN: Expertise & History */}
           <div className="lg:col-span-2 space-y-6">
-            
-            {/* Wallet / Earnings Quick Look */}
-            <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm flex flex-col sm:flex-row gap-6 justify-between items-center">
-              <div className="flex items-center gap-4">
-                <div className="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 shadow-sm border border-emerald-100">
-                  <span className="text-2xl font-black">₹</span>
-                </div>
-                <div>
-                  <p className="text-sm text-slate-500 font-medium uppercase tracking-wide">Escrow Wallet Balance</p>
-                  <h3 className="text-3xl font-black text-[#0A1931]">₹4,250<span className="text-lg text-slate-400 font-bold">.00</span></h3>
-                </div>
-              </div>
-              <button className="w-full sm:w-auto px-6 py-3 bg-[#0A1931] hover:bg-slate-800 text-white font-bold rounded-xl shadow-lg shadow-slate-900/10 transition-all flex items-center justify-center gap-2">
-                Withdraw to Bank
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            </div>
 
             {/* Expertise & Skills */}
             <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm">
@@ -193,40 +258,54 @@ export default function WorkerProfileDetailsPage() {
               </div>
               
               <div className="divide-y divide-slate-100">
-                {/* Dummy History Items */}
-                <div className="p-4 sm:p-6 hover:bg-slate-50 transition-colors flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
-                  <div className="flex gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center font-bold text-slate-400 shrink-0">12</div>
-                    <div>
-                      <h4 className="font-bold text-[#0A1931]">Industrial Wiring Shift</h4>
-                      <p className="text-sm text-slate-500 mt-1">L&T Construction • Peenya, BLR</p>
+                {myApplications.length === 0 ? (
+                  <div className="p-8 text-center text-slate-500">
+                    <History className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+                    <p className="font-bold text-[#0A1931]">No shift history yet</p>
+                    <p className="text-xs text-slate-500 mt-1">Browse available openings to start working and earning.</p>
+                    <Link to="/search" className="inline-block mt-4 px-4 py-2 bg-[#0066FF] text-white text-xs font-bold rounded-xl hover:bg-blue-700">
+                      Find Shifts
+                    </Link>
+                  </div>
+                ) : (
+                  myApplications.slice(0, 5).map((app: any) => (
+                    <div key={app.id} className="p-4 sm:p-6 hover:bg-slate-50 transition-colors flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
+                      <div className="flex gap-4 items-center">
+                        <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center font-bold text-[#0066FF] shrink-0">
+                          <Zap className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-[#0A1931]">{app.job?.title || app.jobTitle || 'Shift'}</h4>
+                          <p className="text-sm text-slate-500 mt-0.5">
+                            {app.job?.location || app.job?.city || 'Local area'}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right w-full sm:w-auto flex flex-row sm:flex-col justify-between sm:justify-end items-center sm:items-end">
+                        <span className="font-black text-emerald-600">₹{app.job?.budget?.toLocaleString() || 'Negotiated'}</span>
+                        <span className={`text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded mt-1 ${
+                          app.status === 'ACCEPTED' ? 'bg-emerald-100 text-emerald-800' :
+                          app.status === 'REJECTED' ? 'bg-red-100 text-red-800' :
+                          'bg-slate-100 text-slate-700'
+                        }`}>
+                          {app.status}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                  <div className="text-right w-full sm:w-auto flex flex-row sm:flex-col justify-between sm:justify-end items-center sm:items-end">
-                    <span className="font-black text-emerald-600">₹1,200</span>
-                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider bg-slate-100 px-2 py-0.5 rounded mt-1">Settled</span>
-                  </div>
-                </div>
-                
-                <div className="p-4 sm:p-6 hover:bg-slate-50 transition-colors flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
-                  <div className="flex gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center font-bold text-slate-400 shrink-0">08</div>
-                    <div>
-                      <h4 className="font-bold text-[#0A1931]">Panel Installation</h4>
-                      <p className="text-sm text-slate-500 mt-1">TATA Power • Whitefield, BLR</p>
-                    </div>
-                  </div>
-                  <div className="text-right w-full sm:w-auto flex flex-row sm:flex-col justify-between sm:justify-end items-center sm:items-end">
-                    <span className="font-black text-emerald-600">₹1,450</span>
-                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider bg-slate-100 px-2 py-0.5 rounded mt-1">Settled</span>
-                  </div>
-                </div>
+                  ))
+                )}
               </div>
             </div>
 
           </div>
         </div>
       </main>
+
+      <EditWorkerProfileModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        profile={profile}
+      />
     </div>
   );
 }

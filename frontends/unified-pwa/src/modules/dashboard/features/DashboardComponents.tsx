@@ -122,7 +122,7 @@ export const ApplicationsTable = () => {
         <section className="space-y-3">
             <div className="flex justify-between items-center">
                 <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Recent Candidate Applications</h3>
-                <button onClick={() => navigate('/applications')} className="text-xs font-bold text-[#0066FF] hover:underline flex items-center gap-1 cursor-pointer">
+                <button onClick={() => navigate('/jobs')} className="text-xs font-bold text-[#0066FF] hover:underline flex items-center gap-1 cursor-pointer">
                     View All Applicants <ChevronRight className="w-3.5 h-3.5" />
                 </button>
             </div>
@@ -145,7 +145,7 @@ export const ApplicationsTable = () => {
                                 const tier = (worker as any)?.tier || 'Verified Pro';
 
                                 return (
-                                    <tr key={app.id} className="hover:bg-blue-50/40 transition-colors cursor-pointer" onClick={() => navigate('/applications')}>
+                                    <tr key={app.id} className="hover:bg-blue-50/40 transition-colors cursor-pointer" onClick={() => navigate('/jobs')}>
                                         <td className="px-5 py-4">
                                             <div className="flex items-center gap-3">
                                                 <UserAvatar 

@@ -76,9 +76,10 @@ export const profileService = {
     }
   },
 
-  getEmployerProfile: async (): Promise<EmployerProfile> => {
+  getEmployerProfile: async (): Promise<EmployerProfile | null> => {
     const response = await apiClient.get<any>('/api/employer/profile');
     const data = response.data;
+    if (!data) return null;
     if (data.profile_image_url) data.profileImageUrl = data.profile_image_url;
     return data;
   },
@@ -88,9 +89,10 @@ export const profileService = {
     return response.data;
   },
 
-  getWorkerProfile: async (): Promise<WorkerProfile> => {
+  getWorkerProfile: async (): Promise<WorkerProfile | null> => {
     const response = await apiClient.get<any>('/api/worker/profile');
     const data = response.data;
+    if (!data) return null;
     return {
       ...data,
       fullName: data.fullName || '',

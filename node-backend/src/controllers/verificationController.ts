@@ -1,15 +1,15 @@
-import { Request, Response } from 'express';
+import { Context } from 'hono';
 import prisma from '../config/prisma';
 import { ApiResponse } from '../utils/ApiResponse';
 import { v4 as uuidv4 } from 'uuid';
 import { uploadMedia } from '../services/cloudinary';
 
-export const uploadDoc = async (req: Request, res: Response) => {
+export const uploadDoc = async (c: Context) => {
   try {
-    const userId = req.user?.sub;
-    if (!userId) return res.status(401).json(ApiResponse.error("Unauthorized"));
+    const userId = c.get('user')?.sub;
+    if (!userId) return c.json(ApiResponse.error("Unauthorized"), 401 as any);
 
-    const file = (req as any).file;
+    const file = (c.req as any).file;
     let docUrl = "placeholder_url";
     if (file) {
       const result = await uploadMedia(file.path, 'verifications');
@@ -35,18 +35,18 @@ export const uploadDoc = async (req: Request, res: Response) => {
       });
     }
 
-    res.json(ApiResponse.ok("Document uploaded", record));
+    return c.json(ApiResponse.ok("Document uploaded", record));
   } catch (err: any) {
-    res.status(500).json(ApiResponse.error(err.message));
+    return c.json(ApiResponse.error(err.message), 500 as any);
   }
 };
 
-export const captureLive = async (req: Request, res: Response) => {
+export const captureLive = async (c: Context) => {
   try {
-    const userId = req.user?.sub;
-    if (!userId) return res.status(401).json(ApiResponse.error("Unauthorized"));
+    const userId = c.get('user')?.sub;
+    if (!userId) return c.json(ApiResponse.error("Unauthorized"), 401 as any);
 
-    const file = (req as any).file;
+    const file = (c.req as any).file;
     let liveUrl = "placeholder_url";
     if (file) {
       const result = await uploadMedia(file.path, 'verifications');
@@ -55,7 +55,7 @@ export const captureLive = async (req: Request, res: Response) => {
 
     let record = await prisma.verification_records.findFirst({ where: { user_id: userId } });
     if (!record) {
-       return res.status(400).json(ApiResponse.error("Upload document first"));
+       return c.json(ApiResponse.error("Upload document first"), 400 as any);
     }
 
     record = await prisma.verification_records.update({
@@ -63,20 +63,20 @@ export const captureLive = async (req: Request, res: Response) => {
       data: { live_image_url: liveUrl, status: 'PROCESSING', updated_at: new Date() }
     });
 
-    res.json(ApiResponse.ok("Live capture completed", record));
+    return c.json(ApiResponse.ok("Live capture completed", record));
   } catch (err: any) {
-    res.status(500).json(ApiResponse.error(err.message));
+    return c.json(ApiResponse.error(err.message), 500 as any);
   }
 };
 
-export const getStatus = async (req: Request, res: Response) => {
+export const getStatus = async (c: Context) => {
   try {
-    const userId = req.user?.sub;
-    if (!userId) return res.status(401).json(ApiResponse.error("Unauthorized"));
+    const userId = c.get('user')?.sub;
+    if (!userId) return c.json(ApiResponse.error("Unauthorized"), 401 as any);
 
     const record = await prisma.verification_records.findFirst({ where: { user_id: userId } });
-    res.json(ApiResponse.ok(record));
+    return c.json(ApiResponse.ok(record));
   } catch (err: any) {
-    res.status(500).json(ApiResponse.error(err.message));
+    return c.json(ApiResponse.error(err.message), 500 as any);
   }
 };

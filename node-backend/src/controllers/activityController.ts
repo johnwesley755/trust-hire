@@ -1,13 +1,13 @@
-import { Request, Response } from 'express';
+import { Context } from 'hono';
 import prisma from '../config/prisma';
 import { ApiResponse } from '../utils/ApiResponse';
 
-export const getRecentActivities = async (req: Request, res: Response) => {
+export const getRecentActivities = async (c: Context) => {
   try {
-    const userId = req.user?.sub;
-    const limit = parseInt(req.query.limit as string) || 10;
+    const userId = c.get('user')?.sub;
+    const limit = parseInt(c.req.query('limit') as string) || 10;
 
-    if (!userId) return res.status(401).json(ApiResponse.error("Unauthorized"));
+    if (!userId) return c.json(ApiResponse.error("Unauthorized"), 401 as any);
 
     const activities = await prisma.user_activities.findMany({
       where: { user_id: userId },
@@ -15,8 +15,8 @@ export const getRecentActivities = async (req: Request, res: Response) => {
       take: limit
     });
 
-    res.json(ApiResponse.ok(activities));
+    return c.json(ApiResponse.ok(activities));
   } catch (err: any) {
-    res.status(500).json(ApiResponse.error(err.message));
+    return c.json(ApiResponse.error(err.message), 500 as any);
   }
 };

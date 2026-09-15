@@ -1,6 +1,13 @@
-import express, { Request, Response, NextFunction } from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
+import { Hono } from 'hono';
+import { cors } from 'hono/cors';
+import { logger } from 'hono/logger';
+
+// Fix: Prevent "Do not know how to serialize a BigInt" in JSON.stringify
+(BigInt.prototype as any).toJSON = function () {
+  const intVal = Number(this);
+  return Number.isSafeInteger(intVal) ? intVal : this.toString();
+};
+
 import authRoutes from './routes/authRoutes';
 import workerRoutes from './routes/workerRoutes';
 import employerRoutes from './routes/employerRoutes';
@@ -19,39 +26,52 @@ import skillTestRoutes from './routes/skillTestRoutes';
 import supportRoutes from './routes/supportRoutes';
 import verificationRoutes from './routes/verificationRoutes';
 
-dotenv.config();
+export type AppContext = {
+  Bindings: {
+    DATABASE_URL: string;
+    JWT_SECRET: string;
+  };
+};
 
-const app = express();
+const app = new Hono<AppContext>();
 
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-app.use('/api/auth', authRoutes);
-app.use('/api/worker', workerRoutes);
-app.use('/api/employer', employerRoutes);
-app.use('/api/jobs', jobRoutes);
-app.use('/api/media', mediaRoutes);
-app.use('/api/activities', activityRoutes);
-app.use('/api/dashboard', dashboardRoutes);
-app.use('/api/early-access', earlyAccessRoutes);
-app.use('/api/jobs/applications', jobApplicationRoutes);
-app.use('/api/levels', levelRoutes);
-app.use('/api/notifications', notificationRoutes);
-app.use('/api/ratings', ratingRoutes);
-app.use('/api/search', searchRoutes);
-app.use('/api/settings', settingsRoutes);
-app.use('/api/skill-tests', skillTestRoutes);
-app.use('/api/support', supportRoutes);
-app.use('/api/verification', verificationRoutes);
-
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'UP' });
+app.use('*', async (c, next) => {
+  if (typeof process === 'undefined') {
+    (globalThis as any).process = { env: c.env };
+  } else {
+    Object.assign(process.env, c.env || {});
+  }
+  await next();
 });
 
-app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-  console.error(err.stack);
-  res.status(500).json({ success: false, message: 'Internal Server Error' });
+app.use('*', logger());
+app.use('*', cors());
+
+app.route('/api/auth', authRoutes);
+app.route('/api/worker', workerRoutes);
+app.route('/api/employer', employerRoutes);
+app.route('/api/jobs', jobRoutes);
+app.route('/api/media', mediaRoutes);
+app.route('/api/activities', activityRoutes);
+app.route('/api/dashboard', dashboardRoutes);
+app.route('/api/early-access', earlyAccessRoutes);
+app.route('/api/jobs/applications', jobApplicationRoutes);
+app.route('/api/levels', levelRoutes);
+app.route('/api/notifications', notificationRoutes);
+app.route('/api/ratings', ratingRoutes);
+app.route('/api/search', searchRoutes);
+app.route('/api/settings', settingsRoutes);
+app.route('/api/skill-tests', skillTestRoutes);
+app.route('/api/support', supportRoutes);
+app.route('/api/verification', verificationRoutes);
+
+app.get('/api/health', (c) => {
+  return c.json({ status: 'UP', runtime: 'Hono' });
+});
+
+app.onError((err, c) => {
+  console.error(err);
+  return c.json({ success: false, message: 'Internal Server Error' }, 500);
 });
 
 export default app;

@@ -19,40 +19,37 @@ export const NotificationCenter = () => {
             const data = await notificationService.getNotifications();
             return data;
         },
-        refetchInterval: 10000
+        staleTime: Infinity
     });
 
     const { data: unreadCount = 0 } = useQuery({
         queryKey: ['unreadCount'],
         queryFn: notificationService.getUnreadCount,
-        refetchInterval: 10000
+        staleTime: Infinity
     });
 
     useEffect(() => {
         if (!connected) return;
         const unsubscribe = subscribe('/user/queue/notifications', (newNotification: any) => {
-            queryClient.setQueryData(['notifications'], (old: AppNotification[] | undefined) => {
-                const list = old || [];
-                return [newNotification, ...list];
-            });
-            queryClient.invalidateQueries({ queryKey: ['unreadCount'] });
+            queryClient.setQueryData<AppNotification[]>(['notifications'], (old = []) => [newNotification, ...old]);
+            queryClient.setQueryData<number>(['unreadCount'], (c = 0) => (c || 0) + 1);
         });
         return () => unsubscribe();
     }, [connected, subscribe, queryClient]);
 
     const deleteMutation = useMutation({
         mutationFn: (id: string) => notificationService.deleteNotification(id),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['notifications'] });
-            queryClient.invalidateQueries({ queryKey: ['unreadCount'] });
+        onSuccess: (_, id) => {
+            queryClient.setQueryData<AppNotification[]>(['notifications'], (old = []) => old.filter(n => n.id !== id));
+            queryClient.setQueryData<number>(['unreadCount'], (c = 0) => Math.max(0, (c || 0) - 1));
         }
     });
 
     const deleteAllMutation = useMutation({
         mutationFn: () => notificationService.deleteAllNotifications(),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['notifications'] });
-            queryClient.invalidateQueries({ queryKey: ['unreadCount'] });
+            queryClient.setQueryData<AppNotification[]>(['notifications'], []);
+            queryClient.setQueryData<number>(['unreadCount'], 0);
             setIsOpen(false);
         }
     });

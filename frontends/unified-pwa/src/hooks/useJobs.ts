@@ -36,10 +36,12 @@ export const useCreateJobMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (data: CreateJobDto) => jobService.createJob(data),
-    onSuccess: () => {
+    onSuccess: (newJob: any) => {
       toast.success('Job requisition broadcasted successfully');
-      queryClient.invalidateQueries({ queryKey: queryKeys.jobs.all });
-      queryClient.invalidateQueries({ queryKey: queryKeys.jobs.employer });
+      if (newJob) {
+        queryClient.setQueryData(queryKeys.jobs.all, (old: any[] = []) => [newJob, ...old]);
+        queryClient.setQueryData(queryKeys.jobs.employer, (old: any[] = []) => [newJob, ...old]);
+      }
     },
     onError: (error: any) => {
       toast.error(error.message || 'Failed to publish job');
@@ -51,10 +53,12 @@ export const useUpdateJobMutation = (jobId: string) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (data: Partial<CreateJobDto>) => jobService.updateJob(jobId, data),
-    onSuccess: () => {
+    onSuccess: (updatedJob: any, variables) => {
       toast.success('Job details updated successfully');
-      queryClient.invalidateQueries({ queryKey: queryKeys.jobs.detail(jobId) });
-      queryClient.invalidateQueries({ queryKey: queryKeys.jobs.employer });
+      queryClient.setQueryData(queryKeys.jobs.detail(jobId), (old: any) => ({ ...old, ...variables, ...updatedJob }));
+      queryClient.setQueryData(queryKeys.jobs.employer, (old: any[] = []) => 
+        old.map((j: any) => j.id === jobId ? { ...j, ...variables, ...updatedJob } : j)
+      );
     },
     onError: (error: any) => {
       toast.error(error.message || 'Failed to update job');
@@ -66,9 +70,14 @@ export const useDeleteJobMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (jobId: string) => jobService.deleteJob(jobId),
-    onSuccess: () => {
+    onSuccess: (_, deletedId) => {
       toast.success('Job requisition deleted');
-      queryClient.invalidateQueries({ queryKey: queryKeys.jobs.employer });
+      queryClient.setQueryData(queryKeys.jobs.employer, (old: any[] = []) => 
+        old.filter((j: any) => j.id !== deletedId)
+      );
+      queryClient.setQueryData(queryKeys.jobs.all, (old: any[] = []) => 
+        old.filter((j: any) => j.id !== deletedId)
+      );
     },
     onError: (error: any) => {
       toast.error(error.message || 'Failed to delete job');

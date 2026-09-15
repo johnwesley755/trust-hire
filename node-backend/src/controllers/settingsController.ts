@@ -1,12 +1,12 @@
-import { Request, Response } from 'express';
+import { Context } from 'hono';
 import prisma from '../config/prisma';
 import bcrypt from 'bcryptjs';
 import { ApiResponse } from '../utils/ApiResponse';
 
-export const getSettings = async (req: Request, res: Response) => {
+export const getSettings = async (c: Context) => {
   try {
-    const userId = req.user?.sub;
-    if (!userId) return res.status(401).json(ApiResponse.error("Unauthorized"));
+    const userId = c.get('user')?.sub;
+    if (!userId) return c.json(ApiResponse.error("Unauthorized"), 401 as any);
 
     let settings = await prisma.user_settings.findUnique({ where: { user_id: userId } });
     if (!settings) {
@@ -21,18 +21,18 @@ export const getSettings = async (req: Request, res: Response) => {
         }
       });
     }
-    res.json(ApiResponse.ok(settings));
+    return c.json(ApiResponse.ok(settings));
   } catch (err: any) {
-    res.status(500).json(ApiResponse.error(err.message));
+    return c.json(ApiResponse.error(err.message), 500 as any);
   }
 };
 
-export const updateSettings = async (req: Request, res: Response) => {
+export const updateSettings = async (c: Context) => {
   try {
-    const userId = req.user?.sub;
-    if (!userId) return res.status(401).json(ApiResponse.error("Unauthorized"));
+    const userId = c.get('user')?.sub;
+    if (!userId) return c.json(ApiResponse.error("Unauthorized"), 401 as any);
 
-    const data = req.body;
+    const data = (await c.req.json());
     const settings = await prisma.user_settings.upsert({
       where: { user_id: userId },
       update: { ...data, updated_at: new Date() },
@@ -45,26 +45,26 @@ export const updateSettings = async (req: Request, res: Response) => {
         updated_at: new Date()
       }
     });
-    res.json(ApiResponse.ok("Settings updated", settings));
+    return c.json(ApiResponse.ok("Settings updated", settings));
   } catch (err: any) {
-    res.status(500).json(ApiResponse.error(err.message));
+    return c.json(ApiResponse.error(err.message), 500 as any);
   }
 };
 
-export const changePassword = async (req: Request, res: Response) => {
+export const changePassword = async (c: Context) => {
   try {
-    const userId = req.user?.sub;
-    if (!userId) return res.status(401).json(ApiResponse.error("Unauthorized"));
+    const userId = c.get('user')?.sub;
+    if (!userId) return c.json(ApiResponse.error("Unauthorized"), 401 as any);
 
-    const { oldPassword, newPassword } = req.body;
+    const { oldPassword, newPassword } = (await c.req.json());
     const user = await prisma.user_metadata.findUnique({ where: { id: userId } });
 
     if (!user || !user.password_hash) {
-       return res.status(400).json(ApiResponse.error("Cannot change password for this account type"));
+       return c.json(ApiResponse.error("Cannot change password for this account type"), 400 as any);
     }
 
     const isMatch = await bcrypt.compare(oldPassword, user.password_hash);
-    if (!isMatch) return res.status(400).json(ApiResponse.error("Incorrect old password"));
+    if (!isMatch) return c.json(ApiResponse.error("Incorrect old password"), 400 as any);
 
     const hash = await bcrypt.hash(newPassword, 10);
     await prisma.user_metadata.update({
@@ -72,8 +72,8 @@ export const changePassword = async (req: Request, res: Response) => {
       data: { password_hash: hash, updated_at: new Date() }
     });
 
-    res.json(ApiResponse.ok("Password changed successfully", "success"));
+    return c.json(ApiResponse.ok("Password changed successfully", "success"));
   } catch (err: any) {
-    res.status(500).json(ApiResponse.error(err.message));
+    return c.json(ApiResponse.error(err.message), 500 as any);
   }
 };
