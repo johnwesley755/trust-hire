@@ -20,7 +20,7 @@ export default function WorkerProfileDetailsPage() {
   const [isLocating, setIsLocating] = useState(false);
   const [locationStatus, setLocationStatus] = useState<string | null>(null);
 
-  const { data: profile } = useQuery<WorkerProfile>({
+  const { data: profile } = useQuery<WorkerProfile | null>({
     queryKey: ['workerProfile'],
     queryFn: profileService.getWorkerProfile,
   });
@@ -304,7 +304,7 @@ export default function WorkerProfileDetailsPage() {
       <EditWorkerProfileModal
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
-        profile={profile}
+        profile={profile || undefined}
       />
     </div>
   );

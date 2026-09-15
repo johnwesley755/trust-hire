@@ -22,6 +22,7 @@ export interface Worker {
   availability: 'AVAILABLE' | 'BUSY' | 'UNAVAILABLE';
   salaryRange: string;
   verificationStatus: 'PENDING' | 'SUCCESS' | 'FAILED' | 'VERIFIED';
+  isOfferSent?: boolean;
 }
 
 export interface WorkerProfileSummary {

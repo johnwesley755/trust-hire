@@ -33,6 +33,7 @@ export interface WorkerSearch {
   profileImageUrl: string;
   status: string;
   trustScore: number;
+  isOfferSent?: boolean;
 }
 
 export const searchWorkers = async (
