@@ -65,6 +65,7 @@ app.route('/api/skill-tests', skillTestRoutes);
 app.route('/api/support', supportRoutes);
 app.route('/api/verification', verificationRoutes);
 
+
 app.get('/api/health', (c) => {
   return c.json({ status: 'UP', runtime: 'Hono' });
 });

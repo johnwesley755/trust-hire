@@ -1,29 +1,33 @@
-import nodemailer from 'nodemailer';
-import dotenv from 'dotenv';
-dotenv.config();
-
-const transporter = nodemailer.createTransport({
-  host: 'smtp-relay.brevo.com',
-  port: parseInt(process.env.BREVO_SMTP_PORT || '587'),
-  secure: false, // true for 465, false for other ports
-  auth: {
-    user: process.env.BREVO_SMTP_USERNAME,
-    pass: process.env.BREVO_API_KEY,
-  },
-});
-
 export const sendEmail = async (to: string, subject: string, html: string) => {
   try {
-    const info = await transporter.sendMail({
-      from: `"${process.env.BREVO_SENDER_NAME}" <${process.env.BREVO_SENDER_EMAIL}>`,
-      to,
-      subject,
-      html,
+    const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+      method: 'POST',
+      headers: {
+        'accept': 'application/json',
+        'api-key': process.env.BREVO_API_KEY as string,
+        'content-type': 'application/json'
+      },
+      body: JSON.stringify({
+        sender: {
+          name: process.env.BREVO_SENDER_NAME || "TrustHire",
+          email: process.env.BREVO_SENDER_EMAIL
+        },
+        to: [{ email: to }],
+        subject: subject,
+        htmlContent: html
+      })
     });
-    console.log('Message sent: %s', info.messageId);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Brevo API Error:', errorText);
+      throw new Error(`Brevo API Error: ${errorText}`);
+    }
+
+    console.log(`Email sent successfully to ${to}`);
     return true;
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error sending email: ', error);
-    return false;
+    throw error;
   }
 };
