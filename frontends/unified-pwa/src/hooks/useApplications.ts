@@ -23,10 +23,12 @@ export const useApplyForJobMutation = () => {
   return useMutation({
     mutationFn: ({ jobId, coverLetter }: { jobId: string; coverLetter?: string }) => 
       applicationService.applyForJob(jobId, coverLetter),
-    onSuccess: () => {
+    onSuccess: (newApp, variables) => {
       toast.success('Application submitted successfully!');
-      queryClient.invalidateQueries({ queryKey: queryKeys.applications.my });
-      queryClient.invalidateQueries({ queryKey: queryKeys.jobs.all });
+      queryClient.setQueryData(queryKeys.applications.my, (old: any[] = []) => [
+        newApp || { id: `app-${Date.now()}`, jobId: variables.jobId, status: 'PENDING' },
+        ...old
+      ]);
     },
     onError: (error: any) => {
       toast.error(error.message || 'Failed to submit application');
@@ -39,12 +41,16 @@ export const useUpdateApplicationStatusMutation = (jobId?: string) => {
   return useMutation({
     mutationFn: ({ applicationId, status }: { applicationId: string; status: string }) => 
       applicationService.updateApplicationStatus(applicationId, status),
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       toast.success('Applicant status updated');
       if (jobId) {
-        queryClient.invalidateQueries({ queryKey: queryKeys.applications.byJob(jobId) });
+        queryClient.setQueryData(queryKeys.applications.byJob(jobId), (old: any[] = []) => 
+          old.map((a: any) => a.id === variables.applicationId ? { ...a, status: variables.status } : a)
+        );
       }
-      queryClient.invalidateQueries({ queryKey: queryKeys.applications.all });
+      queryClient.setQueryData(queryKeys.applications.all, (old: any[] = []) => 
+        old.map((a: any) => a.id === variables.applicationId ? { ...a, status: variables.status } : a)
+      );
     },
     onError: (error: any) => {
       toast.error(error.message || 'Failed to update status');

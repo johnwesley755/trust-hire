@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Clock, CheckCircle2, XCircle, AlertCircle, ChevronRight, Loader2, Trophy } from 'lucide-react';
 import { skillTestService, type SkillTest, type TestResult } from '../../../services/skill-test.service';
@@ -10,35 +11,36 @@ interface SkillTestUIProps {
 }
 
 export const SkillTestUI: React.FC<SkillTestUIProps> = ({ testId, onClose, onComplete }) => {
-  const [test, setTest] = useState<SkillTest | null>(null);
   const [currentIdx, setCurrentIdx] = useState(0);
   const [answers, setAnswers] = useState<number[]>([]);
-  const [timer, setTimer] = useState(0);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [timer, setTimer] = useState<number | null>(null);
   const [result, setResult] = useState<TestResult | null>(null);
-  const [error, setError] = useState<string | null>(null);
+
+  const { data: test, isLoading: isTestLoading, error: testError } = useQuery({
+    queryKey: ['skillTest', testId],
+    queryFn: async () => {
+      const data = await skillTestService.getTestById(testId);
+      setTimer(data.durationMinutes * 60);
+      return data;
+    },
+    staleTime: Infinity,
+  });
+
+  const submitTestMutation = useMutation({
+    mutationFn: (answersPayload: number[]) => skillTestService.submitTest(testId, answersPayload),
+    onSuccess: (data) => {
+      setResult(data);
+    },
+  });
 
   useEffect(() => {
-    const fetchTest = async () => {
-      try {
-        const data = await skillTestService.getTestById(testId);
-        setTest(data);
-        setTimer(data.durationMinutes * 60);
-      } catch (err) {
-        setError('Failed to load assessment questions.');
-      }
-    };
-    fetchTest();
-  }, [testId]);
-
-  useEffect(() => {
-    if (timer > 0 && !result && !isSubmitting) {
-      const interval = setInterval(() => setTimer(t => t - 1), 1000);
+    if (timer !== null && timer > 0 && !result && !submitTestMutation.isPending) {
+      const interval = setInterval(() => setTimer(t => (t ? t - 1 : 0)), 1000);
       return () => clearInterval(interval);
-    } else if (timer === 0 && test && !result && !isSubmitting) {
+    } else if (timer === 0 && test && !result && !submitTestMutation.isPending) {
       handleSubmit();
     }
-  }, [timer, result, isSubmitting, test]);
+  }, [timer, result, submitTestMutation.isPending, test]);
 
   const handleAnswer = (optionIdx: number) => {
     const newAnswers = [...answers];
@@ -48,19 +50,16 @@ export const SkillTestUI: React.FC<SkillTestUIProps> = ({ testId, onClose, onCom
 
   const questionsList = (test as any)?.questions || (test as any)?.skillTestQuestions || [];
 
-  const handleSubmit = async () => {
-    if (!test) return;
-    setIsSubmitting(true);
-    try {
-      // Fill remaining answers with -1 if skipped
-      const finalAnswers = questionsList.map((_: any, i: number) => answers[i] ?? -1);
-      const res = await skillTestService.submitTest(test.id, finalAnswers);
-      setResult(res);
-    } catch (err) {
-      setError('Failed to submit assessment.');
-    } finally {
-      setIsSubmitting(false);
+  const handleNext = () => {
+    if (test && currentIdx < questionsList.length - 1) {
+      setCurrentIdx(currentIdx + 1);
     }
+  };
+
+  const handleSubmit = () => {
+    if (!test) return;
+    const finalAnswers = questionsList.map((_: any, i: number) => answers[i] ?? -1);
+    submitTestMutation.mutate(finalAnswers);
   };
 
   const formatTime = (seconds: number) => {

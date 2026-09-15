@@ -39,10 +39,18 @@ export default function ApplicationManagementPage() {
   
   const jobIds = jobs.map((j: import('../../../types').Job) => j.id).filter((id): id is string => !!id);
   
-  const { data: allApplications = [], isLoading: isAppsLoading } = useQuery<JobApplication[]>({
+  const { data: allApplicationsRaw = [], isLoading: isAppsLoading } = useQuery<JobApplication[]>({
     queryKey: ['allEmployerApplications', jobIds],
     queryFn: () => applicationService.getApplicationsForEmployerJobs(jobIds),
     enabled: jobIds.length > 0,
+  });
+
+  const allApplications = allApplicationsRaw.map(app => {
+    const localStatus = localStorage.getItem(`app_status_${app.id}`);
+    if (localStatus) {
+      return { ...app, status: localStatus as JobApplication['status'] };
+    }
+    return app;
   });
 
   const selectedJobApplications = allApplications.filter(app => {
@@ -64,9 +72,11 @@ export default function ApplicationManagementPage() {
   const mutation = useMutation({
     mutationFn: ({ id, status }: { id: string, status: JobApplication['status'] }) => 
       applicationService.updateStatus(id, status),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['allEmployerApplications'] });
-      queryClient.invalidateQueries({ queryKey: ['jobSpecificWorkers'] });
+    onSuccess: (_, variables) => {
+      localStorage.setItem(`app_status_${variables.id}`, variables.status);
+      queryClient.setQueryData<JobApplication[]>(['allEmployerApplications', jobIds], (old = []) => 
+        old.map(app => app.id === variables.id ? { ...app, status: variables.status } : app)
+      );
     }
   });
 
@@ -82,49 +92,49 @@ export default function ApplicationManagementPage() {
 
   if (isJobsLoading || (isAppsLoading && !allApplications)) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-        <Loader2 className="w-10 h-10 text-[#0066FF] animate-spin" />
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-3">
+        <Loader2 className="w-8 h-8 text-[#0066FF] animate-spin" />
         <p className="text-xs font-bold uppercase tracking-widest text-slate-400">Syncing Applicants Feed...</p>
       </div>
     );
   } 
 
   return (
-    <main className="min-h-screen bg-[#F8FAFC] p-4 md:p-8 lg:p-12 font-['Google_Sans',sans-serif]">
+    <main className="min-h-screen bg-[#F8FAFC] p-4 sm:p-6 lg:p-8">
       <AnimatePresence mode="wait">
         {!selectedJobId ? (
           <motion.div
             key="job-list"
-            initial={{ opacity: 0, y: 16 }}
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -16 }}
-            className="max-w-7xl mx-auto space-y-8"
+            exit={{ opacity: 0, y: -12 }}
+            className="max-w-6xl mx-auto space-y-6"
           >
             {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-slate-200">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-200">
               <div>
-                <div className="flex items-center gap-2 text-xs font-bold text-[#0066FF] uppercase tracking-wider mb-2">
-                  <Briefcase className="w-4 h-4" />
+                <div className="flex items-center gap-1.5 text-[11px] font-bold text-[#0066FF] uppercase tracking-wider mb-1">
+                  <Briefcase className="w-3.5 h-3.5" />
                   Hiring & Dispatch Console
                 </div>
-                <h1 className="text-3xl md:text-4xl font-black text-[#0A1931] tracking-tight">
+                <h1 className="text-2xl font-black text-[#0A1931] tracking-tight">
                   Active Openings & Applications
                 </h1>
-                <p className="text-slate-500 font-medium mt-1 text-sm md:text-base">
-                  Select an active role below to view applicant resumes, verify credentials, and confirm candidate dispatch.
+                <p className="text-slate-500 font-medium text-xs sm:text-sm mt-0.5">
+                  Select an opening to review candidates, inspect credentials, and manage dispatch.
                 </p>
               </div>
 
-              <div className="flex flex-wrap items-center gap-3">
-                <div className="bg-white px-5 py-2.5 rounded-2xl flex items-center gap-3 border border-slate-200 shadow-sm">
-                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              <div className="flex items-center gap-3">
+                <div className="bg-white px-3.5 py-1.5 rounded-xl flex items-center gap-2 border border-slate-200 shadow-xs">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
                   <span className="text-xs font-bold text-slate-700">
                     {allApplications?.length || 0} Total Received
                   </span>
                 </div>
                 <button
                   onClick={() => navigate('/post-job')}
-                  className="px-5 py-2.5 bg-[#0066FF] hover:bg-[#0052cc] text-white text-xs font-bold rounded-2xl shadow-sm transition-all flex items-center gap-2"
+                  className="px-4 py-2 bg-[#0066FF] hover:bg-[#0052cc] text-white text-xs font-bold rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
                 >
                   <Plus className="w-4 h-4" /> Post New Shift
                 </button>
@@ -133,21 +143,21 @@ export default function ApplicationManagementPage() {
 
             {/* Grid of Job Postings */}
             {jobs.length === 0 ? (
-                <div className="bg-white rounded-3xl p-12 border border-slate-200 shadow-sm text-center max-w-2xl mx-auto mt-8">
-                    <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <Package className="w-10 h-10 text-slate-300" />
+                <div className="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm text-center max-w-2xl mx-auto mt-8">
+                    <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <Package className="w-8 h-8 text-slate-300" />
                     </div>
-                    <h3 className="text-2xl font-black text-[#0A1931] mb-3 uppercase tracking-tight bricolage">No Active Jobs</h3>
-                    <p className="text-slate-500 font-medium mb-8">You currently don't have any active job postings. Once you post a new shift, it will appear here for you to manage applications and track performance.</p>
+                    <h3 className="text-xl font-black text-[#0A1931] mb-2 uppercase tracking-tight">No Active Jobs</h3>
+                    <p className="text-slate-500 font-medium mb-6 text-sm">You currently don't have any active job postings. Once you post a new shift, it will appear here for you to manage applications and track performance.</p>
                     <button 
                         onClick={() => navigate('/post-job')}
-                        className="inline-flex items-center gap-2 px-8 py-4 bg-[#FACD15] text-[#0A1931] font-extrabold rounded-xl shadow-[0_4px_0_0_#C39F00] hover:shadow-none hover:translate-y-[2px] transition-all bricolage uppercase text-sm tracking-widest"
+                        className="inline-flex items-center gap-2 px-6 py-3 bg-[#0066FF] hover:bg-blue-700 text-white font-bold rounded-full shadow-md hover:shadow-lg transition-all text-sm"
                     >
-                        <Plus className="w-5 h-5" /> Post Your First Job
+                        <Plus className="w-4 h-4" /> Post Your First Job
                     </button>
                 </div>
             ) : (
-                <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-3">
                   {jobs.map((job: import('../../../types').Job, idx: number) => {
                     const pendingCount = getPendingCountForJob(job.id!);
                     const totalCount = getApplicationCountForJob(job.id!);
@@ -159,16 +169,16 @@ export default function ApplicationManagementPage() {
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: idx * 0.05 }}
-                            className="bg-white p-6 rounded-2xl group hover:shadow-lg hover:border-[#FACD15] transition-all duration-300 flex flex-col md:flex-row md:items-center justify-between border border-slate-200 relative overflow-hidden cursor-pointer"
+                            className="bg-white p-4 rounded-xl group hover:shadow-md hover:border-[#0066FF] transition-all duration-300 flex flex-col md:flex-row md:items-center justify-between border border-slate-200 relative overflow-hidden cursor-pointer"
                             onClick={() => setSelectedJobId(job.id!)}
                         >
                             {/* Left Side: Job Info */}
                             <div className="flex-1 min-w-0 pr-8">
                                 <div className="flex items-center gap-3 mb-2">
-                                    <h3 className="text-xl font-black text-[#0A1931] bricolage uppercase tracking-tight truncate group-hover:text-[#C39F00] transition-colors">
+                                    <h3 className="text-base sm:text-lg font-extrabold text-[#0A1931] tracking-tight truncate group-hover:text-[#0066FF] transition-colors">
                                         {job.title}
                                     </h3>
-                                    <span className={`px-2.5 py-0.5 text-[10px] font-black rounded-full tracking-widest bricolage uppercase shrink-0 ${
+                                    <span className={`px-2.5 py-0.5 text-[10px] font-black rounded-full tracking-widest uppercase shrink-0 ${
                                         isUrgent ? 'bg-[#ffdad6] text-[#ba1a1a]' : 'bg-[#d1fae5] text-[#4a6b5e]'
                                     }`}>
                                         {isUrgent ? 'URGENT' : 'ACTIVE'}
@@ -209,7 +219,7 @@ export default function ApplicationManagementPage() {
                                     </div>
                                 </div>
 
-                                <div className="hidden md:flex items-center justify-center w-12 h-12 bg-slate-50 text-[#0A1931] group-hover:bg-[#FACD15] rounded-xl transition-colors">
+                                <div className="hidden md:flex items-center justify-center w-12 h-12 bg-slate-50 text-[#0A1931] group-hover:bg-[#0066FF] group-hover:text-white rounded-xl transition-colors">
                                     <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                                 </div>
                             </div>
@@ -268,7 +278,7 @@ export default function ApplicationManagementPage() {
               </div>
 
               {/* Status Filter Tabs */}
-              <div className="flex items-center gap-1.5 p-1.5 bg-slate-100 rounded-2xl self-start md:self-auto overflow-x-auto no-scrollbar">
+              <div className="flex items-center gap-1.5 p-1.5 bg-slate-100 rounded-2xl self-start md:self-auto overflow-x-auto pb-2">
                 {(['ALL', 'PENDING', 'ACCEPTED', 'REJECTED'] as const).map((filter) => (
                   <button
                     key={filter}
@@ -301,13 +311,11 @@ export default function ApplicationManagementPage() {
                       {/* Worker Info */}
                       <div className="flex flex-col sm:flex-row gap-5 items-start sm:items-center flex-1">
                         <div className="relative shrink-0">
-                          <div className="w-16 h-16 rounded-2xl overflow-hidden shadow-sm flex items-center justify-center bg-blue-50">
-                            <UserAvatar 
-                              src={worker?.profileImageUrl} 
-                              name={worker?.fullName || 'Worker'} 
-                              size="lg" 
-                            />
-                          </div>
+                          <UserAvatar 
+                            src={worker?.profileImageUrl} 
+                            name={worker?.fullName || 'Worker'} 
+                            size="lg" 
+                          />
                           <div className="absolute -bottom-1 -right-1 bg-[#0A1931] text-white text-[10px] font-extrabold px-2 py-0.5 rounded-lg border-2 border-white shadow-sm">
                             {worker?.level || 'L1 Pro'}
                           </div>

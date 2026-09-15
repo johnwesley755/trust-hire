@@ -1,8 +1,8 @@
-import { Router } from 'express';
+import { Hono } from 'hono';
 import * as jobController from '../controllers/jobController';
 import { authenticateJWT } from '../middlewares/auth';
 
-const router = Router();
+const router = new Hono();
 
 router.post('/', authenticateJWT, jobController.createJob);
 router.get('/', jobController.getAllJobs);

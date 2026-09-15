@@ -1,25 +1,63 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { workerService } from '../../../services/worker.service';
+import { jobService } from '../../../services/job.service';
+import { applicationService } from '../../../services/application.service';
 import { 
   ShieldCheck, 
-  Star, 
   ChevronLeft, 
   Loader2, 
   Share2, 
   Bookmark, 
   BadgeCheck, 
   Zap, 
-  Snowflake, 
-  Construction,
-  Verified
+  MapPin,
+  Mail,
+  Phone,
+  Briefcase,
+  X
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { UserAvatar } from '../../../components/common/UserAvatar';
 
 export const WorkerProfilePage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedJobId, setSelectedJobId] = useState('');
+
+  // Fallback state if they haven't refreshed
+  const [isOfferSent, setIsOfferSent] = useState(() => {
+    return localStorage.getItem(`offerSent_${id}`) === 'true';
+  });
+
+  const { data: myJobs, isLoading: isLoadingJobs } = useQuery({
+    queryKey: ['myJobs'],
+    queryFn: () => jobService.getMyJobs(),
+    enabled: isModalOpen
+  });
+
+  const dispatchOfferMutation = useMutation({
+    mutationFn: (jobId: string) => applicationService.dispatchOffer({ jobId, workerId: id || '' }),
+    onSuccess: () => {
+      setIsOfferSent(true);
+      localStorage.setItem(`offerSent_${id}`, 'true');
+      setIsModalOpen(false);
+      queryClient.invalidateQueries({ queryKey: ['workers'] });
+    }
+  });
+
+  const handleDispatchOffer = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleConfirmOffer = () => {
+    if (selectedJobId) {
+      dispatchOfferMutation.mutate(selectedJobId);
+    }
+  };
 
   useEffect(() => {
     if (id) {
@@ -33,12 +71,6 @@ export const WorkerProfilePage = () => {
     enabled: !!id
   });
 
-  const { data: trustScore } = useQuery({
-    queryKey: ['trustScore', id],
-    queryFn: () => workerService.getTrustScore(id || ''),
-    enabled: !!id
-  });
-
   const { data: ratings } = useQuery({
     queryKey: ['workerRatings', id],
     queryFn: () => workerService.getWorkerRatings(id || ''),
@@ -47,182 +79,284 @@ export const WorkerProfilePage = () => {
 
   if (isLoadingWorker) return (
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center gap-4">
-        <Loader2 className="h-12 w-12 text-[#0A1931] animate-spin" />
-        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#0A1931]/40">Loading</p>
+        <Loader2 className="h-12 w-12 text-[#0066FF] animate-spin" />
+        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Loading Profile</p>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-[#0A1931] font-body selection:bg-[#FACD15] selection:text-[#0A1931]">
-      {/* Main Content Area */}
-      <main className="max-w-7xl mx-auto px-8 py-10 relative pb-32">
+    <div className="min-h-screen bg-[#F8FAFC] pb-24">
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 lg:pt-10 space-y-6">
+        
         {/* Header Actions */}
-        <header className="flex justify-between items-center mb-12">
+        <header className="flex justify-between items-center mb-4">
           <button 
             onClick={() => navigate(-1)}
-            className="flex items-center gap-2 text-sm font-bold text-[#0A1931]/60 hover:text-[#0A1931] transition-colors"
+            className="flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-[#0A1931] transition-colors cursor-pointer"
           >
             <ChevronLeft className="w-4 h-4" />
             <span>Back to Worker Search</span>
           </button>
           
-          <div className="flex gap-4">
-            <button className="p-3 bg-white rounded-full shadow-sm hover:bg-[#F8FAFC] transition-colors">
-              <Share2 className="w-5 h-5" />
+          <div className="flex gap-3">
+            <button className="p-2 bg-white rounded-full shadow-sm border border-slate-200 hover:bg-slate-50 transition-colors text-slate-500 cursor-pointer">
+              <Share2 className="w-4 h-4" />
             </button>
-            <button className="p-3 bg-white rounded-full shadow-sm hover:bg-[#F8FAFC] transition-colors">
-              <Bookmark className="w-5 h-5" />
+            <button className="p-2 bg-white rounded-full shadow-sm border border-slate-200 hover:bg-slate-50 transition-colors text-slate-500 cursor-pointer">
+              <Bookmark className="w-4 h-4" />
             </button>
           </div>
         </header>
 
         <AnimatePresence mode="wait">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.3 }}
+            className="space-y-6"
           >
-            {/* Profile Hero Section */}
-            <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-12 text-left">
-              {/* Left: Avatar & Primary Info */}
-              <div className="lg:col-span-8 bg-white rounded-lg p-8 flex flex-col md:flex-row gap-8 relative overflow-hidden">
-                {/* Background Blob Decoration */}
-                <div className="absolute -top-10 -right-10 w-48 h-48 bg-[#FACD15]/10 rounded-full blur-3xl"></div>
-                
-                <div className="relative z-10 shrink-0">
-                  <div className="w-40 h-40 md:w-56 md:h-56 rounded-lg overflow-hidden bg-[#F8FAFC] relative shadow-lg">
-                    {worker?.profilePhoto ? (
-                      <img src={worker.profilePhoto} alt={worker.name} className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-5xl font-black bg-[#FACD15] text-[#0A1931]">
-                        {worker?.name[0]}
-                      </div>
-                    )}
-                    {worker?.verificationStatus === 'VERIFIED' ? (
-                      <div className="absolute bottom-4 left-4 bg-emerald-500 text-white text-[10px] font-extrabold px-3 py-1 rounded-full flex items-center gap-1 shadow-lg">
-                        <ShieldCheck className="w-3 h-3" />
-                        ID VERIFIED
-                      </div>
-                    ) : (
-                      <div className="absolute bottom-4 left-4 bg-red-500 text-white text-[10px] font-extrabold px-3 py-1 rounded-full flex items-center gap-1 shadow-lg">
-                        <ShieldCheck className="w-3 h-3" />
-                        NOT VERIFIED
-                      </div>
-                    )}
-                  </div>
+            {/* Top Banner */}
+            <div className="bg-white rounded-3xl p-6 lg:p-8 border border-slate-200 shadow-sm relative overflow-hidden flex flex-col md:flex-row gap-6 md:gap-8 justify-between items-start md:items-center">
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#0066FF] to-[#0A1931]"></div>
+              
+              <div className="flex flex-col sm:flex-row items-center sm:items-start md:items-center gap-6 w-full md:w-auto text-center sm:text-left">
+                <div className="shrink-0">
+                  <UserAvatar 
+                    src={worker?.profilePhoto} 
+                    name={worker?.name || 'Worker'} 
+                    size="xl" 
+                  />
                 </div>
-
-                <div className="flex-1 z-10 space-y-6">
-                  <div>
-                    <div className="flex items-center gap-4 mb-2">
-                      <h1 className="text-4xl md:text-5xl font-black tracking-tight uppercase leading-none">{worker?.name}</h1>
-                      {worker?.verificationStatus === 'VERIFIED' ? (
-                        <div className="bg-emerald-500 text-white p-1.5 rounded-full flex items-center justify-center shadow-lg border-2 border-white mt-1 shrink-0">
-                          <Verified className="w-6 h-6" />
-                        </div>
-                      ) : (
-                        <div className="bg-red-50 text-red-500 px-3 py-1 rounded-full flex items-center gap-1.5 shadow-sm border border-red-100 mt-1 shrink-0">
-                          <ShieldCheck className="w-4 h-4" />
-                          <span className="text-[10px] font-black uppercase tracking-widest">Unverified</span>
-                        </div>
-                      )}
-                    </div>
-                    <p className="text-lg text-[#0A1931]/70 font-medium">Senior Multi-Technical Specialist • {worker?.city || 'Bengaluru, KA'}</p>
+                
+                <div>
+                  <h1 className="text-2xl sm:text-3xl font-black text-[#0A1931]">{worker?.name || 'Worker Name'}</h1>
+                  
+                  <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 mt-2">
+                    <span className="text-slate-600 font-medium text-sm flex items-center gap-1.5">
+                      <Briefcase className="w-4 h-4 text-slate-400" />
+                      {worker?.skills?.[0] || 'Specialist'}
+                    </span>
+                    <span className="text-slate-600 font-medium text-sm flex items-center gap-1.5">
+                      <MapPin className="w-4 h-4 text-slate-400" />
+                      {worker?.city || worker?.location || 'Location Not Set'}
+                    </span>
+                    <span className={`flex items-center gap-1.5 px-3 py-1 rounded-full border text-xs font-bold ${
+                      worker?.verificationStatus === 'VERIFIED' ? 'bg-emerald-50 text-emerald-700 border-emerald-200/50' : 'bg-slate-100 text-slate-600 border-slate-200'
+                    }`}>
+                      <ShieldCheck className="w-4 h-4" /> 
+                      {worker?.verificationStatus === 'VERIFIED' ? 'Verified Worker' : 'Unverified Worker'}
+                    </span>
                   </div>
 
-                  {/* Metrics Grid inside Hero */}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                    <div className="bg-[#F8FAFC] p-4 rounded-lg flex flex-col justify-center text-center">
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-[#0A1931]/50 mb-1">Availability</p>
-                      <p className="text-lg font-extrabold">{worker?.availability === 'AVAILABLE' ? 'NOW' : 'BUSY'}</p>
-                    </div>
-                    <div className="bg-[#F8FAFC] p-4 rounded-lg flex flex-col justify-center text-center">
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-[#0A1931]/50 mb-1">Reliability</p>
-                      <p className="text-lg font-extrabold">{((trustScore?.reliabilityRate || 0.95) * 100).toFixed(0)}%</p>
-                    </div>
-                    <div className="bg-[#F8FAFC] p-4 rounded-lg flex flex-col justify-center text-center">
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-[#0A1931]/50 mb-1">Experience</p>
-                      <p className="text-lg font-extrabold">{worker?.experience || 3} YRS</p>
-                    </div>
-                    <div className="bg-[#F8FAFC] p-4 rounded-lg flex flex-col justify-center text-center">
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-[#0A1931]/50 mb-1">Level</p>
-                      <p className="text-lg font-extrabold">LVL {worker?.level || 1}</p>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-wrap gap-2 pt-2">
-                    <span className="bg-[#0A1931]/5 px-4 py-2 rounded-full text-xs font-bold font-body">Immediate Start</span>
-                    <span className="bg-[#0A1931]/5 px-4 py-2 rounded-full text-xs font-bold font-body">Background Checked</span>
-                    <span className="bg-[#0A1931]/5 px-4 py-2 rounded-full text-xs font-bold font-body">Own Vehicle</span>
+                  <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mt-4">
+                    <span className={`px-3 py-1 rounded-md text-xs font-bold ${worker?.availability === 'AVAILABLE' ? 'bg-[#0066FF]/10 text-[#0066FF]' : 'bg-slate-100 text-slate-600'}`}>
+                      {worker?.availability === 'AVAILABLE' ? 'Available to Work' : 'Currently Busy'}
+                    </span>
+                    <span className="px-3 py-1 bg-slate-50 border border-slate-200 rounded-md text-xs font-bold text-slate-700">
+                      {worker?.experience || 0} Years Exp.
+                    </span>
                   </div>
                 </div>
               </div>
+              
+              <div className="flex flex-col gap-3 w-full md:w-auto sm:mt-0 mt-4">
+                 <button 
+                   onClick={handleDispatchOffer}
+                   disabled={isOfferSent || worker?.isOfferSent}
+                   className={`flex items-center justify-center gap-2 px-6 py-3 font-bold rounded-xl shadow-md transition-all whitespace-nowrap cursor-pointer ${
+                     (isOfferSent || worker?.isOfferSent) ? 'bg-emerald-500 text-white shadow-emerald-500/20' : 'bg-[#0066FF] hover:bg-[#0052cc] text-white'
+                   }`}
+                 >
+                   {(isOfferSent || worker?.isOfferSent) ? 'Offer Sent!' : 'Dispatch Offer'}
+                 </button>
+              </div>
+            </div>
 
-              {/* Right: Trust Widget */}
-              <div className="lg:col-span-4 flex flex-col gap-6">
-                <div className="bg-[#0A1931] text-[#F8FAFC] p-8 rounded-lg relative overflow-hidden flex-1 shadow-2xl">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-[#FACD15] opacity-5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
-                  <div className="relative z-10 flex flex-col h-full text-left">
-                    <div className="flex items-center gap-3 mb-8">
-                      <ShieldCheck className="w-8 h-8 text-[#FACD15]" />
-                      <h2 className="text-xl font-black uppercase tracking-tight">Active Operative</h2>
-                    </div>
-                    <div className="flex items-baseline gap-2 mb-2">
-                      <span className="text-6xl font-black text-[#FACD15] leading-none">{worker?.experience || 3}</span>
-                      <span className="text-lg font-bold opacity-40">Years Exp.</span>
-                    </div>
-                    <p className="text-sm text-[#F8FAFC]/70 mb-8 leading-relaxed font-bold">
-                        Verified professional with a proven track record in the industry.
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Left Column */}
+              <div className="md:col-span-2 space-y-6">
+                
+                {/* Professional Bio */}
+                {worker?.bio && (
+                  <div className="bg-white rounded-3xl p-6 lg:p-8 border border-slate-200 shadow-sm">
+                    <h3 className="text-lg font-black text-[#0A1931] mb-4">Professional Bio</h3>
+                    <p className="text-slate-600 font-medium leading-relaxed">
+                      {worker.bio}
                     </p>
                   </div>
-                </div>
-              </div>
-            </section>
+                )}
 
-            {/* Bio Section */}
-            {worker?.bio && (
-              <section className="mb-12 text-left">
-                <h3 className="text-2xl font-black uppercase tracking-tight mb-4">Professional Bio</h3>
-                <div className="bg-white p-8 rounded-lg shadow-sm">
-                  <p className="text-lg leading-relaxed text-[#0A1931]/80 font-medium">
-                    {worker.bio}
-                  </p>
-                </div>
-              </section>
-            )}
-
-            {/* Verified Skills Section */}
-            <section className="mb-12 text-left">
-              <h3 className="text-2xl font-black uppercase tracking-tight mb-6">Worker Skills</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {worker?.skills && worker.skills.length > 0 ? (
-                  worker.skills.map((skill, idx) => (
-                    <div key={idx} className="bg-white p-6 rounded-lg shadow-sm border-l-4 border-[#FACD15] text-left flex flex-col justify-between">
-                      <div className="flex justify-between items-start mb-4">
-                        <div className="w-12 h-12 bg-[#F8FAFC] rounded-lg flex items-center justify-center">
-                          {skill.toLowerCase().includes('electric') ? <Zap className="w-6 h-6 text-[#0A1931]" /> : 
-                           skill.toLowerCase().includes('hvac') || skill.toLowerCase().includes('ac') ? <Snowflake className="w-6 h-6 text-[#0A1931]" /> :
-                           <Construction className="w-6 h-6 text-[#0A1931]" />}
+                {/* Verified Skills Section */}
+                <div className="bg-white rounded-3xl p-6 lg:p-8 border border-slate-200 shadow-sm">
+                  <h3 className="text-lg font-black text-[#0A1931] mb-6 flex items-center gap-2">
+                    <Zap className="w-5 h-5 text-[#0066FF]" /> Verified Expertise
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {worker?.skills && worker.skills.length > 0 ? (
+                      worker.skills.map((skill, idx) => (
+                        <div key={idx} className="flex justify-between items-center p-4 rounded-2xl border border-slate-100 bg-slate-50/50">
+                          <span className="font-bold text-[#0A1931]">{skill.trim()}</span>
+                          <BadgeCheck className="w-5 h-5 text-emerald-500" />
                         </div>
-                        <BadgeCheck className="w-6 h-6 text-[#0A1931]" />
+                      ))
+                    ) : (
+                      <div className="col-span-full py-6 text-center text-slate-500 font-medium">
+                        No skills listed
                       </div>
-                      <h4 className="text-lg font-black uppercase tracking-tight mb-1">{skill}</h4>
-                      <div className="mt-4 bg-[#F8FAFC] px-3 py-1 rounded inline-block text-[10px] font-bold uppercase tracking-wider w-fit">Verified Skill</div>
+                    )}
+                  </div>
+                </div>
+
+              </div>
+
+              {/* Right Column: Contact & Stats */}
+              <div className="space-y-6">
+                
+                {/* Contact Info */}
+                <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm">
+                  <h3 className="text-lg font-black text-[#0A1931] mb-4">Contact Details</h3>
+                  <div className="space-y-4">
+                    {worker?.phoneNumber ? (
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-[#0066FF] shrink-0">
+                          <Phone className="w-4 h-4" />
+                        </div>
+                        <div className="overflow-hidden">
+                          <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-0.5">Phone</p>
+                          <p className="font-semibold text-slate-700 truncate">{worker.phoneNumber}</p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="text-sm text-slate-500 font-medium">Phone number not available.</div>
+                    )}
+                    
+                    {worker?.email && (
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-[#0066FF] shrink-0">
+                          <Mail className="w-4 h-4" />
+                        </div>
+                        <div className="overflow-hidden">
+                          <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-0.5">Email</p>
+                          <p className="font-semibold text-slate-700 truncate">{worker.email}</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Job Stats */}
+                <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm">
+                  <h3 className="text-lg font-black text-[#0A1931] mb-4">Worker Stats</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                      <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Rating</p>
+                      <p className="text-xl font-black text-[#0A1931] mt-1">
+                        {ratings && ratings.length > 0 ? (ratings.reduce((acc: any, r: any) => acc + r.score, 0) / ratings.length).toFixed(1) : 'New'}
+                      </p>
                     </div>
-                  ))
+                    <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                      <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Level</p>
+                      <p className="text-xl font-black text-[#0A1931] mt-1">{worker?.level || 1}</p>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </motion.div>
+        </AnimatePresence>
+      </main>
+
+      {/* Dispatch Offer Modal */}
+      <AnimatePresence>
+        {isModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl flex flex-col"
+            >
+              <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                <h2 className="text-xl font-black text-[#0A1931]">Dispatch Offer</h2>
+                <button 
+                  onClick={() => setIsModalOpen(false)}
+                  className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              
+              <div className="p-6">
+                <p className="text-sm text-slate-600 font-medium mb-4">
+                  Select a job to offer to {worker?.name || 'this worker'}:
+                </p>
+                
+                {isLoadingJobs ? (
+                  <div className="flex justify-center py-8">
+                    <Loader2 className="w-8 h-8 text-[#0066FF] animate-spin" />
+                  </div>
+                ) : myJobs && myJobs.length > 0 ? (
+                  <div className="space-y-3 max-h-64 overflow-y-auto pr-2">
+                    {myJobs.map((job: any) => (
+                      <label 
+                        key={job.id}
+                        className={`flex items-start p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                          selectedJobId === job.id 
+                            ? 'border-[#0066FF] bg-blue-50/50' 
+                            : 'border-slate-100 hover:border-slate-200 hover:bg-slate-50'
+                        }`}
+                      >
+                        <input 
+                          type="radio" 
+                          name="jobSelection" 
+                          className="mt-1 sr-only"
+                          checked={selectedJobId === job.id}
+                          onChange={() => setSelectedJobId(job.id)}
+                        />
+                        <div className="flex-1 ml-1">
+                          <h4 className={`font-bold ${selectedJobId === job.id ? 'text-[#0066FF]' : 'text-[#0A1931]'}`}>
+                            {job.title}
+                          </h4>
+                          <p className="text-xs text-slate-500 font-medium mt-1">
+                            {job.location} • ₹{job.budget?.toLocaleString() || '0'}
+                          </p>
+                        </div>
+                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
+                          selectedJobId === job.id ? 'border-[#0066FF]' : 'border-slate-300'
+                        }`}>
+                          {selectedJobId === job.id && <div className="w-2.5 h-2.5 rounded-full bg-[#0066FF]" />}
+                        </div>
+                      </label>
+                    ))}
+                  </div>
                 ) : (
-                  <div className="col-span-full bg-white p-12 rounded-lg text-center border-2 border-dashed border-[#0A1931]/10">
-                    <p className="text-[#0A1931]/40 font-bold uppercase tracking-widest">No skills listed</p>
+                  <div className="text-center py-8 bg-slate-50 rounded-xl border border-slate-100">
+                    <p className="text-slate-500 font-medium">You don't have any active jobs to offer.</p>
                   </div>
                 )}
               </div>
-            </section>
-
-
-          </motion.div>
-        </AnimatePresence>
-
-      </main>
+              
+              <div className="p-6 border-t border-slate-100 bg-slate-50/50 flex justify-end gap-3">
+                <button 
+                  onClick={() => setIsModalOpen(false)}
+                  className="px-6 py-2.5 font-bold text-slate-600 hover:bg-slate-200 bg-slate-100 rounded-xl transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={handleConfirmOffer}
+                  disabled={!selectedJobId || dispatchOfferMutation.isPending}
+                  className="px-6 py-2.5 font-bold text-white bg-[#0066FF] hover:bg-[#0052cc] rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 cursor-pointer shadow-md shadow-blue-500/20"
+                >
+                  {dispatchOfferMutation.isPending && <Loader2 className="w-4 h-4 animate-spin" />}
+                  Confirm Offer
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

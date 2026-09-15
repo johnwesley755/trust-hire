@@ -1,25 +1,23 @@
-import dotenv from 'dotenv';
-dotenv.config();
-
+import { serve } from '@hono/node-server';
 import app from './app';
-import prisma from './config/prisma';
-import { startJobExpiryScheduler } from './scheduler/jobExpiryScheduler';
+import dotenv from 'dotenv';
+import fs from 'fs';
 
-const PORT = process.env.PORT || 8080;
-
-const startServer = async () => {
-  try {
-    await prisma.$connect();
-    startJobExpiryScheduler();
-    console.log('Database connected successfully to PostgreSQL (trusthire_auth_db).');
-
-    app.listen(PORT, () => {
-      console.log(`TrustHire Node.js Monolith running on port ${PORT}`);
-    });
-  } catch (error) {
-    console.error('Failed to start server:', error);
-    process.exit(1);
+// Load .env into process.env so our node server acts like Cloudflare Workers environment variables
+if (fs.existsSync('.env')) {
+  const envConfig = dotenv.parse(fs.readFileSync('.env'));
+  for (const k in envConfig) {
+    process.env[k] = envConfig[k];
   }
-};
+}
 
-startServer();
+const port = 8787;
+console.log(`[Local DB Mode] Node Server is running on http://127.0.0.1:${port}`);
+console.log(`Using Database: ${process.env.DATABASE_URL?.split('@')[1]}`);
+
+serve({
+  // Pass process.env as the Cloudflare c.env binding
+  fetch: (req) => app.fetch(req, process.env, {} as any),
+  port,
+  hostname: '127.0.0.1'
+});

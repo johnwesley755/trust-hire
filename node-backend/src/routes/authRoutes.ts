@@ -1,8 +1,8 @@
-import { Router } from 'express';
+import { Hono } from 'hono';
 import * as authController from '../controllers/authController';
 import { authenticateJWT } from '../middlewares/auth';
 
-const router = Router();
+const router = new Hono();
 
 router.post('/register', authController.register);
 router.post('/login', authController.login);

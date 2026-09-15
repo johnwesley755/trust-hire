@@ -1,51 +1,51 @@
-import { Request, Response } from 'express';
+import { Context } from 'hono';
 import prisma from '../config/prisma';
 import { ApiResponse } from '../utils/ApiResponse';
 import { v4 as uuidv4 } from 'uuid';
 
-export const getAvailableTests = async (req: Request, res: Response) => {
+export const getAvailableTests = async (c: Context) => {
   try {
-    const { category } = req.query;
+    const { category  } = c.req.query();
     let tests;
     if (category) {
        tests = await prisma.skill_tests.findMany({ where: { category: category as string } });
     } else {
        tests = await prisma.skill_tests.findMany();
     }
-    res.json(ApiResponse.ok(tests));
+    return c.json(ApiResponse.ok(tests));
   } catch (err: any) {
-    res.status(500).json(ApiResponse.error(err.message));
+    return c.json(ApiResponse.error(err.message), 500 as any);
   }
 };
 
-export const getTestById = async (req: Request, res: Response) => {
+export const getTestById = async (c: Context) => {
   try {
-    const id = req.params.id as string;
+    const id = c.req.param('id') as string;
     const test = await prisma.skill_tests.findUnique({
       where: { id },
       include: { skill_test_questions: true }
     });
-    if (!test) return res.status(404).json(ApiResponse.error("Test not found"));
-    res.json(ApiResponse.ok(test));
+    if (!test) return c.json(ApiResponse.error("Test not found"), 404 as any);
+    return c.json(ApiResponse.ok(test));
   } catch (err: any) {
-    res.status(500).json(ApiResponse.error(err.message));
+    return c.json(ApiResponse.error(err.message), 500 as any);
   }
 };
 
-export const submitResult = async (req: Request, res: Response) => {
+export const submitResult = async (c: Context) => {
   try {
-    const userId = req.user?.sub;
-    if (!userId) return res.status(401).json(ApiResponse.error("Unauthorized"));
+    const userId = c.get('user')?.sub;
+    if (!userId) return c.json(ApiResponse.error("Unauthorized"), 401 as any);
 
-    const testId = req.params.id || req.body.testId;
-    const { answers } = req.body;
+    const testId = c.req.param('id') || (await c.req.json()).testId;
+    const { answers } = (await c.req.json());
 
     const test = await prisma.skill_tests.findUnique({
       where: { id: testId },
       include: { skill_test_questions: true }
     });
 
-    if (!test) return res.status(404).json(ApiResponse.error("Test not found"));
+    if (!test) return c.json(ApiResponse.error("Test not found"), 404 as any);
 
     let score = 0;
     let totalPoints = 0;
@@ -79,22 +79,22 @@ export const submitResult = async (req: Request, res: Response) => {
       });
     }
 
-    res.json(ApiResponse.ok("Test submitted", result));
+    return c.json(ApiResponse.ok("Test submitted", result));
   } catch (err: any) {
-    res.status(500).json(ApiResponse.error(err.message));
+    return c.json(ApiResponse.error(err.message), 500 as any);
   }
 };
 
-export const getWorkerResults = async (req: Request, res: Response) => {
+export const getWorkerResults = async (c: Context) => {
   try {
-    const workerId = String(req.params.workerId);
+    const workerId = String(c.req.param('workerId'));
     const results = await prisma.skill_test_results.findMany({
       where: { worker_id: workerId },
       include: { skill_tests: true },
       orderBy: { completed_at: 'desc' }
     });
-    res.json(ApiResponse.ok(results));
+    return c.json(ApiResponse.ok(results));
   } catch (err: any) {
-    res.status(500).json(ApiResponse.error(err.message));
+    return c.json(ApiResponse.error(err.message), 500 as any);
   }
 };

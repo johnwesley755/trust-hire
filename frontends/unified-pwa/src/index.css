@@ -2,6 +2,9 @@
 @import "tailwindcss";
 
 @layer base {
+  *, ::before, ::after {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
   body {
     font-family: 'Plus Jakarta Sans', sans-serif;
   }
@@ -41,10 +44,19 @@
     /* Fonts */
     --font-sans: 'Plus Jakarta Sans', sans-serif;
     --font-body: 'Plus Jakarta Sans', sans-serif;
+    --font-headline: 'Plus Jakarta Sans', sans-serif;
+}
+
+@utility font-headline {
+  font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
 @utility font-body {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+@utility bricolage {
+  font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
 @utility animate-float {

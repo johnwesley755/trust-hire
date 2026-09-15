@@ -1,7 +1,7 @@
-import { Router } from 'express';
+import { Hono } from 'hono';
 import * as earlyAccessController from '../controllers/earlyAccessController';
 
-const router = Router();
+const router = new Hono();
 
 router.post('/', earlyAccessController.requestEarlyAccess);
 

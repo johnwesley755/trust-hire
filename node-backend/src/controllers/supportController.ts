@@ -1,12 +1,12 @@
-import { Request, Response } from 'express';
+import { Context } from 'hono';
 import prisma from '../config/prisma';
 import { ApiResponse } from '../utils/ApiResponse';
 import { v4 as uuidv4 } from 'uuid';
 
-export const createTicket = async (req: Request, res: Response) => {
+export const createTicket = async (c: Context) => {
   try {
-    const userId = req.user?.sub;
-    const data = req.body;
+    const userId = c.get('user')?.sub;
+    const data = (await c.req.json());
 
     const ticket = await prisma.support_tickets.create({
       data: {
@@ -21,8 +21,8 @@ export const createTicket = async (req: Request, res: Response) => {
       }
     });
 
-    res.json(ApiResponse.ok("Ticket created successfully", ticket));
+    return c.json(ApiResponse.ok("Ticket created successfully", ticket));
   } catch (err: any) {
-    res.status(500).json(ApiResponse.error(err.message));
+    return c.json(ApiResponse.error(err.message), 500 as any);
   }
 };

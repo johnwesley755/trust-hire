@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { Context } from 'hono';
 import prisma from '../config/prisma';
 import { ApiResponse } from '../utils/ApiResponse';
 
@@ -21,16 +21,16 @@ const calculateProgress = (levelNumber: number, score: number) => {
     return ((score - min) / (max - min)) * 100;
 };
 
-export const getLevelDetails = async (req: Request, res: Response) => {
+export const getLevelDetails = async (c: Context) => {
   try {
-    const userId = req.params.userId as string;
+    const userId = c.req.param('userId') as string;
     const worker = await prisma.worker_profiles.findUnique({ where: { user_id: userId } });
-    if (!worker) return res.status(404).json(ApiResponse.error("Worker not found"));
+    if (!worker) return c.json(ApiResponse.error("Worker not found"), 404 as any);
 
     const levelNumber = worker.level_number || 1;
     const levelScore = worker.level_score || 0;
 
-    res.json(ApiResponse.ok({
+    return c.json(ApiResponse.ok({
       workerId: userId,
       currentLevel: levelNumber,
       levelScore: Math.floor(levelScore),
@@ -44,26 +44,26 @@ export const getLevelDetails = async (req: Request, res: Response) => {
       salaryRange: getSalaryRange(levelNumber)
     }));
   } catch (err: any) {
-    res.status(500).json(ApiResponse.error(err.message));
+    return c.json(ApiResponse.error(err.message), 500 as any);
   }
 };
 
-export const getLevelProgress = async (req: Request, res: Response) => {
+export const getLevelProgress = async (c: Context) => {
   try {
-    const userId = req.params.userId as string;
+    const userId = c.req.param('userId') as string;
     const worker = await prisma.worker_profiles.findUnique({ where: { user_id: userId } });
-    if (!worker) return res.status(404).json(ApiResponse.error("Worker not found"));
+    if (!worker) return c.json(ApiResponse.error("Worker not found"), 404 as any);
 
     const levelNumber = worker.level_number || 1;
     const levelScore = worker.level_score || 0;
 
-    res.json(ApiResponse.ok({
+    return c.json(ApiResponse.ok({
       currentLevel: levelNumber,
       levelScore: Math.floor(levelScore),
       nextLevel: levelNumber < 4 ? levelNumber + 1 : 4,
       progress: calculateProgress(levelNumber, levelScore)
     }));
   } catch (err: any) {
-    res.status(500).json(ApiResponse.error(err.message));
+    return c.json(ApiResponse.error(err.message), 500 as any);
   }
 };

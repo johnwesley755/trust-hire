@@ -1,8 +1,8 @@
-import { Router } from 'express';
+import { Hono } from 'hono';
 import * as settingsController from '../controllers/settingsController';
 import { authenticateJWT } from '../middlewares/auth';
 
-const router = Router();
+const router = new Hono();
 
 router.get('/', authenticateJWT, settingsController.getSettings);
 router.put('/', authenticateJWT, settingsController.updateSettings);

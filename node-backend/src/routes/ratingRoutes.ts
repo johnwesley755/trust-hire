@@ -1,8 +1,8 @@
-import { Router } from 'express';
+import { Hono } from 'hono';
 import * as ratingController from '../controllers/ratingController';
 import { authenticateJWT } from '../middlewares/auth';
 
-const router = Router();
+const router = new Hono();
 
 router.post('/', authenticateJWT, ratingController.submitRating);
 router.get('/user/:rateeId', ratingController.getForUser);

@@ -14,8 +14,18 @@ export const useMarkNotificationReadMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => notificationService.markAsRead(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all });
+    onSuccess: (_data, id) => {
+      queryClient.setQueryData(queryKeys.notifications.all, (old: any) => {
+        if (!old) return old;
+        const list = Array.isArray(old) ? old : old.notifications;
+        if (!list) return old;
+        const updated = list.map((n: any) => (n.id === id ? { ...n, isRead: true } : n));
+        return Array.isArray(old) ? updated : { ...old, notifications: updated };
+      });
+      queryClient.setQueryData(['unreadCount'], (prev: any) => {
+        const count = typeof prev === 'number' ? prev : prev?.count || 0;
+        return Math.max(0, count - 1);
+      });
     },
   });
 };
@@ -26,7 +36,14 @@ export const useMarkAllNotificationsReadMutation = () => {
     mutationFn: () => notificationService.markAllAsRead(),
     onSuccess: () => {
       toast.success('All notifications marked as read');
-      queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all });
+      queryClient.setQueryData(queryKeys.notifications.all, (old: any) => {
+        if (!old) return old;
+        const list = Array.isArray(old) ? old : old.notifications;
+        if (!list) return old;
+        const updated = list.map((n: any) => ({ ...n, isRead: true }));
+        return Array.isArray(old) ? updated : { ...old, notifications: updated };
+      });
+      queryClient.setQueryData(['unreadCount'], 0);
     },
   });
 };

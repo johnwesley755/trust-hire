@@ -1,32 +1,32 @@
-import { Request, Response } from 'express';
+import { Context } from 'hono';
 import prisma from '../config/prisma';
 import { ApiResponse } from '../utils/ApiResponse';
 
-export const getWorkerStats = async (req: Request, res: Response) => {
+export const getWorkerStats = async (c: Context) => {
   try {
-    const userId = req.user?.sub;
-    if (!userId) return res.status(401).json(ApiResponse.error("Unauthorized"));
+    const userId = c.get('user')?.sub;
+    if (!userId) return c.json(ApiResponse.error("Unauthorized"), 401 as any);
 
     const appliedJobs = await prisma.job_applications.count({ where: { worker_id: userId } });
     const unreadNotifications = await prisma.notifications.count({ where: { user_id: userId, is_read: false } });
 
     const profile = await prisma.worker_profiles.findUnique({ where: { user_id: userId } });
 
-    res.json(ApiResponse.ok("Worker stats fetched", {
+    return c.json(ApiResponse.ok("Worker stats fetched", {
       appliedJobs,
       unreadNotifications,
       level: profile?.level,
       trustScore: profile?.trust_score
     }));
   } catch (err: any) {
-    res.status(500).json(ApiResponse.error(err.message));
+    return c.json(ApiResponse.error(err.message), 500 as any);
   }
 };
 
-export const getEmployerStats = async (req: Request, res: Response) => {
+export const getEmployerStats = async (c: Context) => {
   try {
-    const userId = req.user?.sub;
-    if (!userId) return res.status(401).json(ApiResponse.error("Unauthorized"));
+    const userId = c.get('user')?.sub;
+    if (!userId) return c.json(ApiResponse.error("Unauthorized"), 401 as any);
 
     const activeJobs = await prisma.jobs.count({ where: { employer_id: userId, status: 'OPEN' } });
 
@@ -44,7 +44,7 @@ export const getEmployerStats = async (req: Request, res: Response) => {
 
     const unreadNotifications = await prisma.notifications.count({ where: { user_id: userId, is_read: false } });
 
-    res.json(ApiResponse.ok("Employer stats fetched", {
+    return c.json(ApiResponse.ok("Employer stats fetched", {
       activeJobs,
       totalApplicants,
       interviewingCount,
@@ -52,6 +52,6 @@ export const getEmployerStats = async (req: Request, res: Response) => {
       unreadNotifications
     }));
   } catch (err: any) {
-    res.status(500).json(ApiResponse.error(err.message));
+    return c.json(ApiResponse.error(err.message), 500 as any);
   }
 };

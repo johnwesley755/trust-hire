@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import apiClient from "../../../api/apiClient";
 import { motion, AnimatePresence } from 'framer-motion';
 import { LocationPicker } from "../../jobs/components/LocationPicker";
@@ -121,22 +121,30 @@ export default function OnboardingPage() {
   const progress = (step / 3) * 100;
 
   return (
-    <div className="bg-[#F8FAFC] text-[#0A1931] font-['Bricolage_Grotesque'] antialiased min-h-screen flex flex-col overflow-x-hidden selection:bg-[#FACD15] selection:text-[#002117]">
+    <div className="bg-[#F8FAFC] text-[#0A1931] antialiased min-h-screen flex flex-col overflow-x-hidden selection:bg-[#FACD15] selection:text-[#002117]">
       
       {/* Top Navigation / Progress Header */}
-      <header className="fixed top-0 left-0 w-full z-50 flex flex-col bg-[#F8FAFC]/80 backdrop-blur-md">
-        <div className="flex justify-between items-center px-6 py-4 max-w-7xl mx-auto w-full">
-            <div className="text-xl font-black text-[#0A1931] tracking-tight">
-                TrustHire
-            </div>
+      <header className="fixed top-0 left-0 w-full z-50 flex flex-col bg-white/95 backdrop-blur-md border-b border-slate-200">
+        <div className="flex justify-between items-center px-4 sm:px-6 lg:px-8 h-16 max-w-7xl mx-auto w-full">
+            <Link to="/" className="flex items-center gap-2.5 group">
+              <div className="w-9 h-9 flex items-center justify-center group-hover:scale-105 transition-transform">
+                <img src="/logo.png" alt="TrustHyre Logo" className="w-full h-full object-contain" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-xl font-extrabold tracking-tight text-[#0A1931] leading-none">
+                  Trust<span className="text-[#0066FF]">Hyre</span>
+                </span>
+                <span className="text-[9px] font-bold text-slate-400 tracking-wider mt-0.5">EMPLOYER ONBOARDING</span>
+              </div>
+            </Link>
             <div className="flex items-center gap-4">
                 <div className="hidden md:flex flex-col items-end gap-0.5">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-[#0A1931]/60">Step {step} of 3</span>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#0A1931]">{Math.round(progress)}% Complete</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#0066FF]">{Math.round(progress)}% Complete</span>
                 </div>
-                <button className="material-symbols-outlined text-[#0A1931] p-2 hover:bg-[#FACD15]/10 rounded-full transition-colors">
-                    help_outline
-                </button>
+                <Link to="/help" className="text-slate-500 hover:text-[#0066FF] p-2 hover:bg-blue-50 rounded-full transition-colors">
+                    <span className="material-symbols-outlined text-xl leading-none">help_outline</span>
+                </Link>
             </div>
         </div>
         <div className="w-full h-1.5 bg-[#E9E8E3]">
@@ -283,7 +291,7 @@ export default function OnboardingPage() {
                                 </div>
                             </div>
                             <div className="mt-12 text-center lg:text-left px-4">
-                                <p className="text-[#0A1931] font-extrabold text-2xl leading-tight font-['Bricolage_Grotesque']">
+                                <p className="text-[#0A1931] font-extrabold text-2xl leading-tight">
                                     Powering over 50,000+ logistics companies across Bharat.
                                 </p>
                             </div>
@@ -350,7 +358,7 @@ export default function OnboardingPage() {
                             </div>
                         </div>
 
-                        <div className="pt-6 flex items-center gap-6 font-['Bricolage_Grotesque']">
+                        <div className="pt-6 flex items-center gap-6">
                             <button 
                                 onClick={nextStep}
                                 disabled={!formData.industry || formData.profileBio.length < 100}
@@ -416,7 +424,7 @@ export default function OnboardingPage() {
                             <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-[#0A1931] leading-[1.1]">Where are you located?</h1>
                             <p className="text-lg text-[#0A1931]/70 max-w-md font-medium">Setting your base helps us connect you with local opportunities and verified talent in your neighborhood.</p>
                         </div>
-                        <div className="space-y-8 font-['Bricolage_Grotesque']">
+                        <div className="space-y-8">
                             <button 
                                 onClick={detectLocation}
                                 className="w-full group relative flex items-center justify-between p-6 bg-white rounded-xl shadow-[0_20px_40px_-10px_rgba(31,63,52,0.05)] hover:shadow-[0_20px_40px_-10px_rgba(31,63,52,0.1)] transition-all duration-300 border border-transparent hover:border-[#FACD15]/30 active:scale-[0.98]"
@@ -455,7 +463,7 @@ export default function OnboardingPage() {
                                 {locationError && <p className="text-red-500 text-xs font-bold px-1">{locationError}</p>}
                             </div>
                         </div>
-                        <div className="mt-12 flex flex-col sm:flex-row items-center gap-6 font-['Bricolage_Grotesque']">
+                        <div className="mt-12 flex flex-col sm:flex-row items-center gap-6">
                             <button 
                                 onClick={handleSubmit}
                                 disabled={isSubmitting || !formData.businessAddress}
@@ -550,6 +558,20 @@ export default function OnboardingPage() {
             -webkit-mask-position: center;
         }
       `}</style>
+      {/* Footer */}
+      <footer className="w-full bg-white border-t border-slate-200 py-6 mt-auto">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+          <div className="flex items-center gap-2">
+            <img src="/logo.png" alt="TrustHyre Logo" className="w-5 h-5 object-contain" />
+            <span className="font-semibold text-slate-700">© 2026 TrustHyre Technologies. All rights reserved.</span>
+          </div>
+          <div className="flex items-center gap-6 font-semibold">
+            <Link to="/privacy" className="hover:text-[#0066FF] transition-colors">Privacy Policy</Link>
+            <Link to="/terms" className="hover:text-[#0066FF] transition-colors">Terms of Service</Link>
+            <Link to="/help" className="hover:text-[#0066FF] transition-colors">Help Center</Link>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

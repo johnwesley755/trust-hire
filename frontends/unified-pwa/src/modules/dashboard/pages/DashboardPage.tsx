@@ -181,7 +181,7 @@ export default function DashboardPage() {
                                 <div className="grid grid-cols-2 gap-2.5">
                                     {[
                                         { label: 'Talent Search', icon: <Users className="w-4 h-4 text-[#0066FF]" />, bg: 'bg-blue-50', path: '/find-workers' },
-                                        { label: 'Applications', icon: <FileText className="w-4 h-4 text-indigo-600" />, bg: 'bg-indigo-50', path: '/applications' },
+                                        { label: 'Applications', icon: <FileText className="w-4 h-4 text-indigo-600" />, bg: 'bg-indigo-50', path: '/jobs' },
                                         { label: 'Post Shift', icon: <Plus className="w-4 h-4 text-emerald-600" />, bg: 'bg-emerald-50', path: '/post-job' },
                                         { label: 'Radar Map', icon: <MapPin className="w-4 h-4 text-amber-600" />, bg: 'bg-amber-50', path: '/find-workers' }
                                     ].map(action => (

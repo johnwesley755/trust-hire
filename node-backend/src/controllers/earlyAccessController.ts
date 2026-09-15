@@ -1,11 +1,11 @@
-import { Request, Response } from 'express';
+import { Context } from 'hono';
 import { ApiResponse } from '../utils/ApiResponse';
 
-export const requestEarlyAccess = async (req: Request, res: Response) => {
+export const requestEarlyAccess = async (c: Context) => {
   try {
-    console.log("Early access request:", req.body);
-    res.json(ApiResponse.ok("Early access requested"));
+    console.log("Early access request:", (await c.req.json()));
+    return c.json(ApiResponse.ok("Early access requested"));
   } catch (err: any) {
-    res.status(500).json(ApiResponse.error(err.message));
+    return c.json(ApiResponse.error(err.message), 500 as any);
   }
 };

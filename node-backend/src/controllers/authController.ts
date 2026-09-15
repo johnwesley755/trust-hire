@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { Context } from 'hono';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import prisma from '../config/prisma';
@@ -7,13 +7,13 @@ import { v4 as uuidv4 } from 'uuid';
 import { sendEmail } from '../services/mailer';
 import { getOtpTemplate, getResetPasswordTemplate } from '../utils/emailTemplates';
 
-export const register = async (req: Request, res: Response) => {
+export const register = async (c: Context) => {
   try {
-    const { email, password, firstName, lastName, role, phoneNumber } = req.body;
+    const { email, password, firstName, lastName, role, phoneNumber } = (await c.req.json());
 
     const existing = await prisma.user_metadata.findUnique({ where: { email } });
     if (existing) {
-      return res.status(400).json(ApiResponse.error("Email already in use"));
+      return c.json(ApiResponse.error("Email already in use"), 400 as any);
     }
 
     if (phoneNumber) {
@@ -21,7 +21,7 @@ export const register = async (req: Request, res: Response) => {
         where: { phone_number: phoneNumber }
       });
       if (existingPhone) {
-        return res.status(400).json(ApiResponse.error("This phone number is already registered with another account. Please use a different phone number."));
+        return c.json(ApiResponse.error("This phone number is already registered with another account. Please use a different phone number."), 400 as any);
       }
     }
 
@@ -45,41 +45,41 @@ export const register = async (req: Request, res: Response) => {
 
     const token = jwt.sign({ sub: user.id, role: user.role }, process.env.JWT_SECRET as string, { expiresIn: '24h' });
 
-    res.json(ApiResponse.ok("Registration successful", { token, user }));
+    return c.json(ApiResponse.ok("Registration successful", { token, user }));
   } catch (err: any) {
-    res.status(500).json(ApiResponse.error(err.message));
+    return c.json(ApiResponse.error(err.message), 500 as any);
   }
 };
 
-export const login = async (req: Request, res: Response) => {
+export const login = async (c: Context) => {
   try {
-    const { email, password } = req.body;
+    const { email, password } = (await c.req.json());
     const user = await prisma.user_metadata.findUnique({ where: { email } });
     if (!user || !user.password_hash) {
-      return res.status(401).json(ApiResponse.error("Invalid credentials"));
+      return c.json(ApiResponse.error("Invalid credentials"), 401 as any);
     }
 
     const isValid = await bcrypt.compare(password, user.password_hash);
     if (!isValid) {
-      return res.status(401).json(ApiResponse.error("Invalid credentials"));
+      return c.json(ApiResponse.error("Invalid credentials"), 401 as any);
     }
 
     const token = jwt.sign({ sub: user.id, role: user.role }, process.env.JWT_SECRET as string, { expiresIn: '24h' });
-    res.json(ApiResponse.ok("Login successful", { token, user }));
+    return c.json(ApiResponse.ok("Login successful", { token, user }));
   } catch (err: any) {
-    res.status(500).json(ApiResponse.error(err.message));
+    return c.json(ApiResponse.error(err.message), 500 as any);
   }
 };
 
-export const sendOtp = async (req: Request, res: Response) => {
-  const { email } = req.body;
+export const sendOtp = async (c: Context) => {
+  const { email } = (await c.req.json());
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
   await sendEmail(email, "Your OTP - TrustHyre", getOtpTemplate(otp));
-  res.json(ApiResponse.ok(`OTP sent to ${email}`, "sent"));
+  return c.json(ApiResponse.ok(`OTP sent to ${email}`, "sent"));
 };
 
-export const forgotPassword = async (req: Request, res: Response) => {
-  const { email, role } = req.body;
+export const forgotPassword = async (c: Context) => {
+  const { email, role } = (await c.req.json());
   const user = await prisma.user_metadata.findUnique({ where: { email } });
   if (user) {
     const token = Math.floor(100000 + Math.random() * 900000).toString();
@@ -89,36 +89,36 @@ export const forgotPassword = async (req: Request, res: Response) => {
     });
     await sendEmail(email, "Reset Password - TrustHyre", getResetPasswordTemplate(token));
   }
-  res.json(ApiResponse.ok("Reset email sent successfully", "sent"));
+  return c.json(ApiResponse.ok("Reset email sent successfully", "sent"));
 };
 
-export const resetPassword = async (req: Request, res: Response) => {
-  const { token, password } = req.body;
+export const resetPassword = async (c: Context) => {
+  const { token, password } = (await c.req.json());
   const user = await prisma.user_metadata.findFirst({
     where: { reset_token: token, reset_token_expiry: { gt: new Date() } }
   });
-  if (!user) return res.status(400).json(ApiResponse.error("Invalid or expired token"));
+  if (!user) return c.json(ApiResponse.error("Invalid or expired token"), 400 as any);
 
   const passwordHash = await bcrypt.hash(password, 10);
   await prisma.user_metadata.update({
     where: { id: user.id },
     data: { password_hash: passwordHash, reset_token: null, reset_token_expiry: null }
   });
-  res.json(ApiResponse.ok("Password updated successfully", "updated"));
+  return c.json(ApiResponse.ok("Password updated successfully", "updated"));
 };
 
-export const getCurrentUser = async (req: Request, res: Response) => {
-  if (!req.user) return res.status(401).json(ApiResponse.error("Unauthorized"));
-  const user = await prisma.user_metadata.findUnique({ where: { id: req.user.sub } });
-  if (!user) return res.status(404).json(ApiResponse.error("User not found"));
-  res.json(ApiResponse.ok(user));
+export const getCurrentUser = async (c: Context) => {
+  if (!c.get('user')) return c.json(ApiResponse.error("Unauthorized"), 401 as any);
+  const user = await prisma.user_metadata.findUnique({ where: { id: c.get('user').sub } });
+  if (!user) return c.json(ApiResponse.error("User not found"), 404 as any);
+  return c.json(ApiResponse.ok(user));
 };
 
-export const syncUser = async (req: Request, res: Response) => {
-  if (!req.user) return res.status(401).json(ApiResponse.error("Unauthorized"));
+export const syncUser = async (c: Context) => {
+  if (!c.get('user')) return c.json(ApiResponse.error("Unauthorized"), 401 as any);
   
   try {
-    const rawData = { ...req.body };
+    const rawData = { ...(await c.req.json()) };
     const phoneNumber = rawData.phone_number || rawData.phoneNumber;
 
     // Check phone number uniqueness if provided
@@ -126,12 +126,12 @@ export const syncUser = async (req: Request, res: Response) => {
       const duplicatePhone = await prisma.user_metadata.findFirst({
         where: {
           phone_number: phoneNumber,
-          id: { not: req.user.sub }
+          id: { not: c.get('user').sub }
         }
       });
 
       if (duplicatePhone) {
-        return res.status(400).json(
+        return c.json(
           ApiResponse.error("This phone number is already registered with another account. Please use a different phone number.")
         );
       }
@@ -148,7 +148,7 @@ export const syncUser = async (req: Request, res: Response) => {
     if (typeof rawData.onboarded === 'boolean') updatePayload.onboarded = rawData.onboarded;
 
     const updated = await prisma.user_metadata.update({
-      where: { id: req.user.sub },
+      where: { id: c.get('user').sub },
       data: updatePayload
     });
 
@@ -169,10 +169,10 @@ export const syncUser = async (req: Request, res: Response) => {
       if (rawData.experienceYears || rawData.experience_years) workerPayload.experience_years = Number(rawData.experienceYears || rawData.experience_years);
 
       await prisma.worker_profiles.upsert({
-        where: { user_id: req.user.sub },
+        where: { user_id: c.get('user').sub },
         update: workerPayload,
         create: {
-          user_id: req.user.sub,
+          user_id: c.get('user').sub,
           full_name: workerPayload.full_name || `${updated.first_name || 'Worker'} ${updated.last_name || ''}`.trim(),
           skills: workerPayload.skills || '',
           location: workerPayload.location || '',
@@ -186,33 +186,33 @@ export const syncUser = async (req: Request, res: Response) => {
       }).catch((e: any) => console.warn("Worker profile sync notice:", e.message));
     }
 
-    res.json(ApiResponse.ok("User synced", updated));
+    return c.json(ApiResponse.ok("User synced", updated));
   } catch (err: any) {
-    res.status(500).json(ApiResponse.error(err.message));
+    return c.json(ApiResponse.error(err.message), 500 as any);
   }
 };
 
-export const getUsersByIds = async (req: Request, res: Response) => {
-  const userIds: string[] = req.body;
+export const getUsersByIds = async (c: Context) => {
+  const userIds: string[] = (await c.req.json());
   const users = await prisma.user_metadata.findMany({
     where: { id: { in: userIds } },
     select: { id: true, first_name: true, last_name: true, email: true, profile_image_url: true, role: true }
   });
-  res.json(ApiResponse.ok(users));
+  return c.json(ApiResponse.ok(users));
 };
 
-export const oauthSync = async (req: Request, res: Response) => {
+export const oauthSync = async (c: Context) => {
   try {
-    const { email, firstName, lastName, profileImageUrl } = req.body;
+    const { email, firstName, lastName, profileImageUrl } = (await c.req.json());
     if (!email) {
-      return res.status(400).json(ApiResponse.error("Email is required"));
+      return c.json(ApiResponse.error("Email is required"), 400 as any);
     }
 
     let user = await prisma.user_metadata.findUnique({ where: { email } });
     
     // Strictly block employers from using Google OAuth
     if (user && user.role === 'EMPLOYER') {
-      return res.status(403).json(ApiResponse.error("This email is registered as an Employer account. Employers must sign in with Business Email OTP."));
+      return c.json(ApiResponse.error("This email is registered as an Employer account. Employers must sign in with Business Email OTP."), 403 as any);
     }
 
     if (!user) {
@@ -228,7 +228,7 @@ export const oauthSync = async (req: Request, res: Response) => {
           created_at: new Date(),
           updated_at: new Date(),
           email_verified: true,
-          onboarded: true, // Workers go directly to candidate workspace
+          onboarded: false, // New worker must complete onboarding (phone number, trade, location)
         }
       });
 
@@ -262,15 +262,20 @@ export const oauthSync = async (req: Request, res: Response) => {
       { expiresIn: '30d' }
     );
 
-    res.json(ApiResponse.ok("OAuth sync successful", { token, user }));
+    const sanitizedUser = {
+      ...user,
+      onboarded: Boolean(user.onboarded && user.phone_number),
+    };
+
+    return c.json(ApiResponse.ok("OAuth sync successful", { token, user: sanitizedUser }));
   } catch (err: any) {
     console.error("OAuth sync error:", err);
-    res.status(500).json(ApiResponse.error(err.message));
+    return c.json(ApiResponse.error(err.message), 500 as any);
   }
 };
 
-export const handleLegacyWebhook = (req: Request, res: Response) => {
-  console.log("Received legacy webhook sync event:", req.body.type);
-  res.sendStatus(200);
+export const handleLegacyWebhook = async (c: Context) => {
+  console.log("Received legacy webhook sync event:", (await c.req.json()).type);
+  return c.text("OK", 200);
 };
 

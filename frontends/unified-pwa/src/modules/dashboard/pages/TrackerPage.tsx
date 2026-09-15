@@ -140,7 +140,8 @@ export default function TrackerPage() {
       {/* Stats Row */}
       <StatsSection 
         nearbyJobs={allJobs.length || recommendedJobs.length} 
-        earnings={stats?.appliedJobs ? `₹${(stats.appliedJobs * 1200).toLocaleString()}` : "₹14,800"} 
+        earnings={stats?.appliedJobs ? `₹${(stats.appliedJobs * 1200).toLocaleString()}` : "₹0"} 
+        completedShifts={myApplications.filter(a => a.status === 'HIRED' || a.status === 'COMPLETED' || a.status === 'ACCEPTED').length}
       />
 
       {/* Main Grid: Recommended Jobs & Progress/Activity */}

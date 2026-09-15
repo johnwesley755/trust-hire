@@ -1,8 +1,8 @@
-import { Router } from 'express';
+import { Hono } from 'hono';
 import * as notificationController from '../controllers/notificationController';
 import { authenticateJWT } from '../middlewares/auth';
 
-const router = Router();
+const router = new Hono();
 
 router.get('/', authenticateJWT, notificationController.getMyNotifications);
 router.get('/unread/count', authenticateJWT, notificationController.getUnreadCount);

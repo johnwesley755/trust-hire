@@ -29,10 +29,19 @@ export const useUpdateWorkerProfileMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (data: any) => workerService.updateProfile(data),
-    onSuccess: () => {
+    onSuccess: (data: any) => {
       toast.success('Worker profile updated successfully');
-      queryClient.invalidateQueries({ queryKey: queryKeys.workers.me });
-      queryClient.invalidateQueries({ queryKey: queryKeys.auth.me });
+      if (data) {
+        queryClient.setQueryData(queryKeys.workers.me, (old: any) => ({
+          ...(old || {}),
+          ...data,
+          worker: { ...(old?.worker || {}), ...(data.worker || data) },
+        }));
+        queryClient.setQueryData(queryKeys.auth.me, (old: any) => ({
+          ...(old || {}),
+          ...data,
+        }));
+      }
     },
     onError: (error: any) => {
       toast.error(error.message || 'Failed to update profile');

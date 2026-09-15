@@ -20,7 +20,6 @@ import OnboardingPage from '../modules/profile/pages/OnboardingPage';
 import ProfilePage from '../modules/profile/pages/ProfilePage';
 import { SettingsPage } from '../modules/settings/pages/SettingsPage';
 import { HelpPage } from '../modules/help/pages/HelpPage';
-import { ActiveJobsPage } from '../modules/jobs/pages/ActiveJobsPage';
 import TermsPage from '../modules/landing/pages/TermsPage';
 import PrivacyPage from '../modules/landing/pages/PrivacyPage';
 
@@ -99,7 +98,7 @@ export const router = createBrowserRouter([
               },
               {
                 path: '/jobs',
-                element: <ActiveJobsPage />,
+                element: <ApplicationManagementPage />,
               },
               {
                 path: '/find-workers',
@@ -108,10 +107,6 @@ export const router = createBrowserRouter([
               {
                 path: '/worker/:id',
                 element: <WorkerProfilePage />,
-              },
-              {
-                path: '/applications',
-                element: <ApplicationManagementPage />,
               },
             ]
           },

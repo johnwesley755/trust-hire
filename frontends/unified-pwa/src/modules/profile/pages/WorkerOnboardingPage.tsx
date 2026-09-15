@@ -1,302 +1,528 @@
 import { useState, useEffect, useRef } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useAuth, useUser } from "../../../providers/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import apiClient from "../../../api/apiClient";
 import { 
-  motion, 
-  AnimatePresence 
-} from "framer-motion";
+  User, 
+  MapPin, 
+  IndianRupee, 
+  Sparkles, 
+  Check, 
+  Loader2, 
+  LocateFixed, 
+  AlertCircle,
+  Clock,
+  ArrowRight,
+  HelpCircle,
+  LogOut
+} from "lucide-react";
+import { UserAvatar } from "../../../components/common/UserAvatar";
 
-// Modular Step Components
-import IdentityStep from "../components/onboarding/IdentityStep";
-import ExpertiseStep from "../components/onboarding/ExpertiseStep";
-import DocumentsStep from "../components/onboarding/DocumentsStep";
-import ReviewStep from "../components/onboarding/ReviewStep";
+const POPULAR_TRADES = [
+  "Electrician",
+  "Plumber",
+  "Warehouse Associate",
+  "Delivery Driver",
+  "Welder",
+  "Carpenter",
+  "Mason",
+  "Facility & Cleaning",
+  "Painter",
+  "Mechanic",
+  "General Labor"
+];
 
-export default function OnboardingPage() {
+const EXPERIENCE_OPTIONS = [
+  { label: "Fresher (< 1 year)", value: 0 },
+  { label: "1 - 2 years", value: 2 },
+  { label: "3 - 5 years", value: 4 },
+  { label: "5+ years", value: 6 }
+];
+
+export default function WorkerOnboardingPage() {
   const { user } = useUser();
-  const { isSignedIn, updateUser } = useAuth();
+  const { updateUser, logout } = useAuth();
   const navigate = useNavigate();
+
+  const [fullName, setFullName] = useState(
+    user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() : ""
+  );
+  const [phoneNumber, setPhoneNumber] = useState(
+    user?.phoneNumber || (user as any)?.phone_number || ""
+  );
+  const [skills, setSkills] = useState<string[]>(["Electrician"]);
+  const [customSkill, setCustomSkill] = useState("");
+  const [experienceYears, setExperienceYears] = useState(2);
+  const [hourlyRate, setHourlyRate] = useState(350);
+  const [city, setCity] = useState(user?.location || "Bengaluru");
+  const [address, setAddress] = useState("");
+  const [latitude, setLatitude] = useState<number | null>(null);
+  const [longitude, setLongitude] = useState<number | null>(null);
+  const [bio, setBio] = useState("");
   
-  const [step, setStep] = useState(1);
-  const [submitError, setSubmitError] = useState("");
-  const [formData, setFormData] = useState({
-    fullName: user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() : "",
-    phoneNumber: user?.phoneNumber || (user as any)?.phone_number || "",
-    bio: "",
-    skills: [] as string[],
-    experienceYears: "2",
-    hourlyRate: "350",
-    level: "L1",
-    location: "",
-    city: "Mumbai",
-    latitude: null as number | null,
-    longitude: null as number | null,
-    profile_image_url: user?.profileImageUrl || ""
-  });
-  
+  const [isLocating, setIsLocating] = useState(false);
+  const [locationStatus, setLocationStatus] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [locationError, setLocationError] = useState("");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const hasSynced = useRef(false);
 
-  // Sync formData with authenticated user data when it becomes available
+  // Sync initial user details from backend
+  const { data: freshUser } = useQuery({
+    queryKey: ['authMe'],
+    queryFn: async () => {
+      const res = await apiClient.get('/api/auth/me');
+      return res.data;
+    },
+    staleTime: Infinity
+  });
+
   useEffect(() => {
-    const fetchUser = async () => {
-      if (hasSynced.current) return;
-      
-      try {
-        const response = await apiClient.get('/api/auth/me');
-        const freshUser = response.data;
-        if (freshUser) {
-          hasSynced.current = true;
-          updateUser(freshUser);
-          
-          const newFullName = `${freshUser.first_name || ''} ${freshUser.last_name || ''}`.trim();
-          
-          setFormData(prev => ({
-            ...prev,
-            fullName: newFullName || prev.fullName,
-            phoneNumber: freshUser.phone_number || prev.phoneNumber || "",
-            profile_image_url: freshUser.profile_image_url || prev.profile_image_url || ""
-          }));
-        }
-      } catch (error) {
-        console.error("Failed to fetch user data:", error);
+    if (freshUser && !hasSynced.current) {
+      hasSynced.current = true;
+      updateUser(freshUser);
+      const computedName = `${freshUser.first_name || ''} ${freshUser.last_name || ''}`.trim();
+      if (computedName && !fullName) setFullName(computedName);
+      if (freshUser.phone_number && !phoneNumber) setPhoneNumber(freshUser.phone_number);
+    }
+  }, [freshUser, fullName, phoneNumber, updateUser]);
+
+  const handleToggleTrade = (trade: string) => {
+    if (skills.includes(trade)) {
+      if (skills.length > 1) {
+        setSkills(skills.filter(s => s !== trade));
       }
-    };
-
-    if (isSignedIn && !hasSynced.current) {
-      fetchUser();
+    } else {
+      setSkills([...skills, trade]);
     }
-  }, [isSignedIn, updateUser]);
-
-  const nextStep = () => {
-    if (step < 4) setStep(s => s + 1);
-  };
-  const prevStep = () => {
-    if (step > 1) setStep(s => s - 1);
   };
 
-  const detectLocation = () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        async (pos) => {
-          const { latitude, longitude } = pos.coords;
-          setFormData(prev => ({ ...prev, latitude, longitude, location: "Detecting address..." }));
+  const handleAddCustomSkill = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && customSkill.trim()) {
+      e.preventDefault();
+      const val = customSkill.trim();
+      if (!skills.includes(val)) {
+        setSkills([...skills, val]);
+      }
+      setCustomSkill("");
+    }
+  };
 
-          try {
-            const response = await fetch(
-              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`,
-              { headers: { 'Accept-Language': 'en' } }
-            );
-            const data = await response.json();
-            const address = data.display_name;
-            const city = data.address.city || data.address.town || data.address.village || data.address.suburb || "Unknown City";
-            
-            setFormData(prev => ({ ...prev, location: address, city: city }));
-            setLocationError("");
-          } catch (err) {
-            console.error("Reverse geocoding failed:", err);
-            setFormData(prev => ({ ...prev, location: "Location detected (Address fetch failed)" }));
+  const handleDetectGPS = () => {
+    if (!navigator.geolocation) {
+      alert("Geolocation is not supported by your browser.");
+      return;
+    }
+
+    setIsLocating(true);
+    setLocationStatus("Detecting coordinates...");
+
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const { latitude: lat, longitude: lon } = pos.coords;
+        setLatitude(lat);
+        setLongitude(lon);
+
+        try {
+          const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`);
+          if (geoRes.ok) {
+            const geoData = await geoRes.json();
+            const addr = geoData.address;
+            const detectedCity = addr.city || addr.town || addr.suburb || addr.state_district || city;
+            const detectedArea = [addr.suburb || addr.neighbourhood, detectedCity].filter(Boolean).join(', ');
+            setCity(detectedCity);
+            setAddress(detectedArea);
+            setLocationStatus(`GPS Live: ${detectedArea}`);
+          } else {
+            setLocationStatus(`GPS Live (${lat.toFixed(2)}°, ${lon.toFixed(2)}°)`);
           }
-        },
-        (err) => {
-          setLocationError("Could not detect location. Please type it.");
-          console.error(err);
+        } catch {
+          setLocationStatus(`GPS Live (${lat.toFixed(2)}°, ${lon.toFixed(2)}°)`);
+        } finally {
+          setIsLocating(false);
         }
-      );
-    }
+      },
+      (err) => {
+        console.warn("GPS error:", err);
+        setIsLocating(false);
+        setLocationStatus("GPS access denied");
+        alert("Please allow location access to auto-fill your neighborhood.");
+      },
+      { enableHighAccuracy: true, timeout: 8000 }
+    );
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMessage(null);
+
+    const cleanPhone = phoneNumber.replace(/\D/g, '').slice(-10);
+    if (cleanPhone.length !== 10) {
+      setErrorMessage("Please provide a valid 10-digit mobile number.");
+      return;
+    }
+
+    if (!fullName.trim()) {
+      setErrorMessage("Please enter your full name.");
+      return;
+    }
+
+    if (skills.length === 0) {
+      setErrorMessage("Please select at least one primary trade skill.");
+      return;
+    }
+
     setIsSubmitting(true);
-    setSubmitError("");
+
     try {
-      // 1. Sync User metadata and unique phone number
-      const nameParts = formData.fullName.trim().split(' ');
-      const syncRes = await apiClient.post('/api/auth/sync', {
-        phone_number: formData.phoneNumber,
-        first_name: nameParts[0] || 'Worker',
-        last_name: nameParts.slice(1).join(' ') || '',
-        profile_image_url: formData.profile_image_url,
-        skills: formData.skills,
-        city: formData.city,
-        location: formData.location,
+      const nameParts = fullName.trim().split(' ');
+      const firstName = nameParts[0] || 'Worker';
+      const lastName = nameParts.slice(1).join(' ') || '';
+
+      // 1. Sync user basic metadata
+      await apiClient.post('/api/auth/sync', {
+        role: 'WORKER',
+        first_name: firstName,
+        last_name: lastName,
+        phone_number: cleanPhone,
+        city,
+        location: address || city,
         onboarded: true
       });
 
-      // 2. Put Worker Profile details
-      await apiClient.put(
-        '/api/worker/profile',
-        {
-          fullName: formData.fullName,
-          bio: formData.bio || `${formData.skills.join(', ')} professional with ${formData.experienceYears} years experience in ${formData.city}.`,
-          skills: formData.skills.join(", "),
-          experienceYears: Number(formData.experienceYears) || 1,
-          hourlyRate: Number(formData.hourlyRate) || 300,
-          level: formData.level || 'L1',
-          location: formData.location || formData.city,
-          address: formData.location || formData.city,
-          city: formData.city,
-          latitude: formData.latitude,
-          longitude: formData.longitude,
-          isAvailable: true
-        }
-      ).catch((err: any) => console.warn("Worker profile save note:", err.message));
+      // 2. Put Worker Profile details (including unique phone validation in backend)
+      await apiClient.put('/api/worker/profile', {
+        fullName: fullName.trim(),
+        phoneNumber: cleanPhone,
+        bio: bio.trim() || `${skills.join(', ')} specialist with ${experienceYears} years experience in ${city}.`,
+        skills: skills.join(", "),
+        experienceYears: Number(experienceYears) || 1,
+        hourlyRate: Number(hourlyRate) || 350,
+        level: 'L1',
+        location: address || city,
+        address: address || city,
+        city,
+        latitude,
+        longitude,
+        isAvailable: true
+      });
 
       localStorage.setItem('onboarded', 'true');
-      updateUser({ 
-        ...syncRes.data,
-        onboarded: true, 
-        phoneNumber: formData.phoneNumber,
-        firstName: nameParts[0] || 'Worker',
-        lastName: nameParts.slice(1).join(' ') || ''
+      updateUser({
+        ...user,
+        onboarded: true,
+        phoneNumber: cleanPhone,
+        firstName,
+        lastName,
       });
+
       navigate("/search");
     } catch (error: any) {
-      console.error("Onboarding failed:", error);
-      const msg = error.response?.data?.message || "Profile completion failed. Please verify your phone number.";
-      setSubmitError(msg);
-      setStep(1); // Jump back to step 1 to fix phone number or name
+      console.error("Worker onboarding error:", error);
+      const msg = error.response?.data?.message || error.message || "Failed to save profile. Please check your phone number.";
+      setErrorMessage(msg);
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="bg-[#F8FAFC] font-body text-[#0A1931] min-h-screen flex flex-col selection:bg-[#FACD15] selection:text-[#002117] antialiased bricolage relative overflow-hidden">
-        {/* Persistent Background Organic Blobs */}
-        <div className="absolute top-[-5%] left-[-10%] w-[600px] h-[600px] bg-[#FACD15]/10 organic-blob -z-10 animate-pulse"></div>
-        <div className="absolute bottom-[-10%] right-[-10%] w-[800px] h-[800px] bg-[#d1fae5]/15 organic-blob -z-10"></div>
-        {/* TopAppBar */}
-        <header className="bg-[#F8FAFC]/80 backdrop-blur-md sticky top-0 z-50 flex justify-between items-center px-6 py-4 w-full border-b border-[#0A1931]/5">
-            <div className="text-lg font-headline font-black tracking-tight leading-tight text-[#0A1931]">
-                TrustHire
+    <div className="min-h-screen bg-[#F8FAFC] text-[#0A1931] font-sans antialiased flex flex-col justify-between selection:bg-blue-100">
+      
+      {/* Sticky Top Header with TrustHyre Logo */}
+      <header className="w-full bg-white/95 backdrop-blur-md border-b border-slate-200 sticky top-0 z-50 shadow-xs">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+          <Link to="/" className="flex items-center gap-2.5 group">
+            <div className="w-9 h-9 flex items-center justify-center group-hover:scale-105 transition-transform">
+              <img src="/logo.png" alt="TrustHyre Logo" className="w-full h-full object-contain" />
             </div>
+            <div className="flex flex-col">
+              <span className="text-xl font-extrabold tracking-tight text-[#0A1931] leading-none">
+                Trust<span className="text-[#0066FF]">Hyre</span>
+              </span>
+              <span className="text-[9px] font-bold text-slate-400 tracking-wider mt-0.5">HYPER-LOCAL MARKETPLACE</span>
+            </div>
+          </Link>
+
+          <div className="flex items-center gap-4 sm:gap-6 text-xs font-semibold text-slate-600">
+            <Link to="/help" className="hover:text-[#0066FF] flex items-center gap-1.5 transition-colors">
+              <HelpCircle className="w-4 h-4 text-slate-400" />
+              <span className="hidden sm:inline">Help & Support</span>
+            </Link>
+            <button 
+              onClick={logout} 
+              className="hover:text-red-600 flex items-center gap-1.5 cursor-pointer transition-colors"
+            >
+              <LogOut className="w-4 h-4 text-slate-400" />
+              <span className="hidden sm:inline">Sign out</span>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Single-Page Form Area */}
+      <main className="flex-1 w-full flex flex-col items-center justify-center py-8 px-4 sm:px-6">
+        <div className="w-full max-w-2xl bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-10 space-y-8">
+          
+          {/* Header */}
+          <div className="text-center space-y-2">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-[#0066FF] rounded-full text-xs font-bold border border-blue-100">
+              <Sparkles className="w-3.5 h-3.5" /> Fast Onboarding
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-[#0A1931] tracking-tight">
+              Complete Your Worker Profile
+            </h1>
+            <p className="text-slate-500 text-xs sm:text-sm max-w-md mx-auto">
+              Provide your basic trade details and mobile number to start getting matched with instant local shifts.
+            </p>
+          </div>
+
+          {/* Error Alert */}
+          {errorMessage && (
+            <div className="p-4 bg-red-50 border border-red-200 text-red-700 rounded-2xl flex items-start gap-3 text-xs sm:text-sm font-semibold">
+              <AlertCircle className="w-5 h-5 shrink-0 mt-0.5 text-red-600" />
+              <div>
+                <p className="font-bold">Setup Error</p>
+                <p className="text-xs text-red-600 mt-0.5">{errorMessage}</p>
+              </div>
+            </div>
+          )}
+
+          {/* Single Page Form */}
+          <form onSubmit={handleSubmit} className="space-y-6">
             
-            {/* Desktop Stepper */}
-            <div className="hidden md:flex gap-8 items-center">
-                <div className="flex items-center gap-2">
-                    <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold transition-colors ${step === 1 ? 'bg-[#FACD15] text-[#002117]' : 'bg-[#0A1931]/10 text-[#0A1931]/60'}`}>01</span>
-                    <span className={`font-headline font-bold text-sm transition-all ${step === 1 ? 'text-[#0A1931] border-b-2 border-[#FACD15]' : 'text-[#0A1931]/60'}`}>Profile</span>
+            {/* Avatar & Basic Info */}
+            <div className="flex flex-col sm:flex-row items-center gap-6 p-4 rounded-2xl bg-slate-50 border border-slate-100">
+              <div className="shrink-0">
+                <UserAvatar
+                  src={user?.profileImageUrl}
+                  name={fullName || user?.firstName}
+                  size="lg"
+                />
+              </div>
+              <div className="flex-1 w-full space-y-3">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Full Name *</label>
+                  <div className="relative">
+                    <User className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+                    <input
+                      type="text"
+                      required
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      placeholder="Enter your legal full name"
+                      className="w-full pl-9.5 pr-4 py-2 bg-white rounded-xl border border-slate-200 text-xs sm:text-sm font-semibold text-[#0A1931] focus:ring-2 focus:ring-[#0066FF] focus:border-transparent outline-none transition-all"
+                    />
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                    <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold transition-colors ${step === 2 ? 'bg-[#FACD15] text-[#002117]' : 'bg-[#0A1931]/10 text-[#0A1931]/60'}`}>02</span>
-                    <span className={`font-headline font-bold text-sm transition-all ${step === 2 ? 'text-[#0A1931] border-b-2 border-[#FACD15]' : 'text-[#0A1931]/60'}`}>Expertise</span>
+
+                <div>
+                  <div className="flex justify-between items-center mb-1">
+                    <label className="block text-xs font-bold text-slate-700">Mobile Phone Number *</label>
+                    <span className="text-[10px] text-slate-400 font-medium">10-Digit Mobile</span>
+                  </div>
+                  <div className="relative">
+                    <span className="text-xs font-bold text-slate-500 absolute left-3 top-2.5">+91</span>
+                    <input
+                      type="tel"
+                      required
+                      maxLength={10}
+                      value={phoneNumber}
+                      onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, ''))}
+                      placeholder="9876543210"
+                      className="w-full pl-12 pr-4 py-2 bg-white rounded-xl border border-slate-200 text-xs sm:text-sm font-semibold text-[#0A1931] focus:ring-2 focus:ring-[#0066FF] focus:border-transparent outline-none transition-all"
+                    />
+                  </div>
+                  <p className="text-[11px] text-slate-500 mt-1">
+                    Required for employer calls and prevents duplicate accounts.
+                  </p>
                 </div>
-                <div className="flex items-center gap-2">
-                    <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold transition-colors ${step === 3 ? 'bg-[#FACD15] text-[#002117]' : 'bg-[#0A1931]/10 text-[#0A1931]/60'}`}>03</span>
-                    <span className={`font-headline font-bold text-sm transition-all ${step === 3 ? 'text-[#0A1931] border-b-2 border-[#FACD15]' : 'text-[#0A1931]/60'}`}>Documents</span>
-                </div>
-                <div className="flex items-center gap-2">
-                    <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold transition-colors ${step === 4 ? 'bg-[#FACD15] text-[#002117]' : 'bg-[#0A1931]/10 text-[#0A1931]/60'}`}>04</span>
-                    <span className={`font-headline font-bold text-sm transition-all ${step === 4 ? 'text-[#0A1931] border-b-2 border-[#FACD15]' : 'text-[#0A1931]/60'}`}>Review</span>
-                </div>
+              </div>
             </div>
 
-            <div className="flex items-center gap-4">
-                <button className="hover:bg-[#FACD15]/10 p-2 rounded-full transition-colors">
-                    <span className="material-symbols-outlined text-[#0A1931]">help_outline</span>
+            {/* Trade / Skills Selection */}
+            <div className="space-y-2.5">
+              <div className="flex justify-between items-center">
+                <label className="block text-xs font-bold text-slate-700">
+                  Primary Trade Skills * ({skills.length} selected)
+                </label>
+                <span className="text-[10px] text-slate-400">Select all that apply</span>
+              </div>
+              
+              <div className="flex flex-wrap gap-2">
+                {POPULAR_TRADES.map((trade) => {
+                  const isSelected = skills.includes(trade);
+                  return (
+                    <button
+                      type="button"
+                      key={trade}
+                      onClick={() => handleToggleTrade(trade)}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all flex items-center gap-1.5 cursor-pointer ${
+                        isSelected
+                          ? "bg-[#0066FF] text-white border-[#0066FF] shadow-xs"
+                          : "bg-white text-slate-700 border-slate-200 hover:border-blue-300 hover:text-[#0066FF]"
+                      }`}
+                    >
+                      {isSelected && <Check className="w-3.5 h-3.5" />}
+                      {trade}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Custom Skill Input */}
+              <div className="pt-1">
+                <input
+                  type="text"
+                  value={customSkill}
+                  onChange={(e) => setCustomSkill(e.target.value)}
+                  onKeyDown={handleAddCustomSkill}
+                  placeholder="Type additional skill and press Enter..."
+                  className="w-full px-3.5 py-1.5 bg-slate-50 rounded-xl border border-slate-200 text-xs font-medium text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-[#0066FF] outline-none"
+                />
+              </div>
+            </div>
+
+            {/* Experience & Expected Rate */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Experience Level
+                </label>
+                <div className="relative">
+                  <Clock className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+                  <input
+                    type="number"
+                    min={0}
+                    step={1}
+                    value={experienceYears}
+                    onChange={(e) => setExperienceYears(Number(e.target.value))}
+                    onWheel={(e) => (e.target as HTMLInputElement).blur()}
+                    placeholder="Years of experience"
+                    className="w-full pl-9.5 pr-4 py-2 bg-slate-50 rounded-xl border border-slate-200 text-xs sm:text-sm font-semibold text-[#0A1931] focus:ring-2 focus:ring-[#0066FF] outline-none"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Hourly Rate Expectation (₹)
+                </label>
+                <div className="relative">
+                  <IndianRupee className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+                  <input
+                    type="number"
+                    min={100}
+                    step={50}
+                    value={hourlyRate}
+                    onChange={(e) => setHourlyRate(Number(e.target.value))}
+                    onWheel={(e) => (e.target as HTMLInputElement).blur()}
+                    className="w-full pl-9.5 pr-4 py-2 bg-slate-50 rounded-xl border border-slate-200 text-xs sm:text-sm font-semibold text-[#0A1931] focus:ring-2 focus:ring-[#0066FF] outline-none"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Location & GPS Area */}
+            <div className="space-y-2.5 p-4 rounded-2xl bg-slate-50 border border-slate-100">
+              <div className="flex justify-between items-center">
+                <label className="block text-xs font-bold text-slate-700">
+                  Work Location & City
+                </label>
+                <button
+                  type="button"
+                  onClick={handleDetectGPS}
+                  disabled={isLocating}
+                  className="text-xs font-bold text-[#0066FF] hover:underline flex items-center gap-1 cursor-pointer disabled:opacity-50"
+                >
+                  {isLocating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <LocateFixed className="w-3.5 h-3.5" />}
+                  {isLocating ? "Detecting..." : "Detect my GPS location"}
                 </button>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <input
+                    type="text"
+                    required
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                    placeholder="City (e.g. Bengaluru)"
+                    className="w-full px-3.5 py-2 bg-white rounded-xl border border-slate-200 text-xs sm:text-sm font-semibold text-[#0A1931] focus:ring-2 focus:ring-[#0066FF] outline-none"
+                  />
+                </div>
+
+                <div>
+                  <input
+                    type="text"
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    placeholder="Area / Neighborhood (e.g. Koramangala)"
+                    className="w-full px-3.5 py-2 bg-white rounded-xl border border-slate-200 text-xs sm:text-sm font-semibold text-[#0A1931] focus:ring-2 focus:ring-[#0066FF] outline-none"
+                  />
+                </div>
+              </div>
+
+              {locationStatus && (
+                <p className="text-xs font-semibold text-emerald-600 flex items-center gap-1">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                  {locationStatus}
+                </p>
+              )}
             </div>
-        </header>
 
-        <main className="flex-grow w-full max-w-[1400px] mx-auto px-4 sm:px-8 md:px-12 py-12">
-            {/* Progress Stepper for Mobile/Tablet */}
-            <div className="md:hidden mb-12">
-                <div className="flex items-center justify-between mb-4">
-                    <span className="font-headline text-[10px] font-bold text-[#0A1931]/40 uppercase tracking-widest">Step 0{step} of 04</span>
-                    <span className="font-headline text-[10px] font-bold text-[#FACD15] uppercase tracking-widest">
-                        {step === 1 ? 'Profile' : step === 2 ? 'Expertise' : step === 3 ? 'Documents' : 'Review'}
-                    </span>
-                </div>
-                <div className="h-1.5 w-full bg-[#E9E8E3] rounded-full overflow-hidden">
-                    <motion.div 
-                        initial={{ width: "25%" }}
-                        animate={{ width: `${step * 25}%` }}
-                        className="h-full bg-[#FACD15]"
-                    />
-                </div>
+            {/* Bio / Summary (Optional) */}
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1">
+                Short Bio / Experience Summary (Optional)
+              </label>
+              <textarea
+                rows={2}
+                value={bio}
+                onChange={(e) => setBio(e.target.value)}
+                placeholder="E.g. Certified technician specializing in residential wiring, appliance installation, and quick shift maintenance."
+                className="w-full p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs sm:text-sm font-medium text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-[#0066FF] outline-none resize-none"
+              />
             </div>
 
-            {submitError && (
-                <div className="max-w-xl mx-auto mb-6 p-4 bg-red-50 border border-red-200 text-red-700 text-xs font-bold rounded-xl flex items-center gap-3">
-                    <span className="material-symbols-outlined text-base">error</span>
-                    <span>{submitError}</span>
-                </div>
-            )}
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full py-3 px-6 bg-[#0066FF] hover:bg-blue-700 text-white rounded-xl font-bold text-sm shadow-md shadow-blue-500/20 active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Saving Profile...
+                </>
+              ) : (
+                <>
+                  Complete Profile & Find Shifts
+                  <ArrowRight className="w-4 h-4" />
+                </>
+              )}
+            </button>
+          </form>
 
-            <AnimatePresence mode="wait">
-                {step === 1 && (
-                    <IdentityStep 
-                        key="step1"
-                        formData={formData}
-                        setFormData={setFormData}
-                        onNext={nextStep}
-                    />
-                )}
+        </div>
+      </main>
 
-                {step === 2 && (
-                    <ExpertiseStep 
-                        key="step2"
-                        formData={formData}
-                        setFormData={setFormData}
-                        onNext={nextStep}
-                        onBack={prevStep}
-                    />
-                )}
+      {/* Footer */}
+      <footer className="w-full bg-white border-t border-slate-200 py-6 mt-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+          <div className="flex items-center gap-2">
+            <img src="/logo.png" alt="TrustHyre Logo" className="w-5 h-5 object-contain" />
+            <span className="font-semibold text-slate-700">© 2026 TrustHyre Technologies. All rights reserved.</span>
+          </div>
+          <div className="flex items-center gap-6 font-semibold">
+            <Link to="/privacy" className="hover:text-[#0066FF] transition-colors">Privacy Policy</Link>
+            <Link to="/terms" className="hover:text-[#0066FF] transition-colors">Terms of Service</Link>
+            <Link to="/help" className="hover:text-[#0066FF] transition-colors">Help Center</Link>
+          </div>
+        </div>
+      </footer>
 
-                {step === 3 && (
-                    <DocumentsStep 
-                        key="step3"
-                        formData={formData}
-                        setFormData={setFormData}
-                        onNext={nextStep}
-                        onBack={prevStep}
-                    />
-                )}
-
-                {step === 4 && (
-                    <ReviewStep 
-                        key="step4"
-                        formData={formData}
-                        setFormData={setFormData}
-                        onBack={prevStep}
-                        onSubmit={handleSubmit}
-                        isSubmitting={isSubmitting}
-                        detectLocation={detectLocation}
-                        locationError={locationError}
-                    />
-                )}
-            </AnimatePresence>
-        </main>
-
-        {/* Global Footer */}
-        <footer className="bg-[#F8FAFC] py-16 px-6 mt-auto border-t border-[#0A1931]/5">
-            <div className="max-w-[1400px] mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
-                <div className="font-headline font-black text-xl text-[#0A1931] tracking-tighter">TrustHire</div>
-                <div className="text-sm font-medium text-[#0A1931]/60">
-                    © 2024 TrustHire. Human-First Onboarding.
-                </div>
-                <div className="flex gap-10">
-                    <Link className="text-[#0A1931]/60 hover:text-[#FACD15] transition-colors text-xs font-bold uppercase tracking-widest" to="/privacy">Privacy</Link>
-                    <Link className="text-[#0A1931]/60 hover:text-[#FACD15] transition-colors text-xs font-bold uppercase tracking-widest" to="/support">Support</Link>
-                    <Link className="text-[#0A1931]/60 hover:text-[#FACD15] transition-colors text-xs font-bold uppercase tracking-widest" to="/terms">Terms</Link>
-                </div>
-            </div>
-        </footer>
-
-        <style>{`
-            .bricolage { font-family: 'Bricolage Grotesque', sans-serif; }
-            .organic-blob {
-                border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
-            }
-            input[type=number]::-webkit-inner-spin-button, 
-            input[type=number]::-webkit-outer-spin-button { 
-                -webkit-appearance: none; 
-                margin: 0; 
-            }
-        `}</style>
     </div>
   );
 }

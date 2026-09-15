@@ -5,40 +5,40 @@
   "main": "dist/server.js",
   "scripts": {
     "build": "tsc",
-    "start": "node dist/server.js",
-    "dev": "nodemon src/server.ts",
+    "start": "ts-node src/server.ts",
+    "dev": "ts-node src/server.ts",
+    "dev:cloudflare": "wrangler dev",
     "postinstall": "prisma generate"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@hono/node-server": "^2.1.1",
+    "@prisma/adapter-pg": "^7.10.0",
     "@prisma/client": "^5.22.0",
     "bcryptjs": "^3.0.3",
     "cloudinary": "^2.11.0",
-    "cors": "^2.8.6",
     "dotenv": "^17.4.2",
-    "express": "^5.2.1",
+    "hono": "^4.13.8",
     "jsonwebtoken": "^9.0.3",
     "multer": "^1.4.5-lts.1",
-    "node-cron": "^4.6.0",
     "nodemailer": "^10.0.0",
+    "pg": "^8.23.0",
     "prisma": "^5.22.0",
     "uuid": "^14.0.2"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
-    "@types/cors": "^2.8.19",
-    "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/multer": "^1.4.12",
     "@types/node": "^26.4.1",
-    "@types/node-cron": "^3.0.11",
     "@types/nodemailer": "^8.0.1",
+    "@types/pg": "^8.23.1",
     "@types/uuid": "^10.0.0",
     "express-validator": "^7.3.2",
-    "nodemon": "^3.1.14",
     "ts-node": "^10.9.2",
-    "typescript": "^5.6.3"
+    "typescript": "^5.6.3",
+    "wrangler": "^4.131.2"
   }
 }

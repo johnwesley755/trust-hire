@@ -13,22 +13,26 @@ export default function NotificationsPage() {
     const { data: notifications = [], isLoading } = useQuery<AppNotification[]>({
         queryKey: ['notifications'],
         queryFn: notificationService.getNotifications,
-        refetchInterval: 30000 
+        staleTime: Infinity 
     });
 
     const markAsReadMutation = useMutation({
         mutationFn: notificationService.markAsRead,
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['notifications'] });
-            queryClient.invalidateQueries({ queryKey: ['unreadCount'] });
+        onSuccess: (_, id) => {
+            queryClient.setQueryData<AppNotification[]>(['notifications'], (old = []) => 
+                old.map(n => n.id === id ? { ...n, isRead: true } : n)
+            );
+            queryClient.setQueryData<number>(['unreadCount'], (c = 0) => Math.max(0, (c || 0) - 1));
         }
     });
 
     const markAllAsReadMutation = useMutation({
         mutationFn: notificationService.markAllAsRead,
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['notifications'] });
-            queryClient.invalidateQueries({ queryKey: ['unreadCount'] });
+            queryClient.setQueryData<AppNotification[]>(['notifications'], (old = []) => 
+                old.map(n => ({ ...n, isRead: true }))
+            );
+            queryClient.setQueryData<number>(['unreadCount'], 0);
         }
     });
 

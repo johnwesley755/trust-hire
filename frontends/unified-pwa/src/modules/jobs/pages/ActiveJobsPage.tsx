@@ -11,6 +11,7 @@ import {
     ArrowRight, 
     ChevronLeft, 
     ChevronRight,
+    Briefcase,
     Loader2,
     Utensils,
     Shield,
@@ -115,32 +116,42 @@ export function ActiveJobsPage() {
             {/* Main Content Canvas */}
             <main className="max-w-7xl mx-auto py-10 px-8">
                 {/* Page Header Section */}
-                <section className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-6">
-                    <div>
-                        <h1 className="text-4xl font-extrabold bricolage text-[#0A1931] tracking-tight uppercase">My Active Jobs</h1>
-                        <p className="text-[#0A1931]/60 font-medium mt-2">
-                            You currently have {jobs.length} active postings across {new Set(jobs.map((j: Job) => j.industry)).size} sectors.
+                <section className="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 gap-6">
+                    <div className="max-w-2xl">
+                        <div className="flex items-center gap-2 text-[#0066FF] mb-3">
+                            <Briefcase className="w-5 h-5" />
+                            <span className="text-xs font-bold uppercase tracking-widest">Hiring & Dispatch Console</span>
+                        </div>
+                        <h1 className="text-4xl font-black text-[#0A1931] tracking-tight">Active Openings & Applications</h1>
+                        <p className="text-slate-500 font-medium mt-3 text-lg leading-relaxed">
+                            Select an active role below to view applicant resumes, verify credentials, and confirm candidate dispatch.
                         </p>
                     </div>
-                    <button 
-                        onClick={() => navigate('/post-job')}
-                        className="bg-[#FACD15] text-[#0A1931] px-8 py-4 rounded-xl font-extrabold flex items-center gap-3 shadow-[0_4px_0_0_#C39F00] hover:shadow-none hover:translate-y-[2px] transition-all bricolage uppercase text-sm tracking-widest"
-                    >
-                        <PlusCircle className="w-5 h-5" />
-                        Post a New Job
-                    </button>
+                    <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
+                        <div className="flex items-center gap-2 px-6 py-3 bg-white border border-slate-200 rounded-full shadow-sm w-full sm:w-auto justify-center">
+                            <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
+                            <span className="text-sm font-bold text-slate-700">{applications?.length || 0} Total Received</span>
+                        </div>
+                        <button 
+                            onClick={() => navigate('/post-job')}
+                            className="bg-[#0066FF] hover:bg-blue-700 text-white px-8 py-3 rounded-full font-bold flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all w-full sm:w-auto"
+                        >
+                            <PlusCircle className="w-5 h-5" />
+                            Post New Shift
+                        </button>
+                    </div>
                 </section>
 
                 {jobs.length === 0 ? (
-                    <div className="bg-white rounded-3xl p-12 border border-slate-200 shadow-sm text-center max-w-2xl mx-auto mt-8">
+                    <div className="bg-white rounded-2xl p-12 border border-slate-200 shadow-sm text-center max-w-2xl mx-auto mt-8">
                         <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6">
                             <Package className="w-10 h-10 text-slate-300" />
                         </div>
-                        <h3 className="text-2xl font-black text-[#0A1931] mb-3 uppercase tracking-tight bricolage">No Active Jobs</h3>
+                        <h3 className="text-2xl font-black text-[#0A1931] mb-3 tracking-tight">No Active Jobs</h3>
                         <p className="text-slate-500 font-medium mb-8">You currently don't have any active job postings. Once you post a new shift, it will appear here for you to manage applications and track performance.</p>
                         <button 
                             onClick={() => navigate('/post-job')}
-                            className="inline-flex items-center gap-2 px-8 py-4 bg-[#FACD15] text-[#0A1931] font-extrabold rounded-xl shadow-[0_4px_0_0_#C39F00] hover:shadow-none hover:translate-y-[2px] transition-all bricolage uppercase text-sm tracking-widest"
+                            className="inline-flex items-center gap-2 px-8 py-4 bg-[#0066FF] hover:bg-blue-700 text-white font-bold rounded-full shadow-md hover:shadow-lg transition-all"
                         >
                             <PlusCircle className="w-5 h-5" /> Post Your First Job
                         </button>
@@ -163,10 +174,10 @@ export function ActiveJobsPage() {
                                         {/* Left Side: Job Info */}
                                         <div className="flex-1 min-w-0 pr-8">
                                             <div className="flex items-center gap-3 mb-2">
-                                                <h3 className="text-xl font-black text-[#0A1931] bricolage uppercase tracking-tight truncate group-hover:text-[#C39F00] transition-colors">
+                                                <h3 className="text-xl font-black text-[#0A1931] uppercase tracking-tight truncate group-hover:text-[#0066FF] transition-colors">
                                                     {job.title}
                                                 </h3>
-                                                <span className={`px-2.5 py-0.5 text-[10px] font-black rounded-full tracking-widest bricolage uppercase shrink-0 ${
+                                                <span className={`px-2.5 py-0.5 text-[10px] font-black rounded-full tracking-widest uppercase shrink-0 ${
                                                     isUrgent ? 'bg-[#ffdad6] text-[#ba1a1a]' : 'bg-[#d1fae5] text-[#4a6b5e]'
                                                 }`}>
                                                     {isUrgent ? 'URGENT' : 'ACTIVE'}
@@ -228,8 +239,8 @@ export function ActiveJobsPage() {
                                             </div>
 
                                             <button 
-                                                onClick={() => navigate('/applications')}
-                                                className="hidden md:flex items-center justify-center w-12 h-12 bg-slate-50 text-[#0A1931] hover:bg-[#FACD15] rounded-xl transition-colors group/btn"
+                                                onClick={() => navigate(`/applications?jobId=${job.id}`)}
+                                                className="hidden md:flex items-center justify-center w-12 h-12 bg-slate-50 text-[#0A1931] hover:bg-[#0066FF] hover:text-white rounded-xl transition-colors group/btn"
                                             >
                                                 <ArrowRight className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" />
                                             </button>
@@ -241,38 +252,12 @@ export function ActiveJobsPage() {
                     </div>
                 )}
 
-                {/* Pagination/Footer Stats */}
-                <footer className="mt-20 flex flex-col lg:flex-row justify-between items-center bg-[#0A1931] text-[#F8FAFC] p-8 lg:p-12 rounded-lg gap-8 relative overflow-hidden shadow-2xl">
-                    <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-[#FACD15] opacity-5 rounded-full blur-3xl"></div>
-                    
-                    <div className="flex flex-col sm:flex-row items-center gap-12 relative z-10 w-full lg:w-auto">
-                        <div className="text-center sm:text-left">
-                            <span className="block text-[10px] uppercase tracking-[0.2em] text-[#FACD15] font-black bricolage mb-2">Total Outreach</span>
-                            <span className="text-4xl font-black bricolage tracking-tight font-sans">
-                                {((jobs?.length || 0) * 112).toLocaleString()} <span className="text-xs opacity-30 font-bold uppercase tracking-widest ml-1">Views</span>
-                            </span>
-                        </div>
-                        <div className="hidden sm:block h-12 w-[2px] bg-white/10"></div>
-                        <div className="text-center sm:text-left">
-                            <span className="block text-[10px] uppercase tracking-[0.2em] text-[#FACD15] font-black bricolage mb-2">Engagements</span>
-                            <span className="text-4xl font-black bricolage tracking-tight font-sans">
-                                {applications?.length || 0} <span className="text-xs opacity-30 font-bold uppercase tracking-widest ml-1">Applies</span>
-                            </span>
-                        </div>
+                {/* List End Indicator */}
+                {jobs.length > 0 && (
+                    <div className="mt-12 text-center">
+                        <p className="text-xs font-bold uppercase tracking-widest text-slate-400">End of active jobs</p>
                     </div>
-
-                    <div className="flex items-center gap-6 relative z-10 bg-white/5 p-2 rounded-full border border-white/10">
-                        <button className="w-12 h-12 rounded-full border border-white/10 hover:bg-[#FACD15] hover:text-[#0A1931] transition-all flex items-center justify-center group">
-                            <ChevronLeft className="w-6 h-6 group-hover:-translate-x-0.5 transition-transform" />
-                        </button>
-                        <div className="px-4 text-xs font-black uppercase tracking-widest bricolage">
-                            Page <span className="text-[#FACD15]">01</span> / 03
-                        </div>
-                        <button className="w-12 h-12 rounded-full border border-white/10 hover:bg-[#FACD15] hover:text-[#0A1931] transition-all flex items-center justify-center group">
-                            <ChevronRight className="w-6 h-6 group-hover:translate-x-0.5 transition-transform" />
-                        </button>
-                    </div>
-                </footer>
+                )}
             </main>
 
             {/* Background Decorative Organic Blobs */}

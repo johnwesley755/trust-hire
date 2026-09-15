@@ -20,9 +20,17 @@ export const JobPostingPage = () => {
 
   const mutation = useMutation({
     mutationFn: (job: any) => jobService.createJob(job),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['employerJobs'] });
-      queryClient.invalidateQueries({ queryKey: ['jobs'] });
+    onSuccess: (newJob) => {
+      if (newJob) {
+        queryClient.setQueryData(['employerJobs'], (old: any) => {
+          if (!old) return [newJob];
+          return Array.isArray(old) ? [newJob, ...old] : old;
+        });
+        queryClient.setQueryData(['jobs'], (old: any) => {
+          if (!old) return [newJob];
+          return Array.isArray(old) ? [newJob, ...old] : old;
+        });
+      }
       navigate('/dashboard');
     },
   });
@@ -192,7 +200,7 @@ export const JobPostingPage = () => {
                       <IndianRupee className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                       <input 
                         name="budget"
-                        type="number"
+                        type="text"
                         required
                         className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#0066FF] rounded-xl pl-10 pr-3.5 py-3 text-xs sm:text-sm font-bold text-slate-900 focus:outline-none transition-all" 
                         placeholder="22000" 
@@ -203,7 +211,7 @@ export const JobPostingPage = () => {
                     <label className="block text-xs font-bold text-slate-700">Min. Experience (Years)</label>
                     <input 
                       name="experienceYearsRequired"
-                      type="number"
+                      type="text"
                       min={0}
                       className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#0066FF] rounded-xl p-3 text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none transition-all" 
                       placeholder="e.g. 2" 
