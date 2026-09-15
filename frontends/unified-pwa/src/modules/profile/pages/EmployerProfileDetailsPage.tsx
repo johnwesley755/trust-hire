@@ -15,7 +15,7 @@ export default function EmployerProfileDetailsPage() {
   const setIsSidebarOpen = outletCtx?.setIsSidebarOpen || (() => {});
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
-  const { data: profile } = useQuery<EmployerProfile>({
+  const { data: profile } = useQuery<EmployerProfile | null>({
     queryKey: ['employerProfile'],
     queryFn: profileService.getEmployerProfile,
   });
@@ -193,7 +193,7 @@ export default function EmployerProfileDetailsPage() {
       <EditEmployerProfileModal
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
-        profile={profile}
+        profile={profile || undefined}
       />
     </div>
   );

@@ -111,7 +111,7 @@ export default function AppliedJobsPage() {
               const status = app.status;
               const isReviewing = status === 'REVIEWING';
               const isRejected = status === 'REJECTED';
-              const isOffer = status === 'ACCEPTED' || status === 'APPROVED' || status === 'HIRED';
+              const isOffer = status === 'ACCEPTED' || status === 'COMPLETED';
               
               const statusStep = isOffer ? 3 : isReviewing ? 2 : isRejected ? -1 : 1;
 

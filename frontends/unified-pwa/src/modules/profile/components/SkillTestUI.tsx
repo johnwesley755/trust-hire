@@ -68,12 +68,12 @@ export const SkillTestUI: React.FC<SkillTestUIProps> = ({ testId, onClose, onCom
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  if (error) {
+  if (testError) {
     return (
       <div className="fixed inset-0 bg-brand-secondary/40 backdrop-blur-3xl z-[100] p-6 flex items-center justify-center">
         <div className="bg-white p-12 rounded-[3rem] text-center space-y-6 max-w-md shadow-2xl border border-brand-border">
           <AlertCircle className="w-20 h-20 text-rose-500 mx-auto" />
-          <h2 className="text-3xl font-bold tracking-tighter text-brand-secondary">{error}</h2>
+          <h2 className="text-3xl font-bold tracking-tighter text-brand-secondary">{testError.message}</h2>
           <button onClick={onClose} className="w-full bg-brand-secondary text-brand-primary py-4 rounded-2xl font-bold uppercase tracking-widest text-xs">Return to profile</button>
         </div>
       </div>
@@ -145,9 +145,9 @@ export const SkillTestUI: React.FC<SkillTestUIProps> = ({ testId, onClose, onCom
           <h1 className="text-xs font-black tracking-[0.3em] text-brand-muted/40 uppercase">Assessment sequence</h1>
           <h2 className="text-2xl font-black tracking-tighter text-brand-secondary uppercase italic">{test.title}</h2>
         </div>
-        <div className={`flex items-center gap-4 px-6 py-3 rounded-2xl border ${timer < 60 ? 'bg-rose-500 text-white border-rose-600 animate-pulse' : 'bg-brand-secondary text-brand-primary border-brand-secondary'} shadow-xl transition-colors duration-500`}>
+        <div className={`flex items-center gap-4 px-6 py-3 rounded-2xl border ${(timer || 0) < 60 ? 'bg-rose-500 text-white border-rose-600 animate-pulse' : 'bg-brand-secondary text-brand-primary border-brand-secondary'} shadow-xl transition-colors duration-500`}>
           <Clock className="w-5 h-5" />
-          <span className="text-xl font-black tracking-tight font-mono">{formatTime(timer)}</span>
+          <span className="text-xl font-black tracking-tight font-mono">{formatTime(timer || 0)}</span>
         </div>
       </header>
 
@@ -220,10 +220,10 @@ export const SkillTestUI: React.FC<SkillTestUIProps> = ({ testId, onClose, onCom
                 ) : (
                   <button 
                     onClick={handleSubmit}
-                    disabled={isSubmitting || answers[currentIdx] === undefined}
+                    disabled={submitTestMutation.isPending || answers[currentIdx] === undefined}
                     className="w-full md:w-auto bg-brand-primary text-brand-secondary px-20 py-6 rounded-[2rem] font-black text-xs tracking-[0.3em] uppercase shadow-2xl shadow-brand-primary/40 hover:bg-yellow-400 disabled:opacity-20 transition-all flex items-center justify-center gap-3"
                   >
-                    {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Finalize certification'}
+                    {submitTestMutation.isPending ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Finalize certification'}
                   </button>
                 )}
               </div>
