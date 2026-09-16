@@ -1,23 +1,17 @@
 import { PrismaClient } from '@prisma/client';
-import { Pool, neonConfig } from '@neondatabase/serverless';
-import { PrismaNeon } from '@prisma/adapter-neon';
-import ws from 'ws';
-
-// Required for neon serverless driver to work in node environments.
-// In edge environments (like Cloudflare Workers), native WebSocket is used automatically.
-if (typeof WebSocket === 'undefined') {
-  neonConfig.webSocketConstructor = ws;
-}
+import { neon } from '@neondatabase/serverless';
+import { PrismaNeonHTTP } from '@prisma/adapter-neon';
 
 let prismaInstance: any = null;
 
 const getPrisma = () => {
   if (!prismaInstance) {
-    if (!process.env.DATABASE_URL) {
+    const dbUrl = process.env.DATABASE_URL;
+    if (!dbUrl) {
       throw new Error("DATABASE_URL is not defined in the environment.");
     }
-    const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-    const adapter = new PrismaNeon(pool);
+    const sql = neon(dbUrl);
+    const adapter = new PrismaNeonHTTP(sql);
     prismaInstance = new PrismaClient({
       adapter,
       log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
