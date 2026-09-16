@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "unified-pwa",
+  "name": "trusthire-backend",
   "compatibility_date": "2026-08-20",
   "observability": {
     "enabled": true

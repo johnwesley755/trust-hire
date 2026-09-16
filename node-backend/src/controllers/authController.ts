@@ -43,7 +43,7 @@ export const register = async (c: Context) => {
       }
     });
 
-    const token = jwt.sign({ sub: user.id, role: user.role }, process.env.JWT_SECRET as string, { expiresIn: '24h' });
+    const token = jwt.sign({ sub: user.id, role: user.role }, process.env.JWT_SECRET as string, { expiresIn: '30d' });
 
     return c.json(ApiResponse.ok("Registration successful", { token, user }));
   } catch (err: any) {
@@ -64,7 +64,7 @@ export const login = async (c: Context) => {
       return c.json(ApiResponse.error("Invalid credentials"), 401 as any);
     }
 
-    const token = jwt.sign({ sub: user.id, role: user.role }, process.env.JWT_SECRET as string, { expiresIn: '24h' });
+    const token = jwt.sign({ sub: user.id, role: user.role }, process.env.JWT_SECRET as string, { expiresIn: '30d' });
     return c.json(ApiResponse.ok("Login successful", { token, user }));
   } catch (err: any) {
     return c.json(ApiResponse.error(err.message), 500 as any);
@@ -72,46 +72,66 @@ export const login = async (c: Context) => {
 };
 
 export const sendOtp = async (c: Context) => {
-  const { email } = (await c.req.json());
-  const otp = Math.floor(100000 + Math.random() * 900000).toString();
-  await sendEmail(email, "Your OTP - TrustHyre", getOtpTemplate(otp));
-  return c.json(ApiResponse.ok(`OTP sent to ${email}`, "sent"));
+  try {
+    const { email } = (await c.req.json());
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    await sendEmail(email, "Your OTP - TrustHire", getOtpTemplate(otp));
+    return c.json(ApiResponse.ok(`OTP sent to ${email}`, "sent"));
+  } catch (err: any) {
+    console.error("sendOtp error:", err);
+    return c.json(ApiResponse.error(err.message), 500 as any);
+  }
 };
 
 export const forgotPassword = async (c: Context) => {
-  const { email, role } = (await c.req.json());
-  const user = await prisma.user_metadata.findUnique({ where: { email } });
-  if (user) {
-    const token = Math.floor(100000 + Math.random() * 900000).toString();
-    await prisma.user_metadata.update({
-      where: { email },
-      data: { reset_token: token, reset_token_expiry: new Date(Date.now() + 3600000) }
-    });
-    await sendEmail(email, "Reset Password - TrustHyre", getResetPasswordTemplate(token));
+  try {
+    const { email, role } = (await c.req.json());
+    const user = await prisma.user_metadata.findUnique({ where: { email } });
+    if (user) {
+      const token = Math.floor(100000 + Math.random() * 900000).toString();
+      await prisma.user_metadata.update({
+        where: { email },
+        data: { reset_token: token, reset_token_expiry: new Date(Date.now() + 3600000) }
+      });
+      await sendEmail(email, "Reset Password - TrustHire", getResetPasswordTemplate(token));
+    }
+    return c.json(ApiResponse.ok("Reset email sent successfully", "sent"));
+  } catch (err: any) {
+    console.error("forgotPassword error:", err);
+    return c.json(ApiResponse.error(err.message), 500 as any);
   }
-  return c.json(ApiResponse.ok("Reset email sent successfully", "sent"));
 };
 
 export const resetPassword = async (c: Context) => {
-  const { token, password } = (await c.req.json());
-  const user = await prisma.user_metadata.findFirst({
-    where: { reset_token: token, reset_token_expiry: { gt: new Date() } }
-  });
-  if (!user) return c.json(ApiResponse.error("Invalid or expired token"), 400 as any);
+  try {
+    const { token, password } = (await c.req.json());
+    const user = await prisma.user_metadata.findFirst({
+      where: { reset_token: token, reset_token_expiry: { gt: new Date() } }
+    });
+    if (!user) return c.json(ApiResponse.error("Invalid or expired token"), 400 as any);
 
-  const passwordHash = await bcrypt.hash(password, 10);
-  await prisma.user_metadata.update({
-    where: { id: user.id },
-    data: { password_hash: passwordHash, reset_token: null, reset_token_expiry: null }
-  });
-  return c.json(ApiResponse.ok("Password updated successfully", "updated"));
+    const passwordHash = await bcrypt.hash(password, 10);
+    await prisma.user_metadata.update({
+      where: { id: user.id },
+      data: { password_hash: passwordHash, reset_token: null, reset_token_expiry: null }
+    });
+    return c.json(ApiResponse.ok("Password updated successfully", "updated"));
+  } catch (err: any) {
+    console.error("resetPassword error:", err);
+    return c.json(ApiResponse.error(err.message), 500 as any);
+  }
 };
 
 export const getCurrentUser = async (c: Context) => {
-  if (!c.get('user')) return c.json(ApiResponse.error("Unauthorized"), 401 as any);
-  const user = await prisma.user_metadata.findUnique({ where: { id: c.get('user').sub } });
-  if (!user) return c.json(ApiResponse.error("User not found"), 404 as any);
-  return c.json(ApiResponse.ok(user));
+  try {
+    if (!c.get('user')) return c.json(ApiResponse.error("Unauthorized"), 401 as any);
+    const user = await prisma.user_metadata.findUnique({ where: { id: c.get('user').sub } });
+    if (!user) return c.json(ApiResponse.error("User not found"), 404 as any);
+    return c.json(ApiResponse.ok(user));
+  } catch (err: any) {
+    console.error("getCurrentUser error:", err);
+    return c.json(ApiResponse.error(err.message), 500 as any);
+  }
 };
 
 export const syncUser = async (c: Context) => {
@@ -193,12 +213,17 @@ export const syncUser = async (c: Context) => {
 };
 
 export const getUsersByIds = async (c: Context) => {
-  const userIds: string[] = (await c.req.json());
-  const users = await prisma.user_metadata.findMany({
-    where: { id: { in: userIds } },
-    select: { id: true, first_name: true, last_name: true, email: true, profile_image_url: true, role: true }
-  });
-  return c.json(ApiResponse.ok(users));
+  try {
+    const userIds: string[] = (await c.req.json());
+    const users = await prisma.user_metadata.findMany({
+      where: { id: { in: userIds } },
+      select: { id: true, first_name: true, last_name: true, email: true, profile_image_url: true, role: true }
+    });
+    return c.json(ApiResponse.ok(users));
+  } catch (err: any) {
+    console.error("getUsersByIds error:", err);
+    return c.json(ApiResponse.error(err.message), 500 as any);
+  }
 };
 
 export const oauthSync = async (c: Context) => {
