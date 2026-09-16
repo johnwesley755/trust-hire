@@ -39,7 +39,7 @@ export default function ResetPasswordPage() {
             await authService.resetPassword({ token, password });
             setIsSuccess(true);
         } catch (err: any) {
-            setError(err.response?.data?.error || 'Failed to reset password. The code may be invalid or expired.');
+            setError(err.message || err.response?.data?.message || 'Failed to reset password. The code may be invalid or expired.');
         } finally {
             setIsLoading(false);
         }

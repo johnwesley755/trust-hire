@@ -121,7 +121,7 @@ export default function OnboardingPage() {
   const progress = (step / 3) * 100;
 
   return (
-    <div className="bg-[#F8FAFC] text-[#0A1931] antialiased min-h-screen flex flex-col overflow-x-hidden selection:bg-[#FACD15] selection:text-[#002117]">
+    <div className="bg-[#F8FAFC] text-[#0A1931] antialiased min-h-screen flex flex-col overflow-x-hidden selection:bg-[#0066FF] selection:text-white">
       
       {/* Top Navigation / Progress Header */}
       <header className="fixed top-0 left-0 w-full z-50 flex flex-col bg-white/95 backdrop-blur-md border-b border-slate-200">
@@ -151,7 +151,7 @@ export default function OnboardingPage() {
             <motion.div 
                 initial={{ width: 0 }}
                 animate={{ width: `${progress}%` }}
-                className="h-full bg-[#FACD15] rounded-r-full shadow-[0_0_10px_rgba(250,205,21,0.5)]"
+                className="h-full bg-[#0066FF] rounded-r-full shadow-[0_0_10px_rgba(250,205,21,0.5)]"
             />
         </div>
       </header>
@@ -185,7 +185,7 @@ export default function OnboardingPage() {
                                     </label>
                                     <div className="relative">
                                         <input 
-                                            className="w-full bg-[#E9E8E3] border-none rounded-xl px-4 py-4 focus:ring-2 focus:ring-[#FACD15] text-[#0A1931] font-medium transition-all placeholder:text-[#0A1931]/30" 
+                                            className="w-full bg-[#E9E8E3] border-none rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-[#0066FF] text-[#0A1931] font-medium transition-all placeholder:text-[#0A1931]/30" 
                                             placeholder="e.g., Reliance Logistics" 
                                             type="text"
                                             value={formData.companyName}
@@ -204,7 +204,7 @@ export default function OnboardingPage() {
                                     </label>
                                     <div className="relative">
                                         <input 
-                                            className="w-full bg-[#E9E8E3] border-none rounded-xl px-4 py-4 focus:ring-2 focus:ring-[#FACD15] text-[#0A1931] font-medium transition-all placeholder:text-[#0A1931]/30" 
+                                            className="w-full bg-[#E9E8E3] border-none rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-[#0066FF] text-[#0A1931] font-medium transition-all placeholder:text-[#0A1931]/30" 
                                             placeholder="9876543210" 
                                             type="tel"
                                             maxLength={10}
@@ -227,7 +227,7 @@ export default function OnboardingPage() {
                                     </div>
                                     <div className="relative">
                                         <input 
-                                            className="w-full bg-[#E9E8E3] border-none rounded-xl px-4 py-4 focus:ring-2 focus:ring-[#FACD15] text-[#0A1931] font-medium transition-all placeholder:text-[#0A1931]/30" 
+                                            className="w-full bg-[#E9E8E3] border-none rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-[#0066FF] text-[#0A1931] font-medium transition-all placeholder:text-[#0A1931]/30" 
                                             placeholder="https://company.com" 
                                             type="url"
                                             value={formData.companyWebsite}
@@ -243,7 +243,7 @@ export default function OnboardingPage() {
                                     <button 
                                         type="submit"
                                         disabled={!formData.companyName}
-                                        className="w-full bg-[#FACD15] text-[#002117] py-5 rounded-[12px] font-extrabold uppercase tracking-widest shadow-[0_4px_0_0_#C39F00] active:translate-y-[2px] active:shadow-none transition-all flex items-center justify-center gap-3 group disabled:opacity-50 disabled:shadow-none disabled:translate-y-0"
+                                        className="w-full bg-[#0066FF] text-white py-3 rounded-[12px] font-extrabold uppercase tracking-widest shadow-[0_4px_0_0_#0047b3] active:translate-y-[2px] active:shadow-none transition-all flex items-center justify-center gap-3 group disabled:opacity-50 disabled:shadow-none disabled:translate-y-0"
                                     >
                                         NEXT STEP
                                         <span className="material-symbols-outlined transition-transform group-hover:translate-x-1">
@@ -260,12 +260,12 @@ export default function OnboardingPage() {
 
                     {/* Right Section: Visual */}
                     <section className="hidden lg:flex lg:w-1/2 relative bg-[#e2e8f0] items-center justify-center p-12 overflow-hidden">
-                        <div className="absolute top-[-10%] right-[-10%] w-[60%] h-[60%] bg-[#FACD15]/10 rounded-full blur-3xl"></div>
-                        <div className="absolute bottom-[-5%] left-[-5%] w-[40%] h-[40%] bg-[#FACD15]/5 rounded-full blur-3xl"></div>
+                        <div className="absolute top-[-10%] right-[-10%] w-[60%] h-[60%] bg-[#0066FF]/10 rounded-full blur-3xl"></div>
+                        <div className="absolute bottom-[-5%] left-[-5%] w-[40%] h-[40%] bg-[#0066FF]/5 rounded-full blur-3xl"></div>
                         
                         <div className="relative z-10 w-full max-w-lg">
                             <div className="relative w-full aspect-square bg-white rounded-[48px] p-6 shadow-2xl shadow-[#0A1931]/5">
-                                <div className="w-full h-full blob-mask overflow-hidden bg-[#FACD15]/20">
+                                <div className="w-full h-full blob-mask overflow-hidden bg-[#0066FF]/20">
                                     <img 
                                         className="w-full h-full object-cover grayscale-[20%] hover:grayscale-0 transition-all duration-700" 
                                         alt="Professional Indian employer" 
@@ -273,8 +273,8 @@ export default function OnboardingPage() {
                                     />
                                 </div>
                                 <div className="absolute -top-4 -right-4 bg-white p-4 rounded-2xl shadow-xl flex items-center gap-3">
-                                    <div className="w-10 h-10 bg-[#FACD15] rounded-full flex items-center justify-center">
-                                        <span className="material-symbols-outlined text-[#002117] text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>verified_user</span>
+                                    <div className="w-10 h-10 bg-[#0066FF] rounded-full flex items-center justify-center">
+                                        <span className="material-symbols-outlined text-white text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>verified_user</span>
                                     </div>
                                     <div>
                                         <p className="text-[10px] font-bold uppercase text-[#0A1931]/40 leading-none mb-1">Status</p>
@@ -284,7 +284,7 @@ export default function OnboardingPage() {
                                 <div className="absolute bottom-12 -left-8 bg-white p-5 rounded-[24px] shadow-xl max-w-[200px]">
                                     <div className="flex items-center gap-1 mb-2">
                                         {[1, 2, 3, 4, 5].map(i => (
-                                            <span key={i} className="material-symbols-outlined text-[#FACD15] text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+                                            <span key={i} className="material-symbols-outlined text-[#EAB308] text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
                                         ))}
                                     </div>
                                     <p className="text-sm font-bold leading-tight">"Finding trust-worthy talent has never been simpler."</p>
@@ -311,7 +311,7 @@ export default function OnboardingPage() {
                     <section className="flex-1 space-y-10 order-2 lg:order-1">
                         <header>
                             <h1 className="text-4xl lg:text-5xl font-extrabold leading-tight tracking-tight text-[#0A1931]">
-                                Define your <span className="relative">workforce<span className="absolute bottom-1 left-0 w-full h-3 bg-[#FACD15]/30 -z-10"></span></span> niche.
+                                Define your <span className="relative">workforce<span className="absolute bottom-1 left-0 w-full h-3 bg-[#0066FF]/30 -z-10"></span></span> niche.
                             </h1>
                             <p className="mt-4 text-lg text-[#0A1931]/70 leading-relaxed max-w-lg font-medium">
                                 Select the industry sector you operate in and tell us about your company's mission. This helps us match you with specialized talent.
@@ -327,11 +327,11 @@ export default function OnboardingPage() {
                                         onClick={() => setFormData({...formData, industry: opt.id})}
                                         className={`flex items-center gap-3 p-4 rounded-xl border-2 transition-all group shadow-sm active:scale-95 ${
                                             formData.industry === opt.id 
-                                            ? 'bg-[#FACD15] text-[#002117] border-[#FACD15] scale-105 shadow-lg' 
-                                            : 'bg-white border-transparent hover:border-[#FACD15]'
+                                            ? 'bg-[#0066FF] text-white border-[#0066FF] scale-105 shadow-lg' 
+                                            : 'bg-white border-transparent hover:border-[#0066FF]'
                                         }`}
                                     >
-                                        <span className={`material-symbols-outlined ${formData.industry === opt.id ? '' : 'text-[#FACD15] group-hover:scale-110'} transition-transform`}
+                                        <span className={`material-symbols-outlined ${formData.industry === opt.id ? '' : 'text-[#0066FF] group-hover:scale-110'} transition-transform`}
                                               style={{ fontVariationSettings: formData.industry === opt.id ? "'FILL' 1" : "'FILL' 0" }}>
                                             {opt.icon}
                                         </span>
@@ -350,7 +350,7 @@ export default function OnboardingPage() {
                             </div>
                             <div className="relative group">
                                 <textarea 
-                                    className="w-full bg-[#E9E8E3] border-none rounded-2xl p-6 text-[#0A1931] placeholder:text-[#0A1931]/30 focus:ring-2 focus:ring-[#FACD15] transition-all resize-none font-medium h-40" 
+                                    className="w-full bg-[#E9E8E3] border-none rounded-2xl p-6 text-[#0A1931] placeholder:text-[#0A1931]/30 focus:ring-2 focus:ring-[#0066FF] transition-all resize-none font-medium h-40" 
                                     placeholder="Share your story, values, and why people love working with you..."
                                     value={formData.profileBio}
                                     onChange={(e) => setFormData({...formData, profileBio: e.target.value.slice(0, 500)})}
@@ -362,7 +362,7 @@ export default function OnboardingPage() {
                             <button 
                                 onClick={nextStep}
                                 disabled={!formData.industry || formData.profileBio.length < 100}
-                                className="group relative flex-1 lg:flex-none lg:min-w-[240px] bg-[#FACD15] text-[#002117] font-extrabold text-sm py-5 px-8 rounded-[12px] shadow-lg hover:shadow-xl hover:-translate-y-1 active:translate-y-0 active:shadow-inner transition-all uppercase tracking-widest flex items-center justify-center gap-3 disabled:opacity-50 disabled:translate-y-0 disabled:shadow-none"
+                                className="group relative flex-1 lg:flex-none lg:min-w-[240px] bg-[#0066FF] text-white font-extrabold text-sm py-3 px-8 rounded-[12px] shadow-lg hover:shadow-xl hover:-translate-y-1 active:translate-y-0 active:shadow-inner transition-all uppercase tracking-widest flex items-center justify-center gap-3 disabled:opacity-50 disabled:translate-y-0 disabled:shadow-none"
                             >
                                 Next Step
                                 <span className="material-symbols-outlined text-xl group-hover:translate-x-1 transition-transform">arrow_forward</span>
@@ -378,7 +378,7 @@ export default function OnboardingPage() {
 
                     <section className="flex-1 lg:flex relative min-h-[400px] lg:min-h-0 order-1 lg:order-2 flex items-center justify-center">
                         <div className="absolute inset-0 overflow-hidden -z-10">
-                            <div className="absolute top-[10%] left-[20%] w-[300px] h-[300px] bg-[#FACD15]/20 rounded-full blur-[80px]"></div>
+                            <div className="absolute top-[10%] left-[20%] w-[300px] h-[300px] bg-[#0066FF]/20 rounded-full blur-[80px]"></div>
                             <div className="absolute bottom-[20%] right-[10%] w-[250px] h-[250px] bg-[#456559]/10 rounded-full blur-[60px]"></div>
                         </div>
                         <div className="relative w-full max-w-md aspect-square lg:aspect-[4/5] xl:aspect-square">
@@ -390,20 +390,20 @@ export default function OnboardingPage() {
                                 />
                             </div>
                             {/* Floating Cards OUTSIDE overflow-hidden container */}
-                            <div className="absolute bottom-16 right-0 lg:translate-x-1/4 bg-white p-6 rounded-2xl shadow-xl max-w-[200px] border-l-4 border-[#FACD15]">
+                            <div className="absolute bottom-16 right-0 lg:translate-x-1/4 bg-white p-6 rounded-2xl shadow-xl max-w-[200px] border-l-4 border-[#0066FF]">
                                 <div className="flex items-center gap-2 mb-2">
-                                    <span className="material-symbols-outlined text-[#FACD15] text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
+                                    <span className="material-symbols-outlined text-[#0066FF] text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
                                     <span className="text-[10px] font-bold text-[#0A1931] uppercase tracking-wider">Trusted Hire</span>
                                 </div>
                                 <p className="text-xs text-[#0A1931]/70 italic leading-relaxed font-medium">"Helping us find 50+ specialized welders in less than 48 hours."</p>
                             </div>
-                            <div className="absolute top-12 -left-8 bg-[#0A1931] text-[#FACD15] px-4 py-3 rounded-xl shadow-lg flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-full bg-[#FACD15]/20 flex items-center justify-center">
+                            <div className="absolute top-12 -left-8 bg-[#0A1931] text-[#0066FF] px-4 py-3 rounded-xl shadow-lg flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-full bg-[#0066FF]/20 flex items-center justify-center">
                                     <span className="material-symbols-outlined text-sm">trending_up</span>
                                 </div>
                                 <div className="flex flex-col">
                                     <span className="text-[14px] font-black tracking-tight">85% Match</span>
-                                    <span className="text-[8px] uppercase font-bold text-[#FACD15]/60">Optimization</span>
+                                    <span className="text-[8px] uppercase font-bold text-[#0066FF]/60">Optimization</span>
                                 </div>
                             </div>
                         </div>
@@ -427,10 +427,10 @@ export default function OnboardingPage() {
                         <div className="space-y-8">
                             <button 
                                 onClick={detectLocation}
-                                className="w-full group relative flex items-center justify-between p-6 bg-white rounded-xl shadow-[0_20px_40px_-10px_rgba(31,63,52,0.05)] hover:shadow-[0_20px_40px_-10px_rgba(31,63,52,0.1)] transition-all duration-300 border border-transparent hover:border-[#FACD15]/30 active:scale-[0.98]"
+                                className="w-full group relative flex items-center justify-between p-6 bg-white rounded-xl shadow-[0_20px_40px_-10px_rgba(31,63,52,0.05)] hover:shadow-[0_20px_40px_-10px_rgba(31,63,52,0.1)] transition-all duration-300 border border-transparent hover:border-[#0066FF]/30 active:scale-[0.98]"
                             >
                                 <div className="flex items-center gap-5">
-                                    <div className="w-14 h-14 bg-[#FACD15] rounded-full flex items-center justify-center text-[#002117] shadow-md">
+                                    <div className="w-14 h-14 bg-[#0066FF] rounded-full flex items-center justify-center text-white shadow-md">
                                         <span className="material-symbols-outlined text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>my_location</span>
                                     </div>
                                     <div className="text-left">
@@ -451,7 +451,7 @@ export default function OnboardingPage() {
                                 <label className="text-[12px] font-bold uppercase tracking-widest text-[#0A1931] ml-1">Business Address</label>
                                 <div className="relative">
                                     <textarea 
-                                        className="w-full bg-[#E9E8E3] border-none rounded-xl p-5 text-[#0A1931] focus:ring-2 focus:ring-[#FACD15] transition-all placeholder:text-[#0A1931]/30 font-medium h-32" 
+                                        className="w-full bg-[#E9E8E3] border-none rounded-xl p-5 text-[#0A1931] focus:ring-2 focus:ring-[#0066FF] transition-all placeholder:text-[#0A1931]/30 font-medium h-32" 
                                         placeholder="Street, Building name, Area, City..."
                                         value={formData.businessAddress}
                                         onChange={(e) => setFormData({...formData, businessAddress: e.target.value})}
@@ -467,7 +467,7 @@ export default function OnboardingPage() {
                             <button 
                                 onClick={handleSubmit}
                                 disabled={isSubmitting || !formData.businessAddress}
-                                className="w-full sm:w-auto px-10 py-5 bg-[#FACD15] text-[#002117] font-black text-sm uppercase tracking-wider rounded-[12px] shadow-[0_4px_0_0_#C39F00] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:translate-y-0 disabled:shadow-none"
+                                className="w-full sm:w-auto px-10 py-3 bg-[#0066FF] text-white font-black text-sm uppercase tracking-wider rounded-[12px] shadow-[0_4px_0_0_#0047b3] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:translate-y-0 disabled:shadow-none"
                             >
                                 {isSubmitting ? <span className="material-symbols-outlined animate-spin">progress_activity</span> : (
                                     <>
@@ -486,8 +486,8 @@ export default function OnboardingPage() {
                     </section>
 
                     <section className="flex-1 relative hidden lg:flex items-center justify-center bg-[#e2e8f0] overflow-hidden">
-                        <div className="absolute top-0 right-0 w-96 h-96 bg-[#FACD15]/10 rounded-full blur-3xl -mr-20 -mt-20"></div>
-                        <div className="absolute bottom-0 left-0 w-80 h-80 bg-[#FACD15]/5 rounded-full blur-3xl -ml-20 -mb-20"></div>
+                        <div className="absolute top-0 right-0 w-96 h-96 bg-[#0066FF]/10 rounded-full blur-3xl -mr-20 -mt-20"></div>
+                        <div className="absolute bottom-0 left-0 w-80 h-80 bg-[#0066FF]/5 rounded-full blur-3xl -ml-20 -mb-20"></div>
                         <div className="relative w-full h-full flex flex-col items-center justify-center p-12 space-y-8">
                             <div className="blob-mask w-full max-w-xl aspect-square bg-[#E9E8E3] relative overflow-hidden shadow-2xl z-0 ring-4 ring-white/50">
                                 <LocationPicker 
@@ -506,7 +506,7 @@ export default function OnboardingPage() {
 
                             {/* Floating Map Card */}
                             <div className="bg-white/90 backdrop-blur-xl p-5 rounded-2xl shadow-2xl flex items-center gap-4 border border-white/50 min-w-[320px] z-30 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                <div className="w-12 h-12 bg-[#0A1931] rounded-xl flex items-center justify-center text-[#FACD15]">
+                                <div className="w-12 h-12 bg-[#0A1931] rounded-xl flex items-center justify-center text-[#0066FF]">
                                     <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>location_on</span>
                                 </div>
                                 <div>
@@ -527,7 +527,7 @@ export default function OnboardingPage() {
             <div className="flex items-center gap-4">
                 <div className="flex-1">
                     <div className="w-full h-1.5 bg-[#E9E8E3] rounded-full overflow-hidden">
-                        <div className="bg-[#FACD15] h-full rounded-full" style={{ width: `${progress}%` }}></div>
+                        <div className="bg-[#0066FF] h-full rounded-full" style={{ width: `${progress}%` }}></div>
                     </div>
                 </div>
                 <span className="text-[10px] font-bold text-[#0A1931] uppercase tracking-widest">{Math.round(progress)}% Complete</span>
@@ -575,3 +575,4 @@ export default function OnboardingPage() {
     </div>
   );
 }
+

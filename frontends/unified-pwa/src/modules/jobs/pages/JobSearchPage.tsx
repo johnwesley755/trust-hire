@@ -186,8 +186,8 @@ export default function JobSearchPage() {
     setSearchParams({});
   };
 
-  const appliedJobIds = new Set(myApplications.map((app) => app.jobId));
-  const baseJobsList = allJobs;
+  const appliedJobIds = new Set(Array.isArray(myApplications) ? myApplications.map((app) => app.jobId) : []);
+  const baseJobsList = Array.isArray(allJobs) ? allJobs : [];
 
   const activeFiltersCount = useMemo(() => {
     let count = 0;
