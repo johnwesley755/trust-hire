@@ -1,31 +1,32 @@
 import { PrismaClient } from '@prisma/client';
-import { neon } from '@neondatabase/serverless';
-import { PrismaNeonHTTP } from '@prisma/adapter-neon';
+import { Pool, neonConfig } from '@neondatabase/serverless';
+import { PrismaNeon } from '@prisma/adapter-neon';
+import ws from 'ws';
 
-let prismaInstance: any = null;
+// Ensure WebSocket constructor is set in Node.js environments (Workers provide global WebSocket)
+if (typeof WebSocket === 'undefined') {
+  neonConfig.webSocketConstructor = ws;
+}
 
 const getPrisma = () => {
-  if (!prismaInstance) {
-    const dbUrl = process.env.DATABASE_URL;
-    if (!dbUrl) {
-      throw new Error("DATABASE_URL is not defined in the environment.");
-    }
-    const sql = neon(dbUrl);
-    const adapter = new PrismaNeonHTTP(sql);
-    prismaInstance = new PrismaClient({
-      adapter,
-      log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
-    });
+  const dbUrl = process.env.DATABASE_URL;
+  if (!dbUrl) {
+    throw new Error("DATABASE_URL is not defined in the environment.");
   }
-  return prismaInstance;
+  const pool = new Pool({ connectionString: dbUrl });
+  const adapter = new PrismaNeon(pool);
+  return new PrismaClient({
+    adapter,
+    log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
+  });
 };
 
-// Use a Proxy to lazily instantiate PrismaClient upon first property access.
-// This ensures that process.env.DATABASE_URL is fully populated by Hono's middleware
-// before Prisma attempts to connect.
+// Use a Proxy so each operation creates a client bound to the current execution context,
+// preventing Cloudflare Workers cross-request I/O errors while supporting full Prisma type conversion & transactions.
 const prisma = new Proxy({}, {
   get: (target, prop) => {
-    return getPrisma()[prop];
+    const client = getPrisma();
+    return (client as any)[prop];
   }
 }) as unknown as PrismaClient;
 

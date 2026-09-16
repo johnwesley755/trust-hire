@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import apiClient from "../../../api/apiClient";
+import { useAuth } from "../../../providers/AuthContext";
 import { motion, AnimatePresence } from 'framer-motion';
 import { LocationPicker } from "../../jobs/components/LocationPicker";
 
@@ -22,6 +23,7 @@ const INDUSTRY_OPTIONS = [
 
 export default function OnboardingPage() {
   const navigate = useNavigate();
+  const { user, updateUser } = useAuth();
   
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
@@ -102,13 +104,24 @@ export default function OnboardingPage() {
           city: formData.city || ""
       });
 
-      await apiClient.post('/api/auth/sync', { 
+      const syncRes = await apiClient.post('/api/auth/sync', { 
         role: "EMPLOYER", 
         onboarded: true,
         phone_number: formData.businessPhone || undefined
       });
+      const syncedUser = syncRes.data?.data || syncRes.data;
+      
       localStorage.setItem('onboarded', 'true');
-      navigate("/dashboard");
+      updateUser({
+        ...user,
+        ...syncedUser,
+        role: "EMPLOYER",
+        onboarded: true,
+        phoneNumber: formData.businessPhone || user?.phoneNumber,
+        companyName: formData.companyName || user?.companyName,
+      });
+
+      navigate("/dashboard", { replace: true });
     } catch (error: any) {
       console.error("Onboarding failure:", error);
       const msg = error.response?.data?.message || "Verification sync failed. Please try again.";

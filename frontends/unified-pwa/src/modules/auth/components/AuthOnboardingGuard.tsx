@@ -1,5 +1,5 @@
 import { useAuth, useUser } from "../../../providers/AuthContext";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import apiClient from "../../../api/apiClient";
 
@@ -9,49 +9,63 @@ export const AuthOnboardingGuard = ({ children }: { children: React.ReactNode })
   const [isOnboarded, setIsOnboarded] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
   const location = useLocation();
-  const syncStarted = useRef(false);
 
   useEffect(() => {
-    const checkOnboarding = async () => {
-      if (syncStarted.current) return;
+    let isCancelled = false;
 
+    const checkOnboarding = async () => {
       if (isSignedIn && user) {
         const hasPhone = Boolean(user.phoneNumber || (user as any).phone_number);
         
         if (user.role === 'WORKER') {
           const isWorkerOnboarded = Boolean(user.onboarded && hasPhone);
-          setIsOnboarded(isWorkerOnboarded);
-          setLoading(false);
+          if (!isCancelled) {
+            setIsOnboarded(isWorkerOnboarded);
+            setLoading(false);
+          }
           return;
         }
 
-        const isLocalOnboarded = user.onboarded || localStorage.getItem('onboarded') === 'true';
+        const isLocalOnboarded = Boolean(user.onboarded || localStorage.getItem('onboarded') === 'true');
 
         if (isLocalOnboarded) {
-          setIsOnboarded(true);
-          setLoading(false);
+          if (!isCancelled) {
+            setIsOnboarded(true);
+            setLoading(false);
+          }
           return;
         }
 
-        syncStarted.current = true;
         try {
           const response = await apiClient.post('/api/auth/sync', { role: "EMPLOYER" });
-          const syncedUser = response.data;
-          setIsOnboarded(!!syncedUser.onboarded);
-          updateUser(syncedUser);
+          const syncedUser = response.data?.data || response.data;
+          if (!isCancelled) {
+            setIsOnboarded(Boolean(syncedUser.onboarded));
+            updateUser(syncedUser);
+          }
         } catch (error) {
           console.error("Onboarding check failed:", error);
-          setIsOnboarded(false);
+          if (!isCancelled) {
+            setIsOnboarded(false);
+          }
         } finally {
-          setLoading(false);
+          if (!isCancelled) {
+            setLoading(false);
+          }
         }
       } else if (isLoaded && !isSignedIn) {
-        setLoading(false);
+        if (!isCancelled) {
+          setLoading(false);
+        }
       }
     };
 
     checkOnboarding();
-  }, [isSignedIn, isLoaded, user, location.pathname, updateUser]);
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [isSignedIn, isLoaded, user?.onboarded, user?.phoneNumber, user?.role, location.pathname]);
 
   if (!isLoaded || loading) {
     return (
