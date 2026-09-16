@@ -45,7 +45,7 @@ app.use('*', async (c, next) => {
 });
 
 app.use('*', logger());
-app.use('*', cors());
+app.use('*', cors({ origin: (origin) => origin || '*', allowHeaders: ['Content-Type', 'Authorization'], allowMethods: ['POST', 'GET', 'OPTIONS', 'PUT', 'DELETE'], credentials: true }));
 
 app.route('/api/auth', authRoutes);
 app.route('/api/worker', workerRoutes);
@@ -76,3 +76,4 @@ app.onError((err, c) => {
 });
 
 export default app;
+
