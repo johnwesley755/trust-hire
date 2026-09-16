@@ -3,6 +3,17 @@ import prisma from '../config/prisma';
 import { ApiResponse } from '../utils/ApiResponse';
 import { v4 as uuidv4 } from 'uuid';
 
+const formatApplication = (app: any) => {
+  if (!app) return app;
+  return {
+    ...app,
+    jobId: app.job_id,
+    workerId: app.worker_id,
+    appliedAt: app.applied_at,
+    coverLetter: app.cover_letter,
+  };
+};
+
 export const applyForJob = async (c: Context) => {
   try {
     const workerId = c.get('user')?.sub;
@@ -61,7 +72,7 @@ export const applyForJob = async (c: Context) => {
       }
     });
 
-    return c.json(ApiResponse.ok("Application submitted successfully", application));
+    return c.json(ApiResponse.ok("Application submitted successfully", formatApplication(application)));
   } catch (err: any) {
     return c.json(ApiResponse.error(err.message), 500 as any);
   }
@@ -84,13 +95,12 @@ export const dispatchOffer = async (c: Context) => {
     });
 
     if (existing) {
-      // If it exists, maybe update it to OFFER_SENT, or reject if they already applied
       if (existing.status === 'PENDING') {
         const updated = await prisma.job_applications.update({
           where: { id: existing.id },
           data: { status: 'OFFER_SENT' }
         });
-        return c.json(ApiResponse.ok("Offer dispatched successfully by updating existing application", updated));
+        return c.json(ApiResponse.ok("Offer dispatched successfully by updating existing application", formatApplication(updated)));
       }
       return c.json(ApiResponse.error("Offer or application already exists for this candidate"), 400 as any);
     }
@@ -120,7 +130,7 @@ export const dispatchOffer = async (c: Context) => {
       }
     });
 
-    return c.json(ApiResponse.ok("Offer dispatched successfully", application));
+    return c.json(ApiResponse.ok("Offer dispatched successfully", formatApplication(application)));
   } catch (err: any) {
     return c.json(ApiResponse.error(err.message), 500 as any);
   }
@@ -129,7 +139,9 @@ export const dispatchOffer = async (c: Context) => {
 export const updateApplicationStatus = async (c: Context) => {
   try {
     const applicationId = c.req.param('applicationId') as string;
-    const { status  } = c.req.query();
+    const body = (await c.req.json().catch(() => ({}))) || {};
+    const query = c.req.query();
+    const status = body.status || query.status;
 
     const application = await prisma.job_applications.findUnique({
       where: { id: applicationId },
@@ -157,7 +169,7 @@ export const updateApplicationStatus = async (c: Context) => {
       }
     });
 
-    return c.json(ApiResponse.ok("Status updated", updated));
+    return c.json(ApiResponse.ok("Status updated", formatApplication(updated)));
   } catch (err: any) {
     return c.json(ApiResponse.error(err.message), 500 as any);
   }
@@ -169,9 +181,10 @@ export const getMyApplications = async (c: Context) => {
     if (!workerId) return c.json(ApiResponse.error("Unauthorized"), 401 as any);
 
     const applications = await prisma.job_applications.findMany({
-      where: { worker_id: workerId }
+      where: { worker_id: workerId },
+      orderBy: { applied_at: 'desc' }
     });
-    return c.json(ApiResponse.ok("My applications fetched", applications));
+    return c.json(ApiResponse.ok("My applications fetched", applications.map(formatApplication)));
   } catch (err: any) {
     return c.json(ApiResponse.error(err.message), 500 as any);
   }
@@ -181,9 +194,10 @@ export const getJobApplications = async (c: Context) => {
   try {
     const jobId = c.req.param('jobId') as string;
     const applications = await prisma.job_applications.findMany({
-      where: { job_id: jobId }
+      where: { job_id: jobId },
+      orderBy: { applied_at: 'desc' }
     });
-    return c.json(ApiResponse.ok("Job applications fetched", applications));
+    return c.json(ApiResponse.ok("Job applications fetched", applications.map(formatApplication)));
   } catch (err: any) {
     return c.json(ApiResponse.error(err.message), 500 as any);
   }
@@ -191,11 +205,36 @@ export const getJobApplications = async (c: Context) => {
 
 export const getApplicationsByJobs = async (c: Context) => {
   try {
-    const { jobIds } = (await c.req.json());
+    const body = (await c.req.json().catch(() => ({}))) || {};
+    let jobIds: string[] = [];
+    if (Array.isArray(body)) {
+      jobIds = body;
+    } else if (body && Array.isArray(body.jobIds)) {
+      jobIds = body.jobIds;
+    } else if (body && Array.isArray(body.job_ids)) {
+      jobIds = body.job_ids;
+    }
+
+    if (jobIds.length === 0) {
+      const employerId = c.get('user')?.sub;
+      if (employerId) {
+        const employerJobs = await prisma.jobs.findMany({
+          where: { employer_id: employerId },
+          select: { id: true }
+        });
+        jobIds = employerJobs.map(j => j.id);
+      }
+    }
+
+    if (jobIds.length === 0) {
+      return c.json(ApiResponse.ok("Applications for jobs fetched", []));
+    }
+
     const applications = await prisma.job_applications.findMany({
-      where: { job_id: { in: jobIds } }
+      where: { job_id: { in: jobIds } },
+      orderBy: { applied_at: 'desc' }
     });
-    return c.json(ApiResponse.ok("Applications for jobs fetched", applications));
+    return c.json(ApiResponse.ok("Applications for jobs fetched", applications.map(formatApplication)));
   } catch (err: any) {
     return c.json(ApiResponse.error(err.message), 500 as any);
   }
