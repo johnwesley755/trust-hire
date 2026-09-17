@@ -26,7 +26,9 @@ export interface Worker {
 }
 
 export interface WorkerProfileSummary {
+  id?: string;
   userId: string;
+  name?: string;
   fullName?: string;
   firstName?: string;
   lastName?: string;
@@ -34,6 +36,7 @@ export interface WorkerProfileSummary {
   phoneNumber?: string;
   profileImageUrl?: string;
   address?: string;
+  location?: string;
   city?: string;
   latitude?: number;
   longitude?: number;
@@ -43,10 +46,13 @@ export interface WorkerProfileSummary {
   level?: string;
   identityVerified?: boolean;
   trustScore?: number;
+  rating?: number;
   reliabilityScore?: number;
   performanceScore?: number;
   skillScore?: number;
   isAvailable?: boolean;
+  isOfferSent?: boolean;
+  offerStatus?: string;
 }
 
 export interface TrustScoreResponse {
@@ -74,95 +80,90 @@ export const workerService = {
   },
 
   getWorkerById: async (id: string): Promise<Worker> => {
-    try {
-      const response = await apiClient.post<any>('/api/worker/profiles/by-user-ids', [id]);
-      const worker = response.data?.[0];
+    const response = await apiClient.get<any>(`/api/worker/${id}`);
+    const worker = response.data;
 
-      if (!worker) {
-        throw new Error('Worker not found');
-      }
-
-      return {
-        id: worker.user_id || worker.userId || id,
-        userId: worker.user_id || worker.userId || id,
-        name: worker.full_name || worker.fullName || [worker.first_name || worker.firstName, worker.last_name || worker.lastName].filter(Boolean).join(' ') || 'Specialist Worker',
-        profilePhoto: worker.profile_image_url || worker.profileImageUrl || '',
-        level: Number((worker.level || 'L1').replace(/\D/g, '')) || 1,
-        trustScore: worker.trust_score || worker.trustScore || 30,
-        skills: worker.skills ? worker.skills.split(',').map((skill: string) => skill.trim()).filter(Boolean) : [],
-        experience: worker.experience_years || worker.experienceYears || 0,
-        rating: worker.rating || 0,
-        distance: 0,
-        location: worker.city || worker.address || worker.location || '',
-        address: worker.address,
-        city: worker.city,
-        latitude: worker.latitude,
-        longitude: worker.longitude,
-        bio: worker.bio,
-        email: worker.email,
-        phoneNumber: worker.phone_number || worker.phoneNumber,
-        availability: (worker.is_available || worker.isAvailable) ? 'AVAILABLE' : 'BUSY',
-        salaryRange: worker.hourly_rate || worker.hourlyRate ? `₹${worker.hourly_rate || worker.hourlyRate}/hr` : '',
-        verificationStatus: (worker.identity_verified || worker.identityVerified) ? 'VERIFIED' : 'PENDING',
-      };
-    } catch {
-      const singleRes = await apiClient.get<any>(`/api/worker/${id}`);
-      const worker = singleRes.data;
-      return {
-        id: worker.user_id || worker.userId || id,
-        userId: worker.user_id || worker.userId || id,
-        name: worker.full_name || worker.fullName || [worker.first_name || worker.firstName, worker.last_name || worker.lastName].filter(Boolean).join(' ') || 'Specialist Worker',
-        profilePhoto: worker.profile_image_url || worker.profileImageUrl || '',
-        level: Number((worker.level || 'L1').replace(/\D/g, '')) || 1,
-        trustScore: worker.trust_score || worker.trustScore || 30,
-        skills: Array.isArray(worker.skills) ? worker.skills : (worker.skills ? worker.skills.split(',') : []),
-        experience: worker.experience_years || worker.experienceYears || 0,
-        rating: worker.rating || 0,
-        distance: 0,
-        location: worker.location || '',
-        address: worker.address,
-        city: worker.city,
-        latitude: worker.latitude,
-        longitude: worker.longitude,
-        bio: worker.bio,
-        email: worker.email,
-        phoneNumber: worker.phone_number || worker.phoneNumber,
-        availability: 'AVAILABLE',
-        salaryRange: '',
-        verificationStatus: (worker.identity_verified || worker.identityVerified || worker.isVerified) ? 'VERIFIED' : 'PENDING',
-      };
+    if (!worker) {
+      throw new Error('Worker not found');
     }
-  },
 
-  getProfilesByUserIds: async (userIds: string[]): Promise<WorkerProfileSummary[]> => {
-    const response = await apiClient.post<any>('/api/worker/profiles/by-user-ids', userIds);
-    return (response.data || []).map((worker: any) => ({
-      userId: worker.user_id || worker.userId,
-      fullName: worker.full_name || worker.fullName,
-      firstName: worker.first_name || worker.firstName,
-      lastName: worker.last_name || worker.lastName,
-      email: worker.email,
-      phoneNumber: worker.phone_number || worker.phoneNumber,
-      profileImageUrl: worker.profile_image_url || worker.profileImageUrl,
+    const rawSkills = worker.skills;
+    const skillsList = Array.isArray(rawSkills) 
+      ? rawSkills 
+      : typeof rawSkills === 'string' && rawSkills.trim().length > 0 
+        ? rawSkills.split(',').map((s: string) => s.trim()).filter(Boolean)
+        : [];
+
+    return {
+      id: worker.user_id || worker.userId || worker.id || id,
+      userId: worker.user_id || worker.userId || worker.id || id,
+      name: worker.full_name || worker.fullName || [worker.first_name || worker.firstName, worker.last_name || worker.lastName].filter(Boolean).join(' ') || 'Specialist Worker',
+      profilePhoto: worker.profile_image_url || worker.profileImageUrl || '',
+      level: Number(String(worker.level || '1').replace(/\D/g, '')) || 1,
+      trustScore: worker.trust_score || worker.trustScore || 70,
+      skills: skillsList,
+      experience: worker.experience_years || worker.experienceYears || 0,
+      rating: worker.rating || (worker.trust_score ? worker.trust_score / 20 : (worker.trustScore ? worker.trustScore / 20 : 4.8)),
+      distance: 0,
+      location: worker.city || worker.address || worker.location || '',
       address: worker.address,
       city: worker.city,
       latitude: worker.latitude,
       longitude: worker.longitude,
       bio: worker.bio,
-      skills: worker.skills,
-      experienceYears: worker.experience_years || worker.experienceYears,
-      level: worker.level,
-      identityVerified: worker.identity_verified || worker.identityVerified,
-      trustScore: worker.trust_score || worker.trustScore,
-      reliabilityScore: worker.reliability_score || worker.reliabilityScore,
-      performanceScore: worker.performance_score || worker.performanceScore,
-      skillScore: worker.skill_score || worker.skillScore,
-      isAvailable: worker.is_available || worker.isAvailable,
-    }));
+      email: worker.email,
+      phoneNumber: worker.phone_number || worker.phoneNumber,
+      availability: (worker.is_available ?? worker.isAvailable ?? true) ? 'AVAILABLE' : 'BUSY',
+      salaryRange: worker.hourly_rate || worker.hourlyRate ? `₹${worker.hourly_rate || worker.hourlyRate}/hr` : '',
+      verificationStatus: (worker.identity_verified || worker.identityVerified || worker.isVerified) ? 'VERIFIED' : 'PENDING',
+    };
+  },
+
+  getProfilesByUserIds: async (userIds: string[]): Promise<WorkerProfileSummary[]> => {
+    const response = await apiClient.post<any>('/api/worker/profiles/by-user-ids', userIds);
+    return (response.data || []).map((worker: any) => {
+      const fullName = worker.full_name || worker.fullName || [worker.first_name || worker.firstName, worker.last_name || worker.lastName].filter(Boolean).join(' ') || 'Candidate';
+      return {
+        id: worker.id || worker.user_id || worker.userId,
+        userId: worker.user_id || worker.userId || worker.id,
+        name: fullName,
+        fullName: fullName,
+        firstName: worker.first_name || worker.firstName,
+        lastName: worker.last_name || worker.lastName,
+        email: worker.email,
+        phoneNumber: worker.phone_number || worker.phoneNumber,
+        profileImageUrl: worker.profile_image_url || worker.profileImageUrl,
+        address: worker.address,
+        location: worker.location || worker.city || worker.address || '',
+        city: worker.city,
+        latitude: worker.latitude,
+        longitude: worker.longitude,
+        bio: worker.bio,
+        skills: worker.skills,
+        experienceYears: worker.experience_years || worker.experienceYears,
+        level: worker.level,
+        identityVerified: worker.identity_verified || worker.identityVerified || worker.isVerified,
+        trustScore: worker.trust_score || worker.trustScore,
+        rating: worker.rating || (worker.trust_score ? worker.trust_score / 20 : (worker.trustScore ? worker.trustScore / 20 : 4.8)),
+        reliabilityScore: worker.reliability_score || worker.reliabilityScore,
+        performanceScore: worker.performance_score || worker.performanceScore,
+        skillScore: worker.skill_score || worker.skillScore,
+        isAvailable: worker.is_available || worker.isAvailable,
+        isOfferSent: worker.isOfferSent || Boolean(worker.offerStatus),
+        offerStatus: worker.offerStatus,
+      };
+    });
   },
 
   incrementProfileView: async (userId: string): Promise<void> => {
-    await apiClient.post(`/api/worker/profile/${userId}/view`);
+    const sessionKey = `profile_viewed_${userId}`;
+    if (typeof sessionStorage !== 'undefined' && sessionStorage.getItem(sessionKey)) {
+      return; // Deduplicate view count per browser session
+    }
+    if (typeof sessionStorage !== 'undefined') {
+      sessionStorage.setItem(sessionKey, '1');
+    }
+    await apiClient.post(`/api/worker/profile/${userId}/view`).catch(() => {});
   },
 
   getTrustScore: async (userId: string): Promise<TrustScoreResponse> => {
@@ -186,3 +187,4 @@ export const workerService = {
   getLevel: (id: string) => apiClient.get(`/api/worker/level/${id}`),
   completeOnboarding: (data: any) => apiClient.post('/api/worker/complete-onboarding', data),
 };
+

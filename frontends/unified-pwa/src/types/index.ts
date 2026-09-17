@@ -90,7 +90,7 @@ export interface JobApplication {
   id: string;
   jobId: string;
   workerId: string;
-  status: 'APPLIED' | 'PENDING' | 'REVIEWING' | 'SHORTLISTED' | 'ACCEPTED' | 'REJECTED' | 'COMPLETED';
+  status: 'APPLIED' | 'PENDING' | 'OFFER_SENT' | 'REVIEWING' | 'SHORTLISTED' | 'ACCEPTED' | 'APPROVED' | 'REJECTED' | 'DECLINED' | 'COMPLETED';
   appliedAt: string;
   coverLetter?: string;
   job?: Job;
@@ -201,4 +201,5 @@ export interface ApiResponse<T = any> {
   message?: string;
   data: T;
 }
+
 

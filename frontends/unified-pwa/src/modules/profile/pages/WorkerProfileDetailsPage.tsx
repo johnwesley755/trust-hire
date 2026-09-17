@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useOutletContext, Link } from "react-router-dom";
 import { profileService, type WorkerProfile } from "../../../services/profile.service";
 import { applicationService } from "../../../services/application.service";
+import { queryKeys } from "../../../lib/queryKeys";
 import { NotificationCenter } from '../../dashboard/components/NotificationCenter';
 import apiClient from "../../../api/apiClient";
 import { UserAvatar } from "../../../components/common/UserAvatar";
@@ -21,12 +22,12 @@ export default function WorkerProfileDetailsPage() {
   const [locationStatus, setLocationStatus] = useState<string | null>(null);
 
   const { data: profile } = useQuery<WorkerProfile | null>({
-    queryKey: ['workerProfile'],
+    queryKey: queryKeys.workers.detail('me'),
     queryFn: profileService.getWorkerProfile,
   });
 
   const { data: myApplications = [] } = useQuery({
-    queryKey: ['myApplications'],
+    queryKey: queryKeys.jobs.myApplications,
     queryFn: applicationService.getMyApplications,
   });
 

@@ -5,6 +5,7 @@ import { useOutletContext, Link } from "react-router-dom";
 import { profileService, type EmployerProfile } from "../../../services/profile.service";
 import { dashboardService } from "../../../services/dashboard.service";
 import { jobService, type Job } from "../../../services/job.service";
+import { queryKeys } from "../../../lib/queryKeys";
 import { Building2, MapPin, Briefcase, Edit2, ShieldCheck, Users, Clock, ArrowRight, Activity, Calendar } from "lucide-react";
 import { format } from "date-fns";
 import { EditEmployerProfileModal } from "../components/EditEmployerProfileModal";
@@ -16,17 +17,17 @@ export default function EmployerProfileDetailsPage() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const { data: profile } = useQuery<EmployerProfile | null>({
-    queryKey: ['employerProfile'],
+    queryKey: queryKeys.employer.profile,
     queryFn: profileService.getEmployerProfile,
   });
 
   const { data: stats } = useQuery({
-    queryKey: ['employerStats'],
+    queryKey: queryKeys.employer.stats,
     queryFn: dashboardService.getEmployerStats,
   });
 
   const { data: jobs } = useQuery<Job[]>({
-    queryKey: ['employerJobs'],
+    queryKey: queryKeys.jobs.employerJobs,
     queryFn: jobService.getMyJobs,
   });
 

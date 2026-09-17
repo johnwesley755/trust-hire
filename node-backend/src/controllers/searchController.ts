@@ -146,28 +146,34 @@ export const searchWorkers = async (c: Context) => {
     const userMetaById = new Map(userMetaList.map(u => [u.id, u]));
     const verificationByUser = new Map(verifications.map(v => [v.user_id, v]));
 
-    let employerOffers = new Set();
+    let employerOffersMap = new Map<string, string>();
     if (employerId) {
       const employerProfile = await prisma.employer_profiles.findFirst({
         where: { user_id: employerId }
       });
 
-      if (employerProfile) {
-        const employerJobs = await prisma.jobs.findMany({
-          where: { employer_id: employerProfile.id },
-          select: { id: true }
+      const employerJobs = await prisma.jobs.findMany({
+        where: {
+          OR: [
+            { employer_id: employerId },
+            ...(employerProfile ? [{ employer_id: employerProfile.id }] : [])
+          ]
+        },
+        select: { id: true }
+      });
+      const jobIds = employerJobs.map(j => j.id);
+      if (jobIds.length > 0) {
+        const offers = await prisma.job_applications.findMany({
+          where: { 
+            job_id: { in: jobIds }
+          },
+          select: { worker_id: true, status: true }
         });
-        const jobIds = employerJobs.map(j => j.id);
-        if (jobIds.length > 0) {
-          const offers = await prisma.job_applications.findMany({
-            where: { 
-              job_id: { in: jobIds },
-              status: { in: ['OFFER_SENT', 'PENDING', 'ACCEPTED'] } 
-            },
-            select: { worker_id: true }
-          });
-          offers.forEach(o => employerOffers.add(o.worker_id));
-        }
+        offers.forEach(o => {
+          if (o.worker_id && o.status) {
+            employerOffersMap.set(o.worker_id, o.status);
+          }
+        });
       }
     }
 
@@ -175,6 +181,7 @@ export const searchWorkers = async (c: Context) => {
       const meta = userMetaById.get(w.user_id);
       const vRecord = verificationByUser.get(w.user_id);
       const isVerified = vRecord?.status === 'VERIFIED' || vRecord?.status === 'APPROVED' || Boolean(meta?.email_verified);
+      const offerStatus = employerOffersMap.get(w.id) || (w.user_id ? employerOffersMap.get(w.user_id) : null) || null;
 
       return {
         id: w.id,
@@ -192,7 +199,8 @@ export const searchWorkers = async (c: Context) => {
         profileImageUrl: meta?.profile_image_url || '',
         status: w.is_available ? 'AVAILABLE' : 'OFFLINE',
         trustScore: w.trust_score || 70,
-        isOfferSent: employerOffers.has(w.id) || (w.user_id ? employerOffers.has(w.user_id) : false)
+        offerStatus,
+        isOfferSent: Boolean(offerStatus)
       };
     });
 
@@ -249,3 +257,4 @@ export const removeWorker = async (c: Context) => {
     return c.json(ApiResponse.error(err.message), 500 as any);
   }
 };
+

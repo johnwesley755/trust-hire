@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import apiClient from '../../../api/apiClient';
 import { useAuth } from '../../../providers/AuthContext';
+import { queryKeys } from '../../../lib/queryKeys';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Building2, 
@@ -38,7 +39,7 @@ export const SettingsPage = () => {
   const [passwords, setPasswords] = useState({ old: '', new: '', confirm: '' });
 
   const { data: settings, isLoading } = useQuery({
-    queryKey: ['settings'],
+    queryKey: queryKeys.settings.user,
     queryFn: async () => {
       const response = await apiClient.get('/api/settings');
       return response.data;
@@ -52,7 +53,7 @@ export const SettingsPage = () => {
       return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['settings'] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.settings.user });
       showFeedback('success', 'Preferences updated successfully');
     },
     onError: () => {

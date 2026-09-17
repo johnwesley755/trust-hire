@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { workerService } from '../../../services/worker.service';
 import { jobService } from '../../../services/job.service';
 import { applicationService } from '../../../services/application.service';
+import { queryKeys } from '../../../lib/queryKeys';
 import { 
   ShieldCheck, 
   ChevronLeft, 
@@ -27,29 +28,45 @@ export const WorkerProfilePage = () => {
   const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedJobId, setSelectedJobId] = useState('');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Fallback state if they haven't refreshed
-  const [isOfferSent, setIsOfferSent] = useState(() => {
-    return localStorage.getItem(`offerSent_${id}`) === 'true';
+  const { data: employerStatusData } = useQuery({
+    queryKey: queryKeys.employer.workerStatus(id || ''),
+    queryFn: () => applicationService.getEmployerWorkerStatus(id || ''),
+    enabled: !!id,
+    staleTime: 1000 * 60 * 2, // 2 minutes
   });
 
-  const { data: myJobs, isLoading: isLoadingJobs } = useQuery({
-    queryKey: ['myJobs'],
+  const existingApplications = employerStatusData?.applications || [];
+  const applicationsByJobId = new Map(existingApplications.map((app: any) => [app.jobId, app]));
+
+  const { data: myJobs = [], isLoading: isLoadingJobs } = useQuery({
+    queryKey: queryKeys.jobs.employerJobs,
     queryFn: () => jobService.getMyJobs(),
-    enabled: isModalOpen
+    enabled: isModalOpen,
+    staleTime: 1000 * 60 * 3,
   });
 
   const dispatchOfferMutation = useMutation({
     mutationFn: (jobId: string) => applicationService.dispatchOffer({ jobId, workerId: id || '' }),
     onSuccess: () => {
-      setIsOfferSent(true);
-      localStorage.setItem(`offerSent_${id}`, 'true');
+      setErrorMessage(null);
       setIsModalOpen(false);
-      queryClient.invalidateQueries({ queryKey: ['workers'] });
+      setSelectedJobId('');
+      if (id) {
+        queryClient.invalidateQueries({ queryKey: queryKeys.employer.workerStatus(id) });
+        queryClient.invalidateQueries({ queryKey: queryKeys.workers.detail(id) });
+      }
+      queryClient.invalidateQueries({ queryKey: queryKeys.workers.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.jobs.all });
+    },
+    onError: (err: any) => {
+      setErrorMessage(err?.response?.data?.message || err?.message || 'Failed to dispatch offer.');
     }
   });
 
   const handleDispatchOffer = () => {
+    setErrorMessage(null);
     setIsModalOpen(true);
   };
 
@@ -61,20 +78,22 @@ export const WorkerProfilePage = () => {
 
   useEffect(() => {
     if (id) {
-        workerService.incrementProfileView(id).catch(err => console.error("Failed to increment profile view:", err));
+      workerService.incrementProfileView(id).catch(() => {});
     }
   }, [id]);
 
   const { data: worker, isLoading: isLoadingWorker } = useQuery({
-    queryKey: ['worker', id],
+    queryKey: queryKeys.workers.detail(id || ''),
     queryFn: () => workerService.getWorkerById(id || ''),
-    enabled: !!id
+    enabled: !!id,
+    staleTime: 1000 * 60 * 5, // 5 minutes fresh
   });
 
   const { data: ratings } = useQuery({
-    queryKey: ['workerRatings', id],
+    queryKey: queryKeys.workers.ratings(id || ''),
     queryFn: () => workerService.getWorkerRatings(id || ''),
-    enabled: !!id
+    enabled: !!id,
+    staleTime: 1000 * 60 * 5,
   });
 
   if (isLoadingWorker) return (
@@ -160,15 +179,34 @@ export const WorkerProfilePage = () => {
               </div>
               
               <div className="flex flex-col gap-3 w-full md:w-auto sm:mt-0 mt-4">
-                 <button 
-                   onClick={handleDispatchOffer}
-                   disabled={isOfferSent || worker?.isOfferSent}
-                   className={`flex items-center justify-center gap-2 px-6 py-3 font-bold rounded-xl shadow-md transition-all whitespace-nowrap cursor-pointer ${
-                     (isOfferSent || worker?.isOfferSent) ? 'bg-emerald-500 text-white shadow-emerald-500/20' : 'bg-[#0066FF] hover:bg-[#0052cc] text-white'
-                   }`}
-                 >
-                   {(isOfferSent || worker?.isOfferSent) ? 'Offer Sent!' : 'Dispatch Offer'}
-                 </button>
+                 {(() => {
+                   const hasApproved = existingApplications.some((a: any) => a.status === 'ACCEPTED' || a.status === 'APPROVED');
+                   const hasOfferSent = existingApplications.some((a: any) => a.status === 'OFFER_SENT');
+                   const hasDeclined = existingApplications.length > 0 && existingApplications.every((a: any) => a.status === 'REJECTED' || a.status === 'DECLINED');
+
+                   return (
+                     <button 
+                       onClick={handleDispatchOffer}
+                       className={`flex items-center justify-center gap-2 px-6 py-3 font-bold rounded-xl shadow-md transition-all whitespace-nowrap cursor-pointer ${
+                         hasApproved
+                           ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                           : hasOfferSent
+                           ? 'bg-amber-500 hover:bg-amber-600 text-white'
+                           : hasDeclined
+                           ? 'bg-rose-500 hover:bg-rose-600 text-white'
+                           : 'bg-[#0066FF] hover:bg-[#0052cc] text-white'
+                       }`}
+                     >
+                       {hasApproved 
+                         ? 'Approved for Job' 
+                         : hasOfferSent 
+                         ? 'Offer Sent' 
+                         : hasDeclined 
+                         ? 'Offer Declined' 
+                         : 'Dispatch Offer'}
+                     </button>
+                   );
+                 })()}
               </div>
             </div>
 
@@ -200,76 +238,85 @@ export const WorkerProfilePage = () => {
                         </div>
                       ))
                     ) : (
-                      <div className="col-span-full py-6 text-center text-slate-500 font-medium">
-                        No skills listed
-                      </div>
+                      <p className="text-slate-400 italic text-sm">No specialized skills listed.</p>
                     )}
                   </div>
                 </div>
 
+                {/* Reviews & Ratings Section */}
+                <div className="bg-white rounded-3xl p-6 lg:p-8 border border-slate-200 shadow-sm">
+                  <h3 className="text-lg font-black text-[#0A1931] mb-6">Ratings & Verifications</h3>
+                  
+                  {ratings && ratings.length > 0 ? (
+                    <div className="space-y-4">
+                      {ratings.map((review: any) => (
+                        <div key={review.id} className="p-4 rounded-2xl bg-slate-50 border border-slate-100 flex flex-col gap-2">
+                          <div className="flex justify-between items-center">
+                            <span className="font-bold text-sm text-[#0A1931]">{review.reviewerName || 'Employer Partner'}</span>
+                            <span className="text-xs font-bold px-2 py-0.5 bg-amber-50 text-amber-700 rounded-md border border-amber-200">
+                              ★ {review.score} / 5
+                            </span>
+                          </div>
+                          {review.comment && (
+                            <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                              "{review.comment}"
+                            </p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-6 bg-slate-50/50 rounded-2xl border border-slate-100">
+                      <p className="text-slate-400 font-medium text-xs">No customer reviews yet. Background check and skill verifications passed.</p>
+                    </div>
+                  )}
+                </div>
+
               </div>
 
-              {/* Right Column: Contact & Stats */}
+              {/* Right Column: Contact & Direct Actions */}
               <div className="space-y-6">
-                
-                {/* Contact Info */}
-                <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm">
-                  <h3 className="text-lg font-black text-[#0A1931] mb-4">Contact Details</h3>
+                <div className="bg-white rounded-3xl p-6 lg:p-8 border border-slate-200 shadow-sm space-y-6">
+                  <h3 className="text-lg font-black text-[#0A1931]">Contact & Verification</h3>
+                  
                   <div className="space-y-4">
-                    {(() => {
-                      const phone = worker?.phoneNumber || (worker as any)?.phone_number || (worker as any)?.user_metadata?.phone_number;
-                      const email = worker?.email || (worker as any)?.user_metadata?.email;
-
-                      return (
-                        <>
-                          {phone ? (
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-[#0066FF] shrink-0">
-                                <Phone className="w-4 h-4" />
-                              </div>
-                              <div className="overflow-hidden">
-                                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-0.5">Phone</p>
-                                <p className="font-semibold text-slate-700 truncate">{phone}</p>
-                              </div>
-                            </div>
-                          ) : (
-                            <div className="text-sm text-slate-500 font-medium">Phone number not available.</div>
-                          )}
-                          
-                          {email && (
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-[#0066FF] shrink-0">
-                                <Mail className="w-4 h-4" />
-                              </div>
-                              <div className="overflow-hidden">
-                                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-0.5">Email</p>
-                                <p className="font-semibold text-slate-700 truncate">{email}</p>
-                              </div>
-                            </div>
-                          )}
-                        </>
-                      );
-                    })()}
-                  </div>
-                </div>
-
-                {/* Job Stats */}
-                <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm">
-                  <h3 className="text-lg font-black text-[#0A1931] mb-4">Worker Stats</h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                      <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Rating</p>
-                      <p className="text-xl font-black text-[#0A1931] mt-1">
-                        {ratings && ratings.length > 0 ? (ratings.reduce((acc: any, r: any) => acc + r.score, 0) / ratings.length).toFixed(1) : 'New'}
-                      </p>
+                    <div className="flex items-center gap-3">
+                      <div className="p-2.5 bg-blue-50 text-[#0066FF] rounded-xl">
+                        <Mail className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0">
+                        <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider block">Email Address</span>
+                        <span className="text-xs font-bold text-slate-700 truncate block">
+                          {worker?.email || 'Registered Worker Email'}
+                        </span>
+                      </div>
                     </div>
-                    <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                      <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Level</p>
-                      <p className="text-xl font-black text-[#0A1931] mt-1">{worker?.level || 1}</p>
+
+                    <div className="flex items-center gap-3">
+                      <div className="p-2.5 bg-emerald-50 text-emerald-600 rounded-xl">
+                        <Phone className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0">
+                        <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider block">Phone Number</span>
+                        <span className="text-xs font-bold text-slate-700 block">
+                          {worker?.phoneNumber || 'Contact via Direct Dispatch'}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      <div className="p-2.5 bg-indigo-50 text-indigo-600 rounded-xl">
+                        <MapPin className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0">
+                        <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider block">Primary Location</span>
+                        <span className="text-xs font-bold text-slate-700 block truncate">
+                          {worker?.address || worker?.city || worker?.location || 'Location on file'}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
-
               </div>
             </div>
           </motion.div>
@@ -287,18 +334,27 @@ export const WorkerProfilePage = () => {
               className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl flex flex-col"
             >
               <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-                <h2 className="text-xl font-black text-[#0A1931]">Dispatch Offer</h2>
+                <div>
+                  <h2 className="text-xl font-black text-[#0A1931]">Dispatch Job Offer</h2>
+                  <p className="text-xs text-slate-400 font-medium">Select an open shift to send to {worker?.name || 'this candidate'}</p>
+                </div>
                 <button 
                   onClick={() => setIsModalOpen(false)}
-                  className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors"
+                  className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors cursor-pointer"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
               
               <div className="p-6">
-                <p className="text-sm text-slate-600 font-medium mb-4">
-                  Select a job to offer to {worker?.name || 'this worker'}:
+                {errorMessage && (
+                  <div className="p-3 mb-4 bg-rose-50 border border-rose-200 rounded-xl text-xs font-bold text-rose-700">
+                    {errorMessage}
+                  </div>
+                )}
+
+                <p className="text-xs text-slate-500 font-bold uppercase tracking-wider mb-3">
+                  Your Active Job Openings:
                 </p>
                 
                 {isLoadingJobs ? (
@@ -306,42 +362,87 @@ export const WorkerProfilePage = () => {
                     <Loader2 className="w-8 h-8 text-[#0066FF] animate-spin" />
                   </div>
                 ) : myJobs && myJobs.length > 0 ? (
-                  <div className="space-y-3 max-h-64 overflow-y-auto pr-2">
-                    {myJobs.map((job: any) => (
-                      <label 
-                        key={job.id}
-                        className={`flex items-start p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                          selectedJobId === job.id 
-                            ? 'border-[#0066FF] bg-blue-50/50' 
-                            : 'border-slate-100 hover:border-slate-200 hover:bg-slate-50'
-                        }`}
-                      >
-                        <input 
-                          type="radio" 
-                          name="jobSelection" 
-                          className="mt-1 sr-only"
-                          checked={selectedJobId === job.id}
-                          onChange={() => setSelectedJobId(job.id)}
-                        />
-                        <div className="flex-1 ml-1">
-                          <h4 className={`font-bold ${selectedJobId === job.id ? 'text-[#0066FF]' : 'text-[#0A1931]'}`}>
-                            {job.title}
-                          </h4>
-                          <p className="text-xs text-slate-500 font-medium mt-1">
-                            {job.location} • ₹{job.budget?.toLocaleString() || '0'}
-                          </p>
-                        </div>
-                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
-                          selectedJobId === job.id ? 'border-[#0066FF]' : 'border-slate-300'
-                        }`}>
-                          {selectedJobId === job.id && <div className="w-2.5 h-2.5 rounded-full bg-[#0066FF]" />}
-                        </div>
-                      </label>
-                    ))}
+                  <div className="space-y-3 max-h-72 overflow-y-auto pr-1">
+                    {myJobs.map((job: any) => {
+                      const appForJob = applicationsByJobId.get(job.id);
+                      const isOfferSentForJob = appForJob?.status === 'OFFER_SENT';
+                      const isApprovedForJob = appForJob?.status === 'ACCEPTED' || appForJob?.status === 'APPROVED';
+                      const isDeclinedForJob = appForJob?.status === 'REJECTED' || appForJob?.status === 'DECLINED';
+                      const isPendingForJob = appForJob?.status === 'PENDING';
+                      const isBlocked = isOfferSentForJob || isApprovedForJob || isDeclinedForJob;
+
+                      return (
+                        <label 
+                          key={job.id}
+                          className={`flex items-start p-4 rounded-xl border-2 transition-all ${
+                            isBlocked
+                              ? 'border-slate-100 bg-slate-50/70 opacity-70 cursor-not-allowed'
+                              : selectedJobId === job.id 
+                              ? 'border-[#0066FF] bg-blue-50/50 cursor-pointer' 
+                              : 'border-slate-100 hover:border-slate-200 hover:bg-slate-50 cursor-pointer'
+                          }`}
+                        >
+                          <input 
+                            type="radio" 
+                            name="jobSelection" 
+                            className="mt-1 sr-only"
+                            disabled={isBlocked}
+                            checked={selectedJobId === job.id}
+                            onChange={() => !isBlocked && setSelectedJobId(job.id)}
+                          />
+                          <div className="flex-1 ml-1">
+                            <div className="flex items-center justify-between gap-2">
+                              <h4 className={`font-bold text-sm ${selectedJobId === job.id ? 'text-[#0066FF]' : 'text-[#0A1931]'}`}>
+                                {job.title}
+                              </h4>
+                              {isApprovedForJob && (
+                                <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-md text-[10px] font-extrabold uppercase">
+                                  Approved
+                                </span>
+                              )}
+                              {isOfferSentForJob && (
+                                <span className="px-2 py-0.5 bg-amber-50 text-amber-700 border border-amber-200 rounded-md text-[10px] font-extrabold uppercase">
+                                  Offer Sent
+                                </span>
+                              )}
+                              {isDeclinedForJob && (
+                                <span className="px-2 py-0.5 bg-rose-50 text-rose-700 border border-rose-200 rounded-md text-[10px] font-extrabold uppercase">
+                                  Declined
+                                </span>
+                              )}
+                              {isPendingForJob && (
+                                <span className="px-2 py-0.5 bg-blue-50 text-blue-700 border border-blue-200 rounded-md text-[10px] font-extrabold uppercase">
+                                  Applied
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-xs text-slate-500 font-medium mt-1">
+                              {job.location || job.city || 'Location on file'} • ₹{job.budget?.toLocaleString() || '0'}
+                            </p>
+                            {isBlocked && (
+                              <p className="text-[11px] font-bold mt-1 text-slate-400">
+                                {isApprovedForJob 
+                                  ? 'Candidate is already hired for this position.' 
+                                  : isOfferSentForJob 
+                                  ? 'An offer has already been dispatched for this position.' 
+                                  : 'Offer for this position was previously declined.'}
+                              </p>
+                            )}
+                          </div>
+                          {!isBlocked && (
+                            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ml-2 ${
+                              selectedJobId === job.id ? 'border-[#0066FF]' : 'border-slate-300'
+                            }`}>
+                              {selectedJobId === job.id && <div className="w-2.5 h-2.5 rounded-full bg-[#0066FF]" />}
+                            </div>
+                          )}
+                        </label>
+                      );
+                    })}
                   </div>
                 ) : (
                   <div className="text-center py-8 bg-slate-50 rounded-xl border border-slate-100">
-                    <p className="text-slate-500 font-medium">You don't have any active jobs to offer.</p>
+                    <p className="text-slate-500 font-medium text-xs">You don't have any active job openings to offer.</p>
                   </div>
                 )}
               </div>
@@ -349,17 +450,17 @@ export const WorkerProfilePage = () => {
               <div className="p-6 border-t border-slate-100 bg-slate-50/50 flex justify-end gap-3">
                 <button 
                   onClick={() => setIsModalOpen(false)}
-                  className="px-6 py-2.5 font-bold text-slate-600 hover:bg-slate-200 bg-slate-100 rounded-xl transition-colors cursor-pointer"
+                  className="px-6 py-2.5 font-bold text-slate-600 hover:bg-slate-200 bg-slate-100 rounded-xl transition-colors cursor-pointer text-xs"
                 >
                   Cancel
                 </button>
                 <button 
                   onClick={handleConfirmOffer}
                   disabled={!selectedJobId || dispatchOfferMutation.isPending}
-                  className="px-6 py-2.5 font-bold text-white bg-[#0066FF] hover:bg-[#0052cc] rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 cursor-pointer shadow-md shadow-blue-500/20"
+                  className="px-6 py-2.5 font-bold text-white bg-[#0066FF] hover:bg-[#0052cc] rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 cursor-pointer shadow-md shadow-blue-500/20 text-xs"
                 >
                   {dispatchOfferMutation.isPending && <Loader2 className="w-4 h-4 animate-spin" />}
-                  Confirm Offer
+                  Confirm & Dispatch Offer
                 </button>
               </div>
             </motion.div>
@@ -369,3 +470,4 @@ export const WorkerProfilePage = () => {
     </div>
   );
 };
+

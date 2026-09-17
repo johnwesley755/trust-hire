@@ -4,6 +4,7 @@ import { searchJobs } from '../../../services/search.service';
 import { jobService } from '../../../services/job.service';
 import { applicationService } from '../../../services/application.service';
 import { profileService } from '../../../services/profile.service';
+import { queryKeys } from '../../../lib/queryKeys';
 import { 
   Search, 
   Loader2, 
@@ -37,7 +38,7 @@ const TRADE_CATEGORIES = [
 ];
 
 const BUDGET_RANGES = [
-  { label: "All Pay Ranges", value: "all" },
+  { label: "All Pay Ranges", value: "all", min: 0, max: 9999999 },
   { label: "Under ₹1,000", value: "under1000", min: 0, max: 1000 },
   { label: "₹1,000 - ₹2,500", value: "1000to2500", min: 1000, max: 2500 },
   { label: "₹2,500 - ₹5,000", value: "2500to5000", min: 2500, max: 5000 },
@@ -87,18 +88,18 @@ export default function JobSearchPage() {
   };
 
   const { data: searchResults, isLoading: isSearching } = useQuery({
-    queryKey: ['jobSearch', query, city, selectedTrade],
+    queryKey: queryKeys.jobs.search({ q: query, city, selectedTrade }),
     queryFn: () => searchJobs(query || undefined, undefined, city || undefined, selectedTrade !== 'All' ? selectedTrade : undefined),
     enabled: Boolean(query || city || selectedTrade !== 'All'),
   });
 
   const { data: allJobs = [], isLoading: isLoadingAll } = useQuery({
-    queryKey: ['allJobs'],
+    queryKey: queryKeys.jobs.all,
     queryFn: () => jobService.getAllJobs(),
   });
 
   const { data: profile } = useQuery({
-    queryKey: ['workerProfile'],
+    queryKey: queryKeys.workers.detail('me'),
     queryFn: profileService.getProfile,
   });
 
@@ -113,7 +114,7 @@ export default function JobSearchPage() {
   }, [profile]);
 
   const { data: myApplications = [], refetch: refetchApplications } = useQuery({
-    queryKey: ['myApplications'],
+    queryKey: queryKeys.jobs.myApplications,
     queryFn: applicationService.getMyApplications,
   });
 

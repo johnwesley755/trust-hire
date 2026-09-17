@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { applicationService } from '../../../services/application.service';
 import { workerService } from "../../../services/worker.service";
+import { queryKeys } from "../../../lib/queryKeys";
 import { Loader2, Plus, Zap, Users, ShieldCheck, MapPin, Search, ArrowRight, FileText } from "lucide-react";
 import apiClient from "../../../api/apiClient";
 import { dashboardService } from "../../../services/dashboard.service";
@@ -15,17 +16,17 @@ export default function DashboardPage() {
     const { user } = useUser();
 
     const { data: stats, isLoading: statsLoading } = useQuery({ 
-        queryKey: ['employerStats'], 
+        queryKey: queryKeys.employer.stats, 
         queryFn: dashboardService.getEmployerStats 
     });
 
     const { data: applications = [], isLoading: appsLoading } = useQuery({
-        queryKey: ['recent-applications-mobile'],
+        queryKey: queryKeys.jobs.allEmployerApplications([]),
         queryFn: () => applicationService.getApplicationsForEmployerJobs([])
     });
 
     const { data: activities = [], isLoading: activitiesLoading } = useQuery({
-        queryKey: ['recent-activities'],
+        queryKey: queryKeys.activities.recent(5),
         queryFn: async () => {
             const res = await apiClient.get('/api/activities/recent?limit=5');
             return res.data;
@@ -34,7 +35,7 @@ export default function DashboardPage() {
 
     const workerIds = [...new Set(applications.map((app: any) => app.workerId))].filter((id): id is string => typeof id === 'string');
     const { data: workers = [], isLoading: workersLoading } = useQuery({
-        queryKey: ['workers-mobile', workerIds.join(',')],
+        queryKey: queryKeys.workers.byUserIds(workerIds),
         queryFn: () => workerService.getProfilesByUserIds(workerIds),
         enabled: workerIds.length > 0
     });

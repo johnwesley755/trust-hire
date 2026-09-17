@@ -117,14 +117,39 @@ export const createJob = async (c: Context) => {
 
 export const getAllJobs = async (c: Context) => {
   try {
-    const jobs = await prisma.jobs.findMany({
-      where: {
-        status: 'OPEN',
+    const { query, category, industry, location, city } = c.req.query();
+    let whereClause: any = {
+      status: 'OPEN',
+      AND: [
+        {
+          OR: [
+            { expires_at: null },
+            { expires_at: { gt: new Date() } }
+          ]
+        }
+      ]
+    };
+
+    if (query) {
+      whereClause.AND.push({
         OR: [
-          { expires_at: null },
-          { expires_at: { gt: new Date() } }
+          { title: { contains: query as string, mode: 'insensitive' } },
+          { description: { contains: query as string, mode: 'insensitive' } },
+          { industry: { contains: query as string, mode: 'insensitive' } },
         ]
-      },
+      });
+    }
+
+    const tradeFilter = (category || industry) as string;
+    if (tradeFilter && tradeFilter !== 'All') {
+      whereClause.industry = { contains: tradeFilter, mode: 'insensitive' };
+    }
+
+    if (location) whereClause.location = { contains: location as string, mode: 'insensitive' };
+    if (city) whereClause.city = { contains: city as string, mode: 'insensitive' };
+
+    const jobs = await prisma.jobs.findMany({
+      where: whereClause,
       orderBy: { created_at: 'desc' }
     });
     return c.json(ApiResponse.ok(jobs.map(formatJob)));

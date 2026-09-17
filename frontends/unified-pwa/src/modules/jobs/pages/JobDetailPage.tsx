@@ -3,11 +3,13 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { jobService } from '../../../services/job.service';
 import { applicationService } from '../../../services/application.service';
 import { profileService } from '../../../services/profile.service';
+import { queryKeys } from '../../../lib/queryKeys';
 import apiClient from '../../../api/apiClient';
 import { useState } from 'react';
 import { NotificationCenter } from '../../dashboard/components/NotificationCenter';
 import { formatMissingProfileFields, getMissingProfileFields } from '../../../utils/profileCompletion';
 import { motion } from 'framer-motion';
+import { CheckCircle2, Sparkles, AlertCircle, Clock, MapPin, IndianRupee, ShieldCheck } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -35,28 +37,29 @@ export default function JobDetailPage() {
   const [coverLetter, setCoverLetter] = useState('');
 
   const { data: job, isLoading } = useQuery({
-    queryKey: ['job', id],
+    queryKey: queryKeys.jobs.detail(id || ''),
     queryFn: () => jobService.getJobById(id!),
     enabled: !!id
   });
 
   const { data: profile } = useQuery({
-    queryKey: ['workerProfile'],
+    queryKey: queryKeys.workers.detail('me'),
     queryFn: profileService.getProfile,
   });
 
   const { data: myApplications = [], refetch: refetchApplications } = useQuery({
-    queryKey: ['myApplications'],
+    queryKey: queryKeys.jobs.myApplications,
     queryFn: applicationService.getMyApplications,
   });
 
   const { data: employer } = useQuery({
-    queryKey: ['employer', job?.employerId],
+    queryKey: ['employerProfile', job?.employerId],
     queryFn: async () => {
         const res = await apiClient.get(`/api/employer/profile/${job?.employerId}`);
         return res.data;
     },
-    enabled: !!job?.employerId
+    enabled: !!job?.employerId,
+    staleTime: 5 * 60 * 1000
   });
 
   const mutation = useMutation({
@@ -64,10 +67,12 @@ export default function JobDetailPage() {
     onSuccess: (newApp: any) => {
       setHasJustApplied(true);
       localStorage.setItem(`applied_${id}`, 'true');
-      queryClient.setQueryData<any[]>(['myApplications'], (old = []) => [
+      queryClient.setQueryData<any[]>(queryKeys.jobs.myApplications, (old = []) => [
         ...(old || []),
-        newApp || { id: `app-${Date.now()}`, jobId: id!, status: 'PENDING' }
+        newApp || { id: `app-${Date.now()}`, jobId: id!, status: 'PENDING', appliedAt: new Date().toISOString() }
       ]);
+      queryClient.invalidateQueries({ queryKey: queryKeys.jobs.all });
+      queryClient.invalidateQueries({ queryKey: ['recommendedJobs'] });
     },
     onError: (error: unknown) => {
       const message = (error as any)?.response?.data?.message || (error as Error)?.message || 'Failed to submit application.';
@@ -90,53 +95,28 @@ export default function JobDetailPage() {
     mutation.mutate({ jobId: id!, coverLetter });
   };
 
-  const alreadyApplied = hasJustApplied || myApplications.some((application) => application.jobId === id);
+  const statusMutation = useMutation({
+    mutationFn: ({ id, status }: { id: string; status: string }) => 
+      applicationService.updateStatus(id, status),
+    onSuccess: (_, variables) => {
+      queryClient.setQueryData<any[]>(queryKeys.jobs.myApplications, (old = []) => 
+        (old || []).map((app: any) => app.id === variables.id ? { ...app, status: variables.status } : app)
+      );
+      queryClient.invalidateQueries({ queryKey: queryKeys.jobs.all });
+      queryClient.invalidateQueries({ queryKey: ['recommendedJobs'] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.jobs.myApplications });
+    }
+  });
+
+  const existingApplication = myApplications.find((application) => application.jobId === id);
+  const isApplied = hasJustApplied || !!existingApplication;
+  const applicationStatus = existingApplication?.status || (hasJustApplied ? 'PENDING' : null);
+  const isOfferSent = applicationStatus === 'OFFER_SENT';
+  const isApproved = applicationStatus === 'ACCEPTED' || applicationStatus === 'APPROVED' || applicationStatus === 'COMPLETED';
+  const isDeclined = applicationStatus === 'REJECTED' || applicationStatus === 'DECLINED';
 
   if (isLoading) return <div className="min-h-screen bg-slate-50 flex items-center justify-center"><div className="w-10 h-10 border-4 border-[#0066FF] border-t-transparent rounded-full animate-spin" /></div>;
   if (!job) return <div className="min-h-screen bg-slate-50 text-slate-900 p-8">Job not found.</div>;
-
-  if (alreadyApplied) {
-    return (
-      <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center p-6 text-center">
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="max-w-xl w-full bg-white rounded-2xl p-8 sm:p-10 border border-slate-200 shadow-sm"
-        >
-          <div className="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-5 shadow-xs">
-            <span className="material-symbols-outlined text-3xl font-black">check_circle</span>
-          </div>
-
-          <div className="text-xs font-bold uppercase tracking-wider text-emerald-600 mb-2">
-            Opportunity Confirmed
-          </div>
-
-          <h1 className="font-extrabold text-2xl sm:text-3xl text-[#0A1931] tracking-tight mb-3">
-            Application Submitted!
-          </h1>
-          
-          <p className="text-slate-500 text-sm leading-relaxed max-w-md mx-auto mb-8 font-medium">
-            Your credentials and TrustScore have been securely transmitted to the client. You can monitor status updates directly from your dashboard.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
-            <button 
-              onClick={() => navigate('/applied-jobs')}
-              className="w-full sm:w-auto px-6 py-3 bg-[#0A1931] text-white font-bold text-xs uppercase tracking-wider rounded-xl hover:bg-slate-800 transition-all cursor-pointer"
-            >
-              View My Applications
-            </button>
-            <button 
-              onClick={() => navigate('/search')}
-              className="w-full sm:w-auto px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs uppercase tracking-wider rounded-xl transition-all cursor-pointer"
-            >
-              Browse More Jobs
-            </button>
-          </div>
-        </motion.div>
-      </div>
-    );
-  }
 
   return (
     <div className="relative pb-24 min-h-screen bg-[#F8FAFC]">
@@ -160,6 +140,89 @@ export default function JobDetailPage() {
         {/* Left Column: Content */}
         <div className="lg:col-span-8 space-y-6">
           
+          {/* Real-Time Application 2-Stage Progress Banner */}
+          {isApplied && (
+            <motion.div 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className={`rounded-2xl p-5 border shadow-xs space-y-3 ${
+                isOfferSent 
+                  ? 'bg-amber-50/70 border-amber-200' 
+                  : 'bg-white border-slate-200'
+              }`}
+            >
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-slate-100">
+                <div className="flex items-center gap-2">
+                  <span className={`w-2.5 h-2.5 rounded-full ${
+                    isApproved 
+                      ? 'bg-emerald-500 animate-pulse' 
+                      : isOfferSent 
+                      ? 'bg-amber-500 animate-ping' 
+                      : isDeclined 
+                      ? 'bg-rose-500' 
+                      : 'bg-blue-600 animate-pulse'
+                  }`} />
+                  <span className="text-xs font-black uppercase tracking-wider text-slate-800">
+                    {isApproved 
+                      ? 'Shift Confirmed • Approved & Hired' 
+                      : isOfferSent 
+                      ? '🎉 Offer Received • Action Required' 
+                      : isDeclined 
+                      ? 'Application Closed / Declined' 
+                      : 'Application Active • Under Review'}
+                  </span>
+                </div>
+                <span className="text-xs text-slate-500 font-medium">
+                  {isOfferSent 
+                    ? 'Shift offer ready for acceptance' 
+                    : `Applied on ${existingApplication?.appliedAt ? new Date(existingApplication.appliedAt).toLocaleDateString() : 'Today'}`}
+                </span>
+              </div>
+
+              {/* 2-Stage Progress Tracker */}
+              {!isDeclined ? (
+                <div className="pt-2 pb-1">
+                  <div className="flex items-center justify-between text-xs font-bold mb-2">
+                    <span className="flex items-center gap-1.5 text-[#0066FF]">
+                      <CheckCircle2 className="w-4 h-4 text-[#0066FF]" /> 1. Applied
+                    </span>
+                    <span className={`flex items-center gap-1.5 ${
+                      isApproved 
+                        ? 'text-emerald-600 font-black' 
+                        : isOfferSent 
+                        ? 'text-amber-700 font-bold' 
+                        : 'text-slate-400'
+                    }`}>
+                      <Sparkles className={`w-4 h-4 ${
+                        isApproved 
+                          ? 'text-emerald-600' 
+                          : isOfferSent 
+                          ? 'text-amber-500 animate-bounce' 
+                          : 'text-slate-300'
+                      }`} /> 2. Approved & Hired
+                    </span>
+                  </div>
+                  <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                    <div 
+                      className={`h-full transition-all duration-500 ${
+                        isApproved 
+                          ? 'bg-emerald-500 w-full' 
+                          : isOfferSent 
+                          ? 'bg-gradient-to-r from-blue-600 to-amber-500 w-3/4' 
+                          : 'bg-[#0066FF] w-1/2'
+                      }`} 
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div className="p-3 bg-rose-50 rounded-xl text-xs font-bold text-rose-700 border border-rose-100 flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 text-rose-500 shrink-0" />
+                  The hiring partner was unable to move forward with this application.
+                </div>
+              )}
+            </motion.div>
+          )}
+
           {/* Hero Section */}
           <section className="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200 shadow-xs space-y-4">
             <div className="flex flex-wrap items-center gap-2">
@@ -170,6 +233,13 @@ export default function JobDetailPage() {
                 <span className="material-symbols-outlined text-[14px]">verified</span>
                 TrustVerified Client
               </span>
+              {isApplied && (
+                <span className={`px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wider ${
+                  isApproved ? 'bg-emerald-100 text-emerald-800' : isDeclined ? 'bg-rose-100 text-rose-800' : 'bg-blue-100 text-blue-800'
+                }`}>
+                  {isApproved ? 'Hired' : isDeclined ? 'Declined' : 'Applied'}
+                </span>
+              )}
             </div>
             
             <h1 className="text-2xl sm:text-3xl font-extrabold text-[#0A1931] tracking-tight">
@@ -218,22 +288,95 @@ export default function JobDetailPage() {
           </div>
 
           {/* Application Action Strip */}
-          <div className="bg-[#0A1931] text-white rounded-2xl p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-sm">
-            <div>
-              <h3 className="text-lg font-bold text-white mb-1">Ready to start this shift?</h3>
-              <p className="text-slate-300 text-xs sm:text-sm font-medium">
-                Applying instantly shares your TrustScore and verified trade certificates.
+          <div className="bg-[#0A1931] text-white rounded-2xl p-5 sm:p-6 lg:p-7 flex flex-col md:flex-row md:items-center justify-between gap-5 shadow-sm border border-slate-800">
+            <div className="min-w-0 flex-1">
+              <h3 className="text-base sm:text-lg font-bold text-white mb-1 tracking-tight">
+                {isApplied 
+                  ? (isApproved 
+                      ? '🎉 Congratulations! You are Hired' 
+                      : isOfferSent 
+                      ? '🎉 Shift Offer Received!' 
+                      : isDeclined 
+                      ? 'Application Status' 
+                      : 'Application Submitted') 
+                  : 'Ready to start this shift?'}
+              </h3>
+              <p className="text-slate-300 text-xs sm:text-sm font-medium leading-relaxed">
+                {isApplied 
+                  ? (isApproved 
+                      ? 'Your shift is confirmed with escrow protection. View your job details anytime.' 
+                      : isOfferSent 
+                      ? 'The employer has dispatched a hiring offer for this shift! Accept below to confirm your booking.'
+                      : isDeclined 
+                        ? 'This application has been closed. Explore other verified trade shifts.' 
+                        : 'Your credentials and TrustScore are currently being reviewed by the employer.')
+                  : 'Applying instantly shares your TrustScore and verified trade certificates.'}
               </p>
             </div>
             
-            <button 
-              onClick={handleApply}
-              disabled={mutation.isPending}
-              className="w-full sm:w-auto px-6 py-3 bg-[#FACD15] hover:bg-amber-400 text-[#0A1931] font-extrabold text-xs uppercase tracking-wider rounded-xl flex items-center justify-center gap-2 transition-all shadow-sm active:scale-95 disabled:opacity-50 whitespace-nowrap cursor-pointer"
-            >
-              <span>{mutation.isPending ? 'Submitting...' : 'Apply Now'}</span>
-              <span className="material-symbols-outlined text-base">arrow_forward</span>
-            </button>
+            <div className="shrink-0 w-full md:w-auto">
+              {isApplied ? (
+                <div className="w-full md:w-auto">
+                  {isApproved ? (
+                    <button 
+                      onClick={() => navigate('/applied-jobs')}
+                      className="w-full md:w-auto px-5 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-black text-xs uppercase tracking-wider rounded-xl flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer whitespace-nowrap"
+                    >
+                      <CheckCircle2 className="w-4 h-4" /> Approved & Hired
+                    </button>
+                  ) : isOfferSent ? (
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full md:w-auto">
+                      <button
+                        onClick={() => {
+                          if (existingApplication?.id) {
+                            statusMutation.mutate({ id: existingApplication.id, status: 'ACCEPTED' });
+                          }
+                        }}
+                        disabled={statusMutation.isPending}
+                        className="flex-1 sm:flex-none px-5 py-3 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-black text-xs uppercase tracking-wider rounded-xl flex items-center justify-center gap-2 transition-all shadow-md active:scale-95 cursor-pointer whitespace-nowrap"
+                      >
+                        <CheckCircle2 className="w-4 h-4" />
+                        {statusMutation.isPending ? 'Accepting...' : 'Accept Shift Offer'}
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (existingApplication?.id) {
+                            statusMutation.mutate({ id: existingApplication.id, status: 'REJECTED' });
+                          }
+                        }}
+                        disabled={statusMutation.isPending}
+                        className="px-4 py-3 bg-slate-800/90 hover:bg-rose-950/60 text-slate-200 hover:text-rose-200 font-bold text-xs uppercase tracking-wider rounded-xl border border-slate-700 hover:border-rose-500/40 transition-all cursor-pointer whitespace-nowrap text-center"
+                      >
+                        Decline
+                      </button>
+                    </div>
+                  ) : isDeclined ? (
+                    <button 
+                      onClick={() => navigate('/search')}
+                      className="w-full md:w-auto px-5 py-3 bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all cursor-pointer whitespace-nowrap text-center"
+                    >
+                      Browse More Shifts
+                    </button>
+                  ) : (
+                    <button 
+                      disabled
+                      className="w-full md:w-auto px-5 py-3 bg-blue-600/80 text-white font-bold text-xs uppercase tracking-wider rounded-xl flex items-center justify-center gap-2 cursor-default whitespace-nowrap"
+                    >
+                      <CheckCircle2 className="w-4 h-4" /> Application Under Review
+                    </button>
+                  )}
+                </div>
+              ) : (
+                <button 
+                  onClick={handleApply}
+                  disabled={mutation.isPending}
+                  className="w-full md:w-auto px-6 py-3 bg-[#FACD15] hover:bg-amber-400 text-[#0A1931] font-extrabold text-xs uppercase tracking-wider rounded-xl flex items-center justify-center gap-2 transition-all shadow-sm active:scale-95 disabled:opacity-50 whitespace-nowrap cursor-pointer"
+                >
+                  <span>{mutation.isPending ? 'Submitting...' : 'Apply Now'}</span>
+                  <span className="material-symbols-outlined text-base">arrow_forward</span>
+                </button>
+              )}
+            </div>
           </div>
         </div>
 

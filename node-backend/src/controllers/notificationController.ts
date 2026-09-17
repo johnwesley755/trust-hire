@@ -37,6 +37,10 @@ export const markAsRead = async (c: Context) => {
     if (!userId) return c.json(ApiResponse.error("Unauthorized"), 401 as any);
 
     const id = c.req.param('id') as string;
+    if (id === 'read-all' || id === 'all') {
+      return markAllAsRead(c);
+    }
+
     const result = await prisma.notifications.updateMany({
       where: { id, user_id: userId },
       data: { is_read: true, updated_at: new Date() }
@@ -73,6 +77,10 @@ export const deleteNotification = async (c: Context) => {
     if (!userId) return c.json(ApiResponse.error("Unauthorized"), 401 as any);
 
     const id = c.req.param('id') as string;
+    if (id === 'all') {
+      return deleteAllNotifications(c);
+    }
+
     const result = await prisma.notifications.deleteMany({
       where: { id, user_id: userId }
     });

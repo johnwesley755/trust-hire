@@ -4,6 +4,7 @@ import { jobService } from '../../../services/job.service';
 import { applicationService } from '../../../services/application.service';
 import { dashboardService } from '../../../services/dashboard.service';
 import { recommendationService, type RecommendedJob } from '../../../services/recommendation.service';
+import { queryKeys } from '../../../lib/queryKeys';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useUser } from '../../../providers/AuthContext';
@@ -21,7 +22,7 @@ export default function TrackerPage() {
   const [isPreferencesOpen, setIsPreferencesOpen] = useState(false);
 
   const { data: profile } = useQuery({
-    queryKey: ['workerProfile'],
+    queryKey: queryKeys.workers.detail('me'),
     queryFn: profileService.getProfile,
   });
 
@@ -31,25 +32,22 @@ export default function TrackerPage() {
   });
 
   const { data: allJobs = [] } = useQuery({
-    queryKey: ['allOpenJobs'],
+    queryKey: queryKeys.jobs.all,
     queryFn: jobService.getAllJobs,
-    staleTime: 60000,
   });
 
   const { data: myApplications = [] } = useQuery({
-    queryKey: ['myApplications'],
+    queryKey: queryKeys.jobs.myApplications,
     queryFn: applicationService.getMyApplications,
-    staleTime: 60000,
   });
 
   const { data: recommendedJobs = [], isLoading: recLoading, refetch: refetchRecommendations } = useQuery({
     queryKey: ['recommendedJobs'],
     queryFn: () => recommendationService.getRecommendedJobs(),
-    staleTime: 30000,
   });
 
   const { data: activities = [], isLoading: activitiesLoading } = useQuery({
-    queryKey: ['recent-activities'],
+    queryKey: queryKeys.activities.recent(5),
     queryFn: async () => {
         const res = await apiClient.get('/api/activities/recent?limit=5');
         return Array.isArray(res.data) ? res.data : [];
@@ -61,6 +59,9 @@ export default function TrackerPage() {
   };
 
   const isProfileComplete = Boolean(profile?.bio && profile?.skills && profile?.location);
+
+  const appliedJobIds = new Set(myApplications.map((app: any) => app.jobId));
+  const unappliedRecommendedJobs = recommendedJobs.filter((job: RecommendedJob) => !appliedJobIds.has(job.id));
 
   return (
     <div className="p-4 md:p-6 max-w-7xl mx-auto w-full space-y-6">
@@ -139,13 +140,13 @@ export default function TrackerPage() {
 
       {/* Stats Row */}
       {(() => {
-        const completedApps = myApplications.filter(a => a.status === 'COMPLETED' || a.status === 'ACCEPTED');
+        const completedApps = myApplications.filter(a => a.status === 'COMPLETED' || a.status === 'ACCEPTED' || a.status === 'APPROVED');
         const completedEarnings = completedApps.reduce((acc, app) => acc + (Number(app.job?.budget) || 0), 0);
         const earningsDisplay = completedEarnings > 0 ? `₹${completedEarnings.toLocaleString()}` : "₹0";
 
         return (
           <StatsSection 
-            nearbyJobs={allJobs.length || recommendedJobs.length} 
+            nearbyJobs={allJobs.length || unappliedRecommendedJobs.length} 
             earnings={earningsDisplay} 
             completedShifts={completedApps.length}
           />
@@ -179,9 +180,9 @@ export default function TrackerPage() {
               <div className="flex justify-center py-12">
                 <Loader2 className="w-6 h-6 animate-spin text-[#0066FF]" />
               </div>
-            ) : recommendedJobs.length > 0 ? (
+            ) : unappliedRecommendedJobs.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {recommendedJobs.slice(0, 4).map((job: RecommendedJob) => (
+                {unappliedRecommendedJobs.slice(0, 4).map((job: RecommendedJob) => (
                   <div
                     key={job.id}
                     onClick={() => navigate(`/job/${job.id}`)}
@@ -208,7 +209,7 @@ export default function TrackerPage() {
                       <div className="flex items-center gap-2 text-xs text-slate-400 mt-2 font-medium">
                         <span className="flex items-center gap-0.5 text-slate-600">
                           <MapPin className="w-3 h-3 text-[#0066FF]" />
-                          {job.city || '1.2 km away'}
+                          {job.city || 'Local area'}
                         </span>
                         <span>•</span>
                         <span className="flex items-center gap-0.5">
@@ -230,6 +231,19 @@ export default function TrackerPage() {
                   </div>
                 ))}
               </div>
+            ) : recommendedJobs.length > 0 ? (
+              <div className="text-center py-8 bg-emerald-50/60 rounded-xl border border-emerald-200">
+                <CheckCircle2 className="w-8 h-8 text-emerald-600 mx-auto mb-1.5" />
+                <p className="text-xs font-bold text-slate-800">You've applied to all top recommended shifts!</p>
+                <p className="text-[11px] text-slate-500 mt-0.5">Track your application pipeline & escrow milestones in real-time.</p>
+                <button
+                  onClick={() => navigate('/applied-jobs')}
+                  className="mt-3 inline-flex items-center gap-1.5 px-4 py-2 bg-[#0066FF] hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-xs cursor-pointer"
+                >
+                  View Applied Shifts ({myApplications.length})
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
             ) : (
               <div className="text-center py-8 bg-slate-50 rounded-xl border border-dashed border-slate-200">
                 <Briefcase className="w-8 h-8 text-slate-400 mx-auto mb-1" />
@@ -244,7 +258,7 @@ export default function TrackerPage() {
             )}
           </div>
 
-          {/* Recent Activity Card */}
+          {/* Recent Activity / Applications Card */}
           <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-sm font-extrabold text-slate-900 flex items-center gap-2">
@@ -257,10 +271,43 @@ export default function TrackerPage() {
             </div>
 
             <div className="space-y-2">
-              {activitiesLoading ? (
-                <div className="flex justify-center py-6">
-                  <Loader2 className="w-5 h-5 animate-spin text-[#0066FF]" />
-                </div>
+              {myApplications.length > 0 ? (
+                myApplications.slice(0, 3).map((app: any) => {
+                  const isOffer = app.status === 'ACCEPTED' || app.status === 'APPROVED' || app.status === 'COMPLETED';
+                  const isDeclined = app.status === 'REJECTED' || app.status === 'DECLINED';
+                  return (
+                    <div 
+                      key={app.id} 
+                      onClick={() => navigate(`/job/${app.jobId}`)}
+                      className="flex items-center justify-between p-3 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:border-blue-200 transition-all cursor-pointer group"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs ${
+                          isOffer ? 'bg-emerald-50 text-emerald-600' : isDeclined ? 'bg-rose-50 text-rose-600' : 'bg-blue-50 text-[#0066FF]'
+                        }`}>
+                          <Briefcase className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <p className="text-xs font-bold text-slate-800 leading-tight group-hover:text-[#0066FF] transition-colors">
+                            {app.job?.title || 'Applied Shift'}
+                          </p>
+                          <p className="text-[10px] text-slate-400">
+                            Applied {new Date(app.appliedAt).toLocaleDateString()}
+                          </p>
+                        </div>
+                      </div>
+                      <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-md ${
+                        isOffer 
+                          ? 'bg-emerald-100 text-emerald-800' 
+                          : isDeclined 
+                            ? 'bg-rose-100 text-rose-800' 
+                            : 'bg-blue-100 text-blue-800'
+                      }`}>
+                        {isOffer ? 'Approved & Hired' : isDeclined ? 'Declined' : 'Under Review'}
+                      </span>
+                    </div>
+                  );
+                })
               ) : activities.length > 0 ? (
                 activities.map((activity: any, i: number) => (
                   <div key={i} className="flex items-center justify-between p-3 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-white transition-colors">
@@ -280,7 +327,7 @@ export default function TrackerPage() {
                 ))
               ) : (
                 <div className="text-center py-6 text-xs font-medium text-slate-400">
-                  No recent activity recorded yet.
+                  No active applications yet. Apply to shifts to track your pipeline.
                 </div>
               )}
             </div>

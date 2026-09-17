@@ -23,6 +23,13 @@ export const applicationService = {
     const res = await apiClient.post<any>('/api/jobs/applications/dispatch-offer', payload);
     return mapApp(res.data);
   },
+  getEmployerWorkerStatus: async (workerId: string): Promise<{ applications: JobApplication[]; jobs: any[] }> => {
+    const res = await apiClient.get<any>(`/api/jobs/applications/employer-status/${workerId}`);
+    return {
+      applications: (res.data?.applications || []).map(mapApp),
+      jobs: res.data?.jobs || []
+    };
+  },
   getMyApplications: async (): Promise<JobApplication[]> => {
     const res = await apiClient.get<any[]>('/api/jobs/applications/my');
     return (res.data || []).map(mapApp);
@@ -48,3 +55,4 @@ export const applicationService = {
     return res.data;
   },
 };
+

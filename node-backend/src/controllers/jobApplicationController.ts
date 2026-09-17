@@ -102,14 +102,41 @@ export const dispatchOffer = async (c: Context) => {
     const { jobId, workerId, coverLetter } = (await c.req.json());
     if (!jobId || !workerId) return c.json(ApiResponse.error("Job ID and Worker ID are required"), 400 as any);
 
+    const employerProfile = await prisma.employer_profiles.findFirst({
+      where: { user_id: employerId }
+    });
+
     const job = await prisma.jobs.findUnique({ where: { id: jobId } });
     if (!job) return c.json(ApiResponse.error("Job not found"), 404 as any);
-    if (job.employer_id !== employerId && authUser.role !== 'ADMIN') {
+
+    const isOwner = job.employer_id === employerId || (employerProfile && job.employer_id === employerProfile.id) || authUser.role === 'ADMIN';
+    if (!isOwner) {
       return c.json(ApiResponse.error("Unauthorized: You do not own this job"), 403 as any);
     }
 
+    // Resolve canonical worker user ID
+    const workerProfile = await prisma.worker_profiles.findFirst({
+      where: {
+        OR: [
+          { user_id: workerId },
+          { id: workerId }
+        ]
+      }
+    });
+
+    const canonicalWorkerId = workerProfile?.user_id || workerId;
+    const allMatchingWorkerIds = Array.from(new Set([
+      workerId,
+      canonicalWorkerId,
+      ...(workerProfile?.id ? [workerProfile.id] : [])
+    ]));
+
+    // Check if duplicate offer / application already exists for this job
     const existing = await prisma.job_applications.findFirst({
-      where: { job_id: jobId, worker_id: workerId }
+      where: {
+        job_id: jobId,
+        worker_id: { in: allMatchingWorkerIds }
+      }
     });
 
     if (existing) {
@@ -118,16 +145,25 @@ export const dispatchOffer = async (c: Context) => {
           where: { id: existing.id },
           data: { status: 'OFFER_SENT' }
         });
-        return c.json(ApiResponse.ok("Offer dispatched successfully by updating existing application", formatApplication(updated)));
+        return c.json(ApiResponse.ok("Offer dispatched successfully by updating applicant status", formatApplication(updated)));
       }
-      return c.json(ApiResponse.error("Offer or application already exists for this candidate"), 400 as any);
+      if (existing.status === 'OFFER_SENT') {
+        return c.json(ApiResponse.error("Offer has already been dispatched to this candidate for this job."), 400 as any);
+      }
+      if (existing.status === 'ACCEPTED' || existing.status === 'APPROVED') {
+        return c.json(ApiResponse.error("This candidate has already been approved / hired for this job."), 400 as any);
+      }
+      if (existing.status === 'REJECTED' || existing.status === 'DECLINED') {
+        return c.json(ApiResponse.error("The offer for this job was previously declined."), 400 as any);
+      }
+      return c.json(ApiResponse.error(`An application already exists with status: ${existing.status}`), 400 as any);
     }
 
     const application = await prisma.job_applications.create({
       data: {
         id: uuidv4(),
         job_id: jobId,
-        worker_id: workerId,
+        worker_id: canonicalWorkerId,
         status: 'OFFER_SENT',
         cover_letter: coverLetter || "Offer Dispatched",
         applied_at: new Date()
@@ -138,7 +174,7 @@ export const dispatchOffer = async (c: Context) => {
     await prisma.notifications.create({
       data: {
         id: uuidv4(),
-        user_id: workerId,
+        user_id: canonicalWorkerId,
         title: "New Job Offer!",
         message: "You have received a job offer for: " + job.title,
         type: "NEW_OFFER",
@@ -149,6 +185,72 @@ export const dispatchOffer = async (c: Context) => {
     });
 
     return c.json(ApiResponse.ok("Offer dispatched successfully", formatApplication(application)));
+  } catch (err: any) {
+    return c.json(ApiResponse.error(err.message), 500 as any);
+  }
+};
+
+export const getEmployerWorkerStatus = async (c: Context) => {
+  try {
+    const authUser = c.get('user');
+    const employerId = authUser?.sub;
+    if (!employerId) return c.json(ApiResponse.error("Unauthorized"), 401 as any);
+
+    const workerId = c.req.param('workerId') as string;
+    if (!workerId) return c.json(ApiResponse.error("Worker ID required"), 400 as any);
+
+    const employerProfile = await prisma.employer_profiles.findFirst({
+      where: { user_id: employerId }
+    });
+
+    const employerJobs = await prisma.jobs.findMany({
+      where: {
+        OR: [
+          { employer_id: employerId },
+          ...(employerProfile ? [{ employer_id: employerProfile.id }] : [])
+        ]
+      },
+      select: { id: true, title: true, status: true, budget: true, location: true, city: true }
+    });
+
+    const jobIds = employerJobs.map(j => j.id);
+    if (jobIds.length === 0) {
+      return c.json(ApiResponse.ok({ applications: [], jobs: [] }));
+    }
+
+    // Resolve worker id/user_id
+    const workerProfile = await prisma.worker_profiles.findFirst({
+      where: {
+        OR: [
+          { user_id: workerId },
+          { id: workerId }
+        ]
+      }
+    });
+
+    const targetWorkerIds = Array.from(new Set([
+      workerId,
+      ...(workerProfile?.user_id ? [workerProfile.user_id] : []),
+      ...(workerProfile?.id ? [workerProfile.id] : [])
+    ]));
+
+    const applications = await prisma.job_applications.findMany({
+      where: {
+        job_id: { in: jobIds },
+        worker_id: { in: targetWorkerIds }
+      },
+      include: {
+        jobs: {
+          select: { id: true, title: true, status: true }
+        }
+      },
+      orderBy: { applied_at: 'desc' }
+    });
+
+    return c.json(ApiResponse.ok({
+      applications: applications.map(formatApplication),
+      jobs: employerJobs
+    }));
   } catch (err: any) {
     return c.json(ApiResponse.error(err.message), 500 as any);
   }
@@ -293,3 +395,4 @@ export const getApplicationsByJobs = async (c: Context) => {
     return c.json(ApiResponse.error(err.message), 500 as any);
   }
 };
+

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { searchWorkers, type WorkerSearch } from '../../../services/search.service';
+import { queryKeys } from '../../../lib/queryKeys';
 import { Search, MapPin, Award, ShieldCheck, Loader2, Star, Zap, ChevronRight, SlidersHorizontal, CheckCircle2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { UserAvatar } from '../../../components/common/UserAvatar';
@@ -60,9 +61,10 @@ export const WorkerSearchPage = () => {
   const effectiveSkills = selectedTrade !== 'All' ? selectedTrade : skills;
 
   const { data: results, isLoading } = useQuery({
-    queryKey: ['workerSearch', query, city, level, effectiveSkills],
+    queryKey: queryKeys.workers.search({ q: query, city, level, skills: effectiveSkills }),
     queryFn: () => searchWorkers(query, undefined, city, level, undefined, undefined, undefined, effectiveSkills),
-    enabled: true
+    placeholderData: (prev) => prev,
+    staleTime: 1000 * 60 * 3,
   });
 
   return (
@@ -280,13 +282,24 @@ export const WorkerSearchPage = () => {
                           e.stopPropagation();
                           navigate(`/worker/${worker.userId || worker.id}`);
                         }}
-                        className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center gap-2 shadow-xs cursor-pointer ${
-                          worker.isOfferSent
-                            ? 'bg-emerald-500 text-white hover:bg-emerald-600'
+                        className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 shadow-xs cursor-pointer ${
+                          worker.offerStatus === 'ACCEPTED' || worker.offerStatus === 'APPROVED'
+                            ? 'bg-emerald-600 text-white hover:bg-emerald-700'
+                            : worker.offerStatus === 'REJECTED' || worker.offerStatus === 'DECLINED'
+                            ? 'bg-rose-500 text-white hover:bg-rose-600'
+                            : worker.offerStatus === 'OFFER_SENT' || worker.isOfferSent
+                            ? 'bg-amber-500 text-white hover:bg-amber-600'
                             : 'bg-[#0066FF] hover:bg-blue-700 text-white'
                         }`}
                       >
-                        {worker.isOfferSent ? 'Offer Sent!' : 'View & Dispatch'} <ChevronRight className="w-4 h-4" />
+                        {worker.offerStatus === 'ACCEPTED' || worker.offerStatus === 'APPROVED'
+                          ? 'Approved'
+                          : worker.offerStatus === 'REJECTED' || worker.offerStatus === 'DECLINED'
+                          ? 'Declined'
+                          : worker.offerStatus === 'OFFER_SENT' || worker.isOfferSent
+                          ? 'Offer Sent'
+                          : 'View & Dispatch'}{' '}
+                        <ChevronRight className="w-4 h-4" />
                       </button>
                     </div>
                   </motion.div>
@@ -299,3 +312,4 @@ export const WorkerSearchPage = () => {
     </main>
   );
 };
+

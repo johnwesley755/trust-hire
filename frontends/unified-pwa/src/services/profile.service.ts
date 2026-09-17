@@ -43,29 +43,60 @@ export interface WorkerProfile {
 
 export const profileService = {
   getProfile: async (): Promise<any> => {
-    const response = await apiClient.get<any>('/api/auth/me');
-    const user = response.data;
-    if (user?.role === 'EMPLOYER') {
+    let user = null;
+    try {
+      user = JSON.parse(localStorage.getItem('user') || '{}');
+    } catch {
+      user = null;
+    }
+
+    const role = user?.role;
+    if (role === 'EMPLOYER') {
       const empRes = await apiClient.get<any>('/api/employer/profile');
       const data = empRes.data;
-      if (data.profile_image_url) data.profileImageUrl = data.profile_image_url;
+      if (data?.profile_image_url) data.profileImageUrl = data.profile_image_url;
       return data;
-    } else {
+    } else if (role === 'WORKER') {
       const workerRes = await apiClient.get<any>('/api/worker/profile');
       const data = workerRes.data;
       return {
         ...data,
-        fullName: data.fullName || '',
-        bio: data.bio || '',
-        skills: data.skills || '',
-        location: data.location || '',
-        city: data.city || '',
-        address: data.address || '',
-        level: data.level || '1',
-        experienceYears: data.experienceYears || 0,
-        hourlyRate: data.hourlyRate || 0,
-        trustScore: data.trustScore || 0
+        fullName: data?.fullName || '',
+        bio: data?.bio || '',
+        skills: data?.skills || '',
+        location: data?.location || '',
+        city: data?.city || '',
+        address: data?.address || '',
+        level: data?.level || '1',
+        experienceYears: data?.experienceYears || 0,
+        hourlyRate: data?.hourlyRate || 0,
+        trustScore: data?.trustScore || 0
       };
+    } else {
+      const response = await apiClient.get<any>('/api/auth/me');
+      const fetchedUser = response.data;
+      if (fetchedUser?.role === 'EMPLOYER') {
+        const empRes = await apiClient.get<any>('/api/employer/profile');
+        const data = empRes.data;
+        if (data?.profile_image_url) data.profileImageUrl = data.profile_image_url;
+        return data;
+      } else {
+        const workerRes = await apiClient.get<any>('/api/worker/profile');
+        const data = workerRes.data;
+        return {
+          ...data,
+          fullName: data?.fullName || '',
+          bio: data?.bio || '',
+          skills: data?.skills || '',
+          location: data?.location || '',
+          city: data?.city || '',
+          address: data?.address || '',
+          level: data?.level || '1',
+          experienceYears: data?.experienceYears || 0,
+          hourlyRate: data?.hourlyRate || 0,
+          trustScore: data?.trustScore || 0
+        };
+      }
     }
   },
 

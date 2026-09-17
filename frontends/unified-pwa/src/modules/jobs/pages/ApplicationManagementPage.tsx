@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { applicationService, type JobApplication } from '../../../services/application.service';
 import { jobService } from '../../../services/job.service';
 import { workerService } from '../../../services/worker.service';
+import { queryKeys } from '../../../lib/queryKeys';
 import { 
   CheckCircle2, 
   XCircle, 
@@ -30,17 +31,17 @@ export default function ApplicationManagementPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
-  const [statusFilter, setStatusFilter] = useState<'ALL' | 'PENDING' | 'ACCEPTED' | 'REJECTED'>('ALL');
+  const [statusFilter, setStatusFilter] = useState<'ALL' | 'PENDING' | 'OFFER_SENT' | 'ACCEPTED' | 'REJECTED'>('ALL');
 
   const { data: jobs = [], isLoading: isJobsLoading } = useQuery<import('../../../types').Job[]>({ 
-    queryKey: ['employerJobs'], 
+    queryKey: queryKeys.jobs.employerJobs, 
     queryFn: jobService.getEmployerJobs 
   });
   
   const jobIds = jobs.map((j: import('../../../types').Job) => j.id).filter((id): id is string => !!id);
   
   const { data: allApplicationsRaw = [], isLoading: isAppsLoading } = useQuery<JobApplication[]>({
-    queryKey: ['allEmployerApplications', jobIds],
+    queryKey: queryKeys.jobs.allEmployerApplications(jobIds),
     queryFn: () => applicationService.getApplicationsForEmployerJobs(jobIds),
     enabled: jobIds.length > 0,
   });
@@ -50,25 +51,31 @@ export default function ApplicationManagementPage() {
   const selectedJobApplications = allApplications.filter(app => {
     if (app.jobId !== selectedJobId) return false;
     if (statusFilter === 'ALL') return true;
+    if (statusFilter === 'ACCEPTED') return app.status === 'ACCEPTED' || app.status === 'APPROVED';
+    if (statusFilter === 'REJECTED') return app.status === 'REJECTED' || app.status === 'DECLINED';
     return app.status === statusFilter;
   });
 
   const workerIds = selectedJobApplications.map((app) => app.workerId);
   
   const { data: workers = [] } = useQuery({
-    queryKey: ['jobSpecificWorkers', selectedJobId, workerIds],
+    queryKey: queryKeys.workers.byUserIds(workerIds),
     queryFn: () => workerService.getProfilesByUserIds(workerIds),
     enabled: selectedJobId !== null && workerIds.length > 0,
   });
 
-  const workersById = new Map(workers.map((worker) => [worker.userId, worker]));
+  const workersById = new Map<string, any>();
+  workers.forEach((worker) => {
+    if (worker.userId) workersById.set(worker.userId, worker);
+    if (worker.id) workersById.set(worker.id, worker);
+  });
 
   const mutation = useMutation({
     mutationFn: ({ id, status }: { id: string, status: JobApplication['status'] }) => 
       applicationService.updateStatus(id, status),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['allEmployerApplications'] });
-      queryClient.invalidateQueries({ queryKey: ['employerJobs'] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.jobs.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.employer.profile });
     }
   });
 
@@ -271,17 +278,25 @@ export default function ApplicationManagementPage() {
 
               {/* Status Filter Tabs */}
               <div className="flex items-center gap-1.5 p-1.5 bg-slate-100 rounded-2xl self-start md:self-auto overflow-x-auto pb-2">
-                {(['ALL', 'PENDING', 'ACCEPTED', 'REJECTED'] as const).map((filter) => (
+                {(['ALL', 'PENDING', 'OFFER_SENT', 'ACCEPTED', 'REJECTED'] as const).map((filter) => (
                   <button
                     key={filter}
-                    onClick={() => setStatusFilter(filter)}
-                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                    onClick={() => setStatusFilter(filter as any)}
+                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                       statusFilter === filter
                         ? 'bg-white text-[#0066FF] shadow-sm'
                         : 'text-slate-600 hover:text-[#0A1931]'
                     }`}
                   >
-                    {filter === 'ALL' ? 'All Applicants' : filter === 'PENDING' ? 'Under Review' : filter === 'ACCEPTED' ? 'Approved' : 'Rejected'}
+                    {filter === 'ALL' 
+                      ? 'All Applicants' 
+                      : filter === 'PENDING' 
+                        ? 'Under Review' 
+                        : filter === 'OFFER_SENT' 
+                          ? 'Offers Sent' 
+                          : filter === 'ACCEPTED' 
+                            ? 'Approved' 
+                            : 'Declined'}
                   </button>
                 ))}
               </div>
@@ -291,6 +306,19 @@ export default function ApplicationManagementPage() {
             <div className="space-y-4">
               {selectedJobApplications.map((app: JobApplication, idx: number) => {
                 const worker = workersById.get(app.workerId);
+                const candidateName = worker?.fullName || worker?.name || 'Candidate';
+                const candidateLevel = worker?.level || 'L1';
+                const ratingDisplay = worker?.rating ? Number(worker.rating).toFixed(1) : (worker?.trustScore ? (worker.trustScore / 20).toFixed(1) : '4.8');
+                const locationDisplay = worker?.city || worker?.location || worker?.address || 'Location on file';
+                const isVerified = Boolean(worker?.identityVerified || worker?.isVerified);
+
+                const rawSkills = worker?.skills;
+                const skillsArray = Array.isArray(rawSkills) 
+                  ? rawSkills 
+                  : typeof rawSkills === 'string' && rawSkills.trim().length > 0 
+                    ? rawSkills.split(',').map((s: string) => s.trim()).filter(Boolean)
+                    : [];
+
                 return (
                   <motion.div
                     key={app.id}
@@ -305,20 +333,20 @@ export default function ApplicationManagementPage() {
                         <div className="relative shrink-0">
                           <UserAvatar 
                             src={worker?.profileImageUrl} 
-                            name={worker?.fullName || 'Worker'} 
+                            name={candidateName} 
                             size="lg" 
                           />
                           <div className="absolute -bottom-1 -right-1 bg-[#0A1931] text-white text-[10px] font-extrabold px-2 py-0.5 rounded-lg border-2 border-white shadow-sm">
-                            {worker?.level || 'L1 Pro'}
+                            {candidateLevel}
                           </div>
                         </div>
 
                         <div className="space-y-2">
                           <div className="flex flex-wrap items-center gap-2">
                             <h3 className="text-lg font-bold text-[#0A1931]">
-                              {worker?.fullName || 'Candidate'}
+                              {candidateName}
                             </h3>
-                            {worker?.identityVerified ? (
+                            {isVerified ? (
                               <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 px-2.5 py-0.5 rounded-full text-[11px] font-bold border border-emerald-200">
                                 <BadgeCheck className="w-3.5 h-3.5" /> ID Verified
                               </span>
@@ -329,14 +357,14 @@ export default function ApplicationManagementPage() {
                             )}
                             <span className="inline-flex items-center gap-1 bg-amber-50 text-amber-800 px-2 py-0.5 rounded-full text-xs font-extrabold border border-amber-200">
                               <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
-                              {(worker as any)?.rating?.toFixed(1) || '4.9'}
+                              {ratingDisplay}
                             </span>
                           </div>
 
                           <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 font-medium">
                             <span className="flex items-center gap-1">
                               <MapPin className="w-3.5 h-3.5 text-[#0066FF]" />
-                              {worker?.city || 'Local Area'} (1.4 km away)
+                              {locationDisplay}
                             </span>
                             <span>•</span>
                             <span className="flex items-center gap-1">
@@ -355,11 +383,15 @@ export default function ApplicationManagementPage() {
                           </div>
 
                           <div className="flex flex-wrap gap-1.5 pt-1">
-                            {worker?.skills?.split(',').slice(0, 4).map((skill: string) => (
-                              <span key={skill} className="px-2.5 py-1 bg-slate-100 text-slate-700 rounded-lg text-xs font-semibold">
-                                {skill.trim()}
-                              </span>
-                            )) || <span className="text-xs text-slate-400 italic">No skills listed</span>}
+                            {skillsArray.length > 0 ? (
+                              skillsArray.slice(0, 4).map((skill: string) => (
+                                <span key={skill} className="px-2.5 py-1 bg-slate-100 text-slate-700 rounded-lg text-xs font-semibold">
+                                  {skill}
+                                </span>
+                              ))
+                            ) : (
+                              <span className="text-xs text-slate-400 italic">General Trade</span>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -370,31 +402,38 @@ export default function ApplicationManagementPage() {
                           <>
                             <button 
                               onClick={() => mutation.mutate({ id: app.id!, status: 'ACCEPTED' })}
-                              className="w-full py-2.5 bg-[#0066FF] hover:bg-[#0052cc] text-white rounded-xl text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-2"
+                              disabled={mutation.isPending}
+                              className="w-full py-2.5 bg-[#0066FF] hover:bg-[#0052cc] text-white rounded-xl text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer"
                             >
                               <CheckCircle2 className="w-4 h-4" /> Approve & Hire
                             </button>
                             <button 
                               onClick={() => mutation.mutate({ id: app.id!, status: 'REJECTED' })}
-                              className="w-full py-2 bg-white hover:bg-rose-50 border border-slate-200 hover:border-rose-200 text-slate-500 hover:text-rose-600 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2"
+                              disabled={mutation.isPending}
+                              className="w-full py-2 bg-white hover:bg-rose-50 border border-slate-200 hover:border-rose-200 text-slate-500 hover:text-rose-600 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer"
                             >
                               <XCircle className="w-4 h-4" /> Decline
                             </button>
                           </>
+                        ) : app.status === 'OFFER_SENT' ? (
+                          <div className="w-full py-3 rounded-xl text-center text-xs font-bold border border-amber-200 bg-amber-50 text-amber-700 flex items-center justify-center gap-2">
+                            <Clock className="w-4 h-4 text-amber-500" />
+                            Offer Sent (Awaiting Response)
+                          </div>
                         ) : (
                           <div className={`w-full py-3 rounded-xl text-center text-xs font-bold border flex items-center justify-center gap-2 ${
-                            app.status === 'ACCEPTED' 
+                            (app.status === 'ACCEPTED' || app.status === 'APPROVED')
                               ? 'bg-emerald-50 text-emerald-700 border-emerald-200' 
                               : 'bg-rose-50 text-rose-600 border-rose-100'
                           }`}>
-                            {app.status === 'ACCEPTED' ? <CheckCircle2 className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
-                            {app.status === 'ACCEPTED' ? 'Approved for Dispatch' : 'Declined'}
+                            {(app.status === 'ACCEPTED' || app.status === 'APPROVED') ? <CheckCircle2 className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
+                            {(app.status === 'ACCEPTED' || app.status === 'APPROVED') ? 'Approved for Dispatch' : 'Declined'}
                           </div>
                         )}
 
                         <button 
                           onClick={() => navigate(`/worker/${app.workerId}`)}
-                          className="w-full py-2 text-xs font-bold text-slate-500 hover:text-[#0066FF] transition-colors"
+                          className="w-full py-2 text-xs font-bold text-slate-500 hover:text-[#0066FF] transition-colors cursor-pointer"
                         >
                           View Full Profile
                         </button>
@@ -424,3 +463,4 @@ export default function ApplicationManagementPage() {
     </main>
   );
 }
+

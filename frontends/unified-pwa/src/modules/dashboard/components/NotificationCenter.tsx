@@ -19,20 +19,15 @@ export const NotificationCenter = () => {
             const data = await notificationService.getNotifications();
             return data;
         },
-        staleTime: Infinity
+        staleTime: 60 * 1000
     });
 
-    const { data: unreadCount = 0 } = useQuery({
-        queryKey: ['unreadCount'],
-        queryFn: notificationService.getUnreadCount,
-        staleTime: Infinity
-    });
+    const unreadCount = notifications.filter(n => !n.isRead && !(n as any).is_read).length;
 
     useEffect(() => {
         if (!connected) return;
         const unsubscribe = subscribe('/user/queue/notifications', (newNotification: any) => {
             queryClient.setQueryData<AppNotification[]>(['notifications'], (old = []) => [newNotification, ...old]);
-            queryClient.setQueryData<number>(['unreadCount'], (c = 0) => (c || 0) + 1);
         });
         return () => unsubscribe();
     }, [connected, subscribe, queryClient]);

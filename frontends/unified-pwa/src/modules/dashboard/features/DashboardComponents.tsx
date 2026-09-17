@@ -4,12 +4,13 @@ import { jobService } from '../../../services/job.service';
 import { applicationService } from '../../../services/application.service';
 import { workerService } from '../../../services/worker.service';
 import { dashboardService } from '../../../services/dashboard.service';
+import { queryKeys } from '../../../lib/queryKeys';
 import { useNavigate } from 'react-router-dom';
 import { UserAvatar } from '../../../components/common/UserAvatar';
 
 export const StatsGrid = () => {
     const { data: stats } = useQuery({ 
-        queryKey: ['employerStats'], 
+        queryKey: queryKeys.employer.stats, 
         queryFn: dashboardService.getEmployerStats 
     });
     
@@ -80,18 +81,18 @@ export const StatsGrid = () => {
 
 export const ApplicationsTable = () => {
     const navigate = useNavigate();
-    const { data: jobs = [] } = useQuery({ queryKey: ['employerJobs'], queryFn: jobService.getEmployerJobs });
+    const { data: jobs = [] } = useQuery({ queryKey: queryKeys.jobs.employerJobs, queryFn: jobService.getEmployerJobs });
     const jobIds = jobs.map((j: any) => j.id).filter((id: any): id is string => !!id);
     
     const { data: applications, isLoading, isError, error } = useQuery({
-        queryKey: ['recentApplications', jobIds.join(',')],
+        queryKey: queryKeys.jobs.allEmployerApplications(jobIds),
         queryFn: () => applicationService.getApplicationsForEmployerJobs(jobIds),
         enabled: jobIds.length > 0
     });
 
     const workerIds = applications?.map((application) => application.workerId) || [];
     const { data: workers = [] } = useQuery({
-        queryKey: ['applicationWorkers', workerIds.join(',')],
+        queryKey: queryKeys.workers.byUserIds(workerIds),
         queryFn: () => workerService.getProfilesByUserIds(workerIds),
         enabled: workerIds.length > 0
     });

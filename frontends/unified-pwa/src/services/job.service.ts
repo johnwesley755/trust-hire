@@ -22,8 +22,9 @@ export const jobService = {
     const res = await apiClient.post<Job>('/api/jobs', data);
     return res.data;
   },
-  getAllJobs: async (): Promise<Job[]> => {
-    const res = await apiClient.get<Job[]>('/api/jobs');
+  getAllJobs: async (params?: any): Promise<Job[]> => {
+    const isFilterObj = params && typeof params === 'object' && ('query' in params || 'industry' in params || 'location' in params || 'city' in params);
+    const res = await apiClient.get<Job[]>('/api/jobs', { params: isFilterObj ? params : undefined });
     return res.data;
   },
   getMyJobs: async (): Promise<Job[]> => {
@@ -50,7 +51,6 @@ export const jobService = {
     return res.data;
   },
   getEmployerJobs: async (): Promise<Job[]> => {
-    const res = await apiClient.get<Job[]>('/api/jobs/employer');
-    return res.data;
+    return jobService.getMyJobs();
   },
 };
