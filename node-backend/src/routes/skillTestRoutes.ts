@@ -6,7 +6,8 @@ const router = new Hono();
 
 router.get('/', skillTestController.getAvailableTests);
 router.get('/available', skillTestController.getAvailableTests);
-router.get('/results/worker/:workerId', skillTestController.getWorkerResults);
+router.get('/results/me', authenticateJWT, skillTestController.getWorkerResults);
+router.get('/results/worker/:workerId', authenticateJWT, skillTestController.getWorkerResults);
 router.get('/:id', skillTestController.getTestById);
 router.post('/submit', authenticateJWT, skillTestController.submitResult);
 router.post('/:id/submit', authenticateJWT, skillTestController.submitResult);

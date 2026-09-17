@@ -39,7 +39,61 @@ export const searchJobs = async (c: Context) => {
       where: whereClause,
       orderBy: { created_at: 'desc' }
     });
-    return c.json(ApiResponse.ok(jobs));
+
+    const jobIds = jobs.map(j => j.id);
+    const employerIds = jobs.map(j => j.employer_id).filter(Boolean);
+
+    const [searchIndices, employerProfiles] = await Promise.all([
+      prisma.job_search_index.findMany({ where: { job_id: { in: jobIds } } }),
+      prisma.employer_profiles.findMany({
+        where: {
+          OR: [
+            { id: { in: employerIds } },
+            { user_id: { in: employerIds } }
+          ]
+        }
+      })
+    ]);
+
+    const indexByJobId = new Map(searchIndices.map(si => [si.job_id, si]));
+    const employerById = new Map();
+    employerProfiles.forEach(ep => {
+      employerById.set(ep.id, ep);
+      if (ep.user_id) employerById.set(ep.user_id, ep);
+    });
+
+    const formatted = jobs.map(j => {
+      const sIndex = indexByJobId.get(j.id);
+      const emp = employerById.get(j.employer_id);
+
+      return {
+        id: j.id,
+        title: j.title,
+        description: j.description || '',
+        industry: j.industry || 'General',
+        location: j.location || '',
+        city: j.city || '',
+        budget: j.budget ? Number(j.budget) : 0,
+        experienceLevel: 'L1',
+        status: j.status || 'OPEN',
+        expiresAt: j.expires_at,
+        createdAt: j.created_at,
+        updatedAt: j.updated_at,
+        requiredSkills: sIndex?.required_skills
+          ? sIndex.required_skills.split(',').map((s: string) => s.trim()).filter(Boolean)
+          : [],
+        employerProfile: emp ? {
+          id: emp.id,
+          companyName: emp.company_name || 'Employer',
+          businessTier: emp.business_tier || 'STARTER',
+          isVerified: emp.is_verified || false,
+          city: emp.city || '',
+          logoUrl: ''
+        } : null
+      };
+    });
+
+    return c.json(ApiResponse.ok(formatted));
   } catch (err: any) {
     return c.json(ApiResponse.error(err.message), 500 as any);
   }
@@ -69,36 +123,78 @@ export const searchWorkers = async (c: Context) => {
       orderBy: { updated_at: 'desc' }
     });
 
+    const userIds = workers.map(w => w.user_id).filter(Boolean);
+
+    const [userMetaList, verifications] = await Promise.all([
+      prisma.user_metadata.findMany({
+        where: { id: { in: userIds } },
+        select: {
+          id: true,
+          email: true,
+          first_name: true,
+          last_name: true,
+          profile_image_url: true,
+          phone_number: true,
+          email_verified: true
+        }
+      }),
+      prisma.verification_records.findMany({
+        where: { user_id: { in: userIds } }
+      })
+    ]);
+
+    const userMetaById = new Map(userMetaList.map(u => [u.id, u]));
+    const verificationByUser = new Map(verifications.map(v => [v.user_id, v]));
+
     let employerOffers = new Set();
     if (employerId) {
-      const employerJobs = await prisma.jobs.findMany({ where: { employer_id: employerId }, select: { id: true } });
-      const jobIds = employerJobs.map(j => j.id);
-      if (jobIds.length > 0) {
-        const offers = await prisma.job_applications.findMany({
-          where: { 
-            job_id: { in: jobIds },
-            status: { in: ['OFFER_SENT', 'PENDING', 'ACCEPTED'] } 
-          },
-          select: { worker_id: true }
+      const employerProfile = await prisma.employer_profiles.findFirst({
+        where: { user_id: employerId }
+      });
+
+      if (employerProfile) {
+        const employerJobs = await prisma.jobs.findMany({
+          where: { employer_id: employerProfile.id },
+          select: { id: true }
         });
-        offers.forEach(o => employerOffers.add(o.worker_id));
+        const jobIds = employerJobs.map(j => j.id);
+        if (jobIds.length > 0) {
+          const offers = await prisma.job_applications.findMany({
+            where: { 
+              job_id: { in: jobIds },
+              status: { in: ['OFFER_SENT', 'PENDING', 'ACCEPTED'] } 
+            },
+            select: { worker_id: true }
+          });
+          offers.forEach(o => employerOffers.add(o.worker_id));
+        }
       }
     }
 
-    const formatted = workers.map(w => ({
-      userId: w.user_id,
-      name: w.full_name || 'Worker',
-      bio: w.bio || '',
-      skills: w.skills || '',
-      location: w.location || '',
-      city: w.city || '',
-      level: w.level || 'L1',
-      isVerified: true,
-      profileImageUrl: '',
-      status: w.is_available ? 'AVAILABLE' : 'OFFLINE',
-      trustScore: w.trust_score || 0,
-      isOfferSent: employerOffers.has(w.user_id)
-    }));
+    const formatted = workers.map(w => {
+      const meta = userMetaById.get(w.user_id);
+      const vRecord = verificationByUser.get(w.user_id);
+      const isVerified = vRecord?.status === 'VERIFIED' || vRecord?.status === 'APPROVED' || Boolean(meta?.email_verified);
+
+      return {
+        id: w.id,
+        userId: w.user_id,
+        name: w.full_name || `${meta?.first_name || ''} ${meta?.last_name || ''}`.trim() || 'Worker',
+        bio: w.bio || '',
+        skills: w.skills || '',
+        location: w.location || '',
+        city: w.city || '',
+        level: w.level || 'L1',
+        levelNumber: w.level_number || 1,
+        experienceYears: w.experience_years || 0,
+        hourlyRate: w.hourly_rate ? Number(w.hourly_rate) : null,
+        isVerified,
+        profileImageUrl: meta?.profile_image_url || '',
+        status: w.is_available ? 'AVAILABLE' : 'OFFLINE',
+        trustScore: w.trust_score || 70,
+        isOfferSent: employerOffers.has(w.id) || (w.user_id ? employerOffers.has(w.user_id) : false)
+      };
+    });
 
     return c.json(ApiResponse.ok(formatted));
   } catch (err: any) {

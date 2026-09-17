@@ -121,7 +121,7 @@ export default function JobDetailPage() {
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
             <button 
-              onClick={() => navigate('/jobs')}
+              onClick={() => navigate('/applied-jobs')}
               className="w-full sm:w-auto px-6 py-3 bg-[#0A1931] text-white font-bold text-xs uppercase tracking-wider rounded-xl hover:bg-slate-800 transition-all cursor-pointer"
             >
               View My Applications

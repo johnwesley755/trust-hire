@@ -16,14 +16,29 @@ const formatApplication = (app: any) => {
 
 export const applyForJob = async (c: Context) => {
   try {
-    const workerId = c.get('user')?.sub;
+    const authUser = c.get('user');
+    const workerId = authUser?.sub;
     if (!workerId) return c.json(ApiResponse.error("Unauthorized"), 401 as any);
+
+    // Defect fix 1.9: Only WORKER role can apply for jobs
+    if (authUser.role !== 'WORKER' && authUser.role !== 'ADMIN') {
+      return c.json(ApiResponse.error("Forbidden: Only worker accounts can apply for shifts."), 403 as any);
+    }
 
     const { jobId, coverLetter } = (await c.req.json());
     if (!jobId) return c.json(ApiResponse.error("Job ID is required"), 400 as any);
 
     const job = await prisma.jobs.findUnique({ where: { id: jobId } });
     if (!job) return c.json(ApiResponse.error("Job not found"), 404 as any);
+
+    // Defect fix 3.3: Validate that job is OPEN and not expired
+    if (job.status !== 'OPEN') {
+      return c.json(ApiResponse.error(`Cannot apply: This job is currently ${(job.status || 'closed').toLowerCase()}.`), 400 as any);
+    }
+
+    if (job.expires_at && new Date(job.expires_at) < new Date()) {
+      return c.json(ApiResponse.error("Cannot apply: This job posting has expired."), 400 as any);
+    }
 
     const existing = await prisma.job_applications.findFirst({
       where: { job_id: jobId, worker_id: workerId }
@@ -80,7 +95,8 @@ export const applyForJob = async (c: Context) => {
 
 export const dispatchOffer = async (c: Context) => {
   try {
-    const employerId = c.get('user')?.sub;
+    const authUser = c.get('user');
+    const employerId = authUser?.sub;
     if (!employerId) return c.json(ApiResponse.error("Unauthorized"), 401 as any);
 
     const { jobId, workerId, coverLetter } = (await c.req.json());
@@ -88,7 +104,9 @@ export const dispatchOffer = async (c: Context) => {
 
     const job = await prisma.jobs.findUnique({ where: { id: jobId } });
     if (!job) return c.json(ApiResponse.error("Job not found"), 404 as any);
-    if (job.employer_id !== employerId) return c.json(ApiResponse.error("Unauthorized: You do not own this job"), 403 as any);
+    if (job.employer_id !== employerId && authUser.role !== 'ADMIN') {
+      return c.json(ApiResponse.error("Unauthorized: You do not own this job"), 403 as any);
+    }
 
     const existing = await prisma.job_applications.findFirst({
       where: { job_id: jobId, worker_id: workerId }
@@ -139,9 +157,12 @@ export const dispatchOffer = async (c: Context) => {
 export const updateApplicationStatus = async (c: Context) => {
   try {
     const applicationId = c.req.param('applicationId') as string;
+    const authUser = c.get('user');
+    if (!authUser?.sub) return c.json(ApiResponse.error("Unauthorized"), 401 as any);
+
     const body = (await c.req.json().catch(() => ({}))) || {};
     const query = c.req.query();
-    const status = body.status || query.status;
+    const status = (body.status || query.status) as string;
 
     const application = await prisma.job_applications.findUnique({
       where: { id: applicationId },
@@ -150,24 +171,36 @@ export const updateApplicationStatus = async (c: Context) => {
 
     if (!application) return c.json(ApiResponse.error("Application not found"), 404 as any);
 
+    // Defect fix 1.7: Authorization ownership validation
+    const isEmployerOwner = application.jobs?.employer_id === authUser.sub;
+    const isApplicant = application.worker_id === authUser.sub;
+    const isAdmin = authUser.role === 'ADMIN';
+
+    if (!isEmployerOwner && !isApplicant && !isAdmin) {
+      return c.json(ApiResponse.error("Forbidden: You are not authorized to modify this application."), 403 as any);
+    }
+
     const updated = await prisma.job_applications.update({
       where: { id: applicationId },
-      data: { status: status as string }
+      data: { status }
     });
 
-    // Notify Worker
-    await prisma.notifications.create({
-      data: {
-        id: uuidv4(),
-        user_id: application.worker_id,
-        title: "Application Update",
-        message: "Your application for '" + application.jobs.title + "' is now " + status,
-        type: "APPLICATION_UPDATE",
-        is_read: false,
-        created_at: new Date(),
-        updated_at: new Date()
-      }
-    });
+    // Notify target party
+    const targetUserId = isEmployerOwner ? application.worker_id : application.jobs?.employer_id;
+    if (targetUserId) {
+      await prisma.notifications.create({
+        data: {
+          id: uuidv4(),
+          user_id: targetUserId,
+          title: "Application Status Updated",
+          message: `Application for '${application.jobs?.title || 'Shift'}' is now ${status}`,
+          type: "APPLICATION_UPDATE",
+          is_read: false,
+          created_at: new Date(),
+          updated_at: new Date()
+        }
+      });
+    }
 
     return c.json(ApiResponse.ok("Status updated", formatApplication(updated)));
   } catch (err: any) {
@@ -182,6 +215,7 @@ export const getMyApplications = async (c: Context) => {
 
     const applications = await prisma.job_applications.findMany({
       where: { worker_id: workerId },
+      include: { jobs: true },
       orderBy: { applied_at: 'desc' }
     });
     return c.json(ApiResponse.ok("My applications fetched", applications.map(formatApplication)));
@@ -193,6 +227,17 @@ export const getMyApplications = async (c: Context) => {
 export const getJobApplications = async (c: Context) => {
   try {
     const jobId = c.req.param('jobId') as string;
+    const authUser = c.get('user');
+    if (!authUser?.sub) return c.json(ApiResponse.error("Unauthorized"), 401 as any);
+
+    const job = await prisma.jobs.findUnique({ where: { id: jobId } });
+    if (!job) return c.json(ApiResponse.error("Job not found"), 404 as any);
+
+    // Defect fix 1.8: Ensure requesting user owns the job or is ADMIN
+    if (job.employer_id !== authUser.sub && authUser.role !== 'ADMIN') {
+      return c.json(ApiResponse.error("Forbidden: You do not own this job posting."), 403 as any);
+    }
+
     const applications = await prisma.job_applications.findMany({
       where: { job_id: jobId },
       orderBy: { applied_at: 'desc' }
@@ -205,6 +250,9 @@ export const getJobApplications = async (c: Context) => {
 
 export const getApplicationsByJobs = async (c: Context) => {
   try {
+    const authUser = c.get('user');
+    if (!authUser?.sub) return c.json(ApiResponse.error("Unauthorized"), 401 as any);
+
     const body = (await c.req.json().catch(() => ({}))) || {};
     let jobIds: string[] = [];
     if (Array.isArray(body)) {
@@ -215,15 +263,20 @@ export const getApplicationsByJobs = async (c: Context) => {
       jobIds = body.job_ids;
     }
 
+    // Default to all jobs owned by employer
     if (jobIds.length === 0) {
-      const employerId = c.get('user')?.sub;
-      if (employerId) {
-        const employerJobs = await prisma.jobs.findMany({
-          where: { employer_id: employerId },
-          select: { id: true }
-        });
-        jobIds = employerJobs.map(j => j.id);
-      }
+      const employerJobs = await prisma.jobs.findMany({
+        where: { employer_id: authUser.sub },
+        select: { id: true }
+      });
+      jobIds = employerJobs.map(j => j.id);
+    } else if (authUser.role !== 'ADMIN') {
+      // Defect fix 1.8: Filter jobIds to only those owned by the employer
+      const ownedJobs = await prisma.jobs.findMany({
+        where: { id: { in: jobIds }, employer_id: authUser.sub },
+        select: { id: true }
+      });
+      jobIds = ownedJobs.map(j => j.id);
     }
 
     if (jobIds.length === 0) {
@@ -232,6 +285,7 @@ export const getApplicationsByJobs = async (c: Context) => {
 
     const applications = await prisma.job_applications.findMany({
       where: { job_id: { in: jobIds } },
+      include: { jobs: true },
       orderBy: { applied_at: 'desc' }
     });
     return c.json(ApiResponse.ok("Applications for jobs fetched", applications.map(formatApplication)));

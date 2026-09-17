@@ -138,11 +138,19 @@ export default function TrackerPage() {
       </div>
 
       {/* Stats Row */}
-      <StatsSection 
-        nearbyJobs={allJobs.length || recommendedJobs.length} 
-        earnings={stats?.appliedJobs ? `₹${(stats.appliedJobs * 1200).toLocaleString()}` : "₹0"} 
-        completedShifts={myApplications.filter(a => a.status === 'COMPLETED' || a.status === 'ACCEPTED').length}
-      />
+      {(() => {
+        const completedApps = myApplications.filter(a => a.status === 'COMPLETED' || a.status === 'ACCEPTED');
+        const completedEarnings = completedApps.reduce((acc, app) => acc + (Number(app.job?.budget) || 0), 0);
+        const earningsDisplay = completedEarnings > 0 ? `₹${completedEarnings.toLocaleString()}` : "₹0";
+
+        return (
+          <StatsSection 
+            nearbyJobs={allJobs.length || recommendedJobs.length} 
+            earnings={earningsDisplay} 
+            completedShifts={completedApps.length}
+          />
+        );
+      })()}
 
       {/* Main Grid: Recommended Jobs & Progress/Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">

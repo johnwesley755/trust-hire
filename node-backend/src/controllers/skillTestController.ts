@@ -26,7 +26,17 @@ export const getTestById = async (c: Context) => {
       include: { skill_test_questions: true }
     });
     if (!test) return c.json(ApiResponse.error("Test not found"), 404 as any);
-    return c.json(ApiResponse.ok(test));
+
+    // Defect fix 1.12: Strip correct_option so test takers cannot view answer keys in the network response
+    const sanitizedQuestions = test.skill_test_questions.map(q => {
+      const { correct_option, ...rest } = q as any;
+      return rest;
+    });
+
+    return c.json(ApiResponse.ok({
+      ...test,
+      skill_test_questions: sanitizedQuestions
+    }));
   } catch (err: any) {
     return c.json(ApiResponse.error(err.message), 500 as any);
   }
@@ -37,8 +47,14 @@ export const submitResult = async (c: Context) => {
     const userId = c.get('user')?.sub;
     if (!userId) return c.json(ApiResponse.error("Unauthorized"), 401 as any);
 
-    const testId = c.req.param('id') || (await c.req.json()).testId;
-    const { answers } = (await c.req.json());
+    // Defect fix 14.1: Read request JSON body exactly ONCE to avoid stream lock errors
+    const body = await c.req.json().catch(() => ({}));
+    const testId = c.req.param('id') || body.testId;
+    const answers = body.answers || {};
+
+    if (!testId) {
+      return c.json(ApiResponse.error("testId is required"), 400 as any);
+    }
 
     const test = await prisma.skill_tests.findUnique({
       where: { id: testId },
@@ -52,14 +68,23 @@ export const submitResult = async (c: Context) => {
 
     for (const q of test.skill_test_questions) {
       totalPoints += q.points || 1;
-      const ans = answers ? (answers[q.id] !== undefined ? answers[q.id] : answers[test.skill_test_questions.indexOf(q)]) : undefined;
-      if (ans !== undefined && ans === q.correct_option) {
+      const ans = answers[q.id] !== undefined ? answers[q.id] : answers[test.skill_test_questions.indexOf(q)];
+      if (ans !== undefined && Number(ans) === q.correct_option) {
          score += q.points || 1;
       }
     }
 
     const percentage = totalPoints > 0 ? Math.floor((score / totalPoints) * 100) : 0;
     const passed = percentage >= 70;
+
+    // Defect fix 1.13: Prevent score farming - check if worker already passed this test previously
+    const alreadyPassed = await prisma.skill_test_results.findFirst({
+      where: {
+        worker_id: userId,
+        test_id: testId,
+        passed: true
+      }
+    });
 
     const result = await prisma.skill_test_results.create({
       data: {
@@ -72,10 +97,14 @@ export const submitResult = async (c: Context) => {
       }
     });
 
-    if (passed) {
+    // Award score boost only the FIRST time the worker passes this test
+    if (passed && !alreadyPassed) {
       await prisma.worker_profiles.updateMany({
         where: { user_id: userId },
-        data: { skill_score: { increment: 5 } }
+        data: {
+          skill_score: { increment: 5 },
+          level_score: { increment: 15 }
+        }
       });
     }
 
@@ -87,9 +116,21 @@ export const submitResult = async (c: Context) => {
 
 export const getWorkerResults = async (c: Context) => {
   try {
-    const workerId = String(c.req.param('workerId'));
+    const caller = c.get('user');
+    const paramWorkerId = c.req.param('workerId');
+    const targetWorkerId = paramWorkerId && paramWorkerId !== 'me' ? paramWorkerId : caller?.sub;
+
+    if (!targetWorkerId) {
+      return c.json(ApiResponse.error("workerId is required"), 400 as any);
+    }
+
+    // Defect fix 1.14: Protect worker test results from unauthorized snooping
+    if (caller && caller.sub !== targetWorkerId && caller.role !== 'ADMIN' && caller.role !== 'EMPLOYER') {
+      return c.json(ApiResponse.error("Forbidden: You do not have permission to view these test results"), 403 as any);
+    }
+
     const results = await prisma.skill_test_results.findMany({
-      where: { worker_id: workerId },
+      where: { worker_id: targetWorkerId },
       include: { skill_tests: true },
       orderBy: { completed_at: 'desc' }
     });

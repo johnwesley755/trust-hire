@@ -3,6 +3,8 @@ import prisma from '../config/prisma';
 import { ApiResponse } from '../utils/ApiResponse';
 import { v4 as uuidv4 } from 'uuid';
 
+const ALLOWED_JOB_STATUSES = ['OPEN', 'ACTIVE', 'IN_PROGRESS', 'COMPLETED', 'EXPIRED', 'CANCELLED', 'CLOSED'];
+
 const formatJob = (job: any) => {
   if (!job) return job;
   return {
@@ -22,8 +24,14 @@ const formatJob = (job: any) => {
 
 export const createJob = async (c: Context) => {
   try {
-    const employerId = c.get('user')?.sub;
+    const authUser = c.get('user');
+    const employerId = authUser?.sub;
     if (!employerId) return c.json(ApiResponse.error("Unauthorized"), 401 as any);
+
+    // Security fix 1.6: Only EMPLOYER (or ADMIN) accounts can create jobs
+    if (authUser.role !== 'EMPLOYER' && authUser.role !== 'ADMIN') {
+      return c.json(ApiResponse.error("Forbidden: Only registered employer accounts can post jobs."), 403 as any);
+    }
 
     const data = (await c.req.json());
 
@@ -34,6 +42,9 @@ export const createJob = async (c: Context) => {
     const requiredSkillsStr = Array.isArray(data.requiredSkills) 
       ? data.requiredSkills.join(', ') 
       : (typeof data.requiredSkills === 'string' ? data.requiredSkills : '');
+
+    // Defect fix 3.1: Persist expiry date
+    const expiresAt = data.expiresAt ? new Date(data.expiresAt) : (data.expires_at ? new Date(data.expires_at) : null);
 
     const job = await prisma.jobs.create({
       data: {
@@ -51,12 +62,13 @@ export const createJob = async (c: Context) => {
         industry: data.industry || 'General',
         experience_years_required: data.experienceYearsRequired ? Number(data.experienceYearsRequired) : (data.experience_years_required ? Number(data.experience_years_required) : 0),
         status: 'OPEN',
+        expires_at: expiresAt,
         created_at: new Date(),
         updated_at: new Date()
       }
     });
 
-    // Also populate job_search_index if present
+    // Populate search index with skills & expiry
     try {
       await prisma.job_search_index.upsert({
         where: { job_id: job.id },
@@ -150,8 +162,16 @@ export const getMyJobs = async (c: Context) => {
 export const updateJob = async (c: Context) => {
   try {
     const id = c.req.param('id') as string;
-    const employerId = c.get('user')?.sub;
+    const authUser = c.get('user');
+    const employerId = authUser?.sub;
+    if (!employerId) return c.json(ApiResponse.error("Unauthorized"), 401 as any);
+
     const data = (await c.req.json());
+
+    // Defect fix 3.5: Validate status against allowed enum set
+    if (data.status && !ALLOWED_JOB_STATUSES.includes(data.status)) {
+      return c.json(ApiResponse.error(`Invalid job status: ${data.status}. Must be one of: ${ALLOWED_JOB_STATUSES.join(', ')}`), 400 as any);
+    }
 
     const updatePayload: any = {
       updated_at: new Date()
@@ -165,13 +185,21 @@ export const updateJob = async (c: Context) => {
     if (data.city !== undefined) updatePayload.city = data.city;
     if (data.address !== undefined) updatePayload.address = data.address;
     if (data.industry !== undefined) updatePayload.industry = data.industry;
+    if (data.expiresAt !== undefined || data.expires_at !== undefined) {
+      updatePayload.expires_at = data.expiresAt ? new Date(data.expiresAt) : (data.expires_at ? new Date(data.expires_at) : null);
+    }
     if (data.experienceYearsRequired !== undefined || data.experience_years_required !== undefined) {
       updatePayload.experience_years_required = Number(data.experienceYearsRequired ?? data.experience_years_required);
     }
     if (data.status !== undefined) updatePayload.status = data.status;
 
+    const whereClause: any = { id };
+    if (authUser.role !== 'ADMIN') {
+      whereClause.employer_id = employerId;
+    }
+
     const job = await prisma.jobs.updateMany({
-      where: { id, employer_id: employerId },
+      where: whereClause,
       data: updatePayload
     });
 
@@ -186,12 +214,26 @@ export const updateJob = async (c: Context) => {
 export const deleteJob = async (c: Context) => {
   try {
     const id = c.req.param('id') as string;
-    const employerId = c.get('user')?.sub;
+    const authUser = c.get('user');
+    const employerId = authUser?.sub;
+    if (!employerId) return c.json(ApiResponse.error("Unauthorized"), 401 as any);
 
-    await prisma.jobs.deleteMany({
-      where: { id, employer_id: employerId }
-    });
-    return c.json(ApiResponse.ok("Job deleted", null));
+    const whereClause: any = { id };
+    if (authUser.role !== 'ADMIN') {
+      whereClause.employer_id = employerId;
+    }
+
+    const existingJob = await prisma.jobs.findFirst({ where: whereClause });
+    if (!existingJob) {
+      return c.json(ApiResponse.error("Job not found or not owned by employer"), 404 as any);
+    }
+
+    // Defect fix 3.4: Safely handle cascade deletion for related applications and search index
+    await prisma.job_applications.deleteMany({ where: { job_id: id } }).catch(() => {});
+    await prisma.job_search_index.deleteMany({ where: { job_id: id } }).catch(() => {});
+    await prisma.jobs.delete({ where: { id } });
+
+    return c.json(ApiResponse.ok("Job deleted successfully", null));
   } catch (err: any) {
     return c.json(ApiResponse.error(err.message), 500 as any);
   }

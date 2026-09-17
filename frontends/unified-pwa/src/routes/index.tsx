@@ -101,6 +101,10 @@ export const router = createBrowserRouter([
                 element: <ApplicationManagementPage />,
               },
               {
+                path: '/jobs/:id',
+                element: <JobDetailPage />,
+              },
+              {
                 path: '/find-workers',
                 element: <WorkerSearchPage />,
               },
@@ -132,11 +136,19 @@ export const router = createBrowserRouter([
                 element: <JobDetailPage />,
               },
               {
+                path: '/jobs/:id',
+                element: <JobDetailPage />,
+              },
+              {
                 path: '/tests',
                 element: <SkillTestsPage />,
               },
               {
                 path: '/level',
+                element: <LevelDetailsPage />,
+              },
+              {
+                path: '/profile/level-details',
                 element: <LevelDetailsPage />,
               },
             ]

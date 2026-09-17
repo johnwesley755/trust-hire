@@ -1,14 +1,16 @@
 import { Hono } from 'hono';
 import * as searchController from '../controllers/searchController';
-import { optionalAuth } from '../middlewares/auth';
+import { optionalAuth, authenticateJWT, requireAdmin } from '../middlewares/auth';
 
 const router = new Hono();
 
 router.get('/jobs', searchController.searchJobs);
 router.get('/workers', optionalAuth, searchController.searchWorkers);
-router.post('/index/job', searchController.indexJob);
-router.delete('/index/job/:jobId', searchController.removeJob);
-router.post('/index/worker', searchController.indexWorker);
-router.delete('/index/worker/:userId', searchController.removeWorker);
+
+// Defect fix 1.15: Protect index mutations behind admin/auth checks
+router.post('/index/job', authenticateJWT, requireAdmin, searchController.indexJob);
+router.delete('/index/job/:jobId', authenticateJWT, requireAdmin, searchController.removeJob);
+router.post('/index/worker', authenticateJWT, requireAdmin, searchController.indexWorker);
+router.delete('/index/worker/:userId', authenticateJWT, requireAdmin, searchController.removeWorker);
 
 export default router;

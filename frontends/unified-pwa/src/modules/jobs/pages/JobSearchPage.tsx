@@ -87,9 +87,9 @@ export default function JobSearchPage() {
   };
 
   const { data: searchResults, isLoading: isSearching } = useQuery({
-    queryKey: ['jobSearch', query, city],
-    queryFn: () => searchJobs(query, '', '', city),
-    enabled: Boolean(query || city),
+    queryKey: ['jobSearch', query, city, selectedTrade],
+    queryFn: () => searchJobs(query || undefined, undefined, city || undefined, selectedTrade !== 'All' ? selectedTrade : undefined),
+    enabled: Boolean(query || city || selectedTrade !== 'All'),
   });
 
   const { data: allJobs = [], isLoading: isLoadingAll } = useQuery({
@@ -187,7 +187,8 @@ export default function JobSearchPage() {
   };
 
   const appliedJobIds = new Set(Array.isArray(myApplications) ? myApplications.map((app) => app.jobId) : []);
-  const baseJobsList = Array.isArray(allJobs) ? allJobs : [];
+  const isSearchActive = Boolean((query && query.trim()) || (city && city.trim()) || selectedTrade !== 'All');
+  const baseJobsList = isSearchActive && searchResults ? searchResults : (Array.isArray(allJobs) ? allJobs : []);
 
   const activeFiltersCount = useMemo(() => {
     let count = 0;

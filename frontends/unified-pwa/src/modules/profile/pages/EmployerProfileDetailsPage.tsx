@@ -88,6 +88,51 @@ export default function EmployerProfileDetailsPage() {
           </div>
         </div>
 
+        {/* COMPANY & CONTACT DETAILS CARD */}
+        <div className="bg-white rounded-3xl p-6 lg:p-8 border border-slate-200 shadow-sm space-y-4">
+          <div className="flex justify-between items-center border-b border-slate-100 pb-3">
+            <h3 className="text-lg font-black text-[#0A1931]">Company & Contact Information</h3>
+            <span className="text-xs font-bold px-2.5 py-1 bg-blue-50 text-[#0066FF] rounded-lg">Official Details</span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 text-sm">
+            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+              <p className="text-xs font-bold uppercase text-slate-400">Phone Number</p>
+              <p className="text-base font-extrabold text-[#0A1931] mt-1">
+                {profile?.phoneNumber || (user as any)?.phone_number || user?.phoneNumber || 'Not Provided'}
+              </p>
+            </div>
+
+            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+              <p className="text-xs font-bold uppercase text-slate-400">Official Business Email</p>
+              <p className="text-base font-extrabold text-[#0A1931] mt-1 truncate">
+                {profile?.email || user?.email || 'Not Provided'}
+              </p>
+            </div>
+
+            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+              <p className="text-xs font-bold uppercase text-slate-400">Authorized Contact</p>
+              <p className="text-base font-extrabold text-[#0A1931] mt-1">
+                {profile?.contactPerson || `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || 'Managing Director'}
+              </p>
+            </div>
+
+            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+              <p className="text-xs font-bold uppercase text-slate-400">Operating City / Region</p>
+              <p className="text-base font-extrabold text-[#0A1931] mt-1">
+                {profile?.city || profile?.location || 'Pan India'}
+              </p>
+            </div>
+
+            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 sm:col-span-2">
+              <p className="text-xs font-bold uppercase text-slate-400">Registered Office Address</p>
+              <p className="text-base font-bold text-[#0A1931] mt-1">
+                {profile?.address || 'Corporate office address registered during onboarding'}
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* ANALYTICS ROW */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex items-center gap-5 transition-transform hover:scale-[1.02]">

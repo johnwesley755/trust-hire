@@ -33,15 +33,26 @@ export const updateSettings = async (c: Context) => {
     if (!userId) return c.json(ApiResponse.error("Unauthorized"), 401 as any);
 
     const data = (await c.req.json());
+    const emailNotifications = data.email_notifications ?? data.emailNotifications ?? true;
+    const pushNotifications = data.push_notifications ?? data.pushNotifications ?? true;
+    const marketingEmails = data.marketing_emails ?? data.marketingEmails ?? false;
+    const language = data.language || 'en';
+
     const settings = await prisma.user_settings.upsert({
       where: { user_id: userId },
-      update: { ...data, updated_at: new Date() },
+      update: {
+        email_notifications: emailNotifications,
+        push_notifications: pushNotifications,
+        marketing_emails: marketingEmails,
+        language,
+        updated_at: new Date()
+      },
       create: {
-        ...data,
         user_id: userId,
-        email_notifications: data.email_notifications || true,
-        push_notifications: data.push_notifications || true,
-        marketing_emails: data.marketing_emails || false,
+        email_notifications: emailNotifications,
+        push_notifications: pushNotifications,
+        marketing_emails: marketingEmails,
+        language,
         updated_at: new Date()
       }
     });

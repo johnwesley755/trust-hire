@@ -216,31 +216,40 @@ export const WorkerProfilePage = () => {
                 <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm">
                   <h3 className="text-lg font-black text-[#0A1931] mb-4">Contact Details</h3>
                   <div className="space-y-4">
-                    {worker?.phoneNumber ? (
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-[#0066FF] shrink-0">
-                          <Phone className="w-4 h-4" />
-                        </div>
-                        <div className="overflow-hidden">
-                          <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-0.5">Phone</p>
-                          <p className="font-semibold text-slate-700 truncate">{worker.phoneNumber}</p>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="text-sm text-slate-500 font-medium">Phone number not available.</div>
-                    )}
-                    
-                    {worker?.email && (
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-[#0066FF] shrink-0">
-                          <Mail className="w-4 h-4" />
-                        </div>
-                        <div className="overflow-hidden">
-                          <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-0.5">Email</p>
-                          <p className="font-semibold text-slate-700 truncate">{worker.email}</p>
-                        </div>
-                      </div>
-                    )}
+                    {(() => {
+                      const phone = worker?.phoneNumber || (worker as any)?.phone_number || (worker as any)?.user_metadata?.phone_number;
+                      const email = worker?.email || (worker as any)?.user_metadata?.email;
+
+                      return (
+                        <>
+                          {phone ? (
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-[#0066FF] shrink-0">
+                                <Phone className="w-4 h-4" />
+                              </div>
+                              <div className="overflow-hidden">
+                                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-0.5">Phone</p>
+                                <p className="font-semibold text-slate-700 truncate">{phone}</p>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="text-sm text-slate-500 font-medium">Phone number not available.</div>
+                          )}
+                          
+                          {email && (
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-[#0066FF] shrink-0">
+                                <Mail className="w-4 h-4" />
+                              </div>
+                              <div className="overflow-hidden">
+                                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-0.5">Email</p>
+                                <p className="font-semibold text-slate-700 truncate">{email}</p>
+                              </div>
+                            </div>
+                          )}
+                        </>
+                      );
+                    })()}
                   </div>
                 </div>
 

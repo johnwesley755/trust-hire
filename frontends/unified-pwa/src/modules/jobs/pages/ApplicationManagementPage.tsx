@@ -45,13 +45,7 @@ export default function ApplicationManagementPage() {
     enabled: jobIds.length > 0,
   });
 
-  const allApplications = allApplicationsRaw.map(app => {
-    const localStatus = localStorage.getItem(`app_status_${app.id}`);
-    if (localStatus) {
-      return { ...app, status: localStatus as JobApplication['status'] };
-    }
-    return app;
-  });
+  const allApplications = allApplicationsRaw;
 
   const selectedJobApplications = allApplications.filter(app => {
     if (app.jobId !== selectedJobId) return false;
@@ -72,11 +66,9 @@ export default function ApplicationManagementPage() {
   const mutation = useMutation({
     mutationFn: ({ id, status }: { id: string, status: JobApplication['status'] }) => 
       applicationService.updateStatus(id, status),
-    onSuccess: (_, variables) => {
-      localStorage.setItem(`app_status_${variables.id}`, variables.status);
-      queryClient.setQueryData<JobApplication[]>(['allEmployerApplications', jobIds], (old = []) => 
-        old.map(app => app.id === variables.id ? { ...app, status: variables.status } : app)
-      );
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['allEmployerApplications'] });
+      queryClient.invalidateQueries({ queryKey: ['employerJobs'] });
     }
   });
 
@@ -161,7 +153,7 @@ export default function ApplicationManagementPage() {
                   {jobs.map((job: import('../../../types').Job, idx: number) => {
                     const pendingCount = getPendingCountForJob(job.id!);
                     const totalCount = getApplicationCountForJob(job.id!);
-                    const isUrgent = job.description.toLowerCase().includes('urgent') || idx === 1;
+                    const isUrgent = Boolean(job.description?.toLowerCase().includes('urgent'));
 
                     return (
                         <motion.div 

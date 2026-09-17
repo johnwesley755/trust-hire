@@ -37,3 +37,11 @@ export const optionalAuth = async (c: Context, next: Next) => {
   }
   await next();
 };
+
+export const requireAdmin = async (c: Context, next: Next) => {
+  const user = c.get('user');
+  if (!user || user.role !== 'ADMIN') {
+    return c.json({ success: false, message: 'Forbidden: Admin access required' }, 403 as any);
+  }
+  await next();
+};

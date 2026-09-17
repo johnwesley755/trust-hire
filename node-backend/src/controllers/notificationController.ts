@@ -33,12 +33,20 @@ export const getUnreadCount = async (c: Context) => {
 
 export const markAsRead = async (c: Context) => {
   try {
+    const userId = c.get('user')?.sub;
+    if (!userId) return c.json(ApiResponse.error("Unauthorized"), 401 as any);
+
     const id = c.req.param('id') as string;
-    const notification = await prisma.notifications.update({
-      where: { id },
+    const result = await prisma.notifications.updateMany({
+      where: { id, user_id: userId },
       data: { is_read: true, updated_at: new Date() }
     });
-    return c.json(ApiResponse.ok("Notification marked as read", notification));
+
+    if (result.count === 0) {
+      return c.json(ApiResponse.error("Notification not found or access denied"), 404 as any);
+    }
+
+    return c.json(ApiResponse.ok("Notification marked as read", { id, is_read: true }));
   } catch (err: any) {
     return c.json(ApiResponse.error(err.message), 500 as any);
   }
@@ -61,8 +69,18 @@ export const markAllAsRead = async (c: Context) => {
 
 export const deleteNotification = async (c: Context) => {
   try {
+    const userId = c.get('user')?.sub;
+    if (!userId) return c.json(ApiResponse.error("Unauthorized"), 401 as any);
+
     const id = c.req.param('id') as string;
-    await prisma.notifications.delete({ where: { id } });
+    const result = await prisma.notifications.deleteMany({
+      where: { id, user_id: userId }
+    });
+
+    if (result.count === 0) {
+      return c.json(ApiResponse.error("Notification not found or access denied"), 404 as any);
+    }
+
     return c.json(ApiResponse.ok("Notification deleted", null));
   } catch (err: any) {
     return c.json(ApiResponse.error(err.message), 500 as any);

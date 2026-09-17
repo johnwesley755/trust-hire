@@ -7,6 +7,8 @@ const router = new Hono();
 router.post('/register', authController.register);
 router.post('/login', authController.login);
 router.post('/send-otp', authController.sendOtp);
+router.post('/verify-otp', authController.verifyEmployerOtp);
+router.post('/verify-employer-otp', authController.verifyEmployerOtp);
 router.post('/forgot-password', authController.forgotPassword);
 router.post('/reset-password', authController.resetPassword);
 

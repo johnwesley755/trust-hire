@@ -206,16 +206,17 @@ export const WorkerSearchPage = () => {
             </div>
           ) : (
             <div className="flex flex-col gap-4">
-              {results?.map((worker: WorkerSearch, idx: number) => {
-                const distance = ((idx % 4) * 0.9 + 1.1).toFixed(1);
+              {results?.map((worker: any, idx: number) => {
+                const ratingDisplay = worker.trustScore ? ((worker.trustScore / 20).toFixed(1)) : '4.8';
+                const locationDisplay = worker.city || worker.location || 'Local Area';
                 return (
                   <motion.div 
-                    key={worker.userId} 
+                    key={worker.userId || worker.id || idx} 
                     initial={{ opacity: 0, y: 16 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: Math.min(idx * 0.04, 0.4) }}
                     className="bg-white rounded-xl p-4 hover:shadow-md hover:border-blue-300 transition-all group border border-slate-200/80 flex flex-col md:flex-row md:items-center justify-between cursor-pointer"
-                    onClick={() => navigate(`/worker/${worker.userId}`)}
+                    onClick={() => navigate(`/worker/${worker.userId || worker.id}`)}
                   >
                     <div className="flex-1 min-w-0 pr-8">
                       {/* Top Profile Header */}
@@ -236,16 +237,24 @@ export const WorkerSearchPage = () => {
                             {worker.isVerified && (
                               <CheckCircle2 className="w-4 h-4 text-emerald-500 fill-emerald-100 shrink-0" />
                             )}
+                            <span className="px-2 py-0.5 bg-blue-50 text-[#0066FF] text-[11px] font-bold rounded-md">
+                              {worker.level || 'L1'}
+                            </span>
                           </div>
 
                           <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mt-1 text-sm text-slate-500 font-medium">
                             <span className="flex items-center gap-1">
                               <MapPin className="w-4 h-4 text-slate-400" />
-                              {distance} km away
+                              {locationDisplay}
                             </span>
                             <span className="flex items-center gap-1 text-amber-500 font-bold">
-                              <Star className="w-4 h-4 fill-current" /> 4.9
+                              <Star className="w-4 h-4 fill-current" /> {ratingDisplay}
                             </span>
+                            {worker.hourlyRate && (
+                              <span className="text-slate-600 font-bold">
+                                ₹{worker.hourlyRate}/hr
+                              </span>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -264,14 +273,20 @@ export const WorkerSearchPage = () => {
                     <div className="mt-4 md:mt-0 shrink-0 md:border-l md:border-slate-100 md:pl-8 flex flex-col md:items-end gap-3">
                       <div className="flex items-center gap-1.5 text-emerald-600 text-sm font-bold">
                         <Zap className="w-4 h-4 fill-current" />
-                        <span>Ready to Book</span>
+                        <span>{worker.status === 'AVAILABLE' ? 'Ready to Book' : 'Verified'}</span>
                       </div>
-                      <button className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center gap-2 shadow-xs cursor-pointer ${
-                        worker.isOfferSent
-                          ? 'bg-emerald-500 text-white hover:bg-emerald-600'
-                          : 'bg-[#0066FF] hover:bg-blue-700 text-white'
-                      }`}>
-                        {worker.isOfferSent ? 'Offer Sent!' : 'Dispatch Offer'} <ChevronRight className="w-4 h-4" />
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/worker/${worker.userId || worker.id}`);
+                        }}
+                        className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center gap-2 shadow-xs cursor-pointer ${
+                          worker.isOfferSent
+                            ? 'bg-emerald-500 text-white hover:bg-emerald-600'
+                            : 'bg-[#0066FF] hover:bg-blue-700 text-white'
+                        }`}
+                      >
+                        {worker.isOfferSent ? 'Offer Sent!' : 'View & Dispatch'} <ChevronRight className="w-4 h-4" />
                       </button>
                     </div>
                   </motion.div>

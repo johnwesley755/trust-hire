@@ -15,6 +15,10 @@ export interface EmployerProfile {
   latitude?: number;
   longitude?: number;
   isVerified: boolean;
+  phoneNumber?: string;
+  email?: string;
+  contactPerson?: string;
+  gstin?: string;
 }
 
 export interface WorkerProfile {

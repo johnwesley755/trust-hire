@@ -223,10 +223,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const verifyEmployerOtp = async (email: string, otp: string) => {
-    // If backend OTP is verified, register or log in employer
-    const res = await apiClient.post('/api/auth/login', { email, password: 'otp-login-' + otp });
-    const userData = res.data.user;
-    login(res.data.token, userData);
+    const res = await apiClient.post('/api/auth/verify-employer-otp', { email, otp });
+    const payload = res.data?.data || res.data;
+    const userData = payload.user || payload;
+    const token = payload.token;
+    if (token && userData) {
+      login(token, userData);
+    }
     return mapUserFields(userData);
   };
 

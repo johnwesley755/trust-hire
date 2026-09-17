@@ -11,8 +11,14 @@ export const register = async (c: Context) => {
   try {
     const { email, password, firstName, lastName, role, phoneNumber } = (await c.req.json());
 
+    // Security fix 1.1: Restrict public role to WORKER or EMPLOYER only (block ADMIN privilege escalation)
+    const assignedRole = role === 'EMPLOYER' ? 'EMPLOYER' : 'WORKER';
+
     const existing = await prisma.user_metadata.findUnique({ where: { email } });
     if (existing) {
+      if (existing.role && existing.role !== assignedRole) {
+        return c.json(ApiResponse.error(`This email is already registered as a ${existing.role} account. A ${existing.role.toLowerCase()} account cannot be registered as an ${assignedRole.toLowerCase()}.`), 400 as any);
+      }
       return c.json(ApiResponse.error("Email already in use"), 400 as any);
     }
 
@@ -34,7 +40,7 @@ export const register = async (c: Context) => {
         password_hash: passwordHash,
         first_name: firstName,
         last_name: lastName,
-        role: role || 'WORKER',
+        role: assignedRole,
         phone_number: phoneNumber || null,
         created_at: new Date(),
         updated_at: new Date(),
@@ -73,9 +79,43 @@ export const login = async (c: Context) => {
 
 export const sendOtp = async (c: Context) => {
   try {
-    const { email } = (await c.req.json());
+    const { email, role } = (await c.req.json());
+    if (!email) return c.json(ApiResponse.error("Email is required"), 400 as any);
+
+    const targetRole = role === 'WORKER' ? 'WORKER' : 'EMPLOYER';
+    let user = await prisma.user_metadata.findUnique({ where: { email } });
+
+    // Mutually exclusive role validation
+    if (user && user.role && user.role !== targetRole) {
+      return c.json(ApiResponse.error(`This email is registered as a ${user.role} account. A ${user.role.toLowerCase()} account cannot sign in or register as an ${targetRole.toLowerCase()}.`), 400 as any);
+    }
+
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    await sendEmail(email, "Your OTP - TrustHire", getOtpTemplate(otp));
+    const expiry = new Date(Date.now() + 15 * 60 * 1000);
+
+    // Defect fix 1.2: Server-side OTP Persistence with 15m expiration
+    if (user) {
+      await prisma.user_metadata.update({
+        where: { id: user.id },
+        data: { reset_token: otp, reset_token_expiry: expiry }
+      });
+    } else {
+      user = await prisma.user_metadata.create({
+        data: {
+          id: uuidv4(),
+          email,
+          role: targetRole,
+          reset_token: otp,
+          reset_token_expiry: expiry,
+          email_verified: false,
+          onboarded: false,
+          created_at: new Date(),
+          updated_at: new Date()
+        }
+      });
+    }
+
+    await sendEmail(email, "Your Verification OTP - TrustHyre", getOtpTemplate(otp));
     return c.json(ApiResponse.ok(`OTP sent to ${email}`, "sent"));
   } catch (err: any) {
     console.error("sendOtp error:", err);
@@ -83,9 +123,54 @@ export const sendOtp = async (c: Context) => {
   }
 };
 
+export const verifyEmployerOtp = async (c: Context) => {
+  try {
+    const { email, otp } = (await c.req.json());
+    if (!email || !otp) {
+      return c.json(ApiResponse.error("Email and OTP are required"), 400 as any);
+    }
+
+    const user = await prisma.user_metadata.findUnique({ where: { email } });
+    if (!user) {
+      return c.json(ApiResponse.error("User account not found. Please request a new OTP."), 404 as any);
+    }
+
+    // Defect fix 1.2 & 1.3: Validate persisted OTP and expiry
+    if (!user.reset_token || user.reset_token !== otp) {
+      return c.json(ApiResponse.error("Invalid verification code. Please check and try again."), 400 as any);
+    }
+
+    if (!user.reset_token_expiry || new Date(user.reset_token_expiry) < new Date()) {
+      return c.json(ApiResponse.error("Verification code has expired. Please request a new OTP."), 400 as any);
+    }
+
+    // Mark email verified & consume OTP
+    const updatedUser = await prisma.user_metadata.update({
+      where: { id: user.id },
+      data: {
+        email_verified: true,
+        reset_token: null,
+        reset_token_expiry: null,
+        updated_at: new Date()
+      }
+    });
+
+    const token = jwt.sign(
+      { sub: updatedUser.id, role: updatedUser.role || 'EMPLOYER' },
+      process.env.JWT_SECRET as string,
+      { expiresIn: '30d' }
+    );
+
+    return c.json(ApiResponse.ok("Verification successful", { token, user: updatedUser }));
+  } catch (err: any) {
+    console.error("verifyEmployerOtp error:", err);
+    return c.json(ApiResponse.error(err.message), 500 as any);
+  }
+};
+
 export const forgotPassword = async (c: Context) => {
   try {
-    const { email, role } = (await c.req.json());
+    const { email } = (await c.req.json());
     const user = await prisma.user_metadata.findUnique({ where: { email } });
     if (user) {
       const token = Math.floor(100000 + Math.random() * 900000).toString();
@@ -93,7 +178,7 @@ export const forgotPassword = async (c: Context) => {
         where: { email },
         data: { reset_token: token, reset_token_expiry: new Date(Date.now() + 3600000) }
       });
-      await sendEmail(email, "Reset Password - TrustHire", getResetPasswordTemplate(token));
+      await sendEmail(email, "Reset Password - TrustHyre", getResetPasswordTemplate(token));
     }
     return c.json(ApiResponse.ok("Reset email sent successfully", "sent"));
   } catch (err: any) {
@@ -141,7 +226,7 @@ export const syncUser = async (c: Context) => {
     const rawData = { ...(await c.req.json()) };
     const phoneNumber = rawData.phone_number || rawData.phoneNumber;
 
-    // Check phone number uniqueness if provided
+    // Check phone number uniqueness across all accounts if provided
     if (phoneNumber) {
       const duplicatePhone = await prisma.user_metadata.findFirst({
         where: {
@@ -303,4 +388,3 @@ export const handleLegacyWebhook = async (c: Context) => {
   console.log("Received legacy webhook sync event:", (await c.req.json()).type);
   return c.text("OK", 200);
 };
-
