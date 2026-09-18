@@ -42,9 +42,9 @@ export function LandingScoutingDemo() {
                     {/* Results */}
                     <div className="space-y-4">
                         {[
-                            { name: "Rahul Sharma", role: "Elite Electrician", skill: "Expert", score: 99, level: "L4" },
-                            { name: "Sanjay Gupta", role: "Master Plumber", skill: "Top Rated", score: 98, level: "L3" },
-                            { name: "Amit Kumar", role: "Verified Specialist", skill: "Verified", score: 97, level: "L2" }
+                            { name: "Rahul Sharma", role: "Elite Electrician", skill: "Expert", score: 99, level: "Master" },
+                            { name: "Sanjay Gupta", role: "Master Plumber", skill: "Top Rated", score: 98, level: "Specialist" },
+                            { name: "Amit Kumar", role: "Verified Specialist", skill: "Verified", score: 97, level: "Pro" }
                         ].map((talent, i) => (
                             <motion.div
                                 key={i}
@@ -72,7 +72,7 @@ export function LandingScoutingDemo() {
                                     </div>
                                 </div>
                                 <div className="text-right hidden sm:block">
-                                    <div className="text-brand-secondary font-bold text-2xl tracking-tighter">{talent.level}</div>
+                                    <div className="text-brand-secondary font-bold text-base tracking-tight">{talent.level}</div>
                                     <div className="text-[10px] font-bold text-brand-muted uppercase tracking-widest">Rank</div>
                                 </div>
                             </motion.div>
@@ -103,7 +103,7 @@ export function LandingScoutingDemo() {
                     {[
                         { title: "Velocity", desc: "Start work in minutes", icon: Zap, color: "text-amber-500" },
                         { title: "Trust", desc: "Aadhaar verified ID", icon: ShieldCheck, color: "text-emerald-500" },
-                        { title: "Elite", desc: "Certified L4 masters", icon: Star, color: "text-brand-primary" }
+                        { title: "Elite", desc: "Certified top specialists", icon: Star, color: "text-brand-primary" }
                     ].map((feat, i) => (
                         <motion.div 
                             key={i} 

@@ -14,26 +14,26 @@ export function LandingCareerLevels() {
             <div className="absolute left-6 top-8 bottom-8 w-1 bg-primary/10 -z-10"></div>
             
             <div className="flex items-center gap-6 group">
-              <div className="w-12 h-12 rounded-full bg-primary-fixed flex items-center justify-center font-black text-primary shadow-lg border-4 border-surface group-hover:scale-110 transition-transform">L4</div>
+              <div className="w-12 h-12 rounded-full bg-primary-fixed flex items-center justify-center font-black text-primary shadow-lg border-4 border-surface group-hover:scale-110 transition-transform text-xs uppercase">Lead</div>
               <div>
-                <h4 className="font-extrabold text-xl font-headline">VIP Professional</h4>
-                <p className="text-primary/50 text-sm">₹35,000+ per month • VIP Status</p>
+                <h4 className="font-extrabold text-xl font-headline">Master Professional</h4>
+                <p className="text-primary/50 text-sm">₹35,000+ per month • VIP Priority</p>
               </div>
             </div>
             
             <div className="flex items-center gap-6 group">
-              <div className="w-12 h-12 rounded-full bg-primary-fixed/60 flex items-center justify-center font-black text-primary/80 shadow-lg border-4 border-surface group-hover:scale-110 transition-transform">L3</div>
+              <div className="w-12 h-12 rounded-full bg-primary-fixed/60 flex items-center justify-center font-black text-primary/80 shadow-lg border-4 border-surface group-hover:scale-110 transition-transform text-xs uppercase">Expert</div>
               <div>
-                <h4 className="font-extrabold text-xl font-headline">Silver Tier</h4>
-                <p className="text-primary/50 text-sm">Bonus payouts active • Top priority</p>
+                <h4 className="font-extrabold text-xl font-headline">Senior Specialist</h4>
+                <p className="text-primary/50 text-sm">Bonus payouts active • High priority</p>
               </div>
             </div>
             
             <div className="flex items-center gap-6 group opacity-50">
-              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center font-black text-primary/40 border-4 border-surface group-hover:scale-110 transition-transform">L2</div>
+              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center font-black text-primary/40 border-4 border-surface group-hover:scale-110 transition-transform text-xs uppercase">Pro</div>
               <div>
-                <h4 className="font-bold text-xl text-primary/40 font-headline">Verified Regular</h4>
-                <p className="text-primary/40 text-sm">Building track record</p>
+                <h4 className="font-bold text-xl text-primary/40 font-headline">Verified Pro</h4>
+                <p className="text-primary/40 text-sm">Building proven track record</p>
               </div>
             </div>
           </div>
@@ -51,14 +51,14 @@ export function LandingCareerLevels() {
               />
               <div>
                 <h3 className="text-2xl font-black text-primary font-headline">Ramesh K.</h3>
-                <p className="text-primary/50 font-bold uppercase text-xs">Security Guard • Level 3</p>
+                <p className="text-primary/50 font-bold uppercase text-xs">Security Guard • Senior Specialist</p>
               </div>
             </div>
             
             <div className="space-y-6">
               <div>
                 <div className="flex justify-between text-sm font-bold mb-2">
-                  <span>Progress to L4</span>
+                  <span>Progress to Master Tier</span>
                   <span className="text-primary">85%</span>
                 </div>
                 <div className="w-full h-3 bg-surface-container rounded-full overflow-hidden">

@@ -13,7 +13,8 @@ import { useUser } from '../../../providers/AuthContext';
 import { StatsSection } from '../components/StatsSection';
 import { ProgressSidePanel } from '../components/ProgressSidePanel';
 import { PreferencesModal, type WorkerPreferences } from '../../profile/components/PreferencesModal';
-import { Loader2, Zap, Sparkles, SlidersHorizontal, MapPin, Briefcase, ChevronRight, CheckCircle2, ShieldCheck } from 'lucide-react';
+import { Zap, Sparkles, SlidersHorizontal, MapPin, Briefcase, ChevronRight, CheckCircle2, ShieldCheck } from 'lucide-react';
+import { AppLoader } from '../../../components/common/AppLoader';
 import apiClient from '../../../api/apiClient';
 
 export default function TrackerPage() {
@@ -177,9 +178,7 @@ export default function TrackerPage() {
             </div>
 
             {recLoading ? (
-              <div className="flex justify-center py-12">
-                <Loader2 className="w-6 h-6 animate-spin text-[#0066FF]" />
-              </div>
+              <AppLoader variant="page" message="Loading recommendations..." />
             ) : unappliedRecommendedJobs.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {unappliedRecommendedJobs.slice(0, 4).map((job: RecommendedJob) => (

@@ -2,10 +2,10 @@ import { motion } from "framer-motion";
 import { Star, TrendingUp, Award } from "lucide-react";
 
 const LEVELS = [
-    { lv: "L4", title: "Expert", desc: "Project Leaders", color: "bg-brand-primary" },
-    { lv: "L3", title: "Specialist", desc: "Top Performance", color: "bg-brand-secondary" },
-    { lv: "L2", title: "Verified", desc: "Proven Quality", color: "bg-brand-muted" },
-    { lv: "L1", title: "Ready", desc: "Aadhaar-Verified", color: "bg-slate-200" }
+    { lv: "Lead", title: "Lead Master", desc: "Project Leaders & Supervisors", color: "bg-brand-primary" },
+    { lv: "Expert", title: "Senior Expert", desc: "Top Performance Specialists", color: "bg-brand-secondary" },
+    { lv: "Pro", title: "Verified Pro", desc: "Proven Quality Execution", color: "bg-blue-600" },
+    { lv: "Ready", title: "Foundational", desc: "Aadhaar & Background Verified", color: "bg-slate-700" }
 ];
 
 export function LandingTalentCloud() {
@@ -29,7 +29,7 @@ export function LandingTalentCloud() {
                 <span className="text-brand-primary text-glow">Standards</span>
               </h2>
               <p className="text-xl text-brand-muted/80 font-semibold leading-relaxed max-w-xl">
-                Our L1-L4 skill architecture gives you a standardized way to measure and scale your workforce with zero ambiguity.
+                Our multi-tier skill architecture gives you a standardized way to measure and scale your workforce with zero ambiguity.
               </p>
             </div>
 
@@ -37,13 +37,13 @@ export function LandingTalentCloud() {
             <div className="grid grid-cols-1 gap-6">
               {LEVELS.map((level, i) => (
                 <motion.div
-                    key={level.lv}
+                    key={level.title}
                     initial={{ opacity: 0, x: -30 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     transition={{ delay: i * 0.1 }}
                     className="flex items-center gap-6 group bg-white p-5 rounded-2xl border border-brand-border/30 shadow-lg hover:border-brand-primary/50 transition-all cursor-pointer"
                 >
-                    <div className={`w-16 h-16 ${level.color} rounded-2xl flex items-center justify-center font-bold text-white text-2xl shadow-lg transition-transform group-hover:scale-105`}>
+                    <div className={`w-16 h-16 ${level.color} rounded-2xl flex items-center justify-center font-bold text-white text-xs uppercase shadow-lg transition-transform group-hover:scale-105`}>
                         {level.lv}
                     </div>
                     <div>
@@ -101,7 +101,7 @@ export function LandingTalentCloud() {
                     className="absolute top-8 left-8 py-3 px-6 bg-white/90 backdrop-blur-md rounded-full shadow-xl flex items-center gap-4 border border-white/50 z-20"
                 >
                     <Award className="w-6 h-6 text-brand-primary" />
-                    <span className="font-bold text-brand-secondary tracking-tight text-xs">Level 4 Standardized</span>
+                    <span className="font-bold text-brand-secondary tracking-tight text-xs">Master Standardized</span>
                 </motion.div>
           </div>
         </div>

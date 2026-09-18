@@ -4,6 +4,7 @@ import { authenticateJWT } from '../middlewares/auth';
 
 const router = new Hono();
 
+router.get('/summary', authenticateJWT, dashboardController.getDashboardSummary);
 router.get('/worker/stats', authenticateJWT, dashboardController.getWorkerStats);
 router.get('/employer/stats', authenticateJWT, dashboardController.getEmployerStats);
 

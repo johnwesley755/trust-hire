@@ -89,7 +89,7 @@ export const ProfileHeroCard: React.FC<ProfileHeroCardProps> = ({
                 Verified Partner
               </span>
               <span className="text-[10px] font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-0.5 rounded-full">
-                {profile?.level || 'L1 Certified Pro'}
+                {profile?.level && !profile.level.startsWith('L') ? profile.level : 'Verified Professional'}
               </span>
             </div>
           </div>

@@ -1,97 +1,184 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Briefcase, CheckCircle, Loader2, ChevronRight, MapPin, IndianRupee, ShieldCheck } from 'lucide-react';
-import type { JobSearch } from '../../../services/search.service';
-import type { Job } from '../../../services/job.service';
+import React, { useState } from 'react';
+import { Bookmark, Building2, MapPin, CheckCircle2, ChevronRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { AppLoader } from '../../../components/common/AppLoader';
+
+export interface JobCardData {
+  id: string;
+  title: string;
+  description?: string;
+  industry?: string;
+  jobType?: string;
+  location?: string;
+  city?: string;
+  budget?: number;
+  experienceYearsRequired?: number;
+  status?: string;
+  createdAt?: string;
+  employerProfile?: {
+    id?: string;
+    companyName?: string;
+    isVerified?: boolean;
+    city?: string;
+    logoUrl?: string;
+  } | null;
+  hasApplied?: boolean;
+  applicationStatus?: string;
+}
 
 interface JobSearchResultCardProps {
-  job: JobSearch | Job;
-  index: number;
-  applied: boolean;
-  distanceKm?: number | null;
-  onApply: () => void;
-  isApplying: boolean;
+  job: JobCardData;
+  onApply?: (jobId: string) => void;
+  isApplying?: boolean;
 }
 
 export const JobSearchResultCard: React.FC<JobSearchResultCardProps> = ({
   job,
-  index,
-  applied,
-  distanceKm,
   onApply,
-  isApplying,
+  isApplying = false,
 }) => {
-  const budget = job.budget;
-  const isUrgent = job.description?.toLowerCase().includes('urgent') || index === 0;
+  const navigate = useNavigate();
+  const [isSaved, setIsSaved] = useState(false);
+
+  const companyName = job.employerProfile?.companyName || 'Verified Employer';
+  const locationText = job.city || job.location || 'Remote / Multiple Locations';
+  const isVerified = job.employerProfile?.isVerified ?? true;
+
+  // Format experience
+  const expYears = job.experienceYearsRequired ?? 0;
+  const experienceText = expYears === 0 
+    ? '0 to 1 Year' 
+    : expYears <= 2 
+      ? '1 to 3 Years' 
+      : `${expYears} to ${expYears + 2} Years`;
+
+  // Format salary
+  const budget = job.budget ?? 0;
+  const salaryText = budget > 0 
+    ? (budget > 10000 
+        ? `₹${(budget / 1000).toFixed(0)}k - ₹${((budget * 1.3) / 1000).toFixed(0)}k / mo` 
+        : `₹${budget.toLocaleString()} / day`)
+    : 'Competitive Pay';
+
+  // Format posted time
+  const getPostedTime = (dateStr?: string) => {
+    if (!dateStr) return 'Recently';
+    const diffHours = Math.floor((Date.now() - new Date(dateStr).getTime()) / (1000 * 60 * 60));
+    if (diffHours < 1) return 'Posted just now';
+    if (diffHours < 24) return `Posted ${diffHours}h ago`;
+    const diffDays = Math.floor(diffHours / 24);
+    return `Posted ${diffDays}d ago`;
+  };
+
+  const companyInitial = companyName.charAt(0).toUpperCase();
 
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: Math.min(index * 0.04, 0.3) }}
-      className="bg-white p-3.5 sm:p-4 rounded-xl group hover:shadow-md hover:border-blue-400 transition-all duration-200 flex flex-col md:flex-row md:items-center justify-between border border-slate-200 relative overflow-hidden gap-3"
+    <div 
+      onClick={() => navigate(`/jobs/${job.id}`)}
+      className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/90 hover:border-[#0066FF]/60 hover:shadow-lg transition-all duration-200 group cursor-pointer space-y-4"
     >
-      {/* Left Side: Job Info */}
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2.5 mb-1.5 flex-wrap">
-          <h3 className="text-base font-bold text-[#0A1931] tracking-tight truncate group-hover:text-[#0066FF] transition-colors">
-            {job.title}
-          </h3>
-          <span className={`px-2 py-0.5 text-xs font-semibold rounded-full shrink-0 ${
-            isUrgent ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-          }`}>
-            {isUrgent ? 'Urgent' : 'Active'}
-          </span>
-          {typeof distanceKm === 'number' && !isNaN(distanceKm) && (
-            <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-blue-50 text-[#0066FF] border border-blue-200 shrink-0">
-              {distanceKm < 1 ? 'Under 1 km away' : `${distanceKm.toFixed(1)} km away`}
-            </span>
-          )}
+      {/* Top Header: Company Avatar + Title + Bookmark */}
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex items-start gap-3.5 min-w-0">
+          {/* Company Monogram Badge */}
+          <div className="w-12 h-12 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-800 font-extrabold text-base shrink-0 group-hover:bg-blue-50 group-hover:border-blue-200 group-hover:text-[#0066FF] transition-all">
+            {job.employerProfile?.logoUrl ? (
+              <img src={job.employerProfile.logoUrl} alt={companyName} className="w-full h-full object-contain rounded-xl" />
+            ) : (
+              <span>{companyInitial}</span>
+            )}
+          </div>
+
+          {/* Job Title & Company Line */}
+          <div className="min-w-0">
+            <h3 className="text-base sm:text-lg font-bold text-[#0A1931] group-hover:text-[#0066FF] transition-colors truncate font-['Outfit',sans-serif]">
+              {job.title}
+            </h3>
+            <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium mt-0.5 truncate">
+              <span className="text-slate-800 font-semibold">{companyName}</span>
+              {isVerified && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />}
+              <span>•</span>
+              <span className="truncate">{locationText}</span>
+            </div>
+          </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5 text-slate-600 text-xs sm:text-sm font-medium">
-          <div className="flex items-center gap-1.5">
-            <Briefcase className="w-3.5 h-3.5 text-[#0066FF]" />
-            <span className="truncate max-w-[130px]">{job.industry || 'General'}</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <IndianRupee className="w-3.5 h-3.5 text-slate-400" />
-            <span className="font-bold text-[#0A1931]">₹{budget?.toLocaleString() || '0'}</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <MapPin className="w-3.5 h-3.5 text-slate-400" />
-            <span className="truncate max-w-[150px]">{job.city || job.location || 'Local area'}</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
-            <span className="truncate max-w-[150px]">{(job as any).employerName || 'Verified Partner'}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Right Side: Action Button */}
-      <div className="flex items-center gap-3 shrink-0 md:border-l md:border-slate-100 md:pl-5 self-end md:self-center">
-        <button 
+        {/* Save Job Bookmark Button */}
+        <button
+          type="button"
           onClick={(e) => {
             e.stopPropagation();
-            onApply();
+            setIsSaved(!isSaved);
           }}
-          disabled={applied || isApplying}
-          className={`px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-1.5 shadow-sm ${
-            applied 
-            ? 'bg-emerald-100 text-emerald-700 cursor-default' 
-            : 'bg-[#0066FF] hover:bg-blue-700 text-white shadow-blue-500/20 active:scale-98 cursor-pointer'
+          className={`p-2 rounded-xl border transition-all cursor-pointer shrink-0 ${
+            isSaved 
+              ? 'bg-blue-50 border-blue-200 text-[#0066FF]' 
+              : 'bg-slate-50 border-slate-200/80 text-slate-400 hover:text-slate-700 hover:bg-slate-100'
           }`}
+          title={isSaved ? 'Job Saved' : 'Save Job'}
         >
-          {applied ? (
-            <><CheckCircle className="w-4 h-4" /> Applied</>
-          ) : isApplying ? (
-            <Loader2 className="w-4 h-4 animate-spin" />
-          ) : (
-            <>View Details <ChevronRight className="w-4 h-4" /></>
-          )}
+          <Bookmark className={`w-4 h-4 ${isSaved ? 'fill-current' : ''}`} />
         </button>
       </div>
-    </motion.div>
+
+      {/* Middle Specs Grid */}
+      <div className="grid grid-cols-3 gap-2 py-3 px-3.5 bg-slate-50/70 rounded-xl border border-slate-100 text-left">
+        <div>
+          <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Experience</span>
+          <span className="text-xs sm:text-sm font-bold text-slate-900 font-['Outfit',sans-serif]">
+            {experienceText}
+          </span>
+        </div>
+        <div>
+          <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Job Type</span>
+          <span className="text-xs sm:text-sm font-bold text-slate-900 font-['Outfit',sans-serif]">
+            {job.jobType || 'Full-Time'}
+          </span>
+        </div>
+        <div>
+          <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Salary / Pay</span>
+          <span className="text-xs sm:text-sm font-bold text-emerald-600 font-['Outfit',sans-serif]">
+            {salaryText}
+          </span>
+        </div>
+      </div>
+
+      {/* Footer Line: Posted Time & Apply / Status */}
+      <div className="flex items-center justify-between pt-1 text-xs">
+        <span className="text-slate-400 font-medium">
+          {getPostedTime(job.createdAt)}
+        </span>
+
+        <div className="flex items-center gap-2">
+          {job.hasApplied ? (
+            <span className="px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 font-bold text-xs border border-emerald-200 flex items-center gap-1.5">
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              Applied ({job.applicationStatus || 'Under Review'})
+            </span>
+          ) : (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (onApply) onApply(job.id);
+                else navigate(`/jobs/${job.id}`);
+              }}
+              disabled={isApplying}
+              className="px-4 py-1.5 bg-[#0066FF] hover:bg-[#0052CC] active:scale-98 text-white rounded-lg font-bold text-xs shadow-xs transition-all flex items-center gap-1 cursor-pointer font-['Outfit',sans-serif]"
+            >
+              {isApplying ? (
+                <AppLoader variant="inline" size="sm" />
+              ) : (
+                <>
+                  <span>Apply Now</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </>
+              )}
+            </button>
+          )}
+        </div>
+      </div>
+
+    </div>
   );
 };
