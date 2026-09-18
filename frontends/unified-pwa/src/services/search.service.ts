@@ -8,6 +8,13 @@ export interface SearchParams {
   query?: string;
   category?: string;
   industry?: string;
+  jobType?: string;
+  minSalary?: number;
+  maxSalary?: number;
+  minExperience?: number;
+  maxExperience?: number;
+  sortBy?: string;
+  employerId?: string;
   minBudget?: number;
   maxBudget?: number;
   latitude?: number;
@@ -16,6 +23,8 @@ export interface SearchParams {
   city?: string;
   location?: string;
   skills?: string;
+  trade?: string;
+  experience?: string;
   level?: string;
   lat?: number;
   lon?: number;

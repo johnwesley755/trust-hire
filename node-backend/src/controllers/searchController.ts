@@ -4,7 +4,7 @@ import { ApiResponse } from '../utils/ApiResponse';
 
 export const searchJobs = async (c: Context) => {
   try {
-    const { query, category, industry, location, city  } = c.req.query();
+    const { query, category, industry, location, city, jobType, minSalary, maxSalary, minExperience, maxExperience, sortBy, employerId } = c.req.query();
     let whereClause: any = {
       status: 'OPEN',
       AND: [
@@ -23,6 +23,7 @@ export const searchJobs = async (c: Context) => {
           { title: { contains: query as string, mode: 'insensitive' } },
           { description: { contains: query as string, mode: 'insensitive' } },
           { industry: { contains: query as string, mode: 'insensitive' } },
+          { employer_name: { contains: query as string, mode: 'insensitive' } },
         ]
       });
     }
@@ -34,10 +35,35 @@ export const searchJobs = async (c: Context) => {
 
     if (location) whereClause.location = { contains: location as string, mode: 'insensitive' };
     if (city) whereClause.city = { contains: city as string, mode: 'insensitive' };
+    if (employerId) whereClause.employer_id = employerId;
+
+    if (minSalary || maxSalary) {
+      const budgetFilter: any = {};
+      if (minSalary) budgetFilter.gte = Number(minSalary);
+      if (maxSalary) budgetFilter.lte = Number(maxSalary);
+      whereClause.budget = budgetFilter;
+    }
+
+    if (minExperience || maxExperience) {
+      const expFilter: any = {};
+      if (minExperience) expFilter.gte = Number(minExperience);
+      if (maxExperience) expFilter.lte = Number(maxExperience);
+      whereClause.experience_years_required = expFilter;
+    }
+
+    // Determine order by
+    let orderBy: any = { created_at: 'desc' };
+    if (sortBy === 'salary_desc') {
+      orderBy = { budget: 'desc' };
+    } else if (sortBy === 'salary_asc') {
+      orderBy = { budget: 'asc' };
+    } else if (sortBy === 'exp_asc') {
+      orderBy = { experience_years_required: 'asc' };
+    }
 
     const jobs = await prisma.jobs.findMany({ 
       where: whereClause,
-      orderBy: { created_at: 'desc' }
+      orderBy
     });
 
     const jobIds = jobs.map(j => j.id);
@@ -66,15 +92,24 @@ export const searchJobs = async (c: Context) => {
       const sIndex = indexByJobId.get(j.id);
       const emp = employerById.get(j.employer_id);
 
+      // Determine clean Job Type from title or category if not explicitly set
+      const defaultJobType = j.title?.toLowerCase().includes('intern') 
+        ? 'Internship' 
+        : (j.title?.toLowerCase().includes('contract') || j.industry?.toLowerCase().includes('contract') 
+            ? 'Contract' 
+            : 'Full Time');
+
       return {
         id: j.id,
         title: j.title,
         description: j.description || '',
         industry: j.industry || 'General',
+        jobType: defaultJobType,
         location: j.location || '',
         city: j.city || '',
         budget: j.budget ? Number(j.budget) : 0,
-        experienceLevel: 'L1',
+        experienceYearsRequired: j.experience_years_required != null ? Number(j.experience_years_required) : 0,
+        experienceLevel: 'Standard',
         status: j.status || 'OPEN',
         expiresAt: j.expires_at,
         createdAt: j.created_at,
@@ -99,10 +134,61 @@ export const searchJobs = async (c: Context) => {
   }
 };
 
+export const getPopularEmployers = async (c: Context) => {
+  try {
+    const { city } = c.req.query();
+    
+    // Fetch employers with their active jobs count
+    const employers = await prisma.employer_profiles.findMany({
+      where: city ? { city: { contains: city as string, mode: 'insensitive' } } : {},
+      take: 10,
+      orderBy: { created_at: 'desc' }
+    });
+
+    const userIds = employers.map(e => e.user_id).filter(Boolean);
+    const employerProfileIds = employers.map(e => e.id);
+
+    const activeJobs = await prisma.jobs.findMany({
+      where: {
+        status: 'OPEN',
+        OR: [
+          { employer_id: { in: userIds } },
+          { employer_id: { in: employerProfileIds } }
+        ]
+      },
+      select: { employer_id: true }
+    });
+
+    const jobCountMap = new Map<string, number>();
+    activeJobs.forEach(j => {
+      const current = jobCountMap.get(j.employer_id) || 0;
+      jobCountMap.set(j.employer_id, current + 1);
+    });
+
+    const popular = employers.map(emp => {
+      const count = (jobCountMap.get(emp.id) || 0) + (jobCountMap.get(emp.user_id) || 0);
+      return {
+        id: emp.id,
+        userId: emp.user_id,
+        companyName: emp.company_name || 'Verified Employer',
+        industry: emp.industry || 'General',
+        city: emp.city || '',
+        businessTier: emp.business_tier || 'STARTER',
+        isVerified: emp.is_verified || false,
+        activeJobsCount: count > 0 ? count : 1 // at least 1 for display or real count
+      };
+    });
+
+    return c.json(ApiResponse.ok(popular));
+  } catch (err: any) {
+    return c.json(ApiResponse.error(err.message), 500 as any);
+  }
+};
+
 export const searchWorkers = async (c: Context) => {
   try {
     const employerId = c.get('user')?.sub;
-    const { query, level, location, city, skills  } = c.req.query();
+    const { query, level, location, city, skills, trade, minExperience, maxExperience, experience } = c.req.query();
     let whereClause: any = {};
 
     if (query) {
@@ -113,10 +199,31 @@ export const searchWorkers = async (c: Context) => {
       ];
     }
 
-    if (level) whereClause.level = { contains: level as string, mode: 'insensitive' };
     if (location) whereClause.location = { contains: location as string, mode: 'insensitive' };
     if (city) whereClause.city = { contains: city as string, mode: 'insensitive' };
-    if (skills) whereClause.skills = { contains: skills as string, mode: 'insensitive' };
+    
+    const skillOrTrade = (trade || skills) as string;
+    if (skillOrTrade && skillOrTrade !== 'All') {
+      whereClause.skills = { contains: skillOrTrade, mode: 'insensitive' };
+    }
+
+    // Handle experience ranges
+    let minExp = minExperience ? Number(minExperience) : undefined;
+    let maxExp = maxExperience ? Number(maxExperience) : undefined;
+
+    if (experience && experience !== 'all') {
+      if (experience === '0-1') { minExp = 0; maxExp = 1; }
+      else if (experience === '1-3') { minExp = 1; maxExp = 3; }
+      else if (experience === '3-5') { minExp = 3; maxExp = 5; }
+      else if (experience === '5+') { minExp = 5; maxExp = 50; }
+    }
+
+    if (minExp !== undefined || maxExp !== undefined) {
+      const expFilter: any = {};
+      if (minExp !== undefined) expFilter.gte = minExp;
+      if (maxExp !== undefined) expFilter.lte = maxExp;
+      whereClause.experience_years = expFilter;
+    }
 
     const workers = await prisma.worker_profiles.findMany({ 
       where: whereClause,
@@ -191,7 +298,7 @@ export const searchWorkers = async (c: Context) => {
         skills: w.skills || '',
         location: w.location || '',
         city: w.city || '',
-        level: w.level || 'L1',
+        level: w.level && !w.level.startsWith('L') ? w.level : 'Verified Specialist',
         levelNumber: w.level_number || 1,
         experienceYears: w.experience_years || 0,
         hourlyRate: w.hourly_rate ? Number(w.hourly_rate) : null,

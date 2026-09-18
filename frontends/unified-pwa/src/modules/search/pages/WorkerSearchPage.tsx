@@ -1,11 +1,24 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { searchWorkers, type WorkerSearch } from '../../../services/search.service';
+import { searchService, type WorkerSearch } from '../../../services/search.service';
 import { queryKeys } from '../../../lib/queryKeys';
-import { Search, MapPin, Award, ShieldCheck, Loader2, Star, Zap, ChevronRight, SlidersHorizontal, CheckCircle2 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { 
+  MapPin, 
+  ShieldCheck, 
+  Star, 
+  ChevronRight, 
+  SlidersHorizontal, 
+  CheckCircle2, 
+  RotateCcw,
+  Users,
+  PlusCircle,
+  X,
+  Check
+} from 'lucide-react';
 import { UserAvatar } from '../../../components/common/UserAvatar';
+import { JobSearchHero } from '../../jobs/components/JobSearchHero';
+import { AppLoader } from '../../../components/common/AppLoader';
 
 const TRADE_CATEGORIES = [
   "All",
@@ -19,31 +32,39 @@ const TRADE_CATEGORIES = [
   "Agriculture"
 ];
 
+const EXPERIENCE_LEVELS = [
+  { value: 'all', label: 'All Experience Levels' },
+  { value: '0-1', label: 'Entry Level (0 - 1 Years)' },
+  { value: '1-3', label: 'Junior / Associate (1 - 3 Years)' },
+  { value: '3-5', label: 'Mid-Level Specialist (3 - 5 Years)' },
+  { value: '5+', label: 'Senior / Expert (5+ Years)' },
+];
+
 export const WorkerSearchPage = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [query, setQuery] = useState(searchParams.get('q') || '');
   const [city, setCity] = useState(searchParams.get('city') || '');
-  const [level, setLevel] = useState(searchParams.get('level') || '');
-  const [skills, setSkills] = useState(searchParams.get('skills') || '');
-  const [selectedTrade, setSelectedTrade] = useState('All');
+  const [experience, setExperience] = useState(searchParams.get('exp') || 'all');
+  const [selectedTrade, setSelectedTrade] = useState(searchParams.get('trade') || 'All');
+  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
 
   useEffect(() => {
     const q = searchParams.get('q') || '';
     const c = searchParams.get('city') || '';
-    const l = searchParams.get('level') || '';
-    const s = searchParams.get('skills') || '';
+    const exp = searchParams.get('exp') || 'all';
+    const tr = searchParams.get('trade') || 'All';
     
     if (q !== query) setQuery(q);
     if (c !== city) setCity(c);
-    if (l !== level) setLevel(l);
-    if (s !== skills) setSkills(s);
+    if (exp !== experience) setExperience(exp);
+    if (tr !== selectedTrade) setSelectedTrade(tr);
   }, [searchParams]);
 
   const updateSearchParams = (updates: Record<string, string>) => {
     const newParams = new URLSearchParams(searchParams);
     Object.entries(updates).forEach(([key, value]) => {
-      if (value) newParams.set(key, value);
+      if (value && value !== 'all' && value !== 'All') newParams.set(key, value);
       else newParams.delete(key);
     });
     setSearchParams(newParams);
@@ -52,264 +73,472 @@ export const WorkerSearchPage = () => {
   const clearFilters = () => {
     setQuery('');
     setCity('');
-    setLevel('');
-    setSkills('');
+    setExperience('all');
     setSelectedTrade('All');
     setSearchParams(new URLSearchParams());
   };
 
-  const effectiveSkills = selectedTrade !== 'All' ? selectedTrade : skills;
-
-  const { data: results, isLoading } = useQuery({
-    queryKey: queryKeys.workers.search({ q: query, city, level, skills: effectiveSkills }),
-    queryFn: () => searchWorkers(query, undefined, city, level, undefined, undefined, undefined, effectiveSkills),
+  const { data: results = [], isLoading } = useQuery<WorkerSearch[]>({
+    queryKey: queryKeys.workers.search({ 
+      q: query, 
+      city, 
+      trade: selectedTrade !== 'All' ? selectedTrade : undefined,
+      experience: experience !== 'all' ? experience : undefined 
+    }),
+    queryFn: () => searchService.searchWorkers({
+      query: query || undefined,
+      city: city || undefined,
+      trade: selectedTrade !== 'All' ? selectedTrade : undefined,
+      experience: experience !== 'all' ? experience : undefined,
+    }),
     placeholderData: (prev) => prev,
     staleTime: 1000 * 60 * 3,
   });
 
+  const activeFilterCount = (experience !== 'all' ? 1 : 0) + (selectedTrade !== 'All' ? 1 : 0) + (city ? 1 : 0);
+  const hasActiveFilters = Boolean(query || city || experience !== 'all' || selectedTrade !== 'All');
+
   return (
-    <main className="min-h-screen bg-slate-50/50 pb-20 font-sans">
-      <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-6">
+    <div className="min-h-screen bg-[#F8FAFC] pb-24 font-sans text-[#0A1931]">
+      
+      {/* 1. Header Hero Banner with Accurate City Detector */}
+      <JobSearchHero
+        title="Find top verified talent"
+        subtitle="Connect with 2,400+ background-checked, pre-evaluated technicians ready for instant dispatch."
+        initialQuery={query}
+        initialCity={city}
+        onSearch={(q, c) => {
+          setQuery(q);
+          setCity(c);
+          updateSearchParams({ q, city: c });
+        }}
+      />
+
+      {/* 2. Main Layout */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
         
-        {/* Header & Filter Search Strip */}
-        <section className="bg-white rounded-3xl p-6 sm:p-8 shadow-xs border border-slate-200/80 space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
-              <div className="flex items-center gap-2 text-blue-600 font-bold uppercase tracking-wider text-[10px] mb-1">
-                <ShieldCheck className="w-4 h-4 text-[#0066FF]" />
-                Hyper-Local Talent Dispatch
-              </div>
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-[#0A1931] tracking-tight">
-                Discover Verified Trade Professionals
-              </h1>
-              <p className="text-xs sm:text-sm text-slate-500 font-medium mt-1">
-                Search 2,400+ background-verified technicians ready for instant shift booking.
-              </p>
-            </div>
-            
-            {(query || city || level || skills || selectedTrade !== 'All') && (
-              <button 
-                onClick={clearFilters}
-                className="px-3.5 py-2 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-xl text-xs font-bold transition-all self-start cursor-pointer"
-              >
-                Clear Filters
-              </button>
-            )}
+        {/* Mobile Quick Filter Action Row (Visible on Mobile Only) */}
+        <div className="lg:hidden mb-5 space-y-3">
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-xs font-bold text-slate-500">
+              <strong className="text-slate-900 font-extrabold">{results.length}</strong> verified specialists
+            </span>
+            <button
+              onClick={() => setIsMobileFilterOpen(true)}
+              className="flex items-center gap-2 px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-[#0A1931] shadow-xs active:scale-95 transition-all cursor-pointer"
+            >
+              <SlidersHorizontal className="w-3.5 h-3.5 text-[#0066FF]" />
+              <span>Filters</span>
+              {activeFilterCount > 0 && (
+                <span className="w-5 h-5 rounded-full bg-[#0066FF] text-white text-[10px] font-extrabold flex items-center justify-center">
+                  {activeFilterCount}
+                </span>
+              )}
+            </button>
           </div>
 
-          {/* Search Inputs */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            <div className="relative">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <input
-                value={query}
-                onChange={(e) => {
-                  setQuery(e.target.value);
-                  updateSearchParams({ q: e.target.value });
-                }}
-                placeholder="Name or keyword..."
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-3.5 py-2.5 text-xs font-semibold text-slate-800 focus:bg-white focus:ring-2 focus:ring-[#0066FF] outline-none transition-all"
-              />
-            </div>
-
-            <div className="relative">
-              <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#0066FF]" />
-              <input
-                value={city}
-                onChange={(e) => {
-                  setCity(e.target.value);
-                  updateSearchParams({ city: e.target.value });
-                }}
-                placeholder="Area or city (e.g. Bangalore)..."
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-3.5 py-2.5 text-xs font-semibold text-slate-800 focus:bg-white focus:ring-2 focus:ring-[#0066FF] outline-none transition-all"
-              />
-            </div>
-
-            <div className="relative">
-              <Award className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <input
-                value={skills}
-                onChange={(e) => {
-                  setSkills(e.target.value);
-                  updateSearchParams({ skills: e.target.value });
-                }}
-                placeholder="Skill tags (e.g. 3-Phase Wiring)..."
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-3.5 py-2.5 text-xs font-semibold text-slate-800 focus:bg-white focus:ring-2 focus:ring-[#0066FF] outline-none transition-all"
-              />
-            </div>
-
-            <div className="flex gap-1.5">
-              {['L1', 'L2', 'L3', 'L4'].map((lvl) => (
+          {/* Quick Trade Horizontal Pill Bar */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+            {TRADE_CATEGORIES.map((trade) => {
+              const isSelected = selectedTrade === trade;
+              return (
                 <button
-                  key={lvl}
+                  key={trade}
                   onClick={() => {
-                    const newLvl = level === lvl ? '' : lvl;
-                    setLevel(newLvl);
-                    updateSearchParams({ level: newLvl });
+                    setSelectedTrade(trade);
+                    updateSearchParams({ trade });
                   }}
-                  className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                    level === lvl 
-                      ? 'bg-[#0066FF] text-white shadow-xs' 
-                      : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                  className={`px-3 py-1.5 rounded-full text-xs font-bold shrink-0 transition-all cursor-pointer ${
+                    isSelected
+                      ? 'bg-[#0066FF] text-white shadow-xs'
+                      : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
                   }`}
                 >
-                  {lvl}
+                  {trade}
                 </button>
-              ))}
-            </div>
+              );
+            })}
           </div>
+        </div>
 
-          {/* Trade Category Quick Pills */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 shrink-0 mr-1 flex items-center gap-1">
-              <SlidersHorizontal className="w-3 h-3 text-[#0066FF]" /> Trades:
-            </span>
-            {TRADE_CATEGORIES.map((trade) => (
-              <button
-                key={trade}
-                onClick={() => setSelectedTrade(trade)}
-                className={`px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition-all border cursor-pointer ${
-                  selectedTrade === trade
-                    ? 'bg-[#0066FF] text-white border-[#0066FF] shadow-xs'
-                    : 'bg-white text-slate-600 border-slate-200 hover:border-blue-300'
-                }`}
-              >
-                {trade}
-              </button>
-            ))}
-          </div>
-        </section>
-
-        {/* Search Results Area */}
-        <div className="space-y-4">
-          <div className="flex justify-between items-center px-1">
-            <h2 className="text-lg sm:text-xl font-extrabold text-[#0A1931]">
-              Available Candidates Near You
-            </h2>
-            <span className="px-3 py-1 bg-white rounded-full text-xs font-bold text-slate-600 shadow-xs border border-slate-200">
-              {results?.length || 0} verified available
-            </span>
-          </div>
-
-          {isLoading ? (
-            <div className="flex flex-col items-center justify-center py-28 gap-3 bg-white rounded-3xl border border-slate-200">
-              <Loader2 className="h-8 w-8 text-[#0066FF] animate-spin" />
-              <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Scanning Proximity Radar...</p>
-            </div>
-          ) : results?.length === 0 ? (
-            <div className="text-center py-24 bg-white border border-slate-200 rounded-3xl space-y-3">
-              <div className="w-14 h-14 bg-blue-50 text-[#0066FF] rounded-2xl flex items-center justify-center mx-auto">
-                <Search className="w-6 h-6" />
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          
+          {/* DESKTOP LEFT COLUMN: Talent Filter Sidebar (Hidden on mobile) */}
+          <div className="hidden lg:block lg:col-span-3 bg-white rounded-2xl p-5 border border-slate-200/90 shadow-xs space-y-6 sticky top-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-200">
+              <div className="flex items-center gap-2">
+                <SlidersHorizontal className="w-4 h-4 text-[#0066FF]" />
+                <h2 className="text-base font-extrabold text-[#0A1931]">
+                  Talent Filters
+                </h2>
               </div>
-              <h3 className="text-lg font-bold text-slate-800">No Candidates Found</h3>
-              <p className="text-xs text-slate-400 max-w-xs mx-auto">
-                Try expanding your search radius or clearing trade filter constraints.
-              </p>
+              {hasActiveFilters && (
+                <button
+                  onClick={clearFilters}
+                  className="text-xs font-bold text-[#0066FF] hover:underline flex items-center gap-1 cursor-pointer"
+                >
+                  <RotateCcw className="w-3 h-3" />
+                  Clear
+                </button>
+              )}
             </div>
-          ) : (
-            <div className="flex flex-col gap-4">
-              {results?.map((worker: any, idx: number) => {
-                const ratingDisplay = worker.trustScore ? ((worker.trustScore / 20).toFixed(1)) : '4.8';
-                const locationDisplay = worker.city || worker.location || 'Local Area';
-                return (
-                  <motion.div 
-                    key={worker.userId || worker.id || idx} 
-                    initial={{ opacity: 0, y: 16 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: Math.min(idx * 0.04, 0.4) }}
-                    className="bg-white rounded-xl p-4 hover:shadow-md hover:border-blue-300 transition-all group border border-slate-200/80 flex flex-col md:flex-row md:items-center justify-between cursor-pointer"
-                    onClick={() => navigate(`/worker/${worker.userId || worker.id}`)}
-                  >
-                    <div className="flex-1 min-w-0 pr-8">
-                      {/* Top Profile Header */}
-                      <div className="flex flex-wrap items-center gap-4 mb-2">
-                        <div className="relative shrink-0">
-                          <UserAvatar 
-                            src={worker.profileImageUrl} 
-                            name={worker.name} 
-                            size="md" 
+
+            {/* Trade Category */}
+            <div className="space-y-2">
+              <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">
+                TRADE SPECIALIZATION
+              </span>
+              <div className="space-y-1">
+                {TRADE_CATEGORIES.map((trade) => {
+                  const isSelected = selectedTrade === trade;
+                  return (
+                    <button
+                      key={trade}
+                      onClick={() => {
+                        setSelectedTrade(trade);
+                        updateSearchParams({ trade });
+                      }}
+                      className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all text-left cursor-pointer ${
+                        isSelected
+                          ? 'text-[#0066FF] font-bold bg-blue-50/80'
+                          : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/60'
+                      }`}
+                    >
+                      <span>{trade}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Experience Level Filter */}
+            <div className="space-y-2 pt-4 border-t border-slate-100">
+              <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">
+                EXPERIENCE LEVEL
+              </span>
+              <div className="space-y-1">
+                {EXPERIENCE_LEVELS.map((el) => {
+                  const isSelected = experience === el.value;
+                  return (
+                    <button
+                      key={el.value}
+                      onClick={() => {
+                        setExperience(el.value);
+                        updateSearchParams({ exp: el.value });
+                      }}
+                      className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all text-left cursor-pointer ${
+                        isSelected
+                          ? 'text-[#0066FF] font-bold bg-blue-50/80'
+                          : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/60'
+                      }`}
+                    >
+                      <span>{el.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+          </div>
+
+          {/* CANDIDATES FEED: Shows FIRST on mobile and in Center on desktop */}
+          <div className="lg:col-span-6 space-y-5">
+            
+            {/* Header Result Count (Desktop) */}
+            <div className="hidden lg:flex items-center justify-between px-1">
+              <span className="text-xs font-bold text-slate-500">
+                <strong className="text-slate-900 font-extrabold">{results.length}</strong> verified specialists available
+              </span>
+            </div>
+
+            {/* Worker Feed */}
+            {isLoading ? (
+              <AppLoader variant="skeleton" />
+            ) : results.length > 0 ? (
+              <div className="space-y-4">
+                {results.map((worker: any) => {
+                  const skillList = worker.skills 
+                    ? worker.skills.split(',').map((s: string) => s.trim()).filter(Boolean) 
+                    : [];
+
+                  const displayRole = worker.level && !worker.level.startsWith('L')
+                    ? worker.level
+                    : worker.experienceYears
+                      ? `${worker.experienceYears}+ Yrs Exp`
+                      : 'Verified Specialist';
+
+                  return (
+                    <div
+                      key={worker.userId}
+                      onClick={() => navigate(`/worker/${worker.userId}`)}
+                      className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/90 hover:border-[#0066FF]/60 hover:shadow-lg transition-all duration-200 group cursor-pointer space-y-4"
+                    >
+                      {/* Card Header */}
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-center gap-3.5 min-w-0">
+                          <UserAvatar
+                            src={worker.profileImageUrl}
+                            name={worker.name}
+                            size="lg"
                           />
-                        </div>
-
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-3">
-                            <h3 className="text-lg font-black text-slate-900 group-hover:text-[#0066FF] transition-colors truncate">
-                              {worker.name}
-                            </h3>
-                            {worker.isVerified && (
-                              <CheckCircle2 className="w-4 h-4 text-emerald-500 fill-emerald-100 shrink-0" />
-                            )}
-                            <span className="px-2 py-0.5 bg-blue-50 text-[#0066FF] text-[11px] font-bold rounded-md">
-                              {worker.level || 'L1'}
-                            </span>
-                          </div>
-
-                          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mt-1 text-sm text-slate-500 font-medium">
-                            <span className="flex items-center gap-1">
-                              <MapPin className="w-4 h-4 text-slate-400" />
-                              {locationDisplay}
-                            </span>
-                            <span className="flex items-center gap-1 text-amber-500 font-bold">
-                              <Star className="w-4 h-4 fill-current" /> {ratingDisplay}
-                            </span>
-                            {worker.hourlyRate && (
-                              <span className="text-slate-600 font-bold">
-                                ₹{worker.hourlyRate}/hr
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-1.5">
+                              <h3 className="text-base font-bold text-[#0A1931] group-hover:text-[#0066FF] transition-colors truncate">
+                                {worker.name}
+                              </h3>
+                              {worker.isVerified && (
+                                <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0" />
+                              )}
+                            </div>
+                            <div className="flex items-center gap-2 text-xs text-slate-500 font-medium mt-0.5">
+                              <span className="flex items-center gap-1 text-slate-700 font-bold">
+                                <MapPin className="w-3.5 h-3.5 text-[#0066FF]" />
+                                {worker.city || worker.location || 'Local Area'}
                               </span>
-                            )}
+                              <span>•</span>
+                              <span className="px-2 py-0.5 bg-blue-50 text-[#0066FF] rounded-md font-bold text-[10px]">
+                                {displayRole}
+                              </span>
+                            </div>
                           </div>
+                        </div>
+
+                        {/* Trust Score Badge */}
+                        <div className="px-2.5 py-1 bg-amber-50 text-amber-800 border border-amber-200 rounded-lg flex items-center gap-1 text-xs font-extrabold shrink-0">
+                          <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
+                          <span>{worker.trustScore ? `${worker.trustScore}%` : '98%'}</span>
                         </div>
                       </div>
 
-                      {/* Skill Chips */}
-                      <div className="flex flex-wrap gap-2 mt-3 ml-[60px]">
-                        {(worker.skills || "General Trade").split(',').slice(0, 3).map((skill: string) => (
-                          <span key={skill} className="px-3 py-1 bg-slate-100 text-slate-700 rounded-lg text-xs font-bold">
-                            {skill.trim()}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
+                      {/* Bio Snippet */}
+                      {worker.bio && (
+                        <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
+                          {worker.bio}
+                        </p>
+                      )}
 
-                    {/* Bottom Action Strip */}
-                    <div className="mt-4 md:mt-0 shrink-0 md:border-l md:border-slate-100 md:pl-8 flex flex-col md:items-end gap-3">
-                      <div className="flex items-center gap-1.5 text-emerald-600 text-sm font-bold">
-                        <Zap className="w-4 h-4 fill-current" />
-                        <span>{worker.status === 'AVAILABLE' ? 'Ready to Book' : 'Verified'}</span>
+                      {/* Skills Tags */}
+                      {skillList.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5 pt-1">
+                          {skillList.slice(0, 4).map((skill: string, idx: number) => (
+                            <span
+                              key={idx}
+                              className="px-2.5 py-1 bg-slate-100 text-slate-700 text-[11px] font-semibold rounded-lg"
+                            >
+                              {skill}
+                            </span>
+                          ))}
+                          {skillList.length > 4 && (
+                            <span className="px-2 py-1 text-slate-400 text-[10px] font-bold">
+                              +{skillList.length - 4} more
+                            </span>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Card Footer */}
+                      <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-xs">
+                        <span className="text-emerald-600 font-bold flex items-center gap-1">
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          Instant Booking Available
+                        </span>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/worker/${worker.userId}`);
+                          }}
+                          className="px-3.5 py-1.5 bg-[#0066FF] hover:bg-[#0052CC] text-white rounded-lg font-bold text-xs shadow-xs transition-all flex items-center gap-1 cursor-pointer"
+                        >
+                          <span>View Profile</span>
+                          <ChevronRight className="w-3.5 h-3.5" />
+                        </button>
                       </div>
-                      <button 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/worker/${worker.userId || worker.id}`);
-                        }}
-                        className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 shadow-xs cursor-pointer ${
-                          worker.offerStatus === 'ACCEPTED' || worker.offerStatus === 'APPROVED'
-                            ? 'bg-emerald-600 text-white hover:bg-emerald-700'
-                            : worker.offerStatus === 'REJECTED' || worker.offerStatus === 'DECLINED'
-                            ? 'bg-rose-500 text-white hover:bg-rose-600'
-                            : worker.offerStatus === 'OFFER_SENT' || worker.isOfferSent
-                            ? 'bg-amber-500 text-white hover:bg-amber-600'
-                            : 'bg-[#0066FF] hover:bg-blue-700 text-white'
-                        }`}
-                      >
-                        {worker.offerStatus === 'ACCEPTED' || worker.offerStatus === 'APPROVED'
-                          ? 'Approved'
-                          : worker.offerStatus === 'REJECTED' || worker.offerStatus === 'DECLINED'
-                          ? 'Declined'
-                          : worker.offerStatus === 'OFFER_SENT' || worker.isOfferSent
-                          ? 'Offer Sent'
-                          : 'View & Dispatch'}{' '}
-                        <ChevronRight className="w-4 h-4" />
-                      </button>
                     </div>
-                  </motion.div>
-                );
-              })}
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="bg-white rounded-2xl p-10 border border-slate-200 text-center space-y-4">
+                <div className="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto text-slate-400">
+                  <Users className="w-7 h-7" />
+                </div>
+                <div className="space-y-1">
+                  <h3 className="text-base font-extrabold text-slate-900">
+                    No verified workers found
+                  </h3>
+                  <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                    Try loosening your criteria or search across different cities to see available technicians.
+                  </p>
+                </div>
+                {hasActiveFilters && (
+                  <button
+                    onClick={clearFilters}
+                    className="px-4 py-2 bg-[#0066FF] text-white rounded-xl font-bold text-xs hover:bg-[#0052CC] transition-all cursor-pointer inline-flex items-center gap-1.5"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" />
+                    Reset All Filters
+                  </button>
+                )}
+              </div>
+            )}
+
+          </div>
+
+          {/* RIGHT COLUMN: Talent Dispatch Quick Actions */}
+          <div className="lg:col-span-3 space-y-6 lg:sticky lg:top-4">
+            
+            {/* Quick Post Shift Card */}
+            <div className="bg-linear-to-br from-[#0A1931] to-[#0066FF] text-white rounded-2xl p-5 shadow-lg space-y-4">
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-widest text-[#38BDF8]">
+                  Direct Dispatch
+                </span>
+                <h3 className="text-base font-extrabold mt-0.5">
+                  Need multiple workers fast?
+                </h3>
+                <p className="text-white/80 text-xs font-medium mt-1 leading-relaxed">
+                  Post your shift specifications and let our matching engine notify verified specialists within your area.
+                </p>
+              </div>
+
+              <Link
+                to="/post-job"
+                className="w-full py-2.5 px-4 bg-white text-[#0A1931] hover:bg-blue-50 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md"
+              >
+                <PlusCircle className="w-4 h-4 text-[#0066FF]" />
+                <span>Post a Job Opening</span>
+              </Link>
             </div>
-          )}
+
+            {/* Hiring Guarantee Info Card */}
+            <div className="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-xs space-y-3">
+              <div className="flex items-center gap-2 text-slate-900 font-bold text-xs">
+                <ShieldCheck className="w-4 h-4 text-emerald-500" />
+                <span>TrustHyre Verified Standard</span>
+              </div>
+              <ul className="text-xs text-slate-500 space-y-2 font-medium">
+                <li className="flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+                  <span>Aadhaar & biometric ID verified</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+                  <span>Practical skill assessment validated</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+                  <span>Escrow-protected daily payouts</span>
+                </li>
+              </ul>
+            </div>
+
+          </div>
+
         </div>
       </div>
-    </main>
+
+      {/* MOBILE FILTER MODAL / BOTTOM SHEET */}
+      {isMobileFilterOpen && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-xs p-0 sm:p-4">
+          <div className="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl p-6 space-y-6 max-h-[85vh] overflow-y-auto animate-in slide-in-from-bottom duration-200 shadow-2xl">
+            
+            {/* Modal Header */}
+            <div className="flex items-center justify-between pb-3 border-b border-slate-200">
+              <div className="flex items-center gap-2">
+                <SlidersHorizontal className="w-4 h-4 text-[#0066FF]" />
+                <h3 className="text-base font-extrabold text-[#0A1931]">
+                  Filter Talent
+                </h3>
+              </div>
+              <button
+                onClick={() => setIsMobileFilterOpen(false)}
+                className="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Trade Categories */}
+            <div className="space-y-2.5">
+              <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">
+                Trade Specialization
+              </span>
+              <div className="grid grid-cols-2 gap-2">
+                {TRADE_CATEGORIES.map((trade) => {
+                  const isSelected = selectedTrade === trade;
+                  return (
+                    <button
+                      key={trade}
+                      onClick={() => setSelectedTrade(trade)}
+                      className={`px-3 py-2 rounded-xl text-xs font-semibold text-left transition-all flex items-center justify-between cursor-pointer ${
+                        isSelected
+                          ? 'bg-blue-50 text-[#0066FF] font-bold border border-blue-200'
+                          : 'bg-slate-50 text-slate-700 hover:bg-slate-100 border border-transparent'
+                      }`}
+                    >
+                      <span>{trade}</span>
+                      {isSelected && <Check className="w-3.5 h-3.5" />}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Experience Levels */}
+            <div className="space-y-2.5 pt-3 border-t border-slate-100">
+              <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">
+                Experience Level
+              </span>
+              <div className="space-y-1.5">
+                {EXPERIENCE_LEVELS.map((el) => {
+                  const isSelected = experience === el.value;
+                  return (
+                    <button
+                      key={el.value}
+                      onClick={() => setExperience(el.value)}
+                      className={`w-full px-3 py-2.5 rounded-xl text-xs font-semibold text-left transition-all flex items-center justify-between cursor-pointer ${
+                        isSelected
+                          ? 'bg-blue-50 text-[#0066FF] font-bold border border-blue-200'
+                          : 'bg-slate-50 text-slate-700 hover:bg-slate-100 border border-transparent'
+                      }`}
+                    >
+                      <span>{el.label}</span>
+                      {isSelected && <Check className="w-3.5 h-3.5" />}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Modal Actions */}
+            <div className="pt-4 border-t border-slate-200 flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  clearFilters();
+                  setIsMobileFilterOpen(false);
+                }}
+                className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold"
+              >
+                Reset
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  updateSearchParams({ trade: selectedTrade, exp: experience });
+                  setIsMobileFilterOpen(false);
+                }}
+                className="flex-2 py-3 bg-[#0066FF] hover:bg-[#0052CC] text-white rounded-xl text-xs font-bold shadow-md shadow-blue-500/25"
+              >
+                Apply Filters
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
+    </div>
   );
 };
-

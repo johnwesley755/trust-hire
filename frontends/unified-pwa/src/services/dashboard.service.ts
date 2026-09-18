@@ -2,24 +2,28 @@ import apiClient from '../api/apiClient';
 import type { EmployerStats, WorkerStats } from '../types';
 
 export const dashboardService = {
+  getDashboardSummary: async (): Promise<any> => {
+    const res = await apiClient.get('/api/dashboard/summary');
+    return res.data;
+  },
   getEmployerStats: async (): Promise<EmployerStats> => {
-    const res = await apiClient.get<EmployerStats>('/api/dashboard/employer/stats');
+    const res = await apiClient.get<EmployerStats>('/api/dashboard/summary');
     return res.data;
   },
   getWorkerStats: async (): Promise<WorkerStats> => {
-    const res = await apiClient.get<WorkerStats>('/api/dashboard/worker/stats');
+    const res = await apiClient.get<WorkerStats>('/api/dashboard/summary');
     return res.data;
   },
   getEmployerDashboard: async (): Promise<EmployerStats> => {
-    const res = await apiClient.get<EmployerStats>('/api/dashboard/employer/stats');
+    const res = await apiClient.get<EmployerStats>('/api/dashboard/summary');
     return res.data;
   },
   getWorkerDashboard: async (): Promise<WorkerStats> => {
-    const res = await apiClient.get<WorkerStats>('/api/dashboard/worker/stats');
+    const res = await apiClient.get<WorkerStats>('/api/dashboard/summary');
     return res.data;
   },
   getMetrics: async (): Promise<any> => {
-    const res = await apiClient.get('/api/dashboard/metrics');
+    const res = await apiClient.get('/api/dashboard/summary');
     return res.data;
   },
 };

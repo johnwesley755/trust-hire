@@ -28,7 +28,7 @@ export const ProfileStatsCard: React.FC<ProfileStatsCardProps> = ({ level, exper
           </div>
           <div className="text-right">
             <p className="text-[10px] text-blue-200 font-bold uppercase tracking-widest mb-1">Partner Tier</p>
-            <p className="text-xl font-extrabold text-amber-300 tracking-tight">{level || 'L1 Certified'}</p>
+            <p className="text-xl font-extrabold text-amber-300 tracking-tight">{level && !level.startsWith('L') ? level : 'Verified Specialist'}</p>
           </div>
         </div>
 

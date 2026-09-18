@@ -6,6 +6,7 @@ const router = new Hono();
 
 router.get('/jobs', searchController.searchJobs);
 router.get('/workers', optionalAuth, searchController.searchWorkers);
+router.get('/popular-employers', searchController.getPopularEmployers);
 
 // Defect fix 1.15: Protect index mutations behind admin/auth checks
 router.post('/index/job', authenticateJWT, requireAdmin, searchController.indexJob);

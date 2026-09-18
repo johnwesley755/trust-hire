@@ -21,6 +21,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { UserAvatar } from '../../../components/common/UserAvatar';
+import { AppLoader } from '../../../components/common/AppLoader';
 
 export const WorkerProfilePage = () => {
   const { id } = useParams<{ id: string }>();
@@ -96,12 +97,7 @@ export const WorkerProfilePage = () => {
     staleTime: 1000 * 60 * 5,
   });
 
-  if (isLoadingWorker) return (
-    <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center gap-4">
-        <Loader2 className="h-12 w-12 text-[#0066FF] animate-spin" />
-        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Loading Profile</p>
-    </div>
-  );
+  if (isLoadingWorker) return <AppLoader variant="page" message="Loading Profile..." />;
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] pb-24">

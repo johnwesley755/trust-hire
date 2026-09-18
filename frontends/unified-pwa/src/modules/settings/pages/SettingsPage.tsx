@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { UserAvatar } from '../../../components/common/UserAvatar';
+import { AppLoader } from '../../../components/common/AppLoader';
 
 interface UserSettings {
   email_notifications?: boolean;
@@ -86,12 +87,7 @@ export const SettingsPage = () => {
   };
 
   if (isLoading) {
-    return (
-      <div className="min-h-[70vh] flex flex-col items-center justify-center gap-3">
-        <Loader2 className="w-8 h-8 text-[#0066FF] animate-spin" />
-        <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Loading Settings...</p>
-      </div>
-    );
+    return <AppLoader variant="page" message="Loading Settings..." />;
   }
 
   const emailNotifs = settings?.email_notifications ?? settings?.emailNotifications ?? true;

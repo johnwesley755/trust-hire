@@ -26,6 +26,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { UserAvatar } from '../../../components/common/UserAvatar';
+import { AppLoader } from '../../../components/common/AppLoader';
 
 export default function ApplicationManagementPage() {
   const navigate = useNavigate();
@@ -90,12 +91,7 @@ export default function ApplicationManagementPage() {
   const selectedJob = jobs.find((j: import('../../../types').Job) => j.id === selectedJobId);
 
   if (isJobsLoading || (isAppsLoading && !allApplications)) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-3">
-        <Loader2 className="w-8 h-8 text-[#0066FF] animate-spin" />
-        <p className="text-xs font-bold uppercase tracking-widest text-slate-400">Syncing Applicants Feed...</p>
-      </div>
-    );
+    return <AppLoader variant="page" message="Syncing Applicants Feed..." />;
   } 
 
   return (
@@ -307,7 +303,9 @@ export default function ApplicationManagementPage() {
               {selectedJobApplications.map((app: JobApplication, idx: number) => {
                 const worker = workersById.get(app.workerId);
                 const candidateName = worker?.fullName || worker?.name || 'Candidate';
-                const candidateLevel = worker?.level || 'L1';
+                const candidateRole = worker?.level && !worker.level.startsWith('L') 
+                  ? worker.level 
+                  : (worker?.experienceYears ? `${worker.experienceYears}y exp` : 'Verified');
                 const ratingDisplay = worker?.rating ? Number(worker.rating).toFixed(1) : (worker?.trustScore ? (worker.trustScore / 20).toFixed(1) : '4.8');
                 const locationDisplay = worker?.city || worker?.location || worker?.address || 'Location on file';
                 const isVerified = Boolean(worker?.identityVerified || worker?.isVerified);
@@ -337,7 +335,7 @@ export default function ApplicationManagementPage() {
                             size="lg" 
                           />
                           <div className="absolute -bottom-1 -right-1 bg-[#0A1931] text-white text-[10px] font-extrabold px-2 py-0.5 rounded-lg border-2 border-white shadow-sm">
-                            {candidateLevel}
+                            {candidateRole}
                           </div>
                         </div>
 

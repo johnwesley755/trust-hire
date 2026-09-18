@@ -114,8 +114,8 @@ export function LandingHero() {
               <span className="material-symbols-outlined font-bold">military_tech</span>
             </div>
             <div>
-              <p className="text-xs font-bold text-primary/60 uppercase tracking-wider">Skill Level</p>
-              <p className="text-xl font-extrabold text-primary">Level Up L3</p>
+              <p className="text-xs font-bold text-primary/60 uppercase tracking-wider">Skill Status</p>
+              <p className="text-xl font-extrabold text-primary">Senior Specialist</p>
             </div>
           </div>
         </div>

@@ -282,7 +282,7 @@ export const syncUser = async (c: Context) => {
           skills: workerPayload.skills || '',
           location: workerPayload.location || '',
           city: workerPayload.city || 'Mumbai',
-          level: 'L1',
+          level: 'Foundational',
           level_number: 1,
           experience_years: workerPayload.experience_years || 1,
           created_at: new Date(),
@@ -346,7 +346,7 @@ export const oauthSync = async (c: Context) => {
         data: {
           user_id: newId,
           full_name: `${firstName || 'Worker'} ${lastName || ''}`.trim(),
-          level: 'L1',
+          level: 'Foundational',
           level_number: 1,
           level_score: 100,
           experience_years: 1,

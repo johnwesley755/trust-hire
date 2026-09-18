@@ -1,525 +1,618 @@
 import { useState, useMemo, useEffect } from 'react';
-import { useQuery, useMutation } from '@tanstack/react-query';
-import { searchJobs } from '../../../services/search.service';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { searchService } from '../../../services/search.service';
 import { jobService } from '../../../services/job.service';
 import { applicationService } from '../../../services/application.service';
 import { profileService } from '../../../services/profile.service';
 import { queryKeys } from '../../../lib/queryKeys';
 import { 
-  Search, 
-  Loader2, 
-  Sparkles, 
-  SlidersHorizontal, 
-  MapPin, 
   Briefcase, 
-  IndianRupee, 
-  Navigation, 
-  Flame, 
-  X, 
-  Check, 
+  UploadCloud, 
+  ArrowUpDown, 
+  AlertCircle, 
   RotateCcw,
-  LocateFixed
+  Sparkles,
+  ChevronDown
 } from 'lucide-react';
-import { AnimatePresence } from 'framer-motion';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { JobSearchHero } from '../components/JobSearchHero';
-import { JobSearchResultCard } from '../components/JobSearchResultCard';
-
-const TRADE_CATEGORIES = [
-  "All",
-  "Construction",
-  "Facility Management",
-  "Logistics",
-  "Manufacturing",
-  "Security",
-  "Hospitality",
-  "Retail",
-  "Agriculture"
-];
-
-const BUDGET_RANGES = [
-  { label: "All Pay Ranges", value: "all", min: 0, max: 9999999 },
-  { label: "Under ₹1,000", value: "under1000", min: 0, max: 1000 },
-  { label: "₹1,000 - ₹2,500", value: "1000to2500", min: 1000, max: 2500 },
-  { label: "₹2,500 - ₹5,000", value: "2500to5000", min: 2500, max: 5000 },
-  { label: "₹5,000+", value: "above5000", min: 5000, max: 9999999 }
-];
-
-const RADIUS_OPTIONS = [
-  { label: "Any Distance", value: 0 },
-  { label: "Within 5 km", value: 5 },
-  { label: "Within 10 km", value: 10 },
-  { label: "Within 25 km", value: 25 },
-  { label: "Within 50 km", value: 50 }
-];
-
-function getDistanceKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
-  const R = 6371; // Earth radius in km
-  const dLat = ((lat2 - lat1) * Math.PI) / 180;
-  const dLon = ((lon2 - lon1) * Math.PI) / 180;
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos((lat1 * Math.PI) / 180) *
-      Math.cos((lat2 * Math.PI) / 180) *
-      Math.sin(dLon / 2) *
-      Math.sin(dLon / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
-}
+import { JobFilterSidebar, type FilterCounts } from '../components/JobFilterSidebar';
+import { JobSearchResultCard, type JobCardData } from '../components/JobSearchResultCard';
+import { JobSearchRightSidebar } from '../components/JobSearchRightSidebar';
+import { AppLoader } from '../../../components/common/AppLoader';
+import { detectCurrentCity } from '../../../utils/geolocation';
 
 export default function JobSearchPage() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
+
+  // Search & Filter State
   const [query, setQuery] = useState(searchParams.get('q') || '');
   const [city, setCity] = useState(searchParams.get('city') || '');
-  const [selectedTrade, setSelectedTrade] = useState('All');
-  const [selectedBudget, setSelectedBudget] = useState('all');
-  const [selectedRadius, setSelectedRadius] = useState<number>(0);
-  const [urgentOnly, setUrgentOnly] = useState(false);
-  const [activeTab, setActiveTab] = useState<'recommended' | 'all'>('recommended');
+  const [jobType, setJobType] = useState(searchParams.get('type') || 'All');
+  const [budgetRange, setBudgetRange] = useState(searchParams.get('budget') || 'all');
+  const [experience, setExperience] = useState(searchParams.get('exp') || 'all');
+  const [trade, setTrade] = useState(searchParams.get('trade') || 'All');
+  const [sortBy, setSortBy] = useState<'date_desc' | 'salary_desc' | 'salary_asc'>('date_desc');
   const [isLocating, setIsLocating] = useState(false);
-  const [userCoords, setUserCoords] = useState<{ lat: number; lon: number } | null>(null);
 
-  const updateSearchParams = (newQuery: string, newCity: string) => {
-    const params: Record<string, string> = {};
-    if (newQuery) params.q = newQuery;
-    if (newCity) params.city = newCity;
-    setSearchParams(params);
+  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+
+  // Sync state if URL changes externally
+  useEffect(() => {
+    const q = searchParams.get('q') || '';
+    const c = searchParams.get('city') || '';
+    const t = searchParams.get('type') || 'All';
+    const b = searchParams.get('budget') || 'all';
+    const exp = searchParams.get('exp') || 'all';
+    const tr = searchParams.get('trade') || 'All';
+
+    if (q !== query) setQuery(q);
+    if (c !== city) setCity(c);
+    if (t !== jobType) setJobType(t);
+    if (b !== budgetRange) setBudgetRange(b);
+    if (exp !== experience) setExperience(exp);
+    if (tr !== trade) setTrade(tr);
+  }, [searchParams]);
+
+  // Helper to sync to URL
+  const updateUrlParams = (updates: Record<string, string>) => {
+    const newParams = new URLSearchParams(searchParams);
+    Object.entries(updates).forEach(([key, val]) => {
+      if (val && val !== 'All' && val !== 'all') {
+        newParams.set(key, val);
+      } else {
+        newParams.delete(key);
+      }
+    });
+    setSearchParams(newParams);
   };
 
-  const { data: searchResults, isLoading: isSearching } = useQuery({
-    queryKey: queryKeys.jobs.search({ q: query, city, selectedTrade }),
-    queryFn: () => searchJobs(query || undefined, undefined, city || undefined, selectedTrade !== 'All' ? selectedTrade : undefined),
-    enabled: Boolean(query || city || selectedTrade !== 'All'),
+  // Convert budget range to min/max
+  const { minSalary, maxSalary } = useMemo(() => {
+    switch (budgetRange) {
+      case 'under1000': return { minSalary: 0, maxSalary: 1000 };
+      case '1000to2500': return { minSalary: 1000, maxSalary: 2500 };
+      case '2500to5000': return { minSalary: 2500, maxSalary: 5000 };
+      case 'above5000': return { minSalary: 5000, maxSalary: 9999999 };
+      default: return { minSalary: undefined, maxSalary: undefined };
+    }
+  }, [budgetRange]);
+
+  // Convert experience to min/max
+  const { minExperience, maxExperience } = useMemo(() => {
+    switch (experience) {
+      case '0-1': return { minExperience: 0, maxExperience: 1 };
+      case '1-3': return { minExperience: 1, maxExperience: 3 };
+      case '3-5': return { minExperience: 3, maxExperience: 5 };
+      case '5+': return { minExperience: 5, maxExperience: 50 };
+      default: return { minExperience: undefined, maxExperience: undefined };
+    }
+  }, [experience]);
+
+  // Fetch Jobs via Search API
+  const { data: jobs = [], isLoading } = useQuery({
+    queryKey: ['jobs', 'search', { query, city, trade, jobType, minSalary, maxSalary, minExperience, maxExperience, sortBy }],
+    queryFn: () => searchService.searchJobs({
+      query: query || undefined,
+      city: city || undefined,
+      industry: trade !== 'All' ? trade : undefined,
+      minSalary,
+      maxSalary,
+      minExperience,
+      maxExperience,
+      sortBy
+    }),
+    staleTime: 1000 * 60 * 2,
   });
 
-  const { data: allJobs = [], isLoading: isLoadingAll } = useQuery({
-    queryKey: queryKeys.jobs.all,
-    queryFn: () => jobService.getAllJobs(),
-  });
-
+  // Fetch user profile and applications to compute status badges
   const { data: profile } = useQuery({
     queryKey: queryKeys.workers.detail('me'),
     queryFn: profileService.getProfile,
   });
 
-  // Seed user coordinates from worker profile if present
-  useEffect(() => {
-    if (profile?.latitude && profile?.longitude && !userCoords) {
-      setUserCoords({ lat: profile.latitude, lon: profile.longitude });
-      if (!city && profile.city) {
-        setCity(profile.city);
-      }
-    }
-  }, [profile]);
-
-  const { data: myApplications = [], refetch: refetchApplications } = useQuery({
+  const { data: myApplications = [] } = useQuery({
     queryKey: queryKeys.jobs.myApplications,
     queryFn: applicationService.getMyApplications,
   });
 
+  const appliedJobIdsMap = useMemo(() => {
+    const map = new Map<string, string>();
+    myApplications.forEach((app: any) => {
+      const jId = app.job_id || app.jobId;
+      if (jId) map.set(jId, app.status || 'APPLIED');
+    });
+    return map;
+  }, [myApplications]);
+
+  // Apply to Job Mutation
   const applyMutation = useMutation({
-    mutationFn: (data: { jobId: string; coverLetter: string }) => applicationService.applyForJob(data),
-    onSuccess: async () => {
-      await refetchApplications();
-    },
-    onError: async (error: unknown) => {
-      const axiosError = error as { response?: { data?: { message?: string } }; message?: string };
-      const message = axiosError?.response?.data?.message || axiosError?.message || 'Failed to submit application.';
-      if (String(message).toLowerCase().includes('already applied')) {
-        await refetchApplications();
-        return;
-      }
-      alert(message);
+    mutationFn: (jobId: string) => applicationService.applyForJob(jobId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.jobs.myApplications });
+      queryClient.invalidateQueries({ queryKey: ['jobs', 'search'] });
     }
   });
 
-  const handleDetectLocation = () => {
-    if (!navigator.geolocation) {
-      alert("Geolocation is not supported by your browser.");
-      return;
-    }
+  // Compute dynamic filter counts from fetched jobs
+  const filterCounts: FilterCounts = useMemo(() => {
+    const counts: FilterCounts = {
+      jobTypes: {},
+      locations: {},
+      trades: {},
+      total: jobs.length,
+    };
 
-    setIsLocating(true);
+    jobs.forEach((j: any) => {
+      // Job Type
+      const type = j.jobType || (j.title?.toLowerCase().includes('intern') ? 'Internship' : 'Full Time');
+      counts.jobTypes[type] = (counts.jobTypes[type] || 0) + 1;
 
-    navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        const { latitude, longitude } = pos.coords;
-        setUserCoords({ lat: latitude, lon: longitude });
+      // Location / City
+      const c = j.city || j.location;
+      if (c) counts.locations[c] = (counts.locations[c] || 0) + 1;
 
-        try {
-          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`);
-          if (res.ok) {
-            const data = await res.json();
-            const detectedCity = data.address?.city || data.address?.town || data.address?.suburb || data.address?.state_district;
-            if (detectedCity) {
-              setCity(detectedCity);
-              updateSearchParams(query, detectedCity);
-            }
-          }
-        } catch {
-          // fallback
-        } finally {
-          setIsLocating(false);
-        }
-      },
-      (err) => {
-        console.warn("GPS error:", err);
-        setIsLocating(false);
-        alert("Please enable location access in your browser settings to match nearby openings.");
-      },
-      { enableHighAccuracy: true, timeout: 8000 }
-    );
-  };
-
-  const handleApply = (jobId: string) => {
-    navigate(`/job/${jobId}`);
-  };
-
-  const resetAllFilters = () => {
-    setSelectedTrade('All');
-    setSelectedBudget('all');
-    setSelectedRadius(0);
-    setUrgentOnly(false);
-    setQuery('');
-    setCity('');
-    setActiveTab('all');
-    setSearchParams({});
-  };
-
-  const appliedJobIds = new Set(Array.isArray(myApplications) ? myApplications.map((app) => app.jobId) : []);
-  const isSearchActive = Boolean((query && query.trim()) || (city && city.trim()) || selectedTrade !== 'All');
-  const baseJobsList = isSearchActive && searchResults ? searchResults : (Array.isArray(allJobs) ? allJobs : []);
-
-  const activeFiltersCount = useMemo(() => {
-    let count = 0;
-    if (selectedTrade !== 'All') count++;
-    if (selectedBudget !== 'all') count++;
-    if (selectedRadius > 0) count++;
-    if (urgentOnly) count++;
-    if (query.trim()) count++;
-    return count;
-  }, [selectedTrade, selectedBudget, selectedRadius, urgentOnly, query]);
-
-  // Compute matched, distance-calculated, filtered and recommended jobs
-  const displayJobs = useMemo(() => {
-    // 1. Enrich jobs with distance
-    let list = baseJobsList.map((j: any) => {
-      let distanceKm: number | null = null;
-      if (userCoords && j.latitude && j.longitude) {
-        distanceKm = getDistanceKm(userCoords.lat, userCoords.lon, j.latitude, j.longitude);
-      }
-      return {
-        ...j,
-        _distanceKm: distanceKm,
-      };
+      // Trade / Industry
+      if (j.industry) counts.trades[j.industry] = (counts.trades[j.industry] || 0) + 1;
     });
 
-    // 2. Filter by search query keyword
-    if (query && query.trim()) {
-      const q = query.trim().toLowerCase();
-      list = list.filter(j => 
-        j.title?.toLowerCase().includes(q) ||
-        j.description?.toLowerCase().includes(q) ||
-        j.industry?.toLowerCase().includes(q) ||
-        j.skills?.toLowerCase().includes(q) ||
-        j.location?.toLowerCase().includes(q) ||
-        j.city?.toLowerCase().includes(q)
-      );
-    }
+    return counts;
+  }, [jobs]);
 
-    // 3. Filter by Trade
-    if (selectedTrade !== 'All') {
-      const term = selectedTrade.toLowerCase();
-      list = list.filter(j => 
-        j.title?.toLowerCase().includes(term) ||
-        j.skills?.toLowerCase().includes(term) ||
-        j.industry?.toLowerCase().includes(term) ||
-        j.description?.toLowerCase().includes(term)
-      );
-    }
+  // Handle Search Submission
+  const handleSearch = (newQuery: string, newCity: string) => {
+    setQuery(newQuery);
+    setCity(newCity);
+    updateUrlParams({ q: newQuery, city: newCity });
+  };
 
-    // 3. Filter by Budget / Pay Range
-    if (selectedBudget !== 'all') {
-      const range = BUDGET_RANGES.find(r => r.value === selectedBudget);
-      if (range) {
-        list = list.filter(j => {
-          const budget = Number(j.budget) || 0;
-          return budget >= range.min! && budget <= range.max!;
-        });
+  // Handle Auto Location
+  const handleLocateMe = async (detectedCity?: string) => {
+    if (detectedCity) {
+      setCity(detectedCity);
+      updateUrlParams({ city: detectedCity });
+      return;
+    }
+    setIsLocating(true);
+    try {
+      const loc = await detectCurrentCity();
+      if (loc.city) {
+        setCity(loc.city);
+        updateUrlParams({ city: loc.city });
       }
+    } catch (err) {
+      console.error("Location detection error in JobSearchPage:", err);
+    } finally {
+      setIsLocating(false);
     }
+  };
 
-    // 4. Filter by Radius
-    if (selectedRadius > 0) {
-      list = list.filter(j => {
-        if (typeof j._distanceKm === 'number') {
-          return j._distanceKm <= selectedRadius;
-        }
-        // Fallback to city match if coords missing
-        if (city && j.city) {
-          return j.city.toLowerCase().includes(city.toLowerCase());
-        }
-        return true;
-      });
-    }
+  // Clear all filters
+  const handleClearAll = () => {
+    setQuery('');
+    setCity('');
+    setJobType('All');
+    setBudgetRange('all');
+    setExperience('all');
+    setTrade('All');
+    setSearchParams(new URLSearchParams());
+  };
 
-    // 5. Filter by Urgency
-    if (urgentOnly) {
-      list = list.filter(j => j.description?.toLowerCase().includes('urgent') || j.status === 'URGENT');
-    }
+  const activeFilterCount = (jobType !== 'All' ? 1 : 0) + (budgetRange !== 'all' ? 1 : 0) + (experience !== 'all' ? 1 : 0) + (trade !== 'All' ? 1 : 0) + (city ? 1 : 0);
+  const hasActiveFilters = Boolean(query || city || jobType !== 'All' || budgetRange !== 'all' || experience !== 'all' || trade !== 'All');
 
-    // 6. Recommendation tab scoring & prioritization
-    if (activeTab === 'recommended') {
-      const candidateSkills = (profile?.skills || '').toLowerCase().split(',').map((s: string) => s.trim()).filter(Boolean);
-      const candidateCity = (city || profile?.city || profile?.location || '').toLowerCase();
+  const TRADE_CATEGORIES = [
+    'All',
+    'Construction',
+    'Facility Management',
+    'Logistics',
+    'Manufacturing',
+    'Security',
+    'Hospitality',
+    'Retail',
+    'Agriculture'
+  ];
 
-      return [...list].sort((a, b) => {
-        let scoreA = 0;
-        let scoreB = 0;
-
-        // Proximity score (nearest gets up to 100 points)
-        if (typeof a._distanceKm === 'number') {
-          scoreA += Math.max(0, 100 - a._distanceKm * 2);
-        } else if (candidateCity && a.city?.toLowerCase().includes(candidateCity)) {
-          scoreA += 60;
-        }
-
-        if (typeof b._distanceKm === 'number') {
-          scoreB += Math.max(0, 100 - b._distanceKm * 2);
-        } else if (candidateCity && b.city?.toLowerCase().includes(candidateCity)) {
-          scoreB += 60;
-        }
-
-        // Skills match score
-        if (candidateSkills.length > 0) {
-          const matchA = candidateSkills.some((s: string) => 
-            a.title?.toLowerCase().includes(s) || a.skills?.toLowerCase().includes(s) || a.industry?.toLowerCase().includes(s)
-          );
-          if (matchA) scoreA += 50;
-
-          const matchB = candidateSkills.some((s: string) => 
-            b.title?.toLowerCase().includes(s) || b.skills?.toLowerCase().includes(s) || b.industry?.toLowerCase().includes(s)
-          );
-          if (matchB) scoreB += 50;
-        }
-
-        // Urgency score
-        if (a.description?.toLowerCase().includes('urgent')) scoreA += 20;
-        if (b.description?.toLowerCase().includes('urgent')) scoreB += 20;
-
-        return scoreB - scoreA;
-      });
-    }
-
-    // "All openings" tab: sort nearest first if coords available
-    if (userCoords) {
-      return [...list].sort((a, b) => {
-        if (a._distanceKm != null && b._distanceKm != null) {
-          return a._distanceKm - b._distanceKm;
-        }
-        if (a._distanceKm != null) return -1;
-        if (b._distanceKm != null) return 1;
-        return 0;
-      });
-    }
-
-    return list;
-  }, [baseJobsList, selectedTrade, selectedBudget, selectedRadius, urgentOnly, activeTab, profile, userCoords, city]);
-
-  const isLoading = isSearching || isLoadingAll;
+  // Format job data for rendering
+  const formattedJobs: JobCardData[] = useMemo(() => {
+    return jobs.map((j: any) => ({
+      id: j.id,
+      title: j.title,
+      description: j.description,
+      industry: j.industry,
+      jobType: j.jobType || 'Full Time',
+      location: j.location,
+      city: j.city,
+      budget: j.budget,
+      experienceYearsRequired: j.experienceYearsRequired ?? j.experience_years_required ?? 0,
+      status: j.status,
+      createdAt: j.createdAt || j.created_at,
+      employerProfile: j.employerProfile,
+      hasApplied: appliedJobIdsMap.has(j.id),
+      applicationStatus: appliedJobIdsMap.get(j.id),
+    }));
+  }, [jobs, appliedJobIdsMap]);
 
   return (
-    <div className="relative min-h-screen bg-[#F8F9FA] pb-24 font-sans text-[#0F172A]">
-      <JobSearchHero 
-        query={query}
-        city={city}
-        totalJobs={allJobs.length}
+    <div className="min-h-screen bg-[#F8FAFC] pb-24 font-sans text-[#0A1931]">
+      
+      {/* 1. Header Hero Banner with Dual Search */}
+      <JobSearchHero
+        title="Find your dream job"
+        subtitle="Explore thousands of verified openings with instant pay and vetted employers."
+        initialQuery={query}
+        initialCity={city}
+        onSearch={handleSearch}
+        onLocateMe={handleLocateMe}
         isLocating={isLocating}
-        onQueryChange={(val) => {
-          setQuery(val);
-          updateSearchParams(val, city);
-        }}
-        onCityChange={(val) => {
-          setCity(val);
-          updateSearchParams(query, val);
-        }}
-        onDetectLocation={handleDetectLocation}
-        onSearch={() => updateSearchParams(query, city)}
       />
 
-      <main className="max-w-7xl mx-auto px-3 sm:px-6 space-y-3.5 relative z-10 -mt-4">
-        {/* GPS Proximity Status Bar */}
-        {userCoords && (
-          <div className="bg-blue-50 border border-blue-200/80 rounded-xl px-3.5 py-2 flex items-center justify-between text-xs text-[#0066FF] shadow-xs">
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              <span className="font-bold">Location tracking active:</span>
-              <span className="text-slate-700 font-medium">
-                {city ? `${city} (GPS matched)` : `GPS (${userCoords.lat.toFixed(2)}°, ${userCoords.lon.toFixed(2)}°)`}
-              </span>
-            </div>
-            <button
-              onClick={handleDetectLocation}
-              disabled={isLocating}
-              className="font-bold hover:underline flex items-center gap-1 cursor-pointer disabled:opacity-50"
-            >
-              <LocateFixed className="w-3.5 h-3.5" />
-              {isLocating ? 'Updating...' : 'Refresh location'}
-            </button>
-          </div>
-        )}
-
-        {/* Standard Job Portal Controls Strip: Tabs, Trade Pills & Advanced Filters */}
-        <div className="bg-white rounded-2xl p-3 sm:p-4 border border-slate-200 shadow-sm space-y-3">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            {/* Recommendation Tabs */}
-            <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-200 self-start">
-              <button
-                onClick={() => setActiveTab('recommended')}
-                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                  activeTab === 'recommended'
-                    ? 'bg-[#0066FF] text-white shadow-sm'
-                    : 'text-slate-600 hover:text-[#0066FF]'
-                }`}
-              >
-                <Sparkles className="w-3.5 h-3.5" />
-                Recommended for you
-              </button>
-              <button
-                onClick={() => setActiveTab('all')}
-                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                  activeTab === 'all'
-                    ? 'bg-[#0066FF] text-white shadow-sm'
-                    : 'text-slate-600 hover:text-[#0066FF]'
-                }`}
-              >
-                <Briefcase className="w-3.5 h-3.5" />
-                All openings ({baseJobsList.length})
-              </button>
-            </div>
-
-            <div className="flex items-center gap-3 text-xs">
-              <span className="font-bold text-slate-700">
-                {displayJobs.length} {displayJobs.length === 1 ? 'opening found' : 'openings found'}
-              </span>
-              {activeFiltersCount > 0 && (
-                <button
-                  onClick={resetAllFilters}
-                  className="flex items-center gap-1 text-slate-500 hover:text-red-600 font-medium transition-colors cursor-pointer"
-                >
-                  <RotateCcw className="w-3 h-3" />
-                  Reset filters ({activeFiltersCount})
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* Trade Category Filter Pills */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-            <span className="text-xs font-bold text-slate-400 shrink-0 mr-1 flex items-center gap-1">
-              <SlidersHorizontal className="w-3 h-3 text-[#0066FF]" /> Trades:
+      {/* 2. Main Content Layout */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+        
+        {/* Mobile Quick Filter Action Row (Visible on Mobile Only) */}
+        <div className="lg:hidden mb-5 space-y-3">
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-xs font-bold text-slate-500 font-['Outfit',sans-serif]">
+              <strong className="text-slate-900 font-extrabold">{formattedJobs.length}</strong> openings found
             </span>
-            {TRADE_CATEGORIES.map((trade) => (
-              <button
-                key={trade}
-                onClick={() => setSelectedTrade(trade)}
-                className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap transition-all border cursor-pointer ${
-                  selectedTrade === trade
-                    ? 'bg-[#0066FF] text-white border-[#0066FF] shadow-xs font-bold'
-                    : 'bg-white text-slate-600 border-slate-200 hover:border-blue-300 hover:text-[#0066FF]'
-                }`}
-              >
-                {trade}
-              </button>
-            ))}
+            <button
+              onClick={() => setIsMobileFilterOpen(true)}
+              className="flex items-center gap-2 px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-[#0A1931] shadow-xs active:scale-95 transition-all cursor-pointer font-['Outfit',sans-serif]"
+            >
+              <Briefcase className="w-3.5 h-3.5 text-[#0066FF]" />
+              <span>Filter Jobs</span>
+              {activeFilterCount > 0 && (
+                <span className="w-5 h-5 rounded-full bg-[#0066FF] text-white text-[10px] font-extrabold flex items-center justify-center">
+                  {activeFilterCount}
+                </span>
+              )}
+            </button>
           </div>
 
-          {/* Secondary Job Portal Filters: Radius, Pay Range, Urgency */}
-          <div className="pt-2 border-t border-slate-100 flex flex-wrap items-center gap-2.5 text-xs">
-            {/* Radius Selector */}
-            <div className="flex items-center gap-1.5">
-              <Navigation className="w-3.5 h-3.5 text-slate-400" />
-              <select
-                value={selectedRadius}
-                onChange={(e) => setSelectedRadius(Number(e.target.value))}
-                className="bg-slate-50 border border-slate-200 text-slate-700 rounded-lg px-2.5 py-1 font-medium focus:ring-1 focus:ring-[#0066FF] focus:outline-none"
-              >
-                {RADIUS_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
-                ))}
-              </select>
-            </div>
-
-            {/* Budget / Pay Range Selector */}
-            <div className="flex items-center gap-1.5">
-              <IndianRupee className="w-3.5 h-3.5 text-slate-400" />
-              <select
-                value={selectedBudget}
-                onChange={(e) => setSelectedBudget(e.target.value)}
-                className="bg-slate-50 border border-slate-200 text-slate-700 rounded-lg px-2.5 py-1 font-medium focus:ring-1 focus:ring-[#0066FF] focus:outline-none"
-              >
-                {BUDGET_RANGES.map((rng) => (
-                  <option key={rng.value} value={rng.value}>{rng.label}</option>
-                ))}
-              </select>
-            </div>
-
-            {/* Urgency Toggle */}
-            <button
-              onClick={() => setUrgentOnly(!urgentOnly)}
-              className={`flex items-center gap-1.5 px-3 py-1 rounded-lg border font-medium transition-colors cursor-pointer ${
-                urgentOnly
-                  ? 'bg-red-50 border-red-200 text-red-700 font-bold'
-                  : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
-              }`}
-            >
-              <Flame className={`w-3.5 h-3.5 ${urgentOnly ? 'text-red-600 fill-red-600' : 'text-slate-400'}`} />
-              Urgent shifts only
-            </button>
+          {/* Quick Trade Horizontal Pill Bar */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+            {TRADE_CATEGORIES.map((cat) => {
+              const isSelected = trade === cat;
+              return (
+                <button
+                  key={cat}
+                  onClick={() => {
+                    setTrade(cat);
+                    updateUrlParams({ trade: cat });
+                  }}
+                  className={`px-3 py-1.5 rounded-full text-xs font-bold shrink-0 transition-all cursor-pointer ${
+                    isSelected
+                      ? 'bg-[#0066FF] text-white shadow-xs'
+                      : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+                  }`}
+                >
+                  {cat}
+                </button>
+              );
+            })}
           </div>
         </div>
 
-        {/* Results Grid */}
-        {isLoading ? (
-          <div className="flex flex-col items-center justify-center py-16 space-y-3 bg-white rounded-2xl border border-slate-200">
-            <Loader2 className="w-8 h-8 text-[#0066FF] animate-spin" />
-            <p className="text-xs font-bold text-slate-500">Scanning live openings near you...</p>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          
+          {/* DESKTOP LEFT COLUMN: Filters Sidebar (Hidden on mobile) */}
+          <div className="hidden lg:block lg:col-span-3 bg-white rounded-2xl p-5 border border-slate-200/90 shadow-xs sticky top-4">
+            <JobFilterSidebar
+              selectedJobType={jobType}
+              onSelectJobType={(t) => {
+                setJobType(t);
+                updateUrlParams({ type: t });
+              }}
+              selectedLocation={city}
+              onSelectLocation={(l) => {
+                setCity(l);
+                updateUrlParams({ city: l });
+              }}
+              selectedBudget={budgetRange}
+              onSelectBudget={(b) => {
+                setBudgetRange(b);
+                updateUrlParams({ budget: b });
+              }}
+              selectedExperience={experience}
+              onSelectExperience={(e) => {
+                setExperience(e);
+                updateUrlParams({ exp: e });
+              }}
+              selectedTrade={trade}
+              onSelectTrade={(tr) => {
+                setTrade(tr);
+                updateUrlParams({ trade: tr });
+              }}
+              counts={filterCounts}
+              onClearAll={handleClearAll}
+              hasActiveFilters={hasActiveFilters}
+            />
           </div>
-        ) : displayJobs.length === 0 ? (
-          <div className="bg-white rounded-2xl p-8 text-center border border-slate-200 max-w-md mx-auto space-y-3">
-            <div className="w-12 h-12 bg-blue-50 text-[#0066FF] rounded-xl flex items-center justify-center mx-auto">
-              <Search className="w-6 h-6" />
+
+          {/* CENTER COLUMN: Feed (Full width on mobile, 6 cols on desktop) */}
+          <div className="col-span-1 lg:col-span-6 space-y-5">
+            
+            {/* Top Promo Banner: Upload Resume */}
+            <div className="bg-white rounded-2xl p-4 sm:p-5 border border-blue-200/90 shadow-xs flex items-center justify-between gap-4 bg-linear-to-r from-blue-50/70 to-white">
+              <div className="flex items-center gap-3.5 min-w-0">
+                <div className="w-10 h-10 rounded-xl bg-blue-100 text-[#0066FF] flex items-center justify-center shrink-0 border border-blue-200">
+                  <UploadCloud className="w-5 h-5" />
+                </div>
+                <div className="min-w-0">
+                  <h4 className="text-sm font-bold text-[#0A1931] font-['Outfit',sans-serif]">
+                    Upload your resume
+                  </h4>
+                  <p className="text-xs text-slate-500 font-medium truncate">
+                    We'll match you with the best jobs. Right job, Right away!
+                  </p>
+                </div>
+              </div>
+              <Link
+                to="/profile"
+                className="px-3.5 py-1.5 bg-[#0066FF] hover:bg-[#0052CC] text-white rounded-lg font-bold text-xs shrink-0 transition-all shadow-2xs font-['Outfit',sans-serif]"
+              >
+                Upload
+              </Link>
             </div>
-            <h3 className="text-base font-bold text-slate-900">No openings matched your criteria</h3>
-            <p className="text-xs text-slate-500 max-w-sm mx-auto">
-              Try broadening your distance radius, adjusting trade filters, or clearing specific pay filters.
-            </p>
-            <button
-              onClick={resetAllFilters}
-              className="bg-[#0066FF] text-white text-xs font-bold px-4 py-2 rounded-xl shadow-xs hover:bg-blue-700 cursor-pointer"
-            >
-              Reset all filters
-            </button>
+
+            {/* Results Count & Sort Row */}
+            <div className="flex items-center justify-between px-1">
+              <span className="text-xs font-bold text-slate-500 font-['Outfit',sans-serif]">
+                <strong className="text-slate-900 font-extrabold">{formattedJobs.length}</strong> results found
+              </span>
+
+              {/* Sort Dropdown */}
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-slate-400 font-medium">Sort By:</span>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as any)}
+                  className="bg-white border border-slate-200 rounded-lg px-2.5 py-1 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#0066FF] cursor-pointer"
+                >
+                  <option value="date_desc">Date Posted</option>
+                  <option value="salary_desc">Highest Pay</option>
+                  <option value="salary_asc">Lowest Pay</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Job List Feed */}
+            {isLoading ? (
+              <AppLoader variant="skeleton" />
+            ) : formattedJobs.length > 0 ? (
+              <div className="space-y-4">
+                {formattedJobs.map((job) => (
+                  <JobSearchResultCard
+                    key={job.id}
+                    job={job}
+                    onApply={(jobId) => applyMutation.mutate(jobId)}
+                    isApplying={applyMutation.isPending && applyMutation.variables === job.id}
+                  />
+                ))}
+              </div>
+            ) : (
+              /* Empty State */
+              <div className="bg-white rounded-2xl p-10 border border-slate-200 text-center space-y-4">
+                <div className="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto text-slate-400">
+                  <Briefcase className="w-7 h-7" />
+                </div>
+                <div className="space-y-1">
+                  <h3 className="text-base font-extrabold text-slate-900 font-['Outfit',sans-serif]">
+                    No matching jobs found
+                  </h3>
+                  <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                    Try adjusting your filters, searching for a different title, or clearing active filters to see all available openings.
+                  </p>
+                </div>
+                {hasActiveFilters && (
+                  <button
+                    onClick={handleClearAll}
+                    className="px-4 py-2 bg-[#0066FF] text-white rounded-xl font-bold text-xs hover:bg-[#0052CC] transition-all cursor-pointer inline-flex items-center gap-1.5"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" />
+                    Reset All Filters
+                  </button>
+                )}
+              </div>
+            )}
+
           </div>
-        ) : (
-          <div className="flex flex-col gap-3">
-            <AnimatePresence mode="popLayout">
-              {displayJobs.map((job: any, index: number) => (
-                <JobSearchResultCard 
-                  key={job.id} 
-                  job={job} 
-                  index={index} 
-                  applied={appliedJobIds.has(job.id)}
-                  distanceKm={job._distanceKm}
-                  onApply={() => handleApply(job.id)}
-                  isApplying={applyMutation.isPending && applyMutation.variables?.jobId === job.id}
-                />
-              ))}
-            </AnimatePresence>
+
+          {/* DESKTOP RIGHT COLUMN: Contextual Widgets Sidebar (Hidden on mobile) */}
+          <div className="hidden lg:block lg:col-span-3 space-y-6 sticky top-4">
+            <JobSearchRightSidebar
+              currentCity={city}
+              onSelectCompany={(comp) => {
+                setQuery(comp);
+                updateUrlParams({ q: comp });
+              }}
+            />
           </div>
-        )}
-      </main>
+
+        </div>
+      </div>
+
+      {/* 3. Mobile Filter Bottom-Sheet / Drawer Modal */}
+      {isMobileFilterOpen && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-xs p-0 sm:p-4">
+          <div className="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl max-h-[88vh] flex flex-col shadow-2xl animate-in slide-in-from-bottom duration-200">
+            
+            {/* Modal Header */}
+            <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between shrink-0">
+              <div className="flex items-center gap-2">
+                <Briefcase className="w-4 h-4 text-[#0066FF]" />
+                <h3 className="text-base font-extrabold text-slate-900 font-['Outfit',sans-serif]">
+                  Filter Job Openings
+                </h3>
+              </div>
+              <div className="flex items-center gap-3">
+                {hasActiveFilters && (
+                  <button
+                    onClick={handleClearAll}
+                    className="text-xs font-bold text-slate-500 hover:text-[#0066FF] flex items-center gap-1 cursor-pointer"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" />
+                    Reset
+                  </button>
+                )}
+                <button
+                  onClick={() => setIsMobileFilterOpen(false)}
+                  className="p-1.5 text-slate-400 hover:text-slate-700 rounded-full hover:bg-slate-100 transition-colors cursor-pointer"
+                >
+                  <RotateCcw className="hidden" />
+                  <span className="text-base font-bold">✕</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Body: Scrollable Filters */}
+            <div className="px-6 py-5 overflow-y-auto space-y-6">
+              
+              {/* Job Type Filter */}
+              <div className="space-y-2.5">
+                <label className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">
+                  Job Type
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {['All', 'Full Time', 'Part Time', 'Contract', 'Internship', 'Freelance', 'Daily Gig'].map((t) => {
+                    const isSelected = jobType === t;
+                    return (
+                      <button
+                        key={t}
+                        onClick={() => {
+                          setJobType(t);
+                          updateUrlParams({ type: t });
+                        }}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                          isSelected
+                            ? 'bg-[#0066FF] text-white shadow-xs'
+                            : 'bg-slate-50 border border-slate-200 text-slate-600 hover:bg-slate-100'
+                        }`}
+                      >
+                        {t}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Trade Category Filter */}
+              <div className="space-y-2.5">
+                <label className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">
+                  Trade / Industry
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {TRADE_CATEGORIES.map((cat) => {
+                    const isSelected = trade === cat;
+                    return (
+                      <button
+                        key={cat}
+                        onClick={() => {
+                          setTrade(cat);
+                          updateUrlParams({ trade: cat });
+                        }}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                          isSelected
+                            ? 'bg-[#0066FF] text-white shadow-xs'
+                            : 'bg-slate-50 border border-slate-200 text-slate-600 hover:bg-slate-100'
+                        }`}
+                      >
+                        {cat}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Pay Range Filter */}
+              <div className="space-y-2.5">
+                <label className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">
+                  Pay / Daily Budget
+                </label>
+                <div className="grid grid-cols-1 gap-2">
+                  {[
+                    { label: 'All Pay Ranges', value: 'all' },
+                    { label: 'Under ₹1,000 / day', value: 'under1000' },
+                    { label: '₹1,000 - ₹2,500 / day', value: '1000to2500' },
+                    { label: '₹2,500 - ₹5,000 / day', value: '2500to5000' },
+                    { label: '₹5,000+ / day', value: 'above5000' }
+                  ].map((b) => {
+                    const isSelected = budgetRange === b.value;
+                    return (
+                      <button
+                        key={b.value}
+                        onClick={() => {
+                          setBudgetRange(b.value);
+                          updateUrlParams({ budget: b.value });
+                        }}
+                        className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all text-left cursor-pointer ${
+                          isSelected
+                            ? 'bg-blue-50 text-[#0066FF] border border-[#0066FF]/30'
+                            : 'bg-slate-50 border border-slate-200/80 text-slate-700 hover:bg-slate-100'
+                        }`}
+                      >
+                        <span>{b.label}</span>
+                        {isSelected && <span className="text-[#0066FF] font-black">✓</span>}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Experience Required Filter */}
+              <div className="space-y-2.5">
+                <label className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">
+                  Experience Level
+                </label>
+                <div className="grid grid-cols-1 gap-2">
+                  {[
+                    { label: 'All Experience Levels', value: 'all' },
+                    { label: '0 to 1 Year (Entry)', value: '0-1' },
+                    { label: '1 to 3 Years (Junior)', value: '1-3' },
+                    { label: '3 to 5 Years (Mid)', value: '3-5' },
+                    { label: '5+ Years (Senior)', value: '5+' }
+                  ].map((exp) => {
+                    const isSelected = experience === exp.value;
+                    return (
+                      <button
+                        key={exp.value}
+                        onClick={() => {
+                          setExperience(exp.value);
+                          updateUrlParams({ exp: exp.value });
+                        }}
+                        className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all text-left cursor-pointer ${
+                          isSelected
+                            ? 'bg-blue-50 text-[#0066FF] border border-[#0066FF]/30'
+                            : 'bg-slate-50 border border-slate-200/80 text-slate-700 hover:bg-slate-100'
+                        }`}
+                      >
+                        <span>{exp.label}</span>
+                        {isSelected && <span className="text-[#0066FF] font-black">✓</span>}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+            </div>
+
+            {/* Modal Footer: Sticky Action Button */}
+            <div className="p-4 border-t border-slate-100 bg-slate-50/80 shrink-0">
+              <button
+                onClick={() => setIsMobileFilterOpen(false)}
+                className="w-full py-3 bg-[#0066FF] hover:bg-[#0052CC] text-white rounded-2xl text-xs font-extrabold shadow-md shadow-[#0066FF]/25 transition-all cursor-pointer font-['Outfit',sans-serif]"
+              >
+                Show {formattedJobs.length} Jobs
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

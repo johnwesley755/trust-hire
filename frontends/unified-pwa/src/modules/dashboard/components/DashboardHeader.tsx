@@ -59,7 +59,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({ onMenuClick, c
               {displayName}
             </p>
             <p className="text-[10px] text-[#414845] font-bold uppercase mt-1 tracking-tighter">
-              {isEmployer ? 'Verified Employer' : 'L1 Skilled Worker'}
+              {isEmployer ? 'Verified Employer' : 'Verified Specialist'}
             </p>
           </div>
           <UserAvatar

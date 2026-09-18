@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useOutletContext } from "react-router-dom";
+import { AppLoader } from "../../../components/common/AppLoader";
 import { applicationService } from "../../../services/application.service";
 import { jobService } from "../../../services/job.service";
 import { queryKeys } from "../../../lib/queryKeys";
@@ -54,11 +55,7 @@ export default function AppliedJobsPage() {
   });
 
   if (isLoading || jobsLoading) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="w-10 h-10 border-4 border-[#0066FF] border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
+    return <AppLoader variant="page" message="Loading your applications..." />;
   }
 
   return (

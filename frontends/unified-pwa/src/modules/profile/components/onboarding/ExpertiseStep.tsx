@@ -100,26 +100,26 @@ export default function ExpertiseStep({ formData, setFormData, onNext, onBack }:
                     <h2 className="font-headline text-xl font-bold mb-6 tracking-tight text-[#0A1931]">Professional Tier</h2>
                     <div className="grid grid-cols-1 gap-4">
                         {[
-                            { id: "L1", label: "Level 1 - Foundational", sub: "Certified core competency", icon: "shield_with_heart" },
-                            { id: "L2", label: "Level 2 - Specialist", sub: "Advanced site management", icon: "verified" },
-                            { id: "L3", label: "Level 3 - Expert", sub: "Strategic resource allocation", icon: "military_tech" },
-                            { id: "L4", label: "Level 4 - Master", sub: "Full ecosystem leadership", icon: "workspace_premium" }
+                            { id: "Foundational", label: "Foundational", sub: "Certified core competency", icon: "shield_with_heart" },
+                            { id: "Specialist", label: "Specialist", sub: "Advanced site execution", icon: "verified" },
+                            { id: "Senior Expert", label: "Senior Expert", sub: "Strategic resource allocation", icon: "military_tech" },
+                            { id: "Lead Master", label: "Lead Master", sub: "Full project leadership", icon: "workspace_premium" }
                         ].map(tier => (
                             <div 
                                 key={tier.id}
                                 onClick={() => setFormData({...formData, level: tier.id})}
-                                className={`p-4 rounded-3xl border-2 transition-all cursor-pointer flex items-center justify-between group ${formData.level === tier.id ? "border-[#FACD15] bg-[#FACD15]/5" : "border-[#F8FAFC] bg-[#F8FAFC]/30 hover:border-[#FACD15]/50"}`}
+                                className={`p-4 rounded-3xl border-2 transition-all cursor-pointer flex items-center justify-between group ${formData.level === tier.id ? "border-[#0066FF] bg-blue-50/50" : "border-slate-100 bg-slate-50/50 hover:border-[#0066FF]/40"}`}
                             >
                                 <div className="flex items-center gap-4">
-                                    <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${formData.level === tier.id ? "bg-[#FACD15] text-[#002117] shadow-lg" : "bg-[#F8FAFC] text-[#0A1931]/10"}`}>
-                                        <span className="material-symbols-outlined font-black" style={{ fontVariationSettings: tier.id === 'L1' ? "'FILL' 1" : "" }}>{tier.icon}</span>
+                                    <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${formData.level === tier.id ? "bg-[#0066FF] text-white shadow-md shadow-blue-500/20" : "bg-slate-100 text-slate-400"}`}>
+                                        <span className="material-symbols-outlined font-black">{tier.icon}</span>
                                     </div>
                                     <div>
-                                        <p className={`font-headline font-bold text-sm transition-colors ${formData.level === tier.id ? "text-[#0A1931]" : "text-[#0A1931]/40"}`}>{tier.label}</p>
-                                        <p className={`text-[9px] font-black uppercase tracking-[0.1em] transition-colors ${formData.level === tier.id ? "text-[#0A1931]/40" : "text-[#0A1931]/20"}`}>{tier.sub}</p>
+                                        <p className={`font-bold text-sm transition-colors ${formData.level === tier.id ? "text-[#0A1931]" : "text-slate-500"}`}>{tier.label}</p>
+                                        <p className={`text-[10px] font-bold uppercase tracking-wider transition-colors ${formData.level === tier.id ? "text-slate-500" : "text-slate-400"}`}>{tier.sub}</p>
                                     </div>
                                 </div>
-                                <span className={`material-symbols-outlined text-xl ${formData.level === tier.id ? "text-[#FACD15]" : "text-[#0A1931]/10"}`}>
+                                <span className={`material-symbols-outlined text-xl ${formData.level === tier.id ? "text-[#0066FF]" : "text-slate-300"}`}>
                                     {formData.level === tier.id ? "radio_button_checked" : "radio_button_unchecked"}
                                 </span>
                             </div>
