@@ -518,7 +518,6 @@ export default function WorkerOnboardingPage() {
           <div className="flex items-center gap-6 font-semibold">
             <Link to="/privacy" className="hover:text-[#0066FF] transition-colors">Privacy Policy</Link>
             <Link to="/terms" className="hover:text-[#0066FF] transition-colors">Terms of Service</Link>
-            <Link to="/help" className="hover:text-[#0066FF] transition-colors">Help Center</Link>
           </div>
         </div>
       </footer>

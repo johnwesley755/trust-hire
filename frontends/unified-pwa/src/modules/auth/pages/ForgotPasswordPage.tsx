@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { authService } from '../../../services/auth.service';
 import { forgotPasswordSchema } from '../../../validations/zodSchema';
-import { AuthHeader } from '../components/AuthHeader';
-import { AuthFooter } from '../components/AuthFooter';
-import { motion } from 'framer-motion';
+import { AuthVisualHero } from '../components/AuthVisualHero';
+import { motion, AnimatePresence } from 'framer-motion';
+import { AlertCircle, Loader2, ArrowLeft, MailCheck, Mail } from 'lucide-react';
 
 export default function ForgotPasswordPage() {
     const [email, setEmail] = useState('');
@@ -35,171 +35,131 @@ export default function ForgotPasswordPage() {
         }
     };
 
-    if (isSuccess) {
-        return (
-            <div className="bg-slate-50 text-slate-900 font-body min-h-screen flex flex-col selection:bg-brand-500 selection:text-[#002117] antialiased">
-                <AuthHeader />
-                <main className="w-full max-w-5xl mx-auto px-4 pt-24 pb-12 flex-1 flex items-center justify-center">
-                    <div className="w-full bg-white rounded-2xl border border-slate-900/10 shadow-xl overflow-hidden grid md:grid-cols-2">
-                        {/* Left Column: Form Content */}
-                        <div className="p-6 md:p-10 flex flex-col justify-center text-center items-center">
-                            <div className="w-16 h-16 bg-brand-50 rounded-2xl flex items-center justify-center mb-6">
-                                <span className="material-symbols-outlined text-3xl text-brand-500">mail</span>
-                            </div>
-                            <h1 className="font-headline text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight mb-2">
-                                Check your Email
-                            </h1>
-                            <p className="text-slate-900/60 text-xs md:text-sm font-medium mb-8">
-                                We've sent a 6-digit reset code to <strong className="text-slate-900">{email}</strong>. Use the code on the next page to securely reset your password.
-                            </p>
-                            
-                            <button 
-                                onClick={() => navigate('/reset-password')}
-                                className="w-full bg-brand-500 text-slate-900 py-3 rounded-lg font-bold text-xs uppercase tracking-wider shadow-sm hover:brightness-105 active:scale-98 transition-all flex items-center justify-center gap-2"
-                            >
-                                Enter Reset Code
-                            </button>
-                        </div>
-
-                        {/* Right Column: Visual Brand Card */}
-                        <div className="hidden md:flex bg-slate-900 p-8 flex-col justify-between text-white relative overflow-hidden">
-                            <div className="absolute top-0 right-0 w-64 h-64 bg-brand-500/10 rounded-full blur-3xl pointer-events-none"></div>
-                            
-                            <div>
-                                <span className="inline-block bg-brand-500 text-[#002117] text-[10px] font-black uppercase px-2.5 py-1 rounded-md tracking-wider mb-4">
-                                    Secure Recovery
-                                </span>
-                                <h2 className="font-headline text-2xl font-black text-white leading-tight">
-                                    Fast & Secure Account Recovery
-                                </h2>
-                                <p className="text-white/70 text-xs mt-2 leading-relaxed">
-                                    Your account security is our priority. We use 256-bit encryption for all reset operations.
-                                </p>
-                            </div>
-
-                            <div className="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/10 mt-6 space-y-3">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-8 h-8 rounded-lg bg-brand-500 text-[#002117] flex items-center justify-center font-bold">
-                                        <span className="material-symbols-outlined text-base">verified_user</span>
-                                    </div>
-                                    <div>
-                                        <p className="text-xs font-bold text-white">Safe & Secure</p>
-                                        <p className="text-[10px] text-white/60">We'll help you back in safely.</p>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div className="text-[10px] text-white/40 mt-4 font-mono">
-                                TrustHire Protocol v2.4 • Supabase Verified
-                            </div>
-                        </div>
-                    </div>
-                </main>
-                <AuthFooter />
-            </div>
-        );
-    }
-
     return (
-        <div className="bg-slate-50 text-slate-900 font-body min-h-screen flex flex-col selection:bg-brand-500 selection:text-[#002117] antialiased">
-            <AuthHeader />
+        <div className="min-h-screen bg-[#F0F2F6] flex items-center justify-center p-3 sm:p-6 md:p-10 font-sans">
             
-            <main className="w-full max-w-5xl mx-auto px-4 pt-24 pb-12 flex-1 flex items-center justify-center">
-                <div className="w-full bg-white rounded-2xl border border-slate-900/10 shadow-xl overflow-hidden grid md:grid-cols-2">
-                    
-                    {/* Left Column: Form Content */}
-                    <div className="p-6 md:p-10 flex flex-col justify-center">
-                        <div className="mb-6 text-left">
-                            <h1 className="font-headline text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
-                                Forgot Password?
-                            </h1>
-                            <p className="text-slate-900/60 text-xs md:text-sm mt-1 font-medium">
-                                Don’t worry, it happens. Enter your email and we’ll send you a reset link.
-                            </p>
-                        </div>
+            {/* Main Card Container */}
+            <div className="w-full max-w-5xl bg-white rounded-3xl md:rounded-[32px] shadow-2xl shadow-slate-300/40 border border-slate-100 overflow-hidden grid grid-cols-1 md:grid-cols-12 min-h-[580px] transition-all">
+                
+                {/* Left Side: Brand Visual Hero */}
+                <div className="md:col-span-5 lg:col-span-5 hidden md:block">
+                    <AuthVisualHero role="WORKER" />
+                </div>
 
-                        {error && (
+                {/* Right Side: Clean Modern Form */}
+                <div className="md:col-span-7 lg:col-span-7 p-6 sm:p-10 lg:p-12 flex flex-col justify-between relative bg-white">
+                    
+                    {/* Top Back Link */}
+                    <div className="flex items-center justify-between gap-3 mb-6">
+                        <Link 
+                            to="/sign-in" 
+                            className="inline-flex items-center gap-2 text-xs font-bold text-slate-600 hover:text-[#0066FF] transition-colors"
+                        >
+                            <ArrowLeft className="w-4 h-4" />
+                            <span>Back to Sign In</span>
+                        </Link>
+                    </div>
+
+                    {/* Centered Area */}
+                    <div className="max-w-md w-full mx-auto my-auto py-4">
+                        
+                        {isSuccess ? (
                             <motion.div 
-                                initial={{ opacity: 0, y: -6 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 text-xs font-bold rounded-lg flex items-center gap-2"
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                className="text-center space-y-4"
                             >
-                                <span className="material-symbols-outlined text-base">error</span>
-                                <span>{error}</span>
+                                <div className="w-16 h-16 bg-blue-50 text-[#0066FF] rounded-2xl flex items-center justify-center mx-auto shadow-xs border border-blue-100">
+                                    <MailCheck className="w-8 h-8" />
+                                </div>
+                                <h1 className="font-['Outfit',sans-serif] text-2xl sm:text-3xl font-extrabold text-[#0A1931] tracking-tight">
+                                    Check your email
+                                </h1>
+                                <p className="text-slate-500 text-xs sm:text-sm font-medium leading-relaxed">
+                                    We sent a reset code to <strong className="text-slate-800">{email}</strong>. Please check your inbox and spam folder.
+                                </p>
+                                <button
+                                    onClick={() => navigate('/reset-password')}
+                                    className="w-full mt-4 bg-[#0066FF] hover:bg-[#0052CC] text-white py-3.5 px-4 rounded-xl font-bold text-xs sm:text-sm tracking-wide shadow-md shadow-[#0066FF]/25 hover:shadow-lg transition-all cursor-pointer font-['Outfit',sans-serif]"
+                                >
+                                    Enter 6-Digit Reset Code
+                                </button>
                             </motion.div>
+                        ) : (
+                            <div>
+                                <div className="mb-6">
+                                    <h1 className="font-['Outfit',sans-serif] text-2xl sm:text-3xl font-extrabold text-[#0A1931] tracking-tight">
+                                        Forgot Password?
+                                    </h1>
+                                    <p className="text-slate-500 text-xs sm:text-sm mt-1 font-medium">
+                                        Enter your registered email and we'll send you an instant recovery code.
+                                    </p>
+                                </div>
+
+                                <AnimatePresence>
+                                    {error && (
+                                        <motion.div 
+                                            initial={{ opacity: 0, y: -8 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, y: -8 }}
+                                            className="mb-4 p-3.5 bg-rose-50 border border-rose-200 text-rose-800 text-xs font-bold rounded-xl flex items-center gap-2.5 shadow-2xs"
+                                        >
+                                            <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
+                                            <span>{error}</span>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+
+                                <form onSubmit={handleSubmit} className="space-y-4">
+                                    <div className="space-y-1.5">
+                                        <label className="block text-xs font-bold text-slate-700 font-['Outfit',sans-serif]">
+                                            Account Email
+                                        </label>
+                                        <div className="relative">
+                                            <input
+                                                type="email"
+                                                value={email}
+                                                onChange={(e) => setEmail(e.target.value)}
+                                                placeholder="Enter your registered email"
+                                                required
+                                                className="w-full bg-slate-50/50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0066FF] rounded-xl px-4 py-3 pl-10 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 font-medium transition-all outline-none focus:ring-3 focus:ring-[#0066FF]/15"
+                                            />
+                                            <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                                        </div>
+                                    </div>
+
+                                    <button
+                                        type="submit"
+                                        disabled={isLoading || !email}
+                                        className="w-full mt-2 bg-[#0066FF] hover:bg-[#0052CC] active:scale-[0.99] disabled:opacity-50 text-white py-3.5 px-4 rounded-xl font-bold text-xs sm:text-sm tracking-wide shadow-md shadow-[#0066FF]/25 hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer font-['Outfit',sans-serif]"
+                                    >
+                                        {isLoading ? (
+                                            <>
+                                                <Loader2 className="w-4 h-4 animate-spin" />
+                                                <span>Sending Code...</span>
+                                            </>
+                                        ) : (
+                                            <span>Send Recovery Code</span>
+                                        )}
+                                    </button>
+                                </form>
+                            </div>
                         )}
 
-                        <form onSubmit={handleSubmit} noValidate className="space-y-4">
-                            <div className="space-y-1">
-                                <label className="text-[11px] font-bold text-slate-900 uppercase tracking-wider">
-                                    Email Address
-                                </label>
-                                <input 
-                                    type="email"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    placeholder="e.g. name@email.com"
-                                    required
-                                    className="w-full bg-slate-50 border border-slate-900/10 rounded-lg px-3.5 py-2.5 text-xs text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-brand-500"
-                                />
-                            </div>
-                            <button 
-                                disabled={isLoading || !email}
-                                className="w-full mt-2 bg-brand-500 text-slate-900 py-3 rounded-lg font-bold text-xs uppercase tracking-wider shadow-sm hover:brightness-105 active:scale-98 transition-all flex items-center justify-center gap-2"
-                                type="submit"
-                            >
-                                {isLoading ? (
-                                    <span className="material-symbols-outlined animate-spin text-sm">progress_activity</span>
-                                ) : (
-                                    <span>Send Reset Link</span>
-                                )}
-                            </button>
-                        </form>
-
-                        <div className="mt-8 flex justify-start border-t border-slate-900/5 pt-4">
-                            <Link className="flex items-center gap-2 text-slate-900/60 font-bold hover:text-brand-500 transition-all text-xs uppercase tracking-wider" to="/sign-in">
-                                <span className="material-symbols-outlined text-sm">arrow_back</span>
-                                Back to Login
-                            </Link>
-                        </div>
                     </div>
 
-                    {/* Right Column: Visual Brand Card */}
-                    <div className="hidden md:flex bg-slate-900 p-8 flex-col justify-between text-white relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-64 h-64 bg-brand-500/10 rounded-full blur-3xl pointer-events-none"></div>
-                        
-                        <div>
-                            <span className="inline-block bg-brand-500 text-[#002117] text-[10px] font-black uppercase px-2.5 py-1 rounded-md tracking-wider mb-4">
-                                Password Recovery
-                            </span>
-                            <h2 className="font-headline text-2xl font-black text-white leading-tight">
-                                Get Back to Work Safely
-                            </h2>
-                            <p className="text-white/70 text-xs mt-2 leading-relaxed">
-                                Our password recovery process ensures your account stays secure while getting you back into the platform quickly.
-                            </p>
-                        </div>
-
-                        <div className="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/10 mt-6 space-y-3">
-                            <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-lg bg-brand-500 text-[#002117] flex items-center justify-center font-bold">
-                                    <span className="material-symbols-outlined text-base">shield_lock</span>
-                                </div>
-                                <div>
-                                    <p className="text-xs font-bold text-white">Encrypted Links</p>
-                                    <p className="text-[10px] text-white/60">Your reset links are time-limited and single-use.</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="text-[10px] text-white/40 mt-4 font-mono">
-                            TrustHire Protocol v2.4 • Supabase Verified
-                        </div>
+                    {/* Bottom Help */}
+                    <div className="pt-4 text-center text-xs text-slate-400 font-medium">
+                        Remember your credentials?{' '}
+                        <Link to="/sign-in" className="font-bold text-[#0A1931] hover:text-[#0066FF] transition-colors">
+                            Sign In
+                        </Link>
                     </div>
+
                 </div>
-            </main>
 
-            <AuthFooter />
+            </div>
+
         </div>
     );
 }

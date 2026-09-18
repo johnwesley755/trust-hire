@@ -43,10 +43,10 @@ export function LandingNavbar() {
             <span className="material-symbols-outlined text-base">badge</span>
             Hire Workers
           </Link>
-          <Link className="hover:text-[#0066FF] transition-colors flex items-center gap-1.5" to="/help">
+          <a className="hover:text-[#0066FF] transition-colors flex items-center gap-1.5 cursor-pointer" href="#escrow">
             <ShieldCheck className="w-4 h-4 text-emerald-600" />
             Escrow Shield
-          </Link>
+          </a>
         </div>
 
         {/* Right Action Switcher */}

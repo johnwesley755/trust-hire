@@ -23,7 +23,6 @@ import ratingRoutes from './routes/ratingRoutes';
 import searchRoutes from './routes/searchRoutes';
 import settingsRoutes from './routes/settingsRoutes';
 import skillTestRoutes from './routes/skillTestRoutes';
-import supportRoutes from './routes/supportRoutes';
 import verificationRoutes from './routes/verificationRoutes';
 
 export type AppContext = {
@@ -63,7 +62,6 @@ app.route('/api/ratings', ratingRoutes);
 app.route('/api/search', searchRoutes);
 app.route('/api/settings', settingsRoutes);
 app.route('/api/skill-tests', skillTestRoutes);
-app.route('/api/support', supportRoutes);
 app.route('/api/verification', verificationRoutes);
 
 

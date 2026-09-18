@@ -19,7 +19,6 @@ import ResetPasswordPage from '../modules/auth/pages/ResetPasswordPage';
 import OnboardingPage from '../modules/profile/pages/OnboardingPage';
 import ProfilePage from '../modules/profile/pages/ProfilePage';
 import { SettingsPage } from '../modules/settings/pages/SettingsPage';
-import { HelpPage } from '../modules/help/pages/HelpPage';
 import TermsPage from '../modules/landing/pages/TermsPage';
 import PrivacyPage from '../modules/landing/pages/PrivacyPage';
 
@@ -162,10 +161,6 @@ export const router = createBrowserRouter([
           {
             path: '/settings',
             element: <SettingsPage />,
-          },
-          {
-            path: '/help',
-            element: <HelpPage />,
           },
         ],
       },

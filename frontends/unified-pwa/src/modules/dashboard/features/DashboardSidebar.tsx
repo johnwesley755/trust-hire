@@ -37,7 +37,6 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ isOpen, onCl
 
   const secondaryItems = [
     { name: 'Settings', icon: 'settings', path: '/settings' },
-    { name: 'Help & Support', icon: 'help', path: '/help' },
   ];
 
   const handleNavigate = (path: string) => {

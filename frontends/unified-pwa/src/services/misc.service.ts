@@ -15,8 +15,4 @@ export const miscService = {
     const res = await apiClient.post('/api/early-access', payload);
     return res.data;
   },
-  submitSupportTicket: async (data: { subject: string; message: string; priority?: string }) => {
-    const res = await apiClient.post('/api/support/ticket', data);
-    return res.data;
-  },
 };
