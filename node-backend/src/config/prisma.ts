@@ -8,45 +8,61 @@ if (typeof WebSocket === 'undefined') {
   neonConfig.webSocketConstructor = ws;
 }
 
-const createPrismaClient = () => {
-  const dbUrl = process.env.DATABASE_URL;
+const globalForPrisma = globalThis as unknown as { prisma: PrismaClient | undefined };
+
+let cachedPrisma: PrismaClient | null = globalForPrisma.prisma || null;
+
+const createPrismaClient = (): PrismaClient => {
+  if (cachedPrisma) {
+    return cachedPrisma;
+  }
+
+  const dbUrl = process.env.DATABASE_URL || (globalThis as any).process?.env?.DATABASE_URL || (globalThis as any).DATABASE_URL;
   if (!dbUrl) {
-    throw new Error("DATABASE_URL is not defined in the environment.");
+    // Return standard client or fallback if DATABASE_URL is not yet populated during bundle build/eval
+    return new PrismaClient();
   }
   
   // Use Neon WebSocket adapter only if connecting to Neon Cloud
   if (dbUrl.includes('neon.tech')) {
     const pool = new Pool({ connectionString: dbUrl });
     const adapter = new PrismaNeon(pool);
-    return new PrismaClient({
+    cachedPrisma = new PrismaClient({
       adapter,
+      log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
+    });
+  } else {
+    // Standard Local / Direct PostgreSQL Connection with connection pooling
+    let finalUrl = dbUrl;
+    if (!finalUrl.includes('connection_limit')) {
+      finalUrl += finalUrl.includes('?') ? '&connection_limit=10' : '?connection_limit=10';
+    }
+
+    cachedPrisma = new PrismaClient({
+      datasources: {
+        db: {
+          url: finalUrl
+        }
+      },
       log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
     });
   }
 
-  // Standard Local / Direct PostgreSQL Connection with connection pooling
-  let finalUrl = dbUrl;
-  if (!finalUrl.includes('connection_limit')) {
-    finalUrl += finalUrl.includes('?') ? '&connection_limit=10' : '?connection_limit=10';
+  if (process.env.NODE_ENV !== 'production') {
+    globalForPrisma.prisma = cachedPrisma;
   }
 
-  return new PrismaClient({
-    datasources: {
-      db: {
-        url: finalUrl
-      }
-    },
-    log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
-  });
+  return cachedPrisma;
 };
 
-const globalForPrisma = globalThis as unknown as { prisma: PrismaClient | undefined };
-
-export const prisma = globalForPrisma.prisma || createPrismaClient();
-
-if (process.env.NODE_ENV !== 'production') {
-  globalForPrisma.prisma = prisma;
-}
+// Use Proxy for lazy evaluation so module import at deploy time doesn't throw if env is not yet bound
+export const prisma: PrismaClient = new Proxy({} as PrismaClient, {
+  get(_target, prop, receiver) {
+    const client = createPrismaClient();
+    const val = Reflect.get(client, prop, receiver);
+    return typeof val === 'function' ? val.bind(client) : val;
+  }
+});
 
 export default prisma;
 
