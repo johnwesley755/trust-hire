@@ -78,7 +78,7 @@ export const ProgressSidePanel: React.FC<ProgressSidePanelProps> = ({ progress =
         <div className="space-y-2.5">
           <ActionCard 
             title="Complete Identity KYC" 
-            description="Unlock instant 1-hr bank withdrawals" 
+            description="Unlock direct bank withdrawals" 
             icon={<ShieldCheck className="w-5 h-5 text-[#0066FF]" />} 
             containerColor="bg-blue-50"
             path="/verify-identity"

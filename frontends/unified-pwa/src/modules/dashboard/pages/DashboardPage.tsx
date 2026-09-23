@@ -53,7 +53,7 @@ export default function DashboardPage() {
                     <div className="space-y-1">
                         <div className="flex items-center gap-2 text-[#0066FF] font-extrabold uppercase tracking-wider text-[11px]">
                             <Sparkles className="w-4 h-4" />
-                            <span>Workforce Dispatch Dashboard</span>
+                            <span>Employer Dashboard</span>
                         </div>
                         <h1 className="text-2xl sm:text-3xl font-extrabold text-[#0A1931] tracking-tight font-['Outfit',sans-serif]">
                             Welcome back, {displayName}
@@ -183,7 +183,7 @@ export default function DashboardPage() {
                                 {totalHired}
                             </div>
                             <p className="text-xs font-bold uppercase tracking-wider text-slate-400 mt-1">
-                                Dispatched & Hired
+                                Hired & Active
                             </p>
                         </div>
                         <div className="flex items-center gap-1 text-xs font-bold text-emerald-600 group-hover:underline pt-1">
@@ -261,7 +261,7 @@ export default function DashboardPage() {
                             </li>
                             <li className="flex items-center gap-2">
                                 <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
-                                <span>Instant escrow payment protection</span>
+                                <span>Guaranteed escrow payment protection</span>
                             </li>
                             <li className="flex items-center gap-2">
                                 <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />

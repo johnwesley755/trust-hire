@@ -1,17 +1,27 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { authService } from '../../../services/auth.service';
 import { forgotPasswordSchema } from '../../../validations/zodSchema';
 import { AuthVisualHero } from '../components/AuthVisualHero';
 import { motion, AnimatePresence } from 'framer-motion';
-import { AlertCircle, Loader2, ArrowLeft, MailCheck, Mail } from 'lucide-react';
+import { AlertCircle, Loader2, ArrowLeft, MailCheck, Mail, Building2, User } from 'lucide-react';
 
 export default function ForgotPasswordPage() {
+    const [searchParams, setSearchParams] = useSearchParams();
+    const queryRole = searchParams.get('role')?.toUpperCase();
+    const [activeRole, setActiveRole] = useState<'WORKER' | 'EMPLOYER'>(queryRole === 'EMPLOYER' ? 'EMPLOYER' : 'WORKER');
+
     const [email, setEmail] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [isSuccess, setIsSuccess] = useState(false);
     const navigate = useNavigate();
+
+    const handleRoleToggle = (newRole: 'WORKER' | 'EMPLOYER') => {
+        setActiveRole(newRole);
+        setSearchParams({ role: newRole.toLowerCase() });
+        setError(null);
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -26,10 +36,10 @@ export default function ForgotPasswordPage() {
         }
 
         try {
-            await authService.forgotPassword(email);
+            await authService.forgotPassword(email, activeRole);
             setIsSuccess(true);
         } catch (err: any) {
-            setError(err.response?.data?.error || 'Failed to send reset email. Please check the email address.');
+            setError(err.response?.data?.message || err.response?.data?.error || 'Failed to send reset email. Please check the email address.');
         } finally {
             setIsLoading(false);
         }
@@ -43,21 +53,48 @@ export default function ForgotPasswordPage() {
                 
                 {/* Left Side: Brand Visual Hero */}
                 <div className="md:col-span-5 lg:col-span-5 hidden md:block">
-                    <AuthVisualHero role="WORKER" />
+                    <AuthVisualHero role={activeRole} />
                 </div>
 
                 {/* Right Side: Clean Modern Form */}
                 <div className="md:col-span-7 lg:col-span-7 p-6 sm:p-10 lg:p-12 flex flex-col justify-between relative bg-white">
                     
-                    {/* Top Back Link */}
+                    {/* Top Back Link & Role Switcher */}
                     <div className="flex items-center justify-between gap-3 mb-6">
                         <Link 
-                            to="/sign-in" 
+                            to={`/sign-in?role=${activeRole.toLowerCase()}`} 
                             className="inline-flex items-center gap-2 text-xs font-bold text-slate-600 hover:text-[#0066FF] transition-colors"
                         >
                             <ArrowLeft className="w-4 h-4" />
                             <span>Back to Sign In</span>
                         </Link>
+
+                        <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-200/80">
+                            <button
+                                type="button"
+                                onClick={() => handleRoleToggle('WORKER')}
+                                className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                                    activeRole === 'WORKER'
+                                        ? 'bg-white text-[#0A1931] shadow-xs'
+                                        : 'text-slate-500 hover:text-slate-800'
+                                }`}
+                            >
+                                <User className="w-3.5 h-3.5" />
+                                <span>Candidate</span>
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => handleRoleToggle('EMPLOYER')}
+                                className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                                    activeRole === 'EMPLOYER'
+                                        ? 'bg-white text-[#0A1931] shadow-xs'
+                                        : 'text-slate-500 hover:text-slate-800'
+                                }`}
+                            >
+                                <Building2 className="w-3.5 h-3.5" />
+                                <span>Employer</span>
+                            </button>
+                        </div>
                     </div>
 
                     {/* Centered Area */}
@@ -92,7 +129,7 @@ export default function ForgotPasswordPage() {
                                         Forgot Password?
                                     </h1>
                                     <p className="text-slate-500 text-xs sm:text-sm mt-1 font-medium">
-                                        Enter your registered email and we'll send you an instant recovery code.
+                                        Enter your registered email and we'll send you a password recovery code.
                                     </p>
                                 </div>
 

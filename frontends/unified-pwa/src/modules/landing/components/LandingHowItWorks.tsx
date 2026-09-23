@@ -15,7 +15,7 @@ export function LandingHowItWorks() {
               <span className="material-symbols-outlined text-brand-forest text-2xl">post_add</span>
             </div>
             <h3 className="text-xl font-bold text-brand-forest mb-3">Post Your Need</h3>
-            <p className="text-brand-forest/70 leading-relaxed text-sm">Describe the role, salary, and location. Our AI categorizes your job instantly.</p>
+            <p className="text-brand-forest/70 leading-relaxed text-sm">Describe the role, salary, and location. Our AI categorizes and matches your job accurately.</p>
           </div>
           {/* Step 2 */}
           <div className="bg-white p-8 rounded-lg relative group hover:-translate-y-2 transition-transform shadow-sm">

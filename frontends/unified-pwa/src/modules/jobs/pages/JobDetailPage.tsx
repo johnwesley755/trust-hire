@@ -9,7 +9,9 @@ import { useState } from 'react';
 import { NotificationCenter } from '../../dashboard/components/NotificationCenter';
 import { formatMissingProfileFields, getMissingProfileFields } from '../../../utils/profileCompletion';
 import { motion } from 'framer-motion';
-import { CheckCircle2, Sparkles, AlertCircle, Clock, MapPin, IndianRupee, ShieldCheck } from 'lucide-react';
+import { CheckCircle2, Sparkles, AlertCircle, Clock, MapPin, IndianRupee, ShieldCheck, Share2, Bookmark, ChevronLeft } from 'lucide-react';
+import { useSavedStore } from '../../../hooks/useSavedStore';
+import { toast } from 'sonner';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -115,6 +117,47 @@ export default function JobDetailPage() {
   const isApproved = applicationStatus === 'ACCEPTED' || applicationStatus === 'APPROVED' || applicationStatus === 'COMPLETED';
   const isDeclined = applicationStatus === 'REJECTED' || applicationStatus === 'DECLINED';
 
+  const { isJobSaved, toggleSaveJob } = useSavedStore();
+  const isSaved = isJobSaved(id || '');
+
+  const handleShare = async () => {
+    const shareData = {
+      title: `${job?.title || 'Job Opening'} - TrustHyre`,
+      text: `Check out this job opening on TrustHyre: ${job?.title}`,
+      url: window.location.href,
+    };
+    try {
+      if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(window.location.href);
+        toast.success('Job link copied to clipboard!');
+      }
+    } catch (err: any) {
+      if (err.name !== 'AbortError') {
+        await navigator.clipboard.writeText(window.location.href);
+        toast.success('Job link copied to clipboard!');
+      }
+    }
+  };
+
+  const handleToggleSave = () => {
+    if (!job || !id) return;
+    const anyJob = job as any;
+    toggleSaveJob({
+      id: anyJob.id || id,
+      title: anyJob.title,
+      companyName: anyJob.employerProfile?.companyName || anyJob.employerName || 'Verified Employer',
+      logoUrl: anyJob.employerProfile?.logoUrl || anyJob.logoUrl,
+      location: anyJob.location || anyJob.city || anyJob.address,
+      city: anyJob.city,
+      budget: anyJob.budget,
+      salaryText: anyJob.budget ? `₹${anyJob.budget.toLocaleString()}` : undefined,
+      jobType: anyJob.jobType,
+      experienceYearsRequired: anyJob.experienceYearsRequired,
+    });
+  };
+
   if (isLoading) return <div className="min-h-screen bg-slate-50 flex items-center justify-center"><div className="w-10 h-10 border-4 border-[#0066FF] border-t-transparent rounded-full animate-spin" /></div>;
   if (!job) return <div className="min-h-screen bg-slate-50 text-slate-900 p-8">Job not found.</div>;
 
@@ -129,12 +172,64 @@ export default function JobDetailPage() {
           >
             <span className="material-symbols-outlined text-xl">arrow_back</span>
           </button>
-          <h1 className="text-base font-bold text-[#0A1931] tracking-tight truncate max-w-[200px]">{job.title}</h1>
+          <h1 className="text-base font-bold text-[#0A1931] tracking-tight truncate max-w-[160px]">{job.title}</h1>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
+          <button
+            onClick={handleShare}
+            className="p-2 text-slate-600 hover:text-[#0066FF] rounded-lg hover:bg-slate-100 transition-colors"
+            title="Share Job"
+          >
+            <Share2 className="w-4 h-4" />
+          </button>
+          <button
+            onClick={handleToggleSave}
+            className={`p-2 rounded-lg transition-colors ${
+              isSaved ? 'text-[#0066FF] bg-blue-50' : 'text-slate-600 hover:text-[#0066FF] hover:bg-slate-100'
+            }`}
+            title={isSaved ? 'Remove from Saved' : 'Save Job'}
+          >
+            <Bookmark className={`w-4 h-4 ${isSaved ? 'fill-current' : ''}`} />
+          </button>
           <NotificationCenter />
         </div>
       </header>
+
+      {/* Desktop Breadcrumb & Header Actions */}
+      <div className="hidden lg:block max-w-6xl mx-auto px-6 pt-6">
+        <div className="flex items-center justify-between">
+          <button 
+            onClick={() => navigate(-1)}
+            className="inline-flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-[#0A1931] transition-colors cursor-pointer"
+          >
+            <ChevronLeft className="w-4 h-4" />
+            <span>Back to Job Search</span>
+          </button>
+
+          <div className="flex items-center gap-2.5">
+            <button
+              onClick={handleShare}
+              className="p-2.5 bg-white rounded-xl shadow-xs border border-slate-200 hover:bg-slate-50 transition-all text-slate-600 hover:text-[#0066FF] hover:border-blue-200 cursor-pointer flex items-center gap-1.5 text-xs font-bold"
+              title="Share Job"
+            >
+              <Share2 className="w-4 h-4" />
+              <span>Share</span>
+            </button>
+            <button
+              onClick={handleToggleSave}
+              className={`p-2.5 rounded-xl shadow-xs border transition-all cursor-pointer flex items-center gap-1.5 text-xs font-bold ${
+                isSaved
+                  ? 'bg-blue-50 border-blue-200 text-[#0066FF]'
+                  : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-[#0066FF] hover:border-blue-200'
+              }`}
+              title={isSaved ? 'Remove from Saved' : 'Save Job'}
+            >
+              <Bookmark className={`w-4 h-4 ${isSaved ? 'fill-current' : ''}`} />
+              <span>{isSaved ? 'Saved' : 'Save Job'}</span>
+            </button>
+          </div>
+        </div>
+      </div>
 
       <div className="relative z-10 max-w-6xl mx-auto p-4 sm:p-6 lg:p-8 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
         {/* Left Column: Content */}
@@ -306,11 +401,11 @@ export default function JobDetailPage() {
                   ? (isApproved 
                       ? 'Your shift is confirmed with escrow protection. View your job details anytime.' 
                       : isOfferSent 
-                      ? 'The employer has dispatched a hiring offer for this shift! Accept below to confirm your booking.'
+                      ? 'The employer sent you a job offer for this shift! Accept below to confirm your booking.'
                       : isDeclined 
                         ? 'This application has been closed. Explore other verified trade shifts.' 
                         : 'Your credentials and TrustScore are currently being reviewed by the employer.')
-                  : 'Applying instantly shares your TrustScore and verified trade certificates.'}
+                  : 'Applying directly shares your TrustScore and verified trade certificates.'}
               </p>
             </div>
             

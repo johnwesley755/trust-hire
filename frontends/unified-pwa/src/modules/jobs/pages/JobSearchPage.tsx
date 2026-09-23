@@ -241,7 +241,7 @@ export default function JobSearchPage() {
       {/* 1. Header Hero Banner with Dual Search */}
       <JobSearchHero
         title="Find your dream job"
-        subtitle="Explore thousands of verified openings with instant pay and vetted employers."
+        subtitle="Explore thousands of verified openings with guaranteed on-time pay and vetted employers."
         initialQuery={query}
         initialCity={city}
         onSearch={handleSearch}

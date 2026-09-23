@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Bookmark, Building2, MapPin, CheckCircle2, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { AppLoader } from '../../../components/common/AppLoader';
+import { useSavedStore } from '../../../hooks/useSavedStore';
 
 export interface JobCardData {
   id: string;
@@ -38,7 +39,8 @@ export const JobSearchResultCard: React.FC<JobSearchResultCardProps> = ({
   isApplying = false,
 }) => {
   const navigate = useNavigate();
-  const [isSaved, setIsSaved] = useState(false);
+  const { isJobSaved, toggleSaveJob } = useSavedStore();
+  const isSaved = isJobSaved(job.id);
 
   const companyName = job.employerProfile?.companyName || 'Verified Employer';
   const locationText = job.city || job.location || 'Remote / Multiple Locations';
@@ -108,14 +110,26 @@ export const JobSearchResultCard: React.FC<JobSearchResultCardProps> = ({
           type="button"
           onClick={(e) => {
             e.stopPropagation();
-            setIsSaved(!isSaved);
+            toggleSaveJob({
+              id: job.id,
+              title: job.title,
+              companyName,
+              logoUrl: job.employerProfile?.logoUrl,
+              location: locationText,
+              city: job.city,
+              budget: job.budget,
+              salaryText,
+              jobType: job.jobType,
+              experienceText,
+              experienceYearsRequired: job.experienceYearsRequired,
+            });
           }}
           className={`p-2 rounded-xl border transition-all cursor-pointer shrink-0 ${
             isSaved 
               ? 'bg-blue-50 border-blue-200 text-[#0066FF]' 
               : 'bg-slate-50 border-slate-200/80 text-slate-400 hover:text-slate-700 hover:bg-slate-100'
           }`}
-          title={isSaved ? 'Job Saved' : 'Save Job'}
+          title={isSaved ? 'Remove from Saved' : 'Save Job'}
         >
           <Bookmark className={`w-4 h-4 ${isSaved ? 'fill-current' : ''}`} />
         </button>

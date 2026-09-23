@@ -234,7 +234,7 @@ export const SettingsPage = () => {
                   <p className="text-sm font-black text-[#0A1931]">
                     {user?.phoneNumber || (user as any)?.phone_number || '+91 • Not specified'}
                   </p>
-                  <p className="text-[11px] text-slate-400 font-medium">Direct dispatch and emergency supervisor coordination.</p>
+                  <p className="text-[11px] text-slate-400 font-medium">Direct hiring and supervisor coordination.</p>
                 </div>
 
                 <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-1.5">
@@ -243,7 +243,7 @@ export const SettingsPage = () => {
                     <span className="text-[10px] font-bold uppercase tracking-wider">Base Operating Hub</span>
                   </div>
                   <p className="text-sm font-black text-[#0A1931]">{user?.location || 'Chennai, Tamil Nadu'}</p>
-                  <p className="text-[11px] text-slate-400 font-medium">Radius center for hyper-local trade dispatch.</p>
+                  <p className="text-[11px] text-slate-400 font-medium">Radius center for local trade matching.</p>
                 </div>
 
                 <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-1.5">
@@ -300,7 +300,7 @@ export const SettingsPage = () => {
                       <div>
                         <h3 className="text-xs font-bold text-[#0A1931]">Email Notifications</h3>
                         <p className="text-[11px] text-slate-500 font-medium mt-0.5">
-                          Receive shift offer dispatches, application confirmations, and payment release receipts.
+                          Receive job offers, application confirmations, and payment receipts.
                         </p>
                       </div>
                     </div>
@@ -330,7 +330,7 @@ export const SettingsPage = () => {
                       <div>
                         <h3 className="text-xs font-bold text-[#0A1931]">Real-time Push Alerts</h3>
                         <p className="text-[11px] text-slate-500 font-medium mt-0.5">
-                          Instant browser and mobile alerts when an employer dispatches an offer or status changes.
+                          Real-time browser and mobile alerts when an employer sends a job offer or status changes.
                         </p>
                       </div>
                     </div>

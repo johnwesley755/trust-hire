@@ -80,7 +80,7 @@ export default function TrackerPage() {
             </span>
           </div>
           <p className="text-xs text-slate-500 font-medium mt-1">
-            Hyperlocal partner hub • Real-time instant shift matching active
+            Hyperlocal partner hub • Real-time shift matching active
           </p>
         </div>
 

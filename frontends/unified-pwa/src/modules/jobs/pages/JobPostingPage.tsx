@@ -73,14 +73,14 @@ export const JobPostingPage = () => {
     <main className="flex-1 p-4 md:p-8 bg-slate-50/50 min-h-screen font-sans">
       <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 max-w-7xl mx-auto px-2 gap-4">
         <div>
-          <div className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-[#0066FF] mb-1">
+          {/* <div className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-[#0066FF] mb-1">
             <ShieldCheck className="w-4 h-4" /> Enterprise Hiring Portal
-          </div>
+          </div> */}
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#0A1931] leading-tight">
-            Post a Verified Trade Shift
+            Post a new job
           </h1>
           <p className="text-slate-500 font-medium text-xs sm:text-sm mt-0.5">
-            Instant candidate matching across our network with guaranteed escrow protection.
+            Fast candidate matching across our network with guaranteed escrow protection.
           </p>
         </div>
       </header>
@@ -266,7 +266,7 @@ export const JobPostingPage = () => {
               {/* CTA Section */}
               <div className="pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <p className="text-xs text-slate-400 font-medium">
-                  Protected by <span className="text-slate-800 font-bold">TrustHyre Escrow</span> with instant worker dispatch.
+                  Protected by <span className="text-slate-800 font-bold">TrustHyre Escrow</span> with direct worker dispatch.
                 </p>
                 <button 
                   type="submit" 
@@ -292,7 +292,7 @@ export const JobPostingPage = () => {
             <ul className="space-y-3 text-xs text-blue-100/90 leading-relaxed font-medium">
               <li className="flex items-start gap-2">
                 <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                <span>Nearby verified candidates receive instant push notifications.</span>
+                <span>Nearby verified candidates receive direct push notifications.</span>
               </li>
               <li className="flex items-start gap-2">
                 <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />

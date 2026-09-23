@@ -26,7 +26,7 @@ export const StatsGrid = () => {
         { 
             label: 'Applicants', 
             value: stats?.totalApplicants || 0, 
-            trend: 'Instant dispatch ready', 
+            trend: 'Dispatch ready', 
             trendColor: 'text-slate-600 bg-slate-100',
             icon: <Users className="w-5 h-5 text-indigo-600" />,
             bg: 'bg-indigo-50'
@@ -40,7 +40,7 @@ export const StatsGrid = () => {
             bg: 'bg-amber-50'
         },
         { 
-            label: 'Dispatched & Hired', 
+            label: 'Hired & Active', 
             value: stats?.totalHired || 0, 
             trend: '100% Escrow Guaranteed', 
             trendColor: 'text-emerald-700 bg-emerald-50',
@@ -115,7 +115,7 @@ export const ApplicationsTable = () => {
         <div className="text-center py-20 bg-white rounded-2xl border border-dashed border-slate-200 space-y-3">
             <Users className="w-10 h-10 text-slate-300 mx-auto" />
             <h4 className="text-base font-bold text-slate-800">No Applications Received Yet</h4>
-            <p className="text-xs text-slate-400">Post a shift or use Direct Dispatch to hire instantly.</p>
+            <p className="text-xs text-slate-400">Post a shift or use Direct Hire to hire verified workers.</p>
         </div>
     );
 
