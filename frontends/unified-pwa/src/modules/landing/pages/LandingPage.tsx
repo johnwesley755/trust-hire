@@ -240,7 +240,7 @@ export default function LandingPage() {
                   </div>
                 </div>
 
-                {/* Floating Interactive Card 1: Worker Instant Payment Proof */}
+                {/* Floating Interactive Card 1: Worker Payment Proof */}
                 <div className="absolute -top-5 -left-4 sm:-left-8 bg-white/95 backdrop-blur-md p-3.5 sm:p-4 rounded-2xl shadow-xl border border-slate-100 flex items-center gap-3.5 max-w-[260px] animate-float">
                   <div className="w-11 h-11 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold shrink-0">
                     <Wallet className="w-5 h-5" />
@@ -249,7 +249,7 @@ export default function LandingPage() {
                     <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide">Daily Shift Completed</span>
                     <p className="text-sm font-extrabold text-slate-900">₹1,200 Transferred</p>
                     <p className="text-[11px] text-emerald-600 font-bold flex items-center gap-1">
-                      <CheckCheck className="w-3.5 h-3.5" /> Instant UPI Paid
+                      <CheckCheck className="w-3.5 h-3.5" /> Direct UPI Paid
                     </p>
                   </div>
                 </div>
@@ -371,7 +371,7 @@ export default function LandingPage() {
                 </div>
                 <h3 className="text-xl font-bold text-slate-900 mb-2">Get Verified with Aadhaar / ID</h3>
                 <p className="text-slate-600 text-sm leading-relaxed mb-4">
-                  Upload your photo, government ID, and trade experience once. Our team approves you in 2 hours so employers can trust you instantly.
+                  Upload your photo, government ID, and trade experience once. Our team approves you in 2 hours so employers can trust your verified profile.
                 </p>
                 <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-100 text-xs text-slate-500 flex items-center gap-2">
                   <BadgeCheck className="w-4 h-4 text-[#0066FF]" />

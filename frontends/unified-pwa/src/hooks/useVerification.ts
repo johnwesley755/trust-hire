@@ -19,7 +19,7 @@ export const useInitiateVerificationMutation = () => {
     mutationFn: ({ docImageUrl, liveImageUrl }: { docImageUrl: string; liveImageUrl: string }) =>
       verificationService.initiate(docImageUrl, liveImageUrl),
     onSuccess: (data: any) => {
-      toast.success('Identity documents dispatched for algorithmic auditing');
+      toast.success('Identity documents submitted for verification');
       if (data) {
         queryClient.setQueryData(queryKeys.verification.status, (old: any) => ({
           ...(old || {}),

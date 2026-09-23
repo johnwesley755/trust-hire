@@ -110,13 +110,13 @@ export default function ApplicationManagementPage() {
               <div>
                 <div className="flex items-center gap-1.5 text-[11px] font-bold text-[#0066FF] uppercase tracking-wider mb-1">
                   <Briefcase className="w-3.5 h-3.5" />
-                  Hiring & Dispatch Console
+                  Hiring & Applications Hub
                 </div>
                 <h1 className="text-2xl font-black text-[#0A1931] tracking-tight">
                   Active Openings & Applications
                 </h1>
                 <p className="text-slate-500 font-medium text-xs sm:text-sm mt-0.5">
-                  Select an opening to review candidates, inspect credentials, and manage dispatch.
+                  Select an opening to review candidates, inspect credentials, and manage hiring.
                 </p>
               </div>
 
@@ -425,7 +425,7 @@ export default function ApplicationManagementPage() {
                               : 'bg-rose-50 text-rose-600 border-rose-100'
                           }`}>
                             {(app.status === 'ACCEPTED' || app.status === 'APPROVED') ? <CheckCircle2 className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
-                            {(app.status === 'ACCEPTED' || app.status === 'APPROVED') ? 'Approved for Dispatch' : 'Declined'}
+                            {(app.status === 'ACCEPTED' || app.status === 'APPROVED') ? 'Approved & Hired' : 'Declined'}
                           </div>
                         )}
 

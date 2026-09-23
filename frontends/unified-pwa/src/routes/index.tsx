@@ -6,9 +6,11 @@ import { JobPostingPage } from '../modules/jobs/pages/JobPostingPage';
 import { WorkerSearchPage } from '../modules/search/pages/WorkerSearchPage';
 import ApplicationManagementPage from '../modules/jobs/pages/ApplicationManagementPage';
 import { WorkerProfilePage } from '../modules/search/pages/WorkerProfilePage';
+import { SavedProfilesPage } from '../modules/search/pages/SavedProfilesPage';
 import JobSearchPage from '../modules/jobs/pages/JobSearchPage';
 import JobDetailPage from '../modules/jobs/pages/JobDetailPage';
 import AppliedJobsPage from '../modules/jobs/pages/AppliedJobsPage';
+import { SavedJobsPage } from '../modules/jobs/pages/SavedJobsPage';
 import { SkillTestsPage } from '../modules/profile/pages/SkillTestsPage';
 import { LevelDetailsPage } from '../modules/profile/pages/LevelDetailsPage';
 import { IdentityVerificationPage } from '../modules/profile/pages/IdentityVerificationPage';
@@ -111,6 +113,10 @@ export const router = createBrowserRouter([
                 path: '/worker/:id',
                 element: <WorkerProfilePage />,
               },
+              {
+                path: '/saved-profiles',
+                element: <SavedProfilesPage />,
+              },
             ]
           },
 
@@ -125,6 +131,10 @@ export const router = createBrowserRouter([
               {
                 path: '/search',
                 element: <JobSearchPage />,
+              },
+              {
+                path: '/saved-jobs',
+                element: <SavedJobsPage />,
               },
               {
                 path: '/applied-jobs',

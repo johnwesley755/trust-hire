@@ -120,7 +120,7 @@ export default function IdentityStep({ formData, setFormData, onNext }: Identity
                                 />
                             </div>
                             <p className="text-[11px] text-[#0A1931]/60">
-                                Required for job dispatch, direct employer calls, and duplicate prevention.
+                                Required for hiring, direct employer calls, and duplicate prevention.
                             </p>
                         </div>
 

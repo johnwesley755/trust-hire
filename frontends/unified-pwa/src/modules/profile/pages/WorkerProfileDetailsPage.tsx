@@ -8,7 +8,7 @@ import { queryKeys } from "../../../lib/queryKeys";
 import { NotificationCenter } from '../../dashboard/components/NotificationCenter';
 import apiClient from "../../../api/apiClient";
 import { UserAvatar } from "../../../components/common/UserAvatar";
-import { ShieldCheck, Award, MapPin, MapPinned, Star, History, Camera, Edit2, CheckCircle2, ArrowRight, Zap } from "lucide-react";
+import { ShieldCheck, Award, MapPin, MapPinned, Star, History, Camera, Edit2, CheckCircle2, ArrowRight, Zap, Menu } from "lucide-react";
 import { EditWorkerProfileModal } from "../components/EditWorkerProfileModal";
 
 export default function WorkerProfileDetailsPage() {
@@ -108,7 +108,7 @@ export default function WorkerProfileDetailsPage() {
               onClick={() => setIsSidebarOpen(true)}
               className="text-[#0A1931] hover:bg-slate-100 p-2 rounded-full active:scale-95 transition-all cursor-pointer"
             >
-              <span className="material-symbols-outlined text-xl">menu</span>
+              <Menu className="w-5 h-5" />
             </button>
             <h1 className="text-lg font-black text-[#0A1931] tracking-tight">TrustHyre</h1>
           </div>
@@ -235,14 +235,17 @@ export default function WorkerProfileDetailsPage() {
                 <Zap className="w-5 h-5 text-[#0066FF]" /> Verified Expertise
               </h3>
               
-              <div className="grid sm:grid-cols-2 gap-4">
-                {profile?.skills?.split(',').map((skill, idx) => (
-                  <div key={idx} className="flex justify-between items-center p-4 rounded-2xl border border-slate-100 bg-slate-50/50">
-                    <span className="font-bold text-[#0A1931]">{skill.trim()}</span>
-                    <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+              <div className="flex flex-wrap gap-2.5">
+                {profile?.skills?.split(',').filter(Boolean).map((skill, idx) => (
+                  <div 
+                    key={idx} 
+                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-50/80 border border-emerald-200/80 text-emerald-950 font-bold text-xs shadow-2xs transition-all hover:bg-emerald-100/70"
+                  >
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span>{skill.trim()}</span>
                   </div>
                 )) || (
-                  <div className="col-span-2 text-center py-8 text-slate-500">
+                  <div className="w-full text-center py-8 text-slate-500 text-xs font-medium">
                     No skills added yet.
                   </div>
                 )}

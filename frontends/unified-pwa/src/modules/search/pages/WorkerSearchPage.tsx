@@ -14,11 +14,13 @@ import {
   Users,
   PlusCircle,
   X,
-  Check
+  Check,
+  Bookmark
 } from 'lucide-react';
 import { UserAvatar } from '../../../components/common/UserAvatar';
 import { JobSearchHero } from '../../jobs/components/JobSearchHero';
 import { AppLoader } from '../../../components/common/AppLoader';
+import { useSavedStore } from '../../../hooks/useSavedStore';
 
 const TRADE_CATEGORIES = [
   "All",
@@ -48,6 +50,8 @@ export const WorkerSearchPage = () => {
   const [experience, setExperience] = useState(searchParams.get('exp') || 'all');
   const [selectedTrade, setSelectedTrade] = useState(searchParams.get('trade') || 'All');
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+
+  const { isWorkerSaved, toggleSaveWorker } = useSavedStore();
 
   useEffect(() => {
     const q = searchParams.get('q') || '';
@@ -104,7 +108,7 @@ export const WorkerSearchPage = () => {
       {/* 1. Header Hero Banner with Accurate City Detector */}
       <JobSearchHero
         title="Find top verified talent"
-        subtitle="Connect with 2,400+ background-checked, pre-evaluated technicians ready for instant dispatch."
+        subtitle="Connect with 2,400+ background-checked, pre-evaluated technicians ready for direct hire."
         initialQuery={query}
         initialCity={city}
         onSearch={(q, c) => {
@@ -303,10 +307,40 @@ export const WorkerSearchPage = () => {
                           </div>
                         </div>
 
-                        {/* Trust Score Badge */}
-                        <div className="px-2.5 py-1 bg-amber-50 text-amber-800 border border-amber-200 rounded-lg flex items-center gap-1 text-xs font-extrabold shrink-0">
-                          <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
-                          <span>{worker.trustScore ? `${worker.trustScore}%` : '98%'}</span>
+                        {/* Actions: Trust Score & Bookmark */}
+                        <div className="flex items-center gap-2 shrink-0">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleSaveWorker({
+                                userId: worker.userId,
+                                name: worker.name,
+                                profilePhoto: worker.profileImageUrl,
+                                profileImageUrl: worker.profileImageUrl,
+                                skills: skillList,
+                                city: worker.city || worker.location || 'Local Area',
+                                location: worker.location || worker.city || 'Local Area',
+                                experience: worker.experienceYears || 0,
+                                trustScore: worker.trustScore || '98%',
+                                isVerified: worker.isVerified,
+                                bio: worker.bio,
+                              });
+                            }}
+                            className={`p-2 rounded-xl border transition-all cursor-pointer ${
+                              isWorkerSaved(worker.userId)
+                                ? 'bg-blue-50 border-blue-200 text-[#0066FF]'
+                                : 'bg-slate-50 border-slate-200/80 text-slate-400 hover:text-slate-700 hover:bg-slate-100'
+                            }`}
+                            title={isWorkerSaved(worker.userId) ? 'Remove from Saved' : 'Save Profile'}
+                          >
+                            <Bookmark className={`w-4 h-4 ${isWorkerSaved(worker.userId) ? 'fill-current' : ''}`} />
+                          </button>
+
+                          <div className="px-2.5 py-1 bg-amber-50 text-amber-800 border border-amber-200 rounded-lg flex items-center gap-1 text-xs font-extrabold">
+                            <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
+                            <span>{worker.trustScore ? `${worker.trustScore}%` : '98%'}</span>
+                          </div>
                         </div>
                       </div>
 
@@ -340,7 +374,7 @@ export const WorkerSearchPage = () => {
                       <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-xs">
                         <span className="text-emerald-600 font-bold flex items-center gap-1">
                           <CheckCircle2 className="w-3.5 h-3.5" />
-                          Instant Booking Available
+                          Verified & Ready to Book
                         </span>
                         <button
                           type="button"
@@ -385,14 +419,14 @@ export const WorkerSearchPage = () => {
 
           </div>
 
-          {/* RIGHT COLUMN: Talent Dispatch Quick Actions */}
+          {/* RIGHT COLUMN: Talent Hiring Quick Actions */}
           <div className="lg:col-span-3 space-y-6 lg:sticky lg:top-4">
             
             {/* Quick Post Shift Card */}
             <div className="bg-linear-to-br from-[#0A1931] to-[#0066FF] text-white rounded-2xl p-5 shadow-lg space-y-4">
               <div>
                 <span className="text-[10px] font-bold uppercase tracking-widest text-[#38BDF8]">
-                  Direct Dispatch
+                  Direct Hire
                 </span>
                 <h3 className="text-base font-extrabold mt-0.5">
                   Need multiple workers fast?

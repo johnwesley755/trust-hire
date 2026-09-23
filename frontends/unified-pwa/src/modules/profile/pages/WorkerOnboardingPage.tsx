@@ -273,7 +273,7 @@ export default function WorkerOnboardingPage() {
               Complete Your Worker Profile
             </h1>
             <p className="text-slate-500 text-xs sm:text-sm max-w-md mx-auto">
-              Provide your basic trade details and mobile number to start getting matched with instant local shifts.
+              Provide your basic trade details and mobile number to start getting matched with verified local shifts.
             </p>
           </div>
 

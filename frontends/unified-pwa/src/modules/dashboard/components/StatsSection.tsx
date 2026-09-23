@@ -38,7 +38,7 @@ export const StatsSection: React.FC<{ trustScore?: number; nearbyJobs?: number; 
         containerColor="bg-emerald-50 border border-emerald-100"
       />
       <StatCard 
-        label="Instant Shifts Near You"
+        label="Open Shifts Near You"
         value={nearbyJobs}
         icon={<MapPin className="w-6 h-6 text-[#0066FF]" />}
         containerColor="bg-blue-50 border border-blue-100"

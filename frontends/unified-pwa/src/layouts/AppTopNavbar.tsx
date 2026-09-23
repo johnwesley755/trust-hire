@@ -12,7 +12,8 @@ import {
   LogOut, 
   Menu, 
   X,
-  Briefcase
+  Briefcase,
+  Bookmark
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -30,14 +31,16 @@ export const AppTopNavbar = () => {
 
   // Navigation Links
   const workerNavLinks = [
-    { name: 'Find jobs', path: '/search' },
-    { name: 'Applied jobs', path: '/applied-jobs' },
+    { name: 'Find Jobs', path: '/search' },
+    { name: 'Saved Jobs', path: '/saved-jobs' },
+    { name: 'Applied Jobs', path: '/applied-jobs' },
     { name: 'Activity Tracker', path: '/tracker' },
     { name: 'Profile', path: '/profile' },
   ];
 
   const employerNavLinks = [
     { name: 'Find Workers', path: '/find-workers' },
+    { name: 'Saved Profiles', path: '/saved-profiles' },
     { name: 'Post a Job', path: '/post-job' },
     { name: 'My Active Jobs', path: '/jobs' },
     { name: 'Dashboard', path: '/dashboard' },
@@ -202,6 +205,17 @@ export const AppTopNavbar = () => {
                     >
                       <User className="w-4 h-4 text-slate-400" />
                       <span>My Profile</span>
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setIsProfileMenuOpen(false);
+                        navigate(isEmployer ? '/saved-profiles' : '/saved-jobs');
+                      }}
+                      className="w-full px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 flex items-center gap-3 transition-colors cursor-pointer text-left"
+                    >
+                      <Bookmark className="w-4 h-4 text-slate-400" />
+                      <span>{isEmployer ? 'Saved Profiles' : 'Saved Jobs'}</span>
                     </button>
 
                     <button

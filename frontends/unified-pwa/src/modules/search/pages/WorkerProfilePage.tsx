@@ -4,13 +4,15 @@ import { workerService } from '../../../services/worker.service';
 import { jobService } from '../../../services/job.service';
 import { applicationService } from '../../../services/application.service';
 import { queryKeys } from '../../../lib/queryKeys';
+import { useSavedStore } from '../../../hooks/useSavedStore';
+import { toast } from 'sonner';
 import { 
   ShieldCheck, 
   ChevronLeft, 
   Loader2, 
   Share2, 
   Bookmark, 
-  BadgeCheck, 
+  CheckCircle2, 
   Zap, 
   MapPin,
   Mail,
@@ -30,6 +32,8 @@ export const WorkerProfilePage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedJobId, setSelectedJobId] = useState('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const { isWorkerSaved, toggleSaveWorker } = useSavedStore();
 
   const { data: employerStatusData } = useQuery({
     queryKey: queryKeys.employer.workerStatus(id || ''),
@@ -62,7 +66,7 @@ export const WorkerProfilePage = () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.jobs.all });
     },
     onError: (err: any) => {
-      setErrorMessage(err?.response?.data?.message || err?.message || 'Failed to dispatch offer.');
+      setErrorMessage(err?.response?.data?.message || err?.message || 'Failed to send offer.');
     }
   });
 
@@ -90,12 +94,44 @@ export const WorkerProfilePage = () => {
     staleTime: 1000 * 60 * 5, // 5 minutes fresh
   });
 
-  const { data: ratings } = useQuery({
-    queryKey: queryKeys.workers.ratings(id || ''),
-    queryFn: () => workerService.getWorkerRatings(id || ''),
-    enabled: !!id,
-    staleTime: 1000 * 60 * 5,
-  });
+  const isSaved = isWorkerSaved(worker?.userId || id || '');
+
+  const handleShare = async () => {
+    const shareData = {
+      title: `${worker?.name || 'Worker Specialist'} - TrustHyre Profile`,
+      text: `Check out ${worker?.name || 'this candidate'}'s verified profile on TrustHyre`,
+      url: window.location.href,
+    };
+    try {
+      if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(window.location.href);
+        toast.success('Worker profile link copied to clipboard!');
+      }
+    } catch (err: any) {
+      if (err.name !== 'AbortError') {
+        await navigator.clipboard.writeText(window.location.href);
+        toast.success('Worker profile link copied to clipboard!');
+      }
+    }
+  };
+
+  const handleToggleSave = () => {
+    if (!worker && !id) return;
+    toggleSaveWorker({
+      userId: worker?.userId || id || '',
+      name: worker?.name || 'Specialist',
+      profilePhoto: worker?.profilePhoto,
+      skills: worker?.skills || [],
+      city: worker?.city || worker?.location || 'Local Area',
+      location: worker?.location || worker?.city || 'Local Area',
+      experience: worker?.experience || 0,
+      trustScore: worker?.trustScore || '98%',
+      isVerified: worker?.verificationStatus === 'VERIFIED',
+      bio: worker?.bio,
+    });
+  };
 
   if (isLoadingWorker) return <AppLoader variant="page" message="Loading Profile..." />;
 
@@ -113,12 +149,26 @@ export const WorkerProfilePage = () => {
             <span>Back to Worker Search</span>
           </button>
           
-          <div className="flex gap-3">
-            <button className="p-2 bg-white rounded-full shadow-sm border border-slate-200 hover:bg-slate-50 transition-colors text-slate-500 cursor-pointer">
+          <div className="flex gap-2.5">
+            <button 
+              onClick={handleShare}
+              className="p-2.5 bg-white rounded-xl shadow-xs border border-slate-200 hover:bg-slate-50 transition-all text-slate-600 hover:text-[#0066FF] hover:border-blue-200 cursor-pointer flex items-center gap-1.5 text-xs font-bold"
+              title="Share Profile"
+            >
               <Share2 className="w-4 h-4" />
+              <span className="hidden sm:inline">Share</span>
             </button>
-            <button className="p-2 bg-white rounded-full shadow-sm border border-slate-200 hover:bg-slate-50 transition-colors text-slate-500 cursor-pointer">
-              <Bookmark className="w-4 h-4" />
+            <button 
+              onClick={handleToggleSave}
+              className={`p-2.5 rounded-xl shadow-xs border transition-all cursor-pointer flex items-center gap-1.5 text-xs font-bold ${
+                isSaved 
+                  ? 'bg-blue-50 border-blue-200 text-[#0066FF]' 
+                  : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-[#0066FF] hover:border-blue-200'
+              }`}
+              title={isSaved ? 'Remove from Saved' : 'Save Profile'}
+            >
+              <Bookmark className={`w-4 h-4 ${isSaved ? 'fill-current' : ''}`} />
+              <span className="hidden sm:inline">{isSaved ? 'Saved' : 'Save'}</span>
             </button>
           </div>
         </header>
@@ -199,7 +249,7 @@ export const WorkerProfilePage = () => {
                          ? 'Offer Sent' 
                          : hasDeclined 
                          ? 'Offer Declined' 
-                         : 'Dispatch Offer'}
+                         : 'Send Job Offer'}
                      </button>
                    );
                  })()}
@@ -222,50 +272,24 @@ export const WorkerProfilePage = () => {
 
                 {/* Verified Skills Section */}
                 <div className="bg-white rounded-3xl p-6 lg:p-8 border border-slate-200 shadow-sm">
-                  <h3 className="text-lg font-black text-[#0A1931] mb-6 flex items-center gap-2">
+                  <h3 className="text-lg font-black text-[#0A1931] mb-5 flex items-center gap-2">
                     <Zap className="w-5 h-5 text-[#0066FF]" /> Verified Expertise
                   </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="flex flex-wrap gap-2.5">
                     {worker?.skills && worker.skills.length > 0 ? (
                       worker.skills.map((skill, idx) => (
-                        <div key={idx} className="flex justify-between items-center p-4 rounded-2xl border border-slate-100 bg-slate-50/50">
-                          <span className="font-bold text-[#0A1931]">{skill.trim()}</span>
-                          <BadgeCheck className="w-5 h-5 text-emerald-500" />
+                        <div 
+                          key={idx} 
+                          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-50/80 border border-emerald-200/80 text-emerald-950 font-bold text-xs shadow-2xs transition-all hover:bg-emerald-100/70"
+                        >
+                          <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                          <span>{skill.trim()}</span>
                         </div>
                       ))
                     ) : (
                       <p className="text-slate-400 italic text-sm">No specialized skills listed.</p>
                     )}
                   </div>
-                </div>
-
-                {/* Reviews & Ratings Section */}
-                <div className="bg-white rounded-3xl p-6 lg:p-8 border border-slate-200 shadow-sm">
-                  <h3 className="text-lg font-black text-[#0A1931] mb-6">Ratings & Verifications</h3>
-                  
-                  {ratings && ratings.length > 0 ? (
-                    <div className="space-y-4">
-                      {ratings.map((review: any) => (
-                        <div key={review.id} className="p-4 rounded-2xl bg-slate-50 border border-slate-100 flex flex-col gap-2">
-                          <div className="flex justify-between items-center">
-                            <span className="font-bold text-sm text-[#0A1931]">{review.reviewerName || 'Employer Partner'}</span>
-                            <span className="text-xs font-bold px-2 py-0.5 bg-amber-50 text-amber-700 rounded-md border border-amber-200">
-                              ★ {review.score} / 5
-                            </span>
-                          </div>
-                          {review.comment && (
-                            <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                              "{review.comment}"
-                            </p>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-6 bg-slate-50/50 rounded-2xl border border-slate-100">
-                      <p className="text-slate-400 font-medium text-xs">No customer reviews yet. Background check and skill verifications passed.</p>
-                    </div>
-                  )}
                 </div>
 
               </div>
@@ -295,7 +319,7 @@ export const WorkerProfilePage = () => {
                       <div className="min-w-0">
                         <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider block">Phone Number</span>
                         <span className="text-xs font-bold text-slate-700 block">
-                          {worker?.phoneNumber || 'Contact via Direct Dispatch'}
+                          {worker?.phoneNumber || 'Contact via Direct Hire'}
                         </span>
                       </div>
                     </div>
@@ -319,7 +343,7 @@ export const WorkerProfilePage = () => {
         </AnimatePresence>
       </main>
 
-      {/* Dispatch Offer Modal */}
+      {/* Send Job Offer Modal */}
       <AnimatePresence>
         {isModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
@@ -331,8 +355,8 @@ export const WorkerProfilePage = () => {
             >
               <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
                 <div>
-                  <h2 className="text-xl font-black text-[#0A1931]">Dispatch Job Offer</h2>
-                  <p className="text-xs text-slate-400 font-medium">Select an open shift to send to {worker?.name || 'this candidate'}</p>
+                  <h2 className="text-xl font-black text-[#0A1931]">Send Job Offer</h2>
+                  <p className="text-xs text-slate-400 font-medium">Select an open job to send to {worker?.name || 'this candidate'}</p>
                 </div>
                 <button 
                   onClick={() => setIsModalOpen(false)}
@@ -420,7 +444,7 @@ export const WorkerProfilePage = () => {
                                 {isApprovedForJob 
                                   ? 'Candidate is already hired for this position.' 
                                   : isOfferSentForJob 
-                                  ? 'An offer has already been dispatched for this position.' 
+                                  ? 'An offer has already been sent for this job.' 
                                   : 'Offer for this position was previously declined.'}
                               </p>
                             )}
@@ -456,7 +480,7 @@ export const WorkerProfilePage = () => {
                   className="px-6 py-2.5 font-bold text-white bg-[#0066FF] hover:bg-[#0052cc] rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 cursor-pointer shadow-md shadow-blue-500/20 text-xs"
                 >
                   {dispatchOfferMutation.isPending && <Loader2 className="w-4 h-4 animate-spin" />}
-                  Confirm & Dispatch Offer
+                  Confirm & Send Offer
                 </button>
               </div>
             </motion.div>
@@ -466,4 +490,3 @@ export const WorkerProfilePage = () => {
     </div>
   );
 };
-

@@ -21,7 +21,7 @@ const PROCESS_STEPS = [
     color: "text-blue-500",
   },
   {
-    title: "Instant Match",
+    title: "Smart Match",
     desc: "AI-priority scouting based on skill score and proximity.",
     icon: Zap,
     color: "text-amber-500",

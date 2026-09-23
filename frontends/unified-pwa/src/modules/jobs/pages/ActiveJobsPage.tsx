@@ -120,11 +120,11 @@ export function ActiveJobsPage() {
                     <div className="max-w-2xl">
                         <div className="flex items-center gap-2 text-[#0066FF] mb-3">
                             <Briefcase className="w-5 h-5" />
-                            <span className="text-xs font-bold uppercase tracking-widest">Hiring & Dispatch Console</span>
+                            <span className="text-xs font-bold uppercase tracking-widest">Hiring & Applications Hub</span>
                         </div>
                         <h1 className="text-4xl font-black text-[#0A1931] tracking-tight">Active Openings & Applications</h1>
                         <p className="text-slate-500 font-medium mt-3 text-lg leading-relaxed">
-                            Select an active role below to view applicant resumes, verify credentials, and confirm candidate dispatch.
+                            Select an active role below to view applicant resumes, verify credentials, and hire candidates.
                         </p>
                     </div>
                     <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">

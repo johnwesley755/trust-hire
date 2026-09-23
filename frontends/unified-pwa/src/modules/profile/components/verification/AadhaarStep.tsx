@@ -97,7 +97,7 @@ export default function AadhaarStep({ onUpload, preview, isPending }: AadhaarSte
                                 <span key={i} className="material-symbols-outlined text-[#eec200] text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
                             ))}
                         </div>
-                        <p className="text-xs italic text-[#414845] font-body leading-relaxed">"Verifying my ID helped me get higher-paying jobs instantly. TrustHire is reliable."</p>
+                        <p className="text-xs italic text-[#414845] font-body leading-relaxed">"Verifying my ID helped me get higher-paying jobs faster. TrustHyre is reliable."</p>
                         <p className="mt-3 text-[10px] font-bold text-[#1b1c19] uppercase tracking-wider font-headline">— Rajesh, Electrician</p>
                     </div>
                 </div>

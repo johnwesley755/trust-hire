@@ -59,10 +59,16 @@ export const register = async (c: Context) => {
 
 export const login = async (c: Context) => {
   try {
-    const { email, password } = (await c.req.json());
+    const { email, password, role } = (await c.req.json());
     const user = await prisma.user_metadata.findUnique({ where: { email } });
     if (!user || !user.password_hash) {
       return c.json(ApiResponse.error("Invalid credentials"), 401 as any);
+    }
+
+    if (role && user.role && user.role !== role) {
+      const actualRoleLabel = user.role === 'EMPLOYER' ? 'an Employer' : 'a Candidate';
+      const correctPortal = user.role === 'EMPLOYER' ? 'Employer' : 'Candidate';
+      return c.json(ApiResponse.error(`This account is registered as ${actualRoleLabel}. Please sign in using the ${correctPortal} portal.`), 403 as any);
     }
 
     const isValid = await bcrypt.compare(password, user.password_hash);
@@ -170,9 +176,14 @@ export const verifyEmployerOtp = async (c: Context) => {
 
 export const forgotPassword = async (c: Context) => {
   try {
-    const { email } = (await c.req.json());
+    const { email, role } = (await c.req.json());
     const user = await prisma.user_metadata.findUnique({ where: { email } });
     if (user) {
+      if (role && user.role && user.role !== role) {
+        const actualRoleLabel = user.role === 'EMPLOYER' ? 'an Employer' : 'a Candidate';
+        const correctPortal = user.role === 'EMPLOYER' ? 'Employer' : 'Candidate';
+        return c.json(ApiResponse.error(`This account is registered as ${actualRoleLabel}. Please use the ${correctPortal} password recovery portal.`), 403 as any);
+      }
       const token = Math.floor(100000 + Math.random() * 900000).toString();
       await prisma.user_metadata.update({
         where: { email },

@@ -8,26 +8,45 @@ if (typeof WebSocket === 'undefined') {
   neonConfig.webSocketConstructor = ws;
 }
 
-const getPrisma = () => {
+const createPrismaClient = () => {
   const dbUrl = process.env.DATABASE_URL;
   if (!dbUrl) {
     throw new Error("DATABASE_URL is not defined in the environment.");
   }
-  const pool = new Pool({ connectionString: dbUrl });
-  const adapter = new PrismaNeon(pool);
+  
+  // Use Neon WebSocket adapter only if connecting to Neon Cloud
+  if (dbUrl.includes('neon.tech')) {
+    const pool = new Pool({ connectionString: dbUrl });
+    const adapter = new PrismaNeon(pool);
+    return new PrismaClient({
+      adapter,
+      log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
+    });
+  }
+
+  // Standard Local / Direct PostgreSQL Connection with connection pooling
+  let finalUrl = dbUrl;
+  if (!finalUrl.includes('connection_limit')) {
+    finalUrl += finalUrl.includes('?') ? '&connection_limit=10' : '?connection_limit=10';
+  }
+
   return new PrismaClient({
-    adapter,
+    datasources: {
+      db: {
+        url: finalUrl
+      }
+    },
     log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
   });
 };
 
-// Use a Proxy so each operation creates a client bound to the current execution context,
-// preventing Cloudflare Workers cross-request I/O errors while supporting full Prisma type conversion & transactions.
-const prisma = new Proxy({}, {
-  get: (target, prop) => {
-    const client = getPrisma();
-    return (client as any)[prop];
-  }
-}) as unknown as PrismaClient;
+const globalForPrisma = globalThis as unknown as { prisma: PrismaClient | undefined };
+
+export const prisma = globalForPrisma.prisma || createPrismaClient();
+
+if (process.env.NODE_ENV !== 'production') {
+  globalForPrisma.prisma = prisma;
+}
 
 export default prisma;
+

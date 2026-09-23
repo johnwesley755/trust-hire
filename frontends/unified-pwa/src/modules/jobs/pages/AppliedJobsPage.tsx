@@ -115,7 +115,7 @@ export default function AppliedJobsPage() {
             <div>
               <h3 className="text-lg font-bold text-slate-800">No applications in this view</h3>
               <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
-                Discover instant shifts in your area and apply with 1-click verified credentials.
+                Discover open shifts in your area and apply with 1-click verified credentials.
               </p>
             </div>
             <button
@@ -233,10 +233,10 @@ export default function AppliedJobsPage() {
                       <div>
                         <p className="text-xs font-black text-amber-900 flex items-center gap-1.5">
                           <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-                          Hiring partner dispatched this offer!
+                          Employer sent you a job offer!
                         </p>
                         <p className="text-[11px] text-amber-700 font-medium mt-0.5">
-                          Accept to lock in escrow and confirm shift dispatch.
+                          Accept to confirm your shift and lock in secure escrow pay.
                         </p>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">

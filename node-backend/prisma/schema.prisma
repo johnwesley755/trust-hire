@@ -118,6 +118,7 @@ model jobs {
   expires_at                DateTime?             @db.Timestamp(6)
   job_applications          job_applications[]
   job_required_skills       job_required_skills[] @ignore
+  saved_jobs                saved_jobs[]
 
   @@index([employer_id], map: "idx_jobs_employer_id")
   @@index([status], map: "idx_jobs_status")
@@ -310,3 +311,27 @@ model worker_search_index {
   last_updated_at   DateTime? @default(now()) @db.Timestamp(6)
   trust_score       Int?      @default(0)
 }
+
+model saved_jobs {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id    String    @db.VarChar(255)
+  job_id     String    @db.Uuid
+  created_at DateTime? @default(now()) @db.Timestamp(6)
+  jobs       jobs      @relation(fields: [job_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([user_id, job_id], map: "uq_saved_jobs_user_job")
+  @@index([user_id], map: "idx_saved_jobs_user_id")
+  @@index([job_id], map: "idx_saved_jobs_job_id")
+}
+
+model saved_workers {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  employer_id String    @db.VarChar(255)
+  worker_id   String    @db.VarChar(255)
+  created_at  DateTime? @default(now()) @db.Timestamp(6)
+
+  @@unique([employer_id, worker_id], map: "uq_saved_workers_employer_worker")
+  @@index([employer_id], map: "idx_saved_workers_employer_id")
+  @@index([worker_id], map: "idx_saved_workers_worker_id")
+}
+

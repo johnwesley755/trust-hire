@@ -58,7 +58,7 @@ export const SignInPage = () => {
         setError('');
 
         try {
-            const response = await apiClient.post('/api/auth/login', { email, password });
+            const response = await apiClient.post('/api/auth/login', { email, password, role: activeRole });
             const userData = response.data.user;
             login(response.data.token, userData);
             navigate(userData.role === 'WORKER' ? '/search' : '/dashboard');

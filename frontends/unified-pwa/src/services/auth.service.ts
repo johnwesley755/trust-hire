@@ -14,6 +14,7 @@ export interface RegisterPayload {
 export interface LoginPayload {
   email: string;
   password?: string;
+  role?: 'WORKER' | 'EMPLOYER' | 'ADMIN';
 }
 
 export interface AuthResponse {
@@ -30,12 +31,12 @@ export const authService = {
     const res = await apiClient.post<AuthResponse>('/api/auth/login', data);
     return res.data;
   },
-  sendOtp: async (email: string): Promise<any> => {
-    const res = await apiClient.post('/api/auth/send-otp', { email });
+  sendOtp: async (email: string, role?: string): Promise<any> => {
+    const res = await apiClient.post('/api/auth/send-otp', { email, role });
     return res.data;
   },
-  forgotPassword: async (email: string): Promise<any> => {
-    const res = await apiClient.post('/api/auth/forgot-password', { email });
+  forgotPassword: async (email: string, role?: string): Promise<any> => {
+    const res = await apiClient.post('/api/auth/forgot-password', { email, role });
     return res.data;
   },
   resetPassword: async (payload: { token: string; newPassword?: string; password?: string }): Promise<any> => {
