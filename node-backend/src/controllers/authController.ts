@@ -65,7 +65,7 @@ export const login = async (c: Context) => {
       return c.json(ApiResponse.error("Invalid credentials"), 401 as any);
     }
 
-    if (role && user.role && user.role !== role) {
+    if (role && user.role && user.role !== role && user.role !== 'ADMIN') {
       const actualRoleLabel = user.role === 'EMPLOYER' ? 'an Employer' : 'a Candidate';
       const correctPortal = user.role === 'EMPLOYER' ? 'Employer' : 'Candidate';
       return c.json(ApiResponse.error(`This account is registered as ${actualRoleLabel}. Please sign in using the ${correctPortal} portal.`), 403 as any);
@@ -179,7 +179,7 @@ export const forgotPassword = async (c: Context) => {
     const { email, role } = (await c.req.json());
     const user = await prisma.user_metadata.findUnique({ where: { email } });
     if (user) {
-      if (role && user.role && user.role !== role) {
+      if (role && user.role && user.role !== role && user.role !== 'ADMIN') {
         const actualRoleLabel = user.role === 'EMPLOYER' ? 'an Employer' : 'a Candidate';
         const correctPortal = user.role === 'EMPLOYER' ? 'Employer' : 'Candidate';
         return c.json(ApiResponse.error(`This account is registered as ${actualRoleLabel}. Please use the ${correctPortal} password recovery portal.`), 403 as any);
@@ -331,9 +331,12 @@ export const oauthSync = async (c: Context) => {
 
     let user = await prisma.user_metadata.findUnique({ where: { email } });
     
-    // Strictly block employers from using Google OAuth
+    // Strictly block employers and admins from using Google OAuth
     if (user && user.role === 'EMPLOYER') {
       return c.json(ApiResponse.error("This email is registered as an Employer account. Employers must sign in with Business Email OTP."), 403 as any);
+    }
+    if (user && user.role === 'ADMIN') {
+      return c.json(ApiResponse.error("Admin accounts must sign in using the Admin portal."), 403 as any);
     }
 
     if (!user) {

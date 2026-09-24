@@ -1,0 +1,19 @@
+import { Hono } from 'hono';
+import * as adminController from '../controllers/adminController';
+import { authenticateJWT, requireAdmin } from '../middlewares/auth';
+
+const router = new Hono();
+
+// Enforce authentication & ADMIN role for all routes in this router
+router.use('*', authenticateJWT);
+router.use('*', requireAdmin);
+
+router.get('/stats', adminController.getAdminStats);
+router.get('/verifications', adminController.getVerifications);
+router.patch('/verifications/:id/status', adminController.updateVerificationStatus);
+router.get('/users', adminController.getAllUsers);
+router.post('/users/create-admin', adminController.createAdminUser);
+router.get('/jobs', adminController.getAllJobs);
+router.delete('/jobs/:id', adminController.deleteJobByAdmin);
+
+export default router;

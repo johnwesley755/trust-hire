@@ -25,6 +25,7 @@ import settingsRoutes from './routes/settingsRoutes';
 import skillTestRoutes from './routes/skillTestRoutes';
 import verificationRoutes from './routes/verificationRoutes';
 import savedRoutes from './routes/savedRoutes';
+import adminRoutes from './routes/adminRoutes';
 
 export type AppContext = {
   Bindings: {
@@ -65,15 +66,18 @@ app.route('/api/settings', settingsRoutes);
 app.route('/api/skill-tests', skillTestRoutes);
 app.route('/api/verification', verificationRoutes);
 app.route('/api/saved', savedRoutes);
-
+app.route('/api/admin', adminRoutes);
 
 app.get('/api/health', (c) => {
   return c.json({ status: 'UP', runtime: 'Hono' });
 });
 
 app.onError((err, c) => {
-  console.error(err);
-  return c.json({ success: false, message: 'Internal Server Error' }, 500);
+  console.error('Unhandled Application Error:', err);
+  const origin = c.req.header('Origin') || '*';
+  c.header('Access-Control-Allow-Origin', origin);
+  c.header('Access-Control-Allow-Credentials', 'true');
+  return c.json({ success: false, message: err?.message || 'Internal Server Error' }, 500);
 });
 
 export default app;
