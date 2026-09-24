@@ -43,8 +43,8 @@ export const useUpdateWorkerProfileMutation = () => {
         }));
       }
     },
-    onError: (error: any) => {
-      toast.error(error.message || 'Failed to update profile');
+    onError: () => {
+      // Handled in form UI or silently without popup toast errors
     },
   });
 };

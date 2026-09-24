@@ -1,0 +1,329 @@
+import { Context } from 'hono';
+import prisma from '../config/prisma';
+import { ApiResponse } from '../utils/ApiResponse';
+import { v4 as uuidv4 } from 'uuid';
+
+export const getAdminStats = async (c: Context) => {
+  try {
+    const [
+      totalWorkers,
+      totalEmployers,
+      totalJobs,
+      openJobs,
+      totalApplications,
+      totalHired,
+      pendingVerifications,
+      totalVerifications,
+      recentUsers,
+      recentJobs
+    ] = await Promise.all([
+      prisma.user_metadata.count({ where: { role: 'WORKER' } }),
+      prisma.user_metadata.count({ where: { role: 'EMPLOYER' } }),
+      prisma.jobs.count(),
+      prisma.jobs.count({ where: { status: 'OPEN' } }),
+      prisma.job_applications.count(),
+      prisma.job_applications.count({ where: { status: { in: ['ACCEPTED', 'APPROVED', 'COMPLETED'] } } }),
+      prisma.verification_records.count({ where: { status: 'PENDING' } }),
+      prisma.verification_records.count(),
+      prisma.user_metadata.findMany({
+        take: 5,
+        orderBy: { created_at: 'desc' },
+        select: { id: true, email: true, first_name: true, last_name: true, role: true, created_at: true, email_verified: true }
+      }),
+      prisma.jobs.findMany({
+        take: 5,
+        orderBy: { created_at: 'desc' },
+        select: { id: true, title: true, employer_name: true, budget: true, status: true, created_at: true }
+      })
+    ]);
+
+    return c.json(ApiResponse.ok({
+      totalWorkers,
+      totalEmployers,
+      totalUsers: totalWorkers + totalEmployers,
+      totalJobs,
+      openJobs,
+      totalApplications,
+      totalHired,
+      pendingVerifications,
+      totalVerifications,
+      recentUsers,
+      recentJobs,
+      escrowVolume: totalHired * 4500
+    }));
+  } catch (err: any) {
+    console.error("getAdminStats error:", err);
+    return c.json(ApiResponse.error(err.message), 500 as any);
+  }
+};
+
+export const getVerifications = async (c: Context) => {
+  try {
+    const statusQuery = c.req.query('status');
+    const whereClause: any = {};
+    if (statusQuery && statusQuery !== 'ALL') {
+      whereClause.status = statusQuery.toUpperCase();
+    }
+
+    const records = await prisma.verification_records.findMany({
+      where: whereClause,
+      orderBy: { created_at: 'desc' }
+    });
+
+    const userIds = Array.from(new Set(records.map(r => r.user_id).filter(Boolean)));
+    const [userMetaList, workerProfiles] = await Promise.all([
+      prisma.user_metadata.findMany({
+        where: { id: { in: userIds } },
+        select: { id: true, email: true, first_name: true, last_name: true, phone_number: true, profile_image_url: true, role: true }
+      }),
+      prisma.worker_profiles.findMany({
+        where: { user_id: { in: userIds } }
+      })
+    ]);
+
+    const userMetaMap = new Map(userMetaList.map(u => [u.id, u]));
+    const workerProfileMap = new Map(workerProfiles.map(w => [w.user_id, w]));
+
+    const formatted = records.map(r => {
+      const meta = userMetaMap.get(r.user_id);
+      const worker = workerProfileMap.get(r.user_id);
+      const fullName = worker?.full_name || [meta?.first_name, meta?.last_name].filter(Boolean).join(' ') || 'Candidate';
+      
+      return {
+        id: r.id,
+        userId: r.user_id,
+        userName: fullName,
+        userEmail: meta?.email,
+        userPhone: meta?.phone_number,
+        userPhoto: meta?.profile_image_url,
+        role: meta?.role || 'WORKER',
+        verificationType: r.verification_type || 'GOVERNMENT_ID',
+        docImageUrl: r.doc_image_url,
+        liveImageUrl: r.live_image_url,
+        confidenceScore: r.confidence_score || '98%',
+        status: r.status,
+        failureReason: r.failure_reason,
+        createdAt: r.created_at,
+        verifiedAt: r.verified_at
+      };
+    });
+
+    return c.json(ApiResponse.ok(formatted));
+  } catch (err: any) {
+    console.error("getVerifications error:", err);
+    return c.json(ApiResponse.error(err.message), 500 as any);
+  }
+};
+
+export const updateVerificationStatus = async (c: Context) => {
+  try {
+    const id = c.req.param('id') as string;
+    const { status, failureReason } = (await c.req.json());
+
+    if (!id || !status) {
+      return c.json(ApiResponse.error("Verification ID and status are required"), 400 as any);
+    }
+
+    const normalizedStatus = status.toUpperCase();
+    if (!['VERIFIED', 'APPROVED', 'REJECTED', 'PENDING'].includes(normalizedStatus)) {
+      return c.json(ApiResponse.error("Invalid status value"), 400 as any);
+    }
+
+    const record = await prisma.verification_records.findUnique({ where: { id } });
+    if (!record) {
+      return c.json(ApiResponse.error("Verification record not found"), 404 as any);
+    }
+
+    const isApproved = normalizedStatus === 'VERIFIED' || normalizedStatus === 'APPROVED';
+
+    const updatedRecord = await prisma.verification_records.update({
+      where: { id },
+      data: {
+        status: isApproved ? 'VERIFIED' : 'REJECTED',
+        failure_reason: isApproved ? null : failureReason || 'Document could not be verified.',
+        verified_at: new Date(),
+        updated_at: new Date()
+      }
+    });
+
+    // Update associated user verification status
+    if (record.user_id) {
+      if (isApproved) {
+        await prisma.user_metadata.update({
+          where: { id: record.user_id },
+          data: { email_verified: true, updated_at: new Date() }
+        }).catch(() => {});
+
+        await prisma.worker_profiles.updateMany({
+          where: { user_id: record.user_id },
+          data: { trust_score: 95, updated_at: new Date() }
+        }).catch(() => {});
+      }
+
+      // Send In-App Notification
+      await prisma.notifications.create({
+        data: {
+          id: uuidv4(),
+          user_id: record.user_id,
+          title: isApproved ? "Identity Verification Approved!" : "Identity Verification Update",
+          message: isApproved 
+            ? "Your identity document has been verified. Your verified badge is now active on your profile."
+            : `Your verification submission was not approved: ${failureReason || 'Please resubmit a clear photo of your ID.'}`,
+          type: isApproved ? "VERIFICATION_SUCCESS" : "VERIFICATION_FAILED",
+          is_read: false,
+          created_at: new Date(),
+          updated_at: new Date()
+        }
+      }).catch(() => {});
+    }
+
+    return c.json(ApiResponse.ok("Verification status updated successfully", updatedRecord));
+  } catch (err: any) {
+    console.error("updateVerificationStatus error:", err);
+    return c.json(ApiResponse.error(err.message), 500 as any);
+  }
+};
+
+export const getAllUsers = async (c: Context) => {
+  try {
+    const role = c.req.query('role');
+    const query = c.req.query('q')?.toLowerCase();
+
+    const where: any = {};
+    if (role && role !== 'ALL') {
+      where.role = role.toUpperCase();
+    }
+
+    const users = await prisma.user_metadata.findMany({
+      where,
+      orderBy: { created_at: 'desc' },
+      take: 100,
+      select: {
+        id: true,
+        email: true,
+        phone_number: true,
+        first_name: true,
+        last_name: true,
+        profile_image_url: true,
+        role: true,
+        email_verified: true,
+        onboarded: true,
+        created_at: true
+      }
+    });
+
+    let filtered = users;
+    if (query) {
+      filtered = users.filter(u => 
+        u.email?.toLowerCase().includes(query) ||
+        u.first_name?.toLowerCase().includes(query) ||
+        u.last_name?.toLowerCase().includes(query) ||
+        u.phone_number?.includes(query)
+      );
+    }
+
+    return c.json(ApiResponse.ok(filtered));
+  } catch (err: any) {
+    console.error("getAllUsers error:", err);
+    return c.json(ApiResponse.error(err.message), 500 as any);
+  }
+};
+
+export const getAllJobs = async (c: Context) => {
+  try {
+    const status = c.req.query('status');
+    const query = c.req.query('q')?.toLowerCase();
+
+    const where: any = {};
+    if (status && status !== 'ALL') {
+      where.status = status.toUpperCase();
+    }
+
+    const jobs = await prisma.jobs.findMany({
+      where,
+      orderBy: { created_at: 'desc' },
+      take: 100,
+      include: {
+        _count: {
+          select: { job_applications: true }
+        }
+      }
+    });
+
+    let filtered = jobs;
+    if (query) {
+      filtered = jobs.filter(j => 
+        j.title?.toLowerCase().includes(query) ||
+        j.employer_name?.toLowerCase().includes(query) ||
+        j.city?.toLowerCase().includes(query) ||
+        j.location?.toLowerCase().includes(query)
+      );
+    }
+
+    const formatted = filtered.map(j => ({
+      ...j,
+      applicantCount: j._count.job_applications
+    }));
+
+    return c.json(ApiResponse.ok(formatted));
+  } catch (err: any) {
+    console.error("getAllJobs error:", err);
+    return c.json(ApiResponse.error(err.message), 500 as any);
+  }
+};
+
+export const deleteJobByAdmin = async (c: Context) => {
+  try {
+    const id = c.req.param('id') as string;
+    await prisma.jobs.delete({ where: { id } });
+    return c.json(ApiResponse.ok("Job deleted by administrator"));
+  } catch (err: any) {
+    console.error("deleteJobByAdmin error:", err);
+    return c.json(ApiResponse.error(err.message), 500 as any);
+  }
+};
+
+export const createAdminUser = async (c: Context) => {
+  try {
+    const bcrypt = await import('bcryptjs');
+    const { email, password, firstName, lastName } = (await c.req.json());
+
+    if (!email || !password) {
+      return c.json(ApiResponse.error("Email and password are required"), 400 as any);
+    }
+
+    const existing = await prisma.user_metadata.findUnique({ where: { email } });
+    if (existing) {
+      return c.json(ApiResponse.error("An account with this email already exists"), 400 as any);
+    }
+
+    const passwordHash = await bcrypt.default.hash(password, 10);
+
+    const newAdmin = await prisma.user_metadata.create({
+      data: {
+        id: uuidv4(),
+        email,
+        password_hash: passwordHash,
+        first_name: firstName || 'Admin',
+        last_name: lastName || '',
+        role: 'ADMIN',
+        email_verified: true,
+        onboarded: true,
+        created_at: new Date(),
+        updated_at: new Date()
+      }
+    });
+
+    return c.json(ApiResponse.ok("Administrator account created successfully", {
+      id: newAdmin.id,
+      email: newAdmin.email,
+      firstName: newAdmin.first_name,
+      lastName: newAdmin.last_name,
+      role: newAdmin.role
+    }));
+  } catch (err: any) {
+    console.error("createAdminUser error:", err);
+    return c.json(ApiResponse.error(err.message), 500 as any);
+  }
+};
+

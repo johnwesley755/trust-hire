@@ -33,8 +33,6 @@ export const useSubmitSkillTestMutation = (testId: string) => {
     onSuccess: (data) => {
       if (data?.passed) {
         toast.success(`Congratulations! You passed with score ${data.score}%`);
-      } else {
-        toast.error(`Assessment not cleared. Score: ${data?.score || 0}%`);
       }
       if (data) {
         queryClient.setQueryData(queryKeys.skillTests.detail(testId), (old: any) => ({
@@ -56,8 +54,8 @@ export const useSubmitSkillTestMutation = (testId: string) => {
         });
       }
     },
-    onError: (error: any) => {
-      toast.error(error.message || 'Failed to submit test');
+    onError: () => {
+      // Handled in test result UI
     },
   });
 };

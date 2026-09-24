@@ -41,8 +41,8 @@ export const useUpdateEmployerProfileMutation = () => {
         }));
       }
     },
-    onError: (error: any) => {
-      toast.error(error.message || 'Failed to update employer profile');
+    onError: () => {
+      // Handled in page form state
     },
   });
 };
