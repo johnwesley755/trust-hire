@@ -33,8 +33,8 @@ export const useInitiateVerificationMutation = () => {
         }));
       }
     },
-    onError: (error: any) => {
-      toast.error(error.message || 'Verification initiation failed');
+    onError: () => {
+      // Handled in page UI
     },
   });
 };

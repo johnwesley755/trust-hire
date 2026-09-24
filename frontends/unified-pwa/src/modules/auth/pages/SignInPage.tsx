@@ -32,7 +32,7 @@ export const SignInPage = () => {
     // Auto redirect when user becomes signed in
     React.useEffect(() => {
         if (isSignedIn && user) {
-            const target = user.role === 'EMPLOYER' ? '/dashboard' : '/search';
+            const target = user.role === 'ADMIN' ? '/admin/dashboard' : user.role === 'EMPLOYER' ? '/dashboard' : '/search';
             navigate(target, { replace: true });
         }
     }, [isSignedIn, user, navigate]);
@@ -61,7 +61,7 @@ export const SignInPage = () => {
             const response = await apiClient.post('/api/auth/login', { email, password, role: activeRole });
             const userData = response.data.user;
             login(response.data.token, userData);
-            navigate(userData.role === 'WORKER' ? '/search' : '/dashboard');
+            navigate(userData.role === 'ADMIN' ? '/admin/dashboard' : userData.role === 'WORKER' ? '/search' : '/dashboard');
         } catch (err: any) {
             setError(err.response?.data?.message || 'Invalid email or password. Please verify your credentials.');
         } finally {

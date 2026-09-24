@@ -30,7 +30,7 @@ export const RoleGuard: React.FC<RoleGuardProps> = ({ allowedRoles, children }) 
 
   if (!allowedRoles.includes(userRole)) {
     // Cross-role interception: redirect to the respective user workspace
-    const targetDashboard = userRole === 'EMPLOYER' ? '/dashboard' : '/search';
+    const targetDashboard = userRole === 'ADMIN' ? '/admin/dashboard' : userRole === 'EMPLOYER' ? '/dashboard' : '/search';
     return <Navigate to={targetDashboard} replace />;
   }
 

@@ -30,8 +30,8 @@ export const useApplyForJobMutation = () => {
         ...old
       ]);
     },
-    onError: (error: any) => {
-      toast.error(error.message || 'Failed to submit application');
+    onError: () => {
+      // Handled in page UI
     },
   });
 };
@@ -52,8 +52,8 @@ export const useUpdateApplicationStatusMutation = (jobId?: string) => {
         old.map((a: any) => a.id === variables.applicationId ? { ...a, status: variables.status } : a)
       );
     },
-    onError: (error: any) => {
-      toast.error(error.message || 'Failed to update status');
+    onError: () => {
+      // Handled in page UI
     },
   });
 };

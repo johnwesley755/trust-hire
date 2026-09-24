@@ -43,8 +43,8 @@ export const useCreateJobMutation = () => {
         queryClient.setQueryData(queryKeys.jobs.employer, (old: any[] = []) => [newJob, ...old]);
       }
     },
-    onError: (error: any) => {
-      toast.error(error.message || 'Failed to publish job');
+    onError: () => {
+      // Handled in page form state
     },
   });
 };
@@ -60,8 +60,8 @@ export const useUpdateJobMutation = (jobId: string) => {
         old.map((j: any) => j.id === jobId ? { ...j, ...variables, ...updatedJob } : j)
       );
     },
-    onError: (error: any) => {
-      toast.error(error.message || 'Failed to update job');
+    onError: () => {
+      // Handled in page form state
     },
   });
 };
@@ -79,8 +79,8 @@ export const useDeleteJobMutation = () => {
         old.filter((j: any) => j.id !== deletedId)
       );
     },
-    onError: (error: any) => {
-      toast.error(error.message || 'Failed to delete job');
+    onError: () => {
+      // Handled in page UI
     },
   });
 };

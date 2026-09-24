@@ -64,13 +64,49 @@ export function LandingNavbar() {
         {/* Right Action Switcher */}
         <div className="flex items-center gap-2.5">
           {isSignedIn ? (
-            <Link
-              to={targetDashboard}
-              className="bg-[#0066FF] hover:bg-[#0050CB] text-white font-extrabold px-5 py-2.5 rounded-xl uppercase text-xs tracking-wider shadow-md shadow-[#0066FF]/20 active:scale-95 transition-all flex items-center gap-2"
-            >
-              <LayoutDashboard className="w-4 h-4" />
-              <span>{user?.role === 'EMPLOYER' ? 'Employer Workspace' : 'Jobs Portal'}</span>
-            </Link>
+            user?.role === 'ADMIN' ? (
+              <Link
+                to="/admin/dashboard"
+                className="bg-[#0A1931] hover:bg-slate-900 text-white font-extrabold px-5 py-2.5 rounded-xl uppercase text-xs tracking-wider shadow-md active:scale-95 transition-all flex items-center gap-2"
+              >
+                <ShieldCheck className="w-4 h-4 text-blue-400" />
+                <span>Admin Command Center</span>
+              </Link>
+            ) : user?.role === 'EMPLOYER' ? (
+              <div className="flex items-center gap-2">
+                <Link
+                  to="/find-workers"
+                  className="hidden sm:inline-flex text-[#0A1931] font-extrabold px-4 py-2 hover:bg-slate-100 rounded-xl transition-all text-xs uppercase tracking-wider items-center gap-1.5 border border-slate-200"
+                >
+                  <UserCheck className="w-4 h-4 text-[#0066FF]" />
+                  <span>Find Candidates</span>
+                </Link>
+                <Link
+                  to="/dashboard"
+                  className="bg-[#0066FF] hover:bg-[#0050CB] text-white font-extrabold px-5 py-2.5 rounded-xl uppercase text-xs tracking-wider shadow-md shadow-[#0066FF]/20 active:scale-95 transition-all flex items-center gap-2"
+                >
+                  <LayoutDashboard className="w-4 h-4" />
+                  <span>Employer Dashboard</span>
+                </Link>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <Link
+                  to="/search"
+                  className="hidden sm:inline-flex text-[#0A1931] font-extrabold px-4 py-2 hover:bg-slate-100 rounded-xl transition-all text-xs uppercase tracking-wider items-center gap-1.5 border border-slate-200"
+                >
+                  <Briefcase className="w-4 h-4 text-[#0066FF]" />
+                  <span>Browse Jobs</span>
+                </Link>
+                <Link
+                  to="/applied-jobs"
+                  className="bg-[#0066FF] hover:bg-[#0050CB] text-white font-extrabold px-5 py-2.5 rounded-xl uppercase text-xs tracking-wider shadow-md shadow-[#0066FF]/20 active:scale-95 transition-all flex items-center gap-2"
+                >
+                  <Briefcase className="w-4 h-4" />
+                  <span>My Applied Shifts</span>
+                </Link>
+              </div>
+            )
           ) : (
             <>
               <Link

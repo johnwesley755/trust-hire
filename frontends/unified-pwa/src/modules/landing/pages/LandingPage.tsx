@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import Lenis from "@studio-freight/lenis";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../../../providers/AuthContext";
 import { 
   ShieldCheck, 
   CheckCircle2, 
@@ -24,13 +25,27 @@ import {
   Check,
   User,
   BadgeCheck,
-  Headphones
+  Headphones,
+  LayoutDashboard,
+  FileCheck2,
+  Bookmark
 } from "lucide-react";
 
 export default function LandingPage() {
   const navigate = useNavigate();
+  const { isSignedIn, user } = useAuth();
   const [activeRole, setActiveRole] = useState<'hire' | 'work'>('hire');
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
+
+  const isEmployer = user?.role === 'EMPLOYER';
+  const isAdmin = user?.role === 'ADMIN';
+  const isCandidate = user?.role === 'WORKER';
+
+  const userDashboardTarget = isAdmin
+    ? '/admin/dashboard'
+    : isEmployer
+    ? '/dashboard'
+    : '/search';
 
   useEffect(() => {
     const lenis = new Lenis({
@@ -79,7 +94,7 @@ export default function LandingPage() {
               </div>
             </Link>
 
-            {/* Simple Layman Navigation */}
+            {/* Navigation Links */}
             <nav className="hidden md:flex items-center gap-7 text-sm font-semibold text-slate-600">
               <a href="#how-it-works" className="hover:text-[#0066FF] transition-colors">How It Works</a>
               <a href="#popular-jobs" className="hover:text-[#0066FF] transition-colors">Jobs & Trades</a>
@@ -88,15 +103,66 @@ export default function LandingPage() {
             </nav>
           </div>
 
+          {/* Right Header Controls based on Auth State */}
           <div className="flex items-center gap-3">
-            <Link to="/sign-in?role=worker" className="hidden sm:inline-flex px-4 py-2 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-100 transition-colors items-center gap-1.5 border border-slate-200 bg-white shadow-xs">
-              <UserCheck className="w-4 h-4 text-[#0066FF]" />
-              <span>Candidate Login</span>
-            </Link>
-            <Link to="/sign-in?role=employer" className="hidden sm:inline-flex px-4 py-2 rounded-xl text-xs font-bold bg-[#0066FF] hover:bg-[#0052CC] text-white shadow-md shadow-blue-500/20 active:scale-95 transition-all items-center gap-1.5">
-              <Building2 className="w-4 h-4" />
-              <span>Employer Login</span>
-            </Link>
+            {isSignedIn ? (
+              <div className="flex items-center gap-2.5">
+                {isAdmin ? (
+                  <Link
+                    to="/admin/dashboard"
+                    className="px-4.5 py-2.5 rounded-xl text-xs font-bold bg-[#0A1931] hover:bg-slate-900 text-white shadow-md flex items-center gap-2 transition-all cursor-pointer"
+                  >
+                    <ShieldCheck className="w-4 h-4 text-blue-400" />
+                    <span>Admin Command Center</span>
+                  </Link>
+                ) : isEmployer ? (
+                  <>
+                    <Link
+                      to="/find-workers"
+                      className="hidden sm:inline-flex px-4 py-2 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-100 transition-colors items-center gap-1.5 border border-slate-200 bg-white shadow-xs"
+                    >
+                      <UserCheck className="w-4 h-4 text-[#0066FF]" />
+                      <span>Find Candidates</span>
+                    </Link>
+                    <Link
+                      to="/dashboard"
+                      className="px-4.5 py-2.5 rounded-xl text-xs font-bold bg-[#0066FF] hover:bg-[#0052CC] text-white shadow-md shadow-blue-500/20 active:scale-95 transition-all flex items-center gap-2 cursor-pointer"
+                    >
+                      <LayoutDashboard className="w-4 h-4" />
+                      <span>Employer Dashboard</span>
+                    </Link>
+                  </>
+                ) : (
+                  <>
+                    <Link
+                      to="/search"
+                      className="hidden sm:inline-flex px-4 py-2 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-100 transition-colors items-center gap-1.5 border border-slate-200 bg-white shadow-xs"
+                    >
+                      <Briefcase className="w-4 h-4 text-[#0066FF]" />
+                      <span>Find Shifts</span>
+                    </Link>
+                    <Link
+                      to="/applied-jobs"
+                      className="px-4.5 py-2.5 rounded-xl text-xs font-bold bg-[#0066FF] hover:bg-[#0052CC] text-white shadow-md shadow-blue-500/20 active:scale-95 transition-all flex items-center gap-2 cursor-pointer"
+                    >
+                      <CheckCircle2 className="w-4 h-4" />
+                      <span>My Applied Shifts</span>
+                    </Link>
+                  </>
+                )}
+              </div>
+            ) : (
+              <>
+                <Link to="/sign-in?role=worker" className="hidden sm:inline-flex px-4 py-2 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-100 transition-colors items-center gap-1.5 border border-slate-200 bg-white shadow-xs">
+                  <UserCheck className="w-4 h-4 text-[#0066FF]" />
+                  <span>Candidate Login</span>
+                </Link>
+                <Link to="/sign-in?role=employer" className="hidden sm:inline-flex px-4 py-2 rounded-xl text-xs font-bold bg-[#0066FF] hover:bg-[#0052CC] text-white shadow-md shadow-blue-500/20 active:scale-95 transition-all items-center gap-1.5">
+                  <Building2 className="w-4 h-4" />
+                  <span>Employer Login</span>
+                </Link>
+              </>
+            )}
 
             {/* Mobile Hamburger Toggle Button */}
             <button
@@ -145,22 +211,35 @@ export default function LandingPage() {
             </nav>
 
             <div className="pt-3 border-t border-slate-100 flex flex-col gap-2.5">
-              <Link
-                to="/sign-in?role=worker"
-                onClick={() => setIsMobileNavOpen(false)}
-                className="w-full py-2.5 px-4 rounded-xl text-xs font-bold text-slate-800 bg-slate-100 hover:bg-slate-200 text-center flex items-center justify-center gap-2"
-              >
-                <UserCheck className="w-4 h-4 text-[#0066FF]" />
-                <span>Candidate Login</span>
-              </Link>
-              <Link
-                to="/sign-in?role=employer"
-                onClick={() => setIsMobileNavOpen(false)}
-                className="w-full py-2.5 px-4 rounded-xl text-xs font-bold bg-[#0066FF] hover:bg-[#0052CC] text-white text-center flex items-center justify-center gap-2 shadow-md"
-              >
-                <Building2 className="w-4 h-4" />
-                <span>Employer Login</span>
-              </Link>
+              {isSignedIn ? (
+                <Link
+                  to={userDashboardTarget}
+                  onClick={() => setIsMobileNavOpen(false)}
+                  className="w-full py-2.5 px-4 rounded-xl text-xs font-bold bg-[#0066FF] hover:bg-[#0052CC] text-white text-center flex items-center justify-center gap-2 shadow-md"
+                >
+                  <LayoutDashboard className="w-4 h-4" />
+                  <span>{isAdmin ? 'Admin Dashboard' : isEmployer ? 'Employer Dashboard' : 'My Candidate Portal'}</span>
+                </Link>
+              ) : (
+                <>
+                  <Link
+                    to="/sign-in?role=worker"
+                    onClick={() => setIsMobileNavOpen(false)}
+                    className="w-full py-2.5 px-4 rounded-xl text-xs font-bold text-slate-800 bg-slate-100 hover:bg-slate-200 text-center flex items-center justify-center gap-2"
+                  >
+                    <UserCheck className="w-4 h-4 text-[#0066FF]" />
+                    <span>Candidate Login</span>
+                  </Link>
+                  <Link
+                    to="/sign-in?role=employer"
+                    onClick={() => setIsMobileNavOpen(false)}
+                    className="w-full py-2.5 px-4 rounded-xl text-xs font-bold bg-[#0066FF] hover:bg-[#0052CC] text-white text-center flex items-center justify-center gap-2 shadow-md"
+                  >
+                    <Building2 className="w-4 h-4" />
+                    <span>Employer Login</span>
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         )}
@@ -195,14 +274,53 @@ export default function LandingPage() {
 
                 {/* Dual Simple Action Pill Buttons */}
                 <div className="pt-2 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
-                  <Link to="/sign-up?role=employer" className="w-full sm:w-auto px-7 py-4 rounded-2xl bg-[#0066FF] hover:bg-[#0052CC] text-white font-bold text-base shadow-xl shadow-blue-500/30 flex items-center justify-center gap-2.5 group transition-all hover:scale-[1.02]">
-                    <Briefcase className="w-5 h-5 group-hover:rotate-6 transition-transform" />
-                    <span>I Need to Hire Workers</span>
-                  </Link>
-                  <Link to="/sign-up?role=worker" className="w-full sm:w-auto px-7 py-4 rounded-2xl bg-white hover:bg-slate-50 border-2 border-slate-200 text-slate-800 font-bold text-base shadow-xs flex items-center justify-center gap-2.5 hover:border-[#0066FF] hover:text-[#0066FF] transition-all hover:scale-[1.02]">
-                    <Wallet className="w-5 h-5 text-emerald-600" />
-                    <span>I Want Daily Shifts & Work</span>
-                  </Link>
+                  {isSignedIn ? (
+                    isAdmin ? (
+                      <>
+                        <Link to="/admin/dashboard" className="w-full sm:w-auto px-7 py-4 rounded-2xl bg-[#0066FF] hover:bg-[#0052CC] text-white font-bold text-base shadow-xl shadow-blue-500/30 flex items-center justify-center gap-2.5 group transition-all hover:scale-[1.02]">
+                          <ShieldCheck className="w-5 h-5" />
+                          <span>Open Admin Command</span>
+                        </Link>
+                        <Link to="/admin/verifications" className="w-full sm:w-auto px-7 py-4 rounded-2xl bg-white hover:bg-slate-50 border-2 border-slate-200 text-slate-800 font-bold text-base shadow-xs flex items-center justify-center gap-2.5 hover:border-[#0066FF] hover:text-[#0066FF] transition-all hover:scale-[1.02]">
+                          <FileCheck2 className="w-5 h-5 text-blue-600" />
+                          <span>Review Verification Queue</span>
+                        </Link>
+                      </>
+                    ) : isEmployer ? (
+                      <>
+                        <Link to="/post-job" className="w-full sm:w-auto px-7 py-4 rounded-2xl bg-[#0066FF] hover:bg-[#0052CC] text-white font-bold text-base shadow-xl shadow-blue-500/30 flex items-center justify-center gap-2.5 group transition-all hover:scale-[1.02]">
+                          <Briefcase className="w-5 h-5 group-hover:rotate-6 transition-transform" />
+                          <span>Post a New Job Opening</span>
+                        </Link>
+                        <Link to="/find-workers" className="w-full sm:w-auto px-7 py-4 rounded-2xl bg-white hover:bg-slate-50 border-2 border-slate-200 text-slate-800 font-bold text-base shadow-xs flex items-center justify-center gap-2.5 hover:border-[#0066FF] hover:text-[#0066FF] transition-all hover:scale-[1.02]">
+                          <UserCheck className="w-5 h-5 text-emerald-600" />
+                          <span>Find Verified Candidates</span>
+                        </Link>
+                      </>
+                    ) : (
+                      <>
+                        <Link to="/search" className="w-full sm:w-auto px-7 py-4 rounded-2xl bg-[#0066FF] hover:bg-[#0052CC] text-white font-bold text-base shadow-xl shadow-blue-500/30 flex items-center justify-center gap-2.5 group transition-all hover:scale-[1.02]">
+                          <Briefcase className="w-5 h-5 group-hover:rotate-6 transition-transform" />
+                          <span>Browse Available Shifts</span>
+                        </Link>
+                        <Link to="/applied-jobs" className="w-full sm:w-auto px-7 py-4 rounded-2xl bg-white hover:bg-slate-50 border-2 border-slate-200 text-slate-800 font-bold text-base shadow-xs flex items-center justify-center gap-2.5 hover:border-[#0066FF] hover:text-[#0066FF] transition-all hover:scale-[1.02]">
+                          <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                          <span>View My Applied Shifts</span>
+                        </Link>
+                      </>
+                    )
+                  ) : (
+                    <>
+                      <Link to="/sign-up?role=employer" className="w-full sm:w-auto px-7 py-4 rounded-2xl bg-[#0066FF] hover:bg-[#0052CC] text-white font-bold text-base shadow-xl shadow-blue-500/30 flex items-center justify-center gap-2.5 group transition-all hover:scale-[1.02]">
+                        <Briefcase className="w-5 h-5 group-hover:rotate-6 transition-transform" />
+                        <span>I Need to Hire Workers</span>
+                      </Link>
+                      <Link to="/sign-up?role=worker" className="w-full sm:w-auto px-7 py-4 rounded-2xl bg-white hover:bg-slate-50 border-2 border-slate-200 text-slate-800 font-bold text-base shadow-xs flex items-center justify-center gap-2.5 hover:border-[#0066FF] hover:text-[#0066FF] transition-all hover:scale-[1.02]">
+                        <Wallet className="w-5 h-5 text-emerald-600" />
+                        <span>I Want Daily Shifts & Work</span>
+                      </Link>
+                    </>
+                  )}
                 </div>
 
                 {/* Trust proof badges in simple terms */}

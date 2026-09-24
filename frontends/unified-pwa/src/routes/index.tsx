@@ -24,6 +24,13 @@ import { SettingsPage } from '../modules/settings/pages/SettingsPage';
 import TermsPage from '../modules/landing/pages/TermsPage';
 import PrivacyPage from '../modules/landing/pages/PrivacyPage';
 
+import { AdminLoginPage } from '../modules/admin/pages/AdminLoginPage';
+import { AdminLayout } from '../modules/admin/layouts/AdminLayout';
+import { AdminDashboardPage } from '../modules/admin/pages/AdminDashboardPage';
+import { AdminVerificationsPage } from '../modules/admin/pages/AdminVerificationsPage';
+import { AdminUsersPage } from '../modules/admin/pages/AdminUsersPage';
+import { AdminJobsPage } from '../modules/admin/pages/AdminJobsPage';
+
 import AppLayout from '../layouts/AppLayout';
 import RootLayout from '../layouts/RootLayout';
 import ProtectedRoute from '../layouts/ProtectedRoute';
@@ -37,6 +44,10 @@ export const router = createBrowserRouter([
       {
         path: '/',
         element: <LandingPage />,
+      },
+      {
+        path: '/admin/login',
+        element: <AdminLoginPage />,
       },
       {
         path: '/sign-in/*',
@@ -171,6 +182,42 @@ export const router = createBrowserRouter([
           {
             path: '/settings',
             element: <SettingsPage />,
+          },
+        ],
+      },
+      /* Protected Admin Routes (Using AdminLayout & RoleGuard) */
+      {
+        path: '/admin',
+        element: (
+          <ProtectedRoute>
+            <RoleGuard allowedRoles={['ADMIN']} />
+          </ProtectedRoute>
+        ),
+        children: [
+          {
+            element: <AdminLayout />,
+            children: [
+              {
+                index: true,
+                element: <Navigate to="/admin/dashboard" replace />,
+              },
+              {
+                path: 'dashboard',
+                element: <AdminDashboardPage />,
+              },
+              {
+                path: 'verifications',
+                element: <AdminVerificationsPage />,
+              },
+              {
+                path: 'users',
+                element: <AdminUsersPage />,
+              },
+              {
+                path: 'jobs',
+                element: <AdminJobsPage />,
+              },
+            ],
           },
         ],
       },
