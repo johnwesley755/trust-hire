@@ -30,6 +30,7 @@ import { AdminDashboardPage } from '../modules/admin/pages/AdminDashboardPage';
 import { AdminVerificationsPage } from '../modules/admin/pages/AdminVerificationsPage';
 import { AdminUsersPage } from '../modules/admin/pages/AdminUsersPage';
 import { AdminJobsPage } from '../modules/admin/pages/AdminJobsPage';
+import { AdminLeadsPage } from '../modules/admin/pages/AdminLeadsPage';
 
 import AppLayout from '../layouts/AppLayout';
 import RootLayout from '../layouts/RootLayout';
@@ -204,6 +205,10 @@ export const router = createBrowserRouter([
               {
                 path: 'dashboard',
                 element: <AdminDashboardPage />,
+              },
+              {
+                path: 'leads',
+                element: <AdminLeadsPage />,
               },
               {
                 path: 'verifications',

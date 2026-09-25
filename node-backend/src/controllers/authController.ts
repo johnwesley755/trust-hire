@@ -293,7 +293,7 @@ export const syncUser = async (c: Context) => {
           skills: workerPayload.skills || '',
           location: workerPayload.location || '',
           city: workerPayload.city || 'Mumbai',
-          level: 'Foundational',
+          level: 'L1',
           level_number: 1,
           experience_years: workerPayload.experience_years || 1,
           created_at: new Date(),

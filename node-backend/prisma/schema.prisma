@@ -269,7 +269,7 @@ model worker_profiles {
   bio               String?
   skills            String?
   experience_years  Int?      @default(0)
-  level             String?   @default("L1") @db.VarChar(10)
+  level             String?   @default("L1") @db.VarChar(50)
   level_number      Int?      @default(1)
   skill_score       Float?    @default(30.0)
   experience_score  Float?    @default(0.0)
@@ -303,7 +303,7 @@ model worker_search_index {
   city              String?   @db.VarChar(255)
   latitude          Float?
   longitude         Float?
-  level             String?   @db.VarChar(10)
+  level             String?   @db.VarChar(50)
   is_verified       Boolean?  @default(false)
   profile_image_url String?
   status            String?   @default("AVAILABLE") @db.VarChar(50)
@@ -334,4 +334,74 @@ model saved_workers {
   @@index([employer_id], map: "idx_saved_workers_employer_id")
   @@index([worker_id], map: "idx_saved_workers_worker_id")
 }
+
+model employer_leads {
+  id                    String                      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  company_name          String                      @db.VarChar(255)
+  normalized_name       String                      @db.VarChar(255)
+  company_domain        String?                     @db.VarChar(255)
+  company_website       String?
+  industry              String?                     @db.VarChar(100)
+  city                  String?                     @db.VarChar(100)
+  state                 String?                     @db.VarChar(100)
+  address               String?
+  official_email        String?                     @db.VarChar(255)
+  official_phone        String?                     @db.VarChar(50)
+  contact_page_url      String?
+  contactability_score  String                      @default("PARTIAL") @db.VarChar(20) // COMPLETE, PARTIAL, UNCONTACTABLE
+  status                String                      @default("DISCOVERED") @db.VarChar(50) // DISCOVERED, REVIEWING, VERIFIED, CONTACTABLE, CONTACTED, RESPONDED, INTERESTED, ONBOARDED, INVALID, DUPLICATE, EXPIRED, NOT_INTERESTED
+  trusthire_employer_id String?                     @db.Uuid
+  created_at            DateTime                    @default(now()) @db.Timestamp(6)
+  updated_at            DateTime                    @default(now()) @db.Timestamp(6)
+
+  requirements          employer_lead_requirements[]
+  outreach_logs         lead_outreach_logs[]
+
+  @@index([normalized_name], map: "idx_employer_leads_normalized_name")
+  @@index([company_domain], map: "idx_employer_leads_domain")
+  @@index([status], map: "idx_employer_leads_status")
+  @@index([city], map: "idx_employer_leads_city")
+}
+
+model employer_lead_requirements {
+  id               String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  lead_id          String         @db.Uuid
+  title            String         @db.VarChar(255)
+  normalized_title String         @db.VarChar(255)
+  category         String?        @db.VarChar(100)
+  description      String?
+  city             String?        @db.VarChar(100)
+  location         String?        @db.VarChar(255)
+  workers_needed   Int?           @default(1)
+  salary_range     String?        @db.VarChar(100)
+  source_name      String         @db.VarChar(100)
+  source_url       String
+  source_hash      String         @db.VarChar(64)
+  is_verified      Boolean        @default(false)
+  discovered_at    DateTime       @default(now()) @db.Timestamp(6)
+  last_seen_at     DateTime       @default(now()) @db.Timestamp(6)
+  status           String         @default("OPEN") @db.VarChar(50) // OPEN, FILLED, EXPIRED, ARCHIVED
+
+  employer_lead    employer_leads @relation(fields: [lead_id], references: [id], onDelete: Cascade)
+
+  @@index([lead_id], map: "idx_lead_req_lead_id")
+  @@index([source_hash], map: "idx_lead_req_source_hash")
+  @@index([status], map: "idx_lead_req_status")
+}
+
+model lead_outreach_logs {
+  id             String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  lead_id        String         @db.Uuid
+  admin_id       String         @db.VarChar(255)
+  channel        String         @db.VarChar(50) // PHONE, EMAIL, IN_PERSON, CONTACT_FORM
+  contact_target String?        @db.VarChar(255)
+  notes          String
+  outcome        String?        @db.VarChar(50) // INTERESTED, FOLLOW_UP, NOT_INTERESTED, NO_ANSWER
+  contacted_at   DateTime       @default(now()) @db.Timestamp(6)
+
+  employer_lead  employer_leads @relation(fields: [lead_id], references: [id], onDelete: Cascade)
+
+  @@index([lead_id], map: "idx_outreach_lead_id")
+}
+
 

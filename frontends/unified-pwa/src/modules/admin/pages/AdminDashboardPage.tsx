@@ -234,17 +234,24 @@ export const AdminDashboardPage: React.FC = () => {
           {/* Quick Actions Card */}
           <div className="bg-white border border-slate-200/80 rounded-3xl p-6 shadow-xs">
             <h3 className="text-sm font-bold text-[#0A1931] mb-3">Quick Navigation</h3>
-            <div className="grid grid-cols-2 gap-2.5">
+            <div className="grid grid-cols-3 gap-2.5">
+              <Link
+                to="/admin/leads"
+                className="p-3 bg-slate-50/80 hover:bg-emerald-50/50 border border-slate-200/80 hover:border-emerald-200 rounded-2xl flex flex-col items-start gap-1 transition-all group"
+              >
+                <Building2 className="w-4 h-4 text-emerald-600 group-hover:scale-110 transition-transform" />
+                <span className="text-xs font-bold text-slate-800">Hiring Companies</span>
+              </Link>
               <Link
                 to="/admin/users"
-                className="p-3.5 bg-slate-50/80 hover:bg-blue-50/50 border border-slate-200/80 hover:border-blue-200 rounded-2xl flex flex-col items-start gap-1 transition-all group"
+                className="p-3 bg-slate-50/80 hover:bg-blue-50/50 border border-slate-200/80 hover:border-blue-200 rounded-2xl flex flex-col items-start gap-1 transition-all group"
               >
                 <Users className="w-4 h-4 text-[#0066FF] group-hover:scale-110 transition-transform" />
                 <span className="text-xs font-bold text-slate-800">Users Directory</span>
               </Link>
               <Link
                 to="/admin/jobs"
-                className="p-3.5 bg-slate-50/80 hover:bg-amber-50/50 border border-slate-200/80 hover:border-amber-200 rounded-2xl flex flex-col items-start gap-1 transition-all group"
+                className="p-3 bg-slate-50/80 hover:bg-amber-50/50 border border-slate-200/80 hover:border-amber-200 rounded-2xl flex flex-col items-start gap-1 transition-all group"
               >
                 <Briefcase className="w-4 h-4 text-amber-600 group-hover:scale-110 transition-transform" />
                 <span className="text-xs font-bold text-slate-800">Job Moderation</span>
