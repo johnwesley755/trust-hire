@@ -7,7 +7,8 @@ import {
   Users, 
   Briefcase, 
   LogOut,
-  ShieldAlert
+  ShieldAlert,
+  Building2
 } from 'lucide-react';
 
 export const AdminLayout: React.FC = () => {
@@ -21,6 +22,7 @@ export const AdminLayout: React.FC = () => {
 
   const navItems = [
     { label: 'Overview', path: '/admin/dashboard', icon: LayoutDashboard },
+    { label: 'Hiring Companies', path: '/admin/leads', icon: Building2 },
     { label: 'KYC Verifications', path: '/admin/verifications', icon: FileCheck2 },
     { label: 'User Directory', path: '/admin/users', icon: Users },
     { label: 'Job Moderation', path: '/admin/jobs', icon: Briefcase },

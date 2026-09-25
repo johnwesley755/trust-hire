@@ -198,7 +198,7 @@ export default function WorkerOnboardingPage() {
         skills: skills.join(", "),
         experienceYears: Number(experienceYears) || 1,
         hourlyRate: Number(hourlyRate) || 350,
-        level: 'Foundational',
+        level: 'L1',
         location: address || city,
         address: address || city,
         city,

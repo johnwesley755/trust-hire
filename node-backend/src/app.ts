@@ -26,6 +26,7 @@ import skillTestRoutes from './routes/skillTestRoutes';
 import verificationRoutes from './routes/verificationRoutes';
 import savedRoutes from './routes/savedRoutes';
 import adminRoutes from './routes/adminRoutes';
+import { leadRouter } from './routes/leadRoutes';
 
 export type AppContext = {
   Bindings: {
@@ -66,6 +67,7 @@ app.route('/api/settings', settingsRoutes);
 app.route('/api/skill-tests', skillTestRoutes);
 app.route('/api/verification', verificationRoutes);
 app.route('/api/saved', savedRoutes);
+app.route('/api/admin/leads', leadRouter);
 app.route('/api/admin', adminRoutes);
 
 app.get('/api/health', (c) => {
