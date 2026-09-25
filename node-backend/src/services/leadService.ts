@@ -415,8 +415,8 @@ export class LeadService {
     let user = await prisma.user_metadata.findUnique({ where: { email } });
 
     if (!user) {
-      const tempPassword = `TH_${uuidv4().slice(0, 8)}!`;
-      const passwordHash = await bcrypt.hash(tempPassword, 10);
+      const generatedSecret = crypto.randomBytes(32).toString('hex');
+      const passwordHash = await bcrypt.hash(generatedSecret, 10);
 
       user = await prisma.user_metadata.create({
         data: {
