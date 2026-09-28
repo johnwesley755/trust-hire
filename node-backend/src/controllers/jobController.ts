@@ -181,11 +181,11 @@ export const getJobById = async (c: Context) => {
         employerProfile = {
           id: emp?.id || job.employer_id,
           userId: emp?.user_id || user?.id || job.employer_id,
-          companyName: emp?.company_name || user?.company_name || job.employer_name || 'Verified Employer',
+          companyName: emp?.company_name || job.employer_name || (user ? `${user.first_name || ''} ${user.last_name || ''}`.trim() : '') || 'Verified Employer',
           companyWebsite: emp?.company_website || '',
           profileBio: emp?.profile_bio || '',
           businessTier: emp?.business_tier || 'STARTER',
-          isVerified: emp?.is_verified ?? user?.identity_verified ?? false,
+          isVerified: emp?.is_verified ?? false,
           location: emp?.location || '',
           city: emp?.city || '',
           address: emp?.address || '',
