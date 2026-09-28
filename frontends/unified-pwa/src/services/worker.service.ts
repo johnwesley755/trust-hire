@@ -23,6 +23,22 @@ export interface Worker {
   salaryRange: string;
   verificationStatus: 'PENDING' | 'SUCCESS' | 'FAILED' | 'VERIFIED';
   isOfferSent?: boolean;
+  dob?: string | null;
+  gender?: string | null;
+  whatsappOptIn?: boolean;
+  area?: string | null;
+  willingToRelocate?: boolean;
+  preferredCities?: string[];
+  highestEducation?: string | null;
+  isPursuingEducation?: boolean;
+  collegeName?: string | null;
+  degree?: string | null;
+  specialization?: string | null;
+  schoolMedium?: string | null;
+  englishProficiency?: string | null;
+  languagesKnown?: string[];
+  preferredRoles?: string[];
+  resumeUrl?: string | null;
 }
 
 export interface WorkerProfileSummary {
@@ -53,6 +69,22 @@ export interface WorkerProfileSummary {
   isAvailable?: boolean;
   isOfferSent?: boolean;
   offerStatus?: string;
+  dob?: string | null;
+  gender?: string | null;
+  whatsappOptIn?: boolean;
+  area?: string | null;
+  willingToRelocate?: boolean;
+  preferredCities?: string[];
+  highestEducation?: string | null;
+  isPursuingEducation?: boolean;
+  collegeName?: string | null;
+  degree?: string | null;
+  specialization?: string | null;
+  schoolMedium?: string | null;
+  englishProficiency?: string | null;
+  languagesKnown?: string[];
+  preferredRoles?: string[];
+  resumeUrl?: string | null;
 }
 
 export interface TrustScoreResponse {
@@ -116,6 +148,22 @@ export const workerService = {
       availability: (worker.is_available ?? worker.isAvailable ?? true) ? 'AVAILABLE' : 'BUSY',
       salaryRange: worker.hourly_rate || worker.hourlyRate ? `₹${worker.hourly_rate || worker.hourlyRate}/hr` : '',
       verificationStatus: (worker.identity_verified || worker.identityVerified || worker.isVerified) ? 'VERIFIED' : 'PENDING',
+      dob: worker.dob,
+      gender: worker.gender,
+      whatsappOptIn: worker.whatsapp_opt_in ?? worker.whatsappOptIn,
+      area: worker.area,
+      willingToRelocate: worker.willing_to_relocate ?? worker.willingToRelocate,
+      preferredCities: Array.isArray(worker.preferred_cities) ? worker.preferred_cities : (Array.isArray(worker.preferredCities) ? worker.preferredCities : []),
+      highestEducation: worker.highest_education || worker.highestEducation,
+      isPursuingEducation: worker.is_pursuing_education ?? worker.isPursuingEducation,
+      collegeName: worker.college_name || worker.collegeName,
+      degree: worker.degree,
+      specialization: worker.specialization,
+      schoolMedium: worker.school_medium || worker.schoolMedium,
+      englishProficiency: worker.english_proficiency || worker.englishProficiency,
+      languagesKnown: Array.isArray(worker.languages_known) ? worker.languages_known : (Array.isArray(worker.languagesKnown) ? worker.languagesKnown : []),
+      preferredRoles: Array.isArray(worker.preferred_roles) ? worker.preferred_roles : (Array.isArray(worker.preferredRoles) ? worker.preferredRoles : []),
+      resumeUrl: worker.resume_url || worker.resumeUrl,
     };
   },
 
@@ -151,6 +199,22 @@ export const workerService = {
         isAvailable: worker.is_available || worker.isAvailable,
         isOfferSent: worker.isOfferSent || Boolean(worker.offerStatus),
         offerStatus: worker.offerStatus,
+        dob: worker.dob,
+        gender: worker.gender,
+        whatsappOptIn: worker.whatsapp_opt_in ?? worker.whatsappOptIn,
+        area: worker.area,
+        willingToRelocate: worker.willing_to_relocate ?? worker.willingToRelocate,
+        preferredCities: Array.isArray(worker.preferred_cities) ? worker.preferred_cities : (Array.isArray(worker.preferredCities) ? worker.preferredCities : []),
+        highestEducation: worker.highest_education || worker.highestEducation,
+        isPursuingEducation: worker.is_pursuing_education ?? worker.isPursuingEducation,
+        collegeName: worker.college_name || worker.collegeName,
+        degree: worker.degree,
+        specialization: worker.specialization,
+        schoolMedium: worker.school_medium || worker.schoolMedium,
+        englishProficiency: worker.english_proficiency || worker.englishProficiency,
+        languagesKnown: Array.isArray(worker.languages_known) ? worker.languages_known : (Array.isArray(worker.languagesKnown) ? worker.languagesKnown : []),
+        preferredRoles: Array.isArray(worker.preferred_roles) ? worker.preferred_roles : (Array.isArray(worker.preferredRoles) ? worker.preferredRoles : []),
+        resumeUrl: worker.resume_url || worker.resumeUrl,
       };
     });
   },

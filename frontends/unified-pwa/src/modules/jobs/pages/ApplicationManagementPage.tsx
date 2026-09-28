@@ -131,7 +131,7 @@ export default function ApplicationManagementPage() {
                   onClick={() => navigate('/post-job')}
                   className="px-4 py-2 bg-[#0066FF] hover:bg-[#0052cc] text-white text-xs font-bold rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
                 >
-                  <Plus className="w-4 h-4" /> Post New Shift
+                  <Plus className="w-4 h-4" /> Post a Job
                 </button>
               </div>
             </div>
@@ -143,7 +143,7 @@ export default function ApplicationManagementPage() {
                         <Package className="w-8 h-8 text-slate-300" />
                     </div>
                     <h3 className="text-xl font-black text-[#0A1931] mb-2 uppercase tracking-tight">No Active Jobs</h3>
-                    <p className="text-slate-500 font-medium mb-6 text-sm">You currently don't have any active job postings. Once you post a new shift, it will appear here for you to manage applications and track performance.</p>
+                    <p className="text-slate-500 font-medium mb-6 text-sm">You currently don't have any active job postings. Once you post a new job, it will appear here for you to manage applications and track performance.</p>
                     <button 
                         onClick={() => navigate('/post-job')}
                         className="inline-flex items-center gap-2 px-6 py-3 bg-[#0066FF] hover:bg-blue-700 text-white font-bold rounded-full shadow-md hover:shadow-lg transition-all text-sm"
@@ -388,7 +388,7 @@ export default function ApplicationManagementPage() {
                                 </span>
                               ))
                             ) : (
-                              <span className="text-xs text-slate-400 italic">General Trade</span>
+                              <span className="text-xs text-slate-400 italic">General Skills</span>
                             )}
                           </div>
                         </div>

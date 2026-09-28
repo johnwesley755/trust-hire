@@ -2,7 +2,7 @@ import type { WorkerProfile } from '../types';
 
 export function getMissingProfileFields(profile?: WorkerProfile | null): string[] {
   if (!profile) {
-    return ['fullName', 'bio', 'skills', 'location', 'experienceYears', 'hourlyRate'];
+    return ['fullName', 'bio', 'skills', 'location', 'experienceYears'];
   }
 
   const missingFields: string[] = [];
@@ -12,9 +12,6 @@ export function getMissingProfileFields(profile?: WorkerProfile | null): string[
   if (!profile.skills || profile.skills.length === 0) missingFields.push('skills');
   if (!profile.location?.trim()) missingFields.push('location');
   if (profile.experienceYears === null || profile.experienceYears === undefined) missingFields.push('experienceYears');
-  if (profile.hourlyRate === null || profile.hourlyRate === undefined || Number(profile.hourlyRate) <= 0) {
-    missingFields.push('hourlyRate');
-  }
 
   return missingFields;
 }
@@ -30,7 +27,6 @@ export function formatMissingProfileFields(fields: string[]): string {
     skills: 'skills',
     location: 'location',
     experienceYears: 'experience',
-    hourlyRate: 'hourly rate',
   };
 
   return fields.map((field) => labels[field] ?? field).join(', ');

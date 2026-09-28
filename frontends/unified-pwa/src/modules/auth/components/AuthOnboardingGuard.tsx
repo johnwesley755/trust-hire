@@ -79,13 +79,15 @@ export const AuthOnboardingGuard = ({ children }: { children: React.ReactNode })
     return <Navigate to="/sign-in" state={{ from: location }} replace />;
   }
 
+  const isEditMode = new URLSearchParams(location.search).get('edit') === 'true';
+
   // If user is not onboarded, redirect to /onboarding
   if (isOnboarded === false && location.pathname !== "/onboarding") {
     return <Navigate to="/onboarding" replace />;
   }
 
-  // If user is already onboarded, prevent access to /onboarding
-  if (isOnboarded === true && location.pathname === "/onboarding") {
+  // If user is already onboarded, prevent access to /onboarding unless edit mode is active
+  if (isOnboarded === true && location.pathname === "/onboarding" && !isEditMode) {
     const target = user?.role === 'EMPLOYER' ? '/dashboard' : '/search';
     return <Navigate to={target} replace />;
   }

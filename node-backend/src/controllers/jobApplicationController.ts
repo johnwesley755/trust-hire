@@ -22,7 +22,7 @@ export const applyForJob = async (c: Context) => {
 
     // Defect fix 1.9: Only WORKER role can apply for jobs
     if (authUser.role !== 'WORKER' && authUser.role !== 'ADMIN') {
-      return c.json(ApiResponse.error("Forbidden: Only worker accounts can apply for shifts."), 403 as any);
+      return c.json(ApiResponse.error("Forbidden: Only worker accounts can apply for jobs."), 403 as any);
     }
 
     const { jobId, coverLetter } = (await c.req.json());

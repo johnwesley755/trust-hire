@@ -167,7 +167,7 @@ export const SavedJobsPage: React.FC = () => {
               No Saved Jobs Yet
             </h2>
             <p className="text-slate-500 text-xs sm:text-sm max-w-md mx-auto leading-relaxed">
-              When searching for shifts and trade roles, tap the bookmark icon on any job card to save it here for easy review and fast applications.
+              When searching for jobs, tap the bookmark icon on any job card to save it here for easy review and fast applications.
             </p>
             <div className="pt-2">
               <Link

@@ -115,7 +115,7 @@ export const ApplicationsTable = () => {
         <div className="text-center py-20 bg-white rounded-2xl border border-dashed border-slate-200 space-y-3">
             <Users className="w-10 h-10 text-slate-300 mx-auto" />
             <h4 className="text-base font-bold text-slate-800">No Applications Received Yet</h4>
-            <p className="text-xs text-slate-400">Post a shift or use Direct Hire to hire verified workers.</p>
+            <p className="text-xs text-slate-400">Post a job or use Direct Hire to hire verified workers.</p>
         </div>
     );
 

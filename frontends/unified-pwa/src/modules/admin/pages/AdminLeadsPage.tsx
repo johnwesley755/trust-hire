@@ -1225,7 +1225,7 @@ export const AdminLeadsPage: React.FC = () => {
                     rows={2}
                     value={newLeadForm.description}
                     onChange={(e) => setNewLeadForm({ ...newLeadForm, description: e.target.value })}
-                    placeholder="Requirement description and shift details..."
+                    placeholder="Requirement description and job details..."
                     className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-900 outline-none focus:bg-white focus:border-[#0066FF]"
                   />
                 </div>

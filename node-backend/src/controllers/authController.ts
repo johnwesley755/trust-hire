@@ -22,9 +22,13 @@ export const register = async (c: Context) => {
       return c.json(ApiResponse.error("Email already in use"), 400 as any);
     }
 
-    if (phoneNumber) {
+    const cleanPhone = phoneNumber ? String(phoneNumber).trim().replace(/\D/g, '').slice(-10) : null;
+    if (cleanPhone) {
+      if (cleanPhone.length !== 10) {
+        return c.json(ApiResponse.error("Phone number must be a valid 10-digit mobile number."), 400 as any);
+      }
       const existingPhone = await prisma.user_metadata.findFirst({
-        where: { phone_number: phoneNumber }
+        where: { phone_number: cleanPhone }
       });
       if (existingPhone) {
         return c.json(ApiResponse.error("This phone number is already registered with another account. Please use a different phone number."), 400 as any);
@@ -41,7 +45,7 @@ export const register = async (c: Context) => {
         first_name: firstName,
         last_name: lastName,
         role: assignedRole,
-        phone_number: phoneNumber || null,
+        phone_number: cleanPhone || null,
         created_at: new Date(),
         updated_at: new Date(),
         email_verified: false,
@@ -65,10 +69,25 @@ export const login = async (c: Context) => {
       return c.json(ApiResponse.error("Invalid credentials"), 401 as any);
     }
 
-    if (role && user.role && user.role !== role && user.role !== 'ADMIN') {
-      const actualRoleLabel = user.role === 'EMPLOYER' ? 'an Employer' : 'a Candidate';
-      const correctPortal = user.role === 'EMPLOYER' ? 'Employer' : 'Candidate';
-      return c.json(ApiResponse.error(`This account is registered as ${actualRoleLabel}. Please sign in using the ${correctPortal} portal.`), 403 as any);
+    // Role-based portal enforcement
+    if (role === 'WORKER') {
+      // Candidate Login Portal: Strictly for Candidates only
+      if (user.role === 'ADMIN') {
+        return c.json(ApiResponse.error("Platform administrators cannot sign in through the Candidate portal. Please use the Admin Command Center or Employer portal."), 403 as any);
+      }
+      if (user.role === 'EMPLOYER') {
+        return c.json(ApiResponse.error("This account is registered as an Employer. Please sign in using the Employer portal."), 403 as any);
+      }
+    } else if (role === 'EMPLOYER') {
+      // Employer Login Portal: For Employers and Admin accounts
+      if (user.role === 'WORKER') {
+        return c.json(ApiResponse.error("This account is registered as a Candidate. Please sign in using the Candidate portal."), 403 as any);
+      }
+    } else if (role === 'ADMIN') {
+      // Admin Login Portal: Strictly for Administrators
+      if (user.role !== 'ADMIN') {
+        return c.json(ApiResponse.error("Access denied: This account does not possess administrator privileges."), 403 as any);
+      }
     }
 
     const isValid = await bcrypt.compare(password, user.password_hash);
@@ -360,7 +379,7 @@ export const oauthSync = async (c: Context) => {
         data: {
           user_id: newId,
           full_name: `${firstName || 'Worker'} ${lastName || ''}`.trim(),
-          level: 'Foundational',
+          level: 'L1',
           level_number: 1,
           level_score: 100,
           experience_years: 1,

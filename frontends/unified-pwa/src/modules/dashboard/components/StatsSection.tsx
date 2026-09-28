@@ -24,21 +24,23 @@ const StatCard: React.FC<StatCardProps> = ({ label, value, suffix, icon, contain
   </div>
 );
 
-export const StatsSection: React.FC<{ trustScore?: number; nearbyJobs?: number; earnings?: string; completedShifts?: number }> = ({ 
+export const StatsSection: React.FC<{ trustScore?: number; nearbyJobs?: number; earnings?: string; completedJobs?: number; completedShifts?: number }> = ({ 
   nearbyJobs = 0, 
   earnings = "₹0",
-  completedShifts = 0
+  completedJobs = 0,
+  completedShifts
 }) => {
+  const jobsCount = completedJobs || completedShifts || 0;
   return (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
       <StatCard 
-        label="Completed Shifts"
-        value={completedShifts}
+        label="Completed Jobs"
+        value={jobsCount}
         icon={<CheckCircle2 className="w-6 h-6 text-emerald-600" />}
         containerColor="bg-emerald-50 border border-emerald-100"
       />
       <StatCard 
-        label="Open Shifts Near You"
+        label="Open Jobs Near You"
         value={nearbyJobs}
         icon={<MapPin className="w-6 h-6 text-[#0066FF]" />}
         containerColor="bg-blue-50 border border-blue-100"

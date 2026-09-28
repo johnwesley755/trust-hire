@@ -14,7 +14,7 @@ interface JobSearchHeroProps {
 
 export const JobSearchHero: React.FC<JobSearchHeroProps> = ({
   title = "Find your dream job",
-  subtitle = "Discover verified shifts, high-paying roles, and trusted employers in your area.",
+  subtitle = "Discover verified jobs, high-paying roles, and trusted employers in your area.",
   initialQuery = '',
   initialCity = '',
   onSearch,

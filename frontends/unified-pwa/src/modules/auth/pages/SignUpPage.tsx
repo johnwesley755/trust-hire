@@ -74,13 +74,23 @@ export const SignUpPage = () => {
         setIsLoading(true);
         setError('');
 
+        if (workerForm.phoneNumber) {
+            const cleanPhone = workerForm.phoneNumber.replace(/\D/g, '');
+            if (cleanPhone.length !== 10 || !/^[6-9]\d{9}$/.test(cleanPhone)) {
+                setError('Please enter a valid 10-digit Indian mobile number (e.g. 9876543210)');
+                setIsLoading(false);
+                return;
+            }
+        }
+
         try {
+            const cleanPhone = workerForm.phoneNumber ? workerForm.phoneNumber.replace(/\D/g, '').slice(0, 10) : '';
             const res = await apiClient.post('/api/auth/register', {
                 email: workerForm.email,
                 password: workerForm.password,
                 firstName: workerForm.firstName,
                 lastName: workerForm.lastName,
-                phoneNumber: workerForm.phoneNumber,
+                phoneNumber: cleanPhone || undefined,
                 role: 'WORKER'
             });
 
@@ -101,13 +111,23 @@ export const SignUpPage = () => {
         setIsLoading(true);
         setError('');
 
+        if (employerForm.phoneNumber) {
+            const cleanPhone = employerForm.phoneNumber.replace(/\D/g, '');
+            if (cleanPhone.length !== 10 || !/^[6-9]\d{9}$/.test(cleanPhone)) {
+                setError('Please enter a valid 10-digit Indian contact phone number (e.g. 9876543210)');
+                setIsLoading(false);
+                return;
+            }
+        }
+
         try {
+            const cleanPhone = employerForm.phoneNumber ? employerForm.phoneNumber.replace(/\D/g, '').slice(0, 10) : '';
             const res = await apiClient.post('/api/auth/register', {
                 email: employerForm.email,
                 password: employerForm.password,
                 firstName: employerForm.companyName || 'Business',
                 lastName: 'Employer',
-                phoneNumber: employerForm.phoneNumber,
+                phoneNumber: cleanPhone || undefined,
                 role: 'EMPLOYER'
             });
 
@@ -267,14 +287,27 @@ export const SignUpPage = () => {
                                 </div>
 
                                 <div className="space-y-1">
-                                    <label className="block text-[11px] font-bold text-slate-700 font-['Outfit',sans-serif]">Phone number</label>
-                                    <input
-                                        type="tel"
-                                        value={workerForm.phoneNumber}
-                                        onChange={(e) => setWorkerForm({ ...workerForm, phoneNumber: e.target.value })}
-                                        placeholder="+91 98765 43210"
-                                        className="w-full bg-slate-50/50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0066FF] rounded-xl px-3.5 py-2.5 text-xs text-slate-900 placeholder:text-slate-400 font-medium transition-all outline-none focus:ring-3 focus:ring-[#0066FF]/15"
-                                    />
+                                    <div className="flex justify-between items-center">
+                                        <label className="block text-[11px] font-bold text-slate-700 font-['Outfit',sans-serif]">Phone number</label>
+                                        <span className="text-[10px] text-slate-400 font-medium">10-Digit Mobile</span>
+                                    </div>
+                                    <div className="relative flex items-center">
+                                        <div className="absolute left-3 flex items-center gap-1 text-slate-600 font-bold text-xs pointer-events-none select-none border-r border-slate-200 pr-2 z-10">
+                                            <span className="text-sm leading-none">🇮🇳</span>
+                                            <span>+91</span>
+                                        </div>
+                                        <input
+                                            type="tel"
+                                            value={workerForm.phoneNumber}
+                                            onChange={(e) => {
+                                                const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
+                                                setWorkerForm({ ...workerForm, phoneNumber: digits });
+                                            }}
+                                            maxLength={10}
+                                            placeholder="98765 43210"
+                                            className="w-full bg-slate-50/50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0066FF] rounded-xl pl-16 pr-3.5 py-2.5 text-xs text-slate-900 placeholder:text-slate-400 font-medium transition-all outline-none focus:ring-3 focus:ring-[#0066FF]/15"
+                                        />
+                                    </div>
                                 </div>
 
                                 <div className="space-y-1">
@@ -342,14 +375,27 @@ export const SignUpPage = () => {
                                 </div>
 
                                 <div className="space-y-1">
-                                    <label className="block text-[11px] font-bold text-slate-700 font-['Outfit',sans-serif]">Contact phone number</label>
-                                    <input
-                                        type="tel"
-                                        value={employerForm.phoneNumber}
-                                        onChange={(e) => setEmployerForm({ ...employerForm, phoneNumber: e.target.value })}
-                                        placeholder="+91 98765 43210"
-                                        className="w-full bg-slate-50/50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0066FF] rounded-xl px-3.5 py-2.5 text-xs text-slate-900 placeholder:text-slate-400 font-medium transition-all outline-none focus:ring-3 focus:ring-[#0066FF]/15"
-                                    />
+                                    <div className="flex justify-between items-center">
+                                        <label className="block text-[11px] font-bold text-slate-700 font-['Outfit',sans-serif]">Contact phone number</label>
+                                        <span className="text-[10px] text-slate-400 font-medium">10-Digit Mobile</span>
+                                    </div>
+                                    <div className="relative flex items-center">
+                                        <div className="absolute left-3 flex items-center gap-1 text-slate-600 font-bold text-xs pointer-events-none select-none border-r border-slate-200 pr-2 z-10">
+                                            <span className="text-sm leading-none">🇮🇳</span>
+                                            <span>+91</span>
+                                        </div>
+                                        <input
+                                            type="tel"
+                                            value={employerForm.phoneNumber}
+                                            onChange={(e) => {
+                                                const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
+                                                setEmployerForm({ ...employerForm, phoneNumber: digits });
+                                            }}
+                                            maxLength={10}
+                                            placeholder="98765 43210"
+                                            className="w-full bg-slate-50/50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0066FF] rounded-xl pl-16 pr-3.5 py-2.5 text-xs text-slate-900 placeholder:text-slate-400 font-medium transition-all outline-none focus:ring-3 focus:ring-[#0066FF]/15"
+                                        />
+                                    </div>
                                 </div>
 
                                 <div className="space-y-1">

@@ -97,7 +97,7 @@ export default function LandingPage() {
             {/* Navigation Links */}
             <nav className="hidden md:flex items-center gap-7 text-sm font-semibold text-slate-600">
               <a href="#how-it-works" className="hover:text-[#0066FF] transition-colors">How It Works</a>
-              <a href="#popular-jobs" className="hover:text-[#0066FF] transition-colors">Jobs & Trades</a>
+              <a href="#popular-jobs" className="hover:text-[#0066FF] transition-colors">Popular Jobs</a>
               <a href="#benefits" className="hover:text-[#0066FF] transition-colors">Why People Trust Us</a>
               <a href="#faq" className="hover:text-[#0066FF] transition-colors">Help & FAQ</a>
             </nav>
@@ -110,9 +110,9 @@ export default function LandingPage() {
                 {isAdmin ? (
                   <Link
                     to="/admin/dashboard"
-                    className="px-4.5 py-2.5 rounded-xl text-xs font-bold bg-[#0A1931] hover:bg-slate-900 text-white shadow-md flex items-center gap-2 transition-all cursor-pointer"
+                    className="px-4.5 py-2.5 rounded-xl text-xs font-bold bg-blue-50 hover:bg-blue-100 text-[#0066FF] border border-blue-200/80 shadow-xs flex items-center gap-2 transition-all cursor-pointer"
                   >
-                    <ShieldCheck className="w-4 h-4 text-blue-400" />
+                    <ShieldCheck className="w-4 h-4 text-[#0066FF]" />
                     <span>Admin Command Center</span>
                   </Link>
                 ) : isEmployer ? (
@@ -139,14 +139,14 @@ export default function LandingPage() {
                       className="hidden sm:inline-flex px-4 py-2 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-100 transition-colors items-center gap-1.5 border border-slate-200 bg-white shadow-xs"
                     >
                       <Briefcase className="w-4 h-4 text-[#0066FF]" />
-                      <span>Find Shifts</span>
+                      <span>Find Jobs</span>
                     </Link>
                     <Link
                       to="/applied-jobs"
                       className="px-4.5 py-2.5 rounded-xl text-xs font-bold bg-[#0066FF] hover:bg-[#0052CC] text-white shadow-md shadow-blue-500/20 active:scale-95 transition-all flex items-center gap-2 cursor-pointer"
                     >
                       <CheckCircle2 className="w-4 h-4" />
-                      <span>My Applied Shifts</span>
+                      <span>My Applied Jobs</span>
                     </Link>
                   </>
                 )}
@@ -192,7 +192,7 @@ export default function LandingPage() {
                 onClick={() => setIsMobileNavOpen(false)}
                 className="px-3 py-2 rounded-lg hover:bg-slate-50 transition-colors"
               >
-                Jobs & Trades
+                Popular Jobs
               </a>
               <a 
                 href="#benefits" 
@@ -264,12 +264,12 @@ export default function LandingPage() {
 
                 <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.15]">
                   Get Trusted Workers. <br />
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0066FF] to-blue-600">Find Daily Shifts.</span> <br />
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0066FF] to-blue-600">Find Daily Jobs.</span> <br />
                   Paid Right on Time.
                 </h1>
 
                 <p className="text-base sm:text-lg text-slate-600 font-body max-w-xl mx-auto lg:mx-0 leading-relaxed">
-                  No middleman delays, no unfair cuts. TrustHyre connects everyday businesses with verified skilled electricians, plumbers, warehouse staff, and technicians with guaranteed safe payments.
+                  No middleman delays, no unfair cuts. TrustHyre connects everyday businesses with verified skilled workers, technicians, and specialists with guaranteed safe payments.
                 </p>
 
                 {/* Dual Simple Action Pill Buttons */}
@@ -290,7 +290,7 @@ export default function LandingPage() {
                       <>
                         <Link to="/post-job" className="w-full sm:w-auto px-7 py-4 rounded-2xl bg-[#0066FF] hover:bg-[#0052CC] text-white font-bold text-base shadow-xl shadow-blue-500/30 flex items-center justify-center gap-2.5 group transition-all hover:scale-[1.02]">
                           <Briefcase className="w-5 h-5 group-hover:rotate-6 transition-transform" />
-                          <span>Post a New Job Opening</span>
+                          <span>Post a New Job</span>
                         </Link>
                         <Link to="/find-workers" className="w-full sm:w-auto px-7 py-4 rounded-2xl bg-white hover:bg-slate-50 border-2 border-slate-200 text-slate-800 font-bold text-base shadow-xs flex items-center justify-center gap-2.5 hover:border-[#0066FF] hover:text-[#0066FF] transition-all hover:scale-[1.02]">
                           <UserCheck className="w-5 h-5 text-emerald-600" />
@@ -301,11 +301,11 @@ export default function LandingPage() {
                       <>
                         <Link to="/search" className="w-full sm:w-auto px-7 py-4 rounded-2xl bg-[#0066FF] hover:bg-[#0052CC] text-white font-bold text-base shadow-xl shadow-blue-500/30 flex items-center justify-center gap-2.5 group transition-all hover:scale-[1.02]">
                           <Briefcase className="w-5 h-5 group-hover:rotate-6 transition-transform" />
-                          <span>Browse Available Shifts</span>
+                          <span>Browse Available Jobs</span>
                         </Link>
                         <Link to="/applied-jobs" className="w-full sm:w-auto px-7 py-4 rounded-2xl bg-white hover:bg-slate-50 border-2 border-slate-200 text-slate-800 font-bold text-base shadow-xs flex items-center justify-center gap-2.5 hover:border-[#0066FF] hover:text-[#0066FF] transition-all hover:scale-[1.02]">
                           <CheckCircle2 className="w-5 h-5 text-emerald-600" />
-                          <span>View My Applied Shifts</span>
+                          <span>View My Applied Jobs</span>
                         </Link>
                       </>
                     )
@@ -317,7 +317,7 @@ export default function LandingPage() {
                       </Link>
                       <Link to="/sign-up?role=worker" className="w-full sm:w-auto px-7 py-4 rounded-2xl bg-white hover:bg-slate-50 border-2 border-slate-200 text-slate-800 font-bold text-base shadow-xs flex items-center justify-center gap-2.5 hover:border-[#0066FF] hover:text-[#0066FF] transition-all hover:scale-[1.02]">
                         <Wallet className="w-5 h-5 text-emerald-600" />
-                        <span>I Want Daily Shifts & Work</span>
+                        <span>I Want Daily Jobs & Work</span>
                       </Link>
                     </>
                   )}
@@ -352,7 +352,7 @@ export default function LandingPage() {
                       <p className="font-bold text-sm sm:text-base flex items-center gap-1.5">
                         <BadgeCheck className="w-4 h-4 text-emerald-400 shrink-0" /> Over 140,000+ Active Pros
                       </p>
-                      <p className="text-xs text-white/80">From local neighborhood repairs to factory shifts</p>
+                      <p className="text-xs text-white/80">From local neighborhood repairs to factory jobs</p>
                     </div>
                     <span className="px-3 py-1 rounded-full bg-emerald-500/90 backdrop-blur-sm text-xs font-extrabold uppercase tracking-wide text-white">4.9 ★ Rated</span>
                   </div>
@@ -364,7 +364,7 @@ export default function LandingPage() {
                     <Wallet className="w-5 h-5" />
                   </div>
                   <div>
-                    <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide">Daily Shift Completed</span>
+                    <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide">Daily Job Completed</span>
                     <p className="text-sm font-extrabold text-slate-900">₹1,200 Transferred</p>
                     <p className="text-[11px] text-emerald-600 font-bold flex items-center gap-1">
                       <CheckCheck className="w-3.5 h-3.5" /> Direct UPI Paid
@@ -421,7 +421,7 @@ export default function LandingPage() {
                   className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center gap-2 cursor-pointer ${activeRole === 'work' ? 'bg-[#0066FF] text-white shadow-md shadow-blue-500/30' : 'text-slate-600 hover:text-slate-900'}`}
                 >
                   <Wrench className="w-4 h-4" />
-                  <span>For Workers / Shifts</span>
+                  <span>For Workers / Job Seekers</span>
                 </button>
               </div>
             </div>
@@ -438,7 +438,7 @@ export default function LandingPage() {
                 </div>
                 <h3 className="text-xl font-bold text-slate-900 mb-2">Tell Us Who You Need</h3>
                 <p className="text-slate-600 text-sm leading-relaxed mb-4">
-                  Pick the trade (electrician, plumber, warehouse crew), pick the shift date and location. No complicated contracts or hidden booking charges.
+                  Pick the job role (electrician, plumber, warehouse associate), job date and location. No complicated contracts or hidden booking charges.
                 </p>
                 <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-100 text-xs text-slate-500 flex items-center gap-2">
                   <Timer className="w-4 h-4 text-[#0066FF]" />
@@ -453,7 +453,7 @@ export default function LandingPage() {
                 </div>
                 <h3 className="text-xl font-bold text-slate-900 mb-2">Funds Stay Safe in Escrow</h3>
                 <p className="text-slate-600 text-sm leading-relaxed mb-4">
-                  You pre-lock the daily wage in a secure platform vault. The money is never handed over upfront until the worker arrives and finishes their shift properly.
+                  You pre-lock the daily wage in a secure platform vault. The money is never handed over upfront until the worker arrives and finishes their job properly.
                 </p>
                 <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-100 text-xs text-slate-500 flex items-center gap-2">
                   <ShieldCheck className="w-4 h-4 text-amber-500" />
@@ -468,7 +468,7 @@ export default function LandingPage() {
                 </div>
                 <h3 className="text-xl font-bold text-slate-900 mb-2">Check In & Release Payment</h3>
                 <p className="text-slate-600 text-sm leading-relaxed mb-4">
-                  The worker arrives with a clean photo badge. Once they finish their shift, you confirm with a simple 4-digit mobile OTP to release the funds.
+                  The worker arrives with a clean photo badge. Once they finish their job, you confirm with a simple 4-digit mobile OTP to release the funds.
                 </p>
                 <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-100 text-xs text-slate-500 flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
@@ -478,7 +478,7 @@ export default function LandingPage() {
             </div>
           )}
 
-          {/* VIEW B: FOR WORKERS / SHIFTS */}
+          {/* VIEW B: FOR WORKERS / JOB SEEKERS */}
           {activeRole === 'work' && (
             <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8 transition-opacity duration-300">
               
@@ -489,7 +489,7 @@ export default function LandingPage() {
                 </div>
                 <h3 className="text-xl font-bold text-slate-900 mb-2">Get Verified with Aadhaar / ID</h3>
                 <p className="text-slate-600 text-sm leading-relaxed mb-4">
-                  Upload your photo, government ID, and trade experience once. Our team approves you in 2 hours so employers can trust your verified profile.
+                  Upload your photo, government ID, and work experience once. Our team approves you in 2 hours so employers can trust your verified profile.
                 </p>
                 <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-100 text-xs text-slate-500 flex items-center gap-2">
                   <BadgeCheck className="w-4 h-4 text-[#0066FF]" />
@@ -502,13 +502,13 @@ export default function LandingPage() {
                 <div className="w-14 h-14 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center font-black text-2xl mb-6 group-hover:scale-110 transition-transform">
                   2
                 </div>
-                <h3 className="text-xl font-bold text-slate-900 mb-2">1-Click Apply to Nearby Shifts</h3>
+                <h3 className="text-xl font-bold text-slate-900 mb-2">1-Click Apply to Nearby Jobs</h3>
                 <p className="text-slate-600 text-sm leading-relaxed mb-4">
-                  See open shifts near your home with clear wage numbers beforehand (e.g. ₹850/day). You know the exact job, location, and hours before saying yes.
+                  See open jobs near your home with clear wage numbers beforehand (e.g. ₹850/day). You know the exact job, location, and hours before saying yes.
                 </p>
                 <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-100 text-xs text-slate-500 flex items-center gap-2">
                   <Navigation className="w-4 h-4 text-amber-500" />
-                  <span>Only shifts within 5 km to 10 km</span>
+                  <span>Only jobs within 5 km to 10 km</span>
                 </div>
               </div>
 
@@ -531,20 +531,20 @@ export default function LandingPage() {
         </section>
 
         {/* ========================================================================= */}
-        {/* SECTION 3: POPULAR TRADES & VERIFIED SKILLED PROS */}
+        {/* SECTION 3: POPULAR JOBS & VERIFIED SKILLED WORKERS */}
         {/* ========================================================================= */}
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" id="popular-jobs">
           
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
             <div>
               <span className="px-3.5 py-1.5 rounded-full bg-blue-50 text-[#0066FF] text-xs font-bold uppercase tracking-wider border border-blue-200">
-                Everyday Trades & Gigs
+                Popular Job Roles
               </span>
               <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mt-2">
-                Find the right person for every job.
+                Find the right worker for every job.
               </h2>
               <p className="text-slate-600 text-base mt-1">
-                Real photos of verified pros working across homes, shops, and large logistics plants.
+                Real photos of verified workers working across homes, offices, and logistics hubs.
               </p>
             </div>
 
@@ -556,7 +556,7 @@ export default function LandingPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Card 1 */}
-            <div className="trade-card bg-white rounded-3xl overflow-hidden border border-slate-200/80 shadow-sm flex flex-col">
+            <div className="job-card bg-white rounded-3xl overflow-hidden border border-slate-200/80 shadow-sm flex flex-col">
               <div className="relative h-56 overflow-hidden">
                 <img src="https://lh3.googleusercontent.com/aida/AEtjO1V-KC9nF7ATlICKsAgpI3kdfFTbQlH0n4FTWUz3LfIiUX7A9HTMEa0-rmmfuGWA2kK9JN2ljpWoj4wdUy4Ao1InCslfAG0sE3AsmRJ4tEdgdZomAKmuGcafOsbDbdfs3n6qVXp7RTsGfhtC0SwmrW5xGBpNj1yFN_b-sCk9AsoFPEeEFGgj5r6lrKdMhbOO6vJYC0JimQ_34n45UUP6ql4WbIiFXYBv969bYkjfxlM-QUsQiLeO063Ykpu9" alt="Master electrician testing control panel" className="w-full h-full object-cover object-center" />
                 <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-emerald-600 flex items-center gap-1 shadow-xs">
@@ -577,13 +577,13 @@ export default function LandingPage() {
                   <span className="text-xs text-slate-500 font-medium flex items-center gap-1">
                     <span className="w-2 h-2 rounded-full bg-emerald-500"></span> 240 Available in City
                   </span>
-                  <button onClick={() => navigate('/sign-up?role=employer')} className="text-xs font-bold text-[#0066FF] hover:underline cursor-pointer">Book Shift &rarr;</button>
+                  <button onClick={() => navigate('/sign-up?role=employer')} className="text-xs font-bold text-[#0066FF] hover:underline cursor-pointer">Hire Worker &rarr;</button>
                 </div>
               </div>
             </div>
 
             {/* Card 2 */}
-            <div className="trade-card bg-white rounded-3xl overflow-hidden border border-slate-200/80 shadow-sm flex flex-col">
+            <div className="job-card bg-white rounded-3xl overflow-hidden border border-slate-200/80 shadow-sm flex flex-col">
               <div className="relative h-56 overflow-hidden">
                 <img src="https://lh3.googleusercontent.com/aida/AEtjO1WyKUOnuUuld6Ab09bXGEJ_3KIPzynkUkxDuAPysVrhoIQfOGyIAaQqs4zXQhe4x2s_kwrwCDFcvX_xVI-tZeDKgV78yE5mi66W5Qitbv_euZ5W-b5UMlvmwhZITohTLOIH6goOf64W0yyvkO4lvFKHlGFtJ4z1NhBVyUB8_lt1VHBUdJrVHb69hKZbrPgMrKbgEL9O2mgDnF8gkWTkf3OGB-DYXuZ87D7aHOP7brMQe0xqFadEIX-w5E9i" alt="Modern warehouse fulfillment logistics" className="w-full h-full object-cover object-center" />
                 <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-[#0066FF] flex items-center gap-1 shadow-xs">
@@ -604,13 +604,13 @@ export default function LandingPage() {
                   <span className="text-xs text-slate-500 font-medium flex items-center gap-1">
                     <span className="w-2 h-2 rounded-full bg-emerald-500"></span> 580 Available in City
                   </span>
-                  <button onClick={() => navigate('/sign-up?role=employer')} className="text-xs font-bold text-[#0066FF] hover:underline cursor-pointer">Book Shift &rarr;</button>
+                  <button onClick={() => navigate('/sign-up?role=employer')} className="text-xs font-bold text-[#0066FF] hover:underline cursor-pointer">Hire Worker &rarr;</button>
                 </div>
               </div>
             </div>
 
             {/* Card 3 */}
-            <div className="trade-card bg-white rounded-3xl overflow-hidden border border-slate-200/80 shadow-sm flex flex-col">
+            <div className="job-card bg-white rounded-3xl overflow-hidden border border-slate-200/80 shadow-sm flex flex-col">
               <div className="relative h-56 overflow-hidden">
                 <img src="https://lh3.googleusercontent.com/aida/AEtjO1Xle3WKHP7eUaktG49hHl4-x8nyAOHLdgparmDhUcaQzwifc1PH0mWt0DiYADV14c1LDQI9LmX_IYpS269pUMezu2v-7w2KTCoItQX-PeEtukQZOX8bRJ3nUmMNKq3GkUL3UWdwlqKhfB9FSHXyqsIjQW1a5hRCyQqsNIwyuYrig0ktNP_9UeGKv2IQ7Wd-_v3kw9p-NLH2TnFk_IYpSzHngwxKB_ZYIXSYtNSOvmwcC3yWxbCSwX2K22k" alt="Collaborative industrial team" className="w-full h-full object-cover object-center" />
                 <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-blue-600 flex items-center gap-1 shadow-xs">
@@ -631,7 +631,7 @@ export default function LandingPage() {
                   <span className="text-xs text-slate-500 font-medium flex items-center gap-1">
                     <span className="w-2 h-2 rounded-full bg-emerald-500"></span> 190 Available in City
                   </span>
-                  <button onClick={() => navigate('/sign-up?role=employer')} className="text-xs font-bold text-[#0066FF] hover:underline cursor-pointer">Book Shift &rarr;</button>
+                  <button onClick={() => navigate('/sign-up?role=employer')} className="text-xs font-bold text-[#0066FF] hover:underline cursor-pointer">Hire Worker &rarr;</button>
                 </div>
               </div>
             </div>
@@ -657,7 +657,7 @@ export default function LandingPage() {
                   
                   <div className="absolute bottom-4 left-4 right-4 bg-slate-900/90 backdrop-blur-md p-3.5 rounded-xl border border-white/10">
                     <p className="text-sm font-semibold text-white">"No more waiting 30 days for my wages."</p>
-                    <p className="text-xs text-slate-300 mt-0.5">Ramesh Kumar • Electrician in Bengaluru (340+ shifts)</p>
+                    <p className="text-xs text-slate-300 mt-0.5">Ramesh Kumar • Electrician in Bengaluru (340+ jobs completed)</p>
                   </div>
                 </div>
               </div>
@@ -690,7 +690,7 @@ export default function LandingPage() {
                     </div>
                     <h4 className="font-bold text-base text-white">Escrow Payment Vault</h4>
                     <p className="text-xs text-slate-300 leading-relaxed">
-                      Funds are safely locked before the shift begins and only disbursed when both parties agree work was done.
+                      Funds are safely locked before the job begins and only disbursed when both parties agree work was done.
                     </p>
                   </div>
 
@@ -700,7 +700,7 @@ export default function LandingPage() {
                     </div>
                     <h4 className="font-bold text-base text-white">₹5 Lakh Insurance Included</h4>
                     <p className="text-xs text-slate-300 leading-relaxed">
-                      Every active shift comes with automatic accidental medical coverage so workers are protected on the job.
+                      Every active job comes with automatic accidental medical coverage so workers are protected on the job.
                     </p>
                   </div>
 
@@ -756,7 +756,7 @@ export default function LandingPage() {
             <div>
               <h5 className="text-xs font-bold text-slate-900 uppercase tracking-wider mb-3">For Businesses & Homes</h5>
               <ul className="space-y-2 text-xs">
-                <li><Link to="/sign-up?role=employer" className="hover:text-[#0066FF] transition-colors">Post an Urgent Shift</Link></li>
+                <li><Link to="/sign-up?role=employer" className="hover:text-[#0066FF] transition-colors">Post an Urgent Job</Link></li>
                 <li><Link to="/sign-up?role=employer" className="hover:text-[#0066FF] transition-colors">Hire Certified Electricians</Link></li>
                 <li><Link to="/sign-up?role=employer" className="hover:text-[#0066FF] transition-colors">Warehouse & Logistics Crews</Link></li>
                 <li><Link to="/sign-up?role=employer" className="hover:text-[#0066FF] transition-colors">How Escrow Protects You</Link></li>
@@ -765,9 +765,9 @@ export default function LandingPage() {
 
             {/* Quick Links: Workers */}
             <div>
-              <h5 className="text-xs font-bold text-slate-900 uppercase tracking-wider mb-3">For Workers & Trades</h5>
+              <h5 className="text-xs font-bold text-slate-900 uppercase tracking-wider mb-3">For Workers & Job Seekers</h5>
               <ul className="space-y-2 text-xs">
-                <li><Link to="/sign-up?role=worker" className="hover:text-[#0066FF] transition-colors">Find Shifts Near Me</Link></li>
+                <li><Link to="/sign-up?role=worker" className="hover:text-[#0066FF] transition-colors">Find Jobs Near Me</Link></li>
                 <li><Link to="/sign-up?role=worker" className="hover:text-[#0066FF] transition-colors">Daily Payment & UPI Wallet</Link></li>
                 <li><Link to="/sign-up?role=worker" className="hover:text-[#0066FF] transition-colors">Get ID Verification Badge</Link></li>
                 <li><Link to="/sign-up?role=worker" className="hover:text-[#0066FF] transition-colors">Accident Insurance Policy</Link></li>

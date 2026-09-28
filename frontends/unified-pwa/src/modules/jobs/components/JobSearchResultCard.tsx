@@ -76,7 +76,7 @@ export const JobSearchResultCard: React.FC<JobSearchResultCardProps> = ({
 
   return (
     <div 
-      onClick={() => navigate(`/jobs/${job.id}`)}
+      onClick={() => navigate(`/job/${job.id}`)}
       className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/90 hover:border-[#0066FF]/60 hover:shadow-lg transition-all duration-200 group cursor-pointer space-y-4"
     >
       {/* Top Header: Company Avatar + Title + Bookmark */}
@@ -174,8 +174,7 @@ export const JobSearchResultCard: React.FC<JobSearchResultCardProps> = ({
               type="button"
               onClick={(e) => {
                 e.stopPropagation();
-                if (onApply) onApply(job.id);
-                else navigate(`/jobs/${job.id}`);
+                navigate(`/job/${job.id}`);
               }}
               disabled={isApplying}
               className="px-4 py-1.5 bg-[#0066FF] hover:bg-[#0052CC] active:scale-98 text-white rounded-lg font-bold text-xs shadow-xs transition-all flex items-center gap-1 cursor-pointer font-['Outfit',sans-serif]"

@@ -269,11 +269,11 @@ export const JobFilterSidebar: React.FC<JobFilterSidebarProps> = ({
         </div>
       </div>
 
-      {/* 5. INDUSTRY / TRADE SECTION */}
+      {/* 5. INDUSTRY SECTION */}
       <div className="space-y-2.5 pt-4 border-t border-slate-100">
         <div className="flex items-center justify-between">
           <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">
-            INDUSTRY / TRADE
+            INDUSTRY & CATEGORY
           </span>
           {selectedTrade !== 'All' && (
             <button

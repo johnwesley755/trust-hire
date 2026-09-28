@@ -67,9 +67,9 @@ export function LandingNavbar() {
             user?.role === 'ADMIN' ? (
               <Link
                 to="/admin/dashboard"
-                className="bg-[#0A1931] hover:bg-slate-900 text-white font-extrabold px-5 py-2.5 rounded-xl uppercase text-xs tracking-wider shadow-md active:scale-95 transition-all flex items-center gap-2"
+                className="bg-blue-50 hover:bg-blue-100 text-[#0066FF] border border-blue-200/80 font-extrabold px-4.5 py-2.5 rounded-xl uppercase text-xs tracking-wider shadow-xs active:scale-95 transition-all flex items-center gap-2"
               >
-                <ShieldCheck className="w-4 h-4 text-blue-400" />
+                <ShieldCheck className="w-4 h-4 text-[#0066FF]" />
                 <span>Admin Command Center</span>
               </Link>
             ) : user?.role === 'EMPLOYER' ? (
@@ -103,7 +103,7 @@ export function LandingNavbar() {
                   className="bg-[#0066FF] hover:bg-[#0050CB] text-white font-extrabold px-5 py-2.5 rounded-xl uppercase text-xs tracking-wider shadow-md shadow-[#0066FF]/20 active:scale-95 transition-all flex items-center gap-2"
                 >
                   <Briefcase className="w-4 h-4" />
-                  <span>My Applied Shifts</span>
+                  <span>My Applied Jobs</span>
                 </Link>
               </div>
             )
@@ -159,6 +159,19 @@ export function LandingNavbar() {
               <span>Hire Workers</span>
             </Link>
           </div>
+
+          {isSignedIn && user?.role === 'ADMIN' && (
+            <div className="pt-2 border-t border-slate-100 flex flex-col gap-2">
+              <Link
+                to="/admin/dashboard"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="w-full py-2.5 px-4 bg-blue-50 hover:bg-blue-100 text-[#0066FF] border border-blue-200 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2"
+              >
+                <ShieldCheck className="w-4 h-4 text-[#0066FF]" />
+                <span>Admin Command Center</span>
+              </Link>
+            </div>
+          )}
 
           {!isSignedIn && (
             <div className="pt-2 border-t border-slate-100 flex flex-col gap-2">
