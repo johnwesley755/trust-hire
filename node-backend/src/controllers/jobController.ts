@@ -163,7 +163,45 @@ export const getJobById = async (c: Context) => {
     const id = c.req.param('id') as string;
     const job = await prisma.jobs.findUnique({ where: { id } });
     if (!job) return c.json(ApiResponse.error("Job not found"), 404 as any);
-    return c.json(ApiResponse.ok(formatJob(job)));
+
+    let employerProfile: any = null;
+    if (job.employer_id) {
+      const emp = await prisma.employer_profiles.findFirst({
+        where: {
+          OR: [
+            { id: job.employer_id },
+            { user_id: job.employer_id }
+          ]
+        }
+      });
+      const user = await prisma.user_metadata.findUnique({
+        where: { id: emp?.user_id || job.employer_id }
+      });
+      if (emp || user) {
+        employerProfile = {
+          id: emp?.id || job.employer_id,
+          userId: emp?.user_id || user?.id || job.employer_id,
+          companyName: emp?.company_name || job.employer_name || (user ? `${user.first_name || ''} ${user.last_name || ''}`.trim() : '') || 'Verified Employer',
+          companyWebsite: emp?.company_website || '',
+          profileBio: emp?.profile_bio || '',
+          businessTier: emp?.business_tier || 'STARTER',
+          isVerified: emp?.is_verified ?? false,
+          location: emp?.location || '',
+          city: emp?.city || '',
+          address: emp?.address || '',
+          logoUrl: user?.profile_image_url || null,
+          phoneNumber: user?.phone_number || null,
+          email: user?.email || null
+        };
+      }
+    }
+
+    return c.json(ApiResponse.ok({
+      ...formatJob(job),
+      employerName: employerProfile?.companyName || job.employer_name || 'Verified Employer',
+      employer: employerProfile,
+      employerProfile
+    }));
   } catch (err: any) {
     return c.json(ApiResponse.error(err.message), 500 as any);
   }

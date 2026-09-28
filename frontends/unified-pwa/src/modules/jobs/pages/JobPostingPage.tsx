@@ -97,12 +97,12 @@ export const JobPostingPage = () => {
                   <div className="w-8 h-8 rounded-xl bg-blue-50 text-[#0066FF] flex items-center justify-center font-bold text-xs">
                     1
                   </div>
-                  <h2 className="text-base font-extrabold text-slate-900">Shift Fundamentals</h2>
+                  <h2 className="text-base font-extrabold text-slate-900">Job Fundamentals</h2>
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <label className="block text-xs font-bold text-slate-700">Role / Shift Title *</label>
+                    <label className="block text-xs font-bold text-slate-700">Job Title *</label>
                     <input 
                       name="title"
                       required
@@ -112,7 +112,7 @@ export const JobPostingPage = () => {
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="block text-xs font-bold text-slate-700">Industry Trade Category *</label>
+                    <label className="block text-xs font-bold text-slate-700">Industry Category *</label>
                     <select name="industry" className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#0066FF] rounded-xl p-3 text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none transition-all cursor-pointer">
                       <option value="ELECTRICAL">Electrical Work</option>
                       <option value="PLUMBING">Plumbing</option>
@@ -129,12 +129,12 @@ export const JobPostingPage = () => {
                 </div>
                 
                 <div className="space-y-1.5">
-                  <label className="block text-xs font-bold text-slate-700">Shift Scope & Responsibilities *</label>
+                  <label className="block text-xs font-bold text-slate-700">Job Scope & Responsibilities *</label>
                   <textarea 
                     name="description"
                     required
                     className="w-full bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#0066FF] rounded-xl p-3 text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none transition-all min-h-[100px]" 
-                    placeholder="Describe daily work duties, shift timings, tools provided, and specific site guidelines..." 
+                    placeholder="Describe daily work duties, working hours, tools provided, and specific site guidelines..." 
                   />
                 </div>
               </div>
@@ -234,7 +234,7 @@ export const JobPostingPage = () => {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="block text-xs font-bold text-slate-700">Specific Trade Skill Tags</label>
+                  <label className="block text-xs font-bold text-slate-700">Key Skill Tags</label>
                   <div className="flex gap-2">
                       <input 
                         value={skillInput}
@@ -274,7 +274,7 @@ export const JobPostingPage = () => {
                   className="bg-[#0066FF] hover:bg-blue-700 text-white w-full sm:w-auto px-8 py-3.5 rounded-xl font-bold uppercase text-xs tracking-wider shadow-md shadow-blue-500/20 active:scale-98 transition-all flex items-center justify-center gap-2 cursor-pointer"
                 >
                   {mutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : (
-                      <>Publish Shift Now <ChevronRight className="w-4 h-4" /></>
+                      <>Publish Job Now <ChevronRight className="w-4 h-4" /></>
                   )}
                 </button>
               </div>
@@ -296,11 +296,11 @@ export const JobPostingPage = () => {
               </li>
               <li className="flex items-start gap-2">
                 <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                <span>Escrow lock ensures 0 payment disputes and faster shift confirmations.</span>
+                <span>Escrow lock ensures 0 payment disputes and faster job confirmations.</span>
               </li>
               <li className="flex items-start gap-2">
                 <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                <span>Candidates with 4.8+ TrustScore get priority shift routing.</span>
+                <span>Candidates with 4.8+ TrustScore get priority job routing.</span>
               </li>
             </ul>
           </section>

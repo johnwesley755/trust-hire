@@ -212,22 +212,26 @@ export default function OnboardingPage() {
                                 </div>
 
                                 <div className="group">
-                                    <label className="block text-xs font-bold uppercase tracking-widest text-[#0A1931] mb-3">
-                                        Business Phone Number *
-                                    </label>
-                                    <div className="relative">
+                                    <div className="flex justify-between items-center mb-3">
+                                        <label className="block text-xs font-bold uppercase tracking-widest text-[#0A1931]">
+                                            Business Phone Number *
+                                        </label>
+                                        <span className="text-[10px] text-slate-400 font-medium">10-Digit Mobile</span>
+                                    </div>
+                                    <div className="relative flex items-center">
+                                        <div className="absolute left-3.5 flex items-center gap-1 text-slate-600 font-bold text-xs pointer-events-none select-none border-r border-slate-300/60 pr-2 z-10">
+                                            <span className="text-sm leading-none">🇮🇳</span>
+                                            <span>+91</span>
+                                        </div>
                                         <input 
-                                            className="w-full bg-[#E9E8E3] border-none rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-[#0066FF] text-[#0A1931] font-medium transition-all placeholder:text-[#0A1931]/30" 
+                                            className="w-full bg-[#E9E8E3] border-none rounded-xl pl-16 pr-4 py-2.5 focus:ring-2 focus:ring-[#0066FF] text-[#0A1931] font-medium transition-all placeholder:text-[#0A1931]/30 outline-none" 
                                             placeholder="9876543210" 
                                             type="tel"
                                             maxLength={10}
                                             value={formData.businessPhone}
-                                            onChange={(e) => setFormData({...formData, businessPhone: e.target.value.replace(/\D/g, '')})}
+                                            onChange={(e) => setFormData({...formData, businessPhone: e.target.value.replace(/\D/g, '').slice(0, 10)})}
                                             required
                                         />
-                                        <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-[#0A1931]/20">
-                                            phone
-                                        </span>
                                     </div>
                                 </div>
 

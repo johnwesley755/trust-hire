@@ -4,6 +4,8 @@ export interface EmployerProfile {
   id?: string;
   userId: string;
   profileImageUrl?: string;
+  profile_image_url?: string;
+  profilePhoto?: string;
   companyName: string;
   industry: string;
   companyWebsite: string;
@@ -25,6 +27,8 @@ export interface WorkerProfile {
   id?: string;
   userId?: string;
   profileImageUrl?: string;
+  profile_image_url?: string;
+  profilePhoto?: string;
   fullName: string;
   location: string;
   city?: string;
@@ -39,6 +43,25 @@ export interface WorkerProfile {
   isAvailable: boolean;
   profileViews?: number;
   trustScore?: number;
+  dob?: string | null;
+  gender?: string | null;
+  whatsappOptIn?: boolean;
+  area?: string | null;
+  willingToRelocate?: boolean;
+  preferredCities?: string[];
+  highestEducation?: string | null;
+  isPursuingEducation?: boolean;
+  collegeName?: string | null;
+  degree?: string | null;
+  specialization?: string | null;
+  schoolMedium?: string | null;
+  englishProficiency?: string | null;
+  languagesKnown?: string[];
+  preferredRoles?: string[];
+  resumeUrl?: string | null;
+  phoneNumber?: string | null;
+  email?: string | null;
+  isVerified?: boolean;
 }
 
 export const profileService = {
@@ -130,16 +153,35 @@ export const profileService = {
     if (!data) return null;
     return {
       ...data,
-      fullName: data.fullName || '',
+      fullName: data.fullName || data.full_name || '',
       bio: data.bio || '',
       skills: data.skills || '',
       location: data.location || '',
       city: data.city || '',
       address: data.address || '',
       level: data.level || '1',
-      experienceYears: data.experienceYears || 0,
-      hourlyRate: data.hourlyRate || 0,
-      trustScore: data.trustScore || 0
+      experienceYears: data.experienceYears ?? data.experience_years ?? 0,
+      hourlyRate: data.hourlyRate ?? data.hourly_rate ?? 0,
+      trustScore: data.trustScore ?? data.trust_score ?? 0,
+      dob: data.dob || null,
+      gender: data.gender || null,
+      whatsappOptIn: data.whatsapp_opt_in ?? data.whatsappOptIn ?? true,
+      area: data.area || null,
+      willingToRelocate: data.willing_to_relocate ?? data.willingToRelocate ?? false,
+      preferredCities: data.preferred_cities || data.preferredCities || [],
+      highestEducation: data.highest_education || data.highestEducation || null,
+      isPursuingEducation: data.is_pursuing_education ?? data.isPursuingEducation ?? false,
+      collegeName: data.college_name || data.collegeName || null,
+      degree: data.degree || null,
+      specialization: data.specialization || null,
+      schoolMedium: data.school_medium || data.schoolMedium || null,
+      englishProficiency: data.english_proficiency || data.englishProficiency || 'BASIC',
+      languagesKnown: data.languages_known || data.languagesKnown || [],
+      preferredRoles: data.preferred_roles || data.preferredRoles || [],
+      resumeUrl: data.resume_url || data.resumeUrl || null,
+      phoneNumber: data.phoneNumber || data.phone_number || null,
+      email: data.email || null,
+      isVerified: Boolean(data.is_verified || data.isVerified),
     };
   },
 

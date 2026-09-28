@@ -7,8 +7,21 @@ const formatWorkerProfile = (profile: any, userMeta?: any, isVerified?: boolean)
   if (!profile) return profile;
   const phoneNumber = userMeta?.phone_number || profile.phone_number || profile.phoneNumber || null;
   const email = userMeta?.email || profile.email || null;
-  const profileImageUrl = userMeta?.profile_image_url || profile.profile_image_url || profile.profileImageUrl || null;
+  const profileImageUrl = profile.profile_image_url || userMeta?.profile_image_url || profile.profileImageUrl || userMeta?.photoURL || null;
   const fullName = profile.full_name || `${userMeta?.first_name || ''} ${userMeta?.last_name || ''}`.trim() || 'Worker';
+
+  // Safely parse JSON array fields
+  const parseList = (val: any): string[] => {
+    if (!val) return [];
+    if (Array.isArray(val)) return val;
+    try {
+      const parsed = JSON.parse(val);
+      if (Array.isArray(parsed)) return parsed;
+    } catch {
+      // Fallback comma-separated
+    }
+    return String(val).split(',').map(s => s.trim()).filter(Boolean);
+  };
 
   return {
     ...profile,
@@ -21,8 +34,27 @@ const formatWorkerProfile = (profile: any, userMeta?: any, isVerified?: boolean)
     email: email,
     profile_image_url: profileImageUrl,
     profileImageUrl: profileImageUrl,
+    profilePhoto: profileImageUrl,
     is_verified: isVerified ?? (Boolean(userMeta?.email_verified) || Boolean(profile.is_verified)),
     isVerified: isVerified ?? (Boolean(userMeta?.email_verified) || Boolean(profile.is_verified)),
+    
+    // Onboarding & Resume Builder fields
+    dob: profile.dob || null,
+    gender: profile.gender || null,
+    whatsapp_opt_in: profile.whatsapp_opt_in ?? true,
+    area: profile.area || null,
+    willing_to_relocate: Boolean(profile.willing_to_relocate),
+    preferred_cities: parseList(profile.preferred_cities),
+    highest_education: profile.highest_education || null,
+    is_pursuing_education: Boolean(profile.is_pursuing_education),
+    college_name: profile.college_name || null,
+    degree: profile.degree || null,
+    specialization: profile.specialization || null,
+    school_medium: profile.school_medium || null,
+    english_proficiency: profile.english_proficiency || 'BASIC',
+    languages_known: parseList(profile.languages_known),
+    preferred_roles: parseList(profile.preferred_roles),
+    resume_url: profile.resume_url || null,
   };
 };
 
@@ -40,6 +72,7 @@ export const getMyProfile = async (c: Context) => {
           id: uuidv4(),
           user_id: userId,
           full_name: `${userMeta?.first_name || ''} ${userMeta?.last_name || ''}`.trim() || 'Worker',
+          profile_image_url: userMeta?.profile_image_url || null,
           created_at: new Date(),
           updated_at: new Date()
         }
@@ -57,40 +90,73 @@ export const updateProfile = async (c: Context) => {
     if (!userId) return c.json(ApiResponse.error("Unauthorized"), 401 as any);
 
     const data = (await c.req.json());
+
+    // Normalize Array / string fields for persistence
+    const languagesStr = Array.isArray(data.languagesKnown) 
+      ? JSON.stringify(data.languagesKnown) 
+      : (data.languagesKnown ? String(data.languagesKnown) : undefined);
+
+    const preferredRolesStr = Array.isArray(data.preferredRoles) 
+      ? JSON.stringify(data.preferredRoles) 
+      : (data.preferredRoles ? String(data.preferredRoles) : undefined);
+
+    const preferredCitiesStr = Array.isArray(data.preferredCities) 
+      ? JSON.stringify(data.preferredCities) 
+      : (data.preferredCities ? String(data.preferredCities) : undefined);
+
+    let parsedDob: Date | undefined = undefined;
+    if (data.dob) {
+      const d = new Date(data.dob);
+      if (!isNaN(d.getTime())) {
+        parsedDob = d;
+      }
+    }
+
+    const profileImageUrl = data.profileImageUrl || data.profile_image_url || data.profilePhoto || undefined;
+
+    const updatePayload: any = {
+      full_name: data.fullName,
+      profile_image_url: profileImageUrl,
+      location: data.location,
+      latitude: data.latitude,
+      longitude: data.longitude,
+      city: data.city,
+      area: data.area,
+      address: data.address,
+      bio: data.bio,
+      skills: data.skills,
+      experience_years: data.experienceYears !== undefined ? Number(data.experienceYears) : undefined,
+      hourly_rate: data.hourlyRate !== undefined ? Number(data.hourlyRate) : undefined,
+      level: data.level,
+      is_available: data.isAvailable !== undefined ? Boolean(data.isAvailable) : undefined,
+      
+      // Demographics & Education
+      dob: parsedDob,
+      gender: data.gender,
+      whatsapp_opt_in: data.whatsappOptIn !== undefined ? Boolean(data.whatsappOptIn) : undefined,
+      willing_to_relocate: data.willingToRelocate !== undefined ? Boolean(data.willingToRelocate) : undefined,
+      preferred_cities: preferredCitiesStr,
+      highest_education: data.highestEducation,
+      is_pursuing_education: data.isPursuingEducation !== undefined ? Boolean(data.isPursuingEducation) : undefined,
+      college_name: data.collegeName,
+      degree: data.degree,
+      specialization: data.specialization,
+      school_medium: data.schoolMedium,
+      english_proficiency: data.englishProficiency,
+      languages_known: languagesStr,
+      preferred_roles: preferredRolesStr,
+      resume_url: data.resumeUrl,
+      updated_at: new Date()
+    };
+
     const profile = await prisma.worker_profiles.upsert({
       where: { user_id: userId },
-      update: {
-        full_name: data.fullName,
-        location: data.location,
-        latitude: data.latitude,
-        longitude: data.longitude,
-        city: data.city,
-        address: data.address,
-        bio: data.bio,
-        skills: data.skills,
-        experience_years: data.experienceYears,
-        hourly_rate: data.hourlyRate,
-        level: data.level,
-        is_available: data.isAvailable,
-        updated_at: new Date()
-      },
+      update: updatePayload,
       create: {
         id: uuidv4(),
         user_id: userId,
-        full_name: data.fullName,
-        location: data.location,
-        latitude: data.latitude,
-        longitude: data.longitude,
-        city: data.city,
-        address: data.address,
-        bio: data.bio,
-        skills: data.skills,
-        experience_years: data.experienceYears,
-        hourly_rate: data.hourlyRate,
-        level: data.level,
-        is_available: data.isAvailable,
-        created_at: new Date(),
-        updated_at: new Date()
+        ...updatePayload,
+        created_at: new Date()
       }
     });
 
@@ -116,6 +182,7 @@ export const updateProfile = async (c: Context) => {
         where: { id: userId },
         data: { 
           phone_number: cleanPhone,
+          profile_image_url: profileImageUrl,
           onboarded: true,
           first_name: data.fullName ? data.fullName.split(' ')[0] : undefined,
           last_name: data.fullName ? data.fullName.split(' ').slice(1).join(' ') : undefined,
@@ -124,7 +191,12 @@ export const updateProfile = async (c: Context) => {
     } else {
       updatedUserMeta = await prisma.user_metadata.update({
         where: { id: userId },
-        data: { onboarded: true }
+        data: { 
+          profile_image_url: profileImageUrl,
+          onboarded: true,
+          first_name: data.fullName ? data.fullName.split(' ')[0] : undefined,
+          last_name: data.fullName ? data.fullName.split(' ').slice(1).join(' ') : undefined,
+        }
       });
     }
 

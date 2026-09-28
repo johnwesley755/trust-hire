@@ -155,6 +155,14 @@ export const updateEmployerProfile = async (c: Context) => {
       });
     }
 
+    const profileImg = data.profileImageUrl || data.profile_image_url || data.profilePhoto;
+    if (profileImg !== undefined) {
+      await prisma.user_metadata.update({
+        where: { id: targetUserId },
+        data: { profile_image_url: profileImg, updated_at: new Date() }
+      });
+    }
+
     const profile = await prisma.employer_profiles.upsert({
       where: { user_id: targetUserId },
       update: { ...dbData, updated_at: new Date() },

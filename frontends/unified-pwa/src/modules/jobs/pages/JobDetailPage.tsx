@@ -47,22 +47,16 @@ export default function JobDetailPage() {
   const { data: profile } = useQuery({
     queryKey: queryKeys.workers.detail('me'),
     queryFn: profileService.getProfile,
+    staleTime: 1000 * 60 * 5,
   });
 
   const { data: myApplications = [], refetch: refetchApplications } = useQuery({
     queryKey: queryKeys.jobs.myApplications,
     queryFn: applicationService.getMyApplications,
+    staleTime: 1000 * 60 * 5,
   });
 
-  const { data: employer } = useQuery({
-    queryKey: ['employerProfile', job?.employerId],
-    queryFn: async () => {
-        const res = await apiClient.get(`/api/employer/profile/${job?.employerId}`);
-        return res.data;
-    },
-    enabled: !!job?.employerId,
-    staleTime: 5 * 60 * 1000
-  });
+  const employer = (job as any)?.employerProfile || (job as any)?.employer || null;
 
   const mutation = useMutation({
     mutationFn: (data: Parameters<typeof applicationService.applyForJob>[0]) => applicationService.applyForJob(data),
@@ -259,7 +253,7 @@ export default function JobDetailPage() {
                   }`} />
                   <span className="text-xs font-black uppercase tracking-wider text-slate-800">
                     {isApproved 
-                      ? 'Shift Confirmed • Approved & Hired' 
+                      ? 'Job Confirmed • Approved & Hired' 
                       : isOfferSent 
                       ? '🎉 Offer Received • Action Required' 
                       : isDeclined 
@@ -269,7 +263,7 @@ export default function JobDetailPage() {
                 </div>
                 <span className="text-xs text-slate-500 font-medium">
                   {isOfferSent 
-                    ? 'Shift offer ready for acceptance' 
+                    ? 'Job offer ready for acceptance' 
                     : `Applied on ${existingApplication?.appliedAt ? new Date(existingApplication.appliedAt).toLocaleDateString() : 'Today'}`}
                 </span>
               </div>
@@ -322,7 +316,7 @@ export default function JobDetailPage() {
           <section className="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200 shadow-xs space-y-4">
             <div className="flex flex-wrap items-center gap-2">
               <span className="px-3 py-1 bg-slate-100 text-[#0A1931] rounded-lg text-xs font-bold uppercase tracking-wider">
-                {job.industry || 'General Trade'}
+                {job.industry || 'General Category'}
               </span>
               <span className="px-3 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200/60 rounded-lg text-xs font-bold flex items-center gap-1">
                 <span className="material-symbols-outlined text-[14px]">verified</span>
@@ -390,22 +384,22 @@ export default function JobDetailPage() {
                   ? (isApproved 
                       ? '🎉 Congratulations! You are Hired' 
                       : isOfferSent 
-                      ? '🎉 Shift Offer Received!' 
+                      ? '🎉 Job Offer Received!' 
                       : isDeclined 
                       ? 'Application Status' 
                       : 'Application Submitted') 
-                  : 'Ready to start this shift?'}
+                  : 'Ready to apply for this job?'}
               </h3>
               <p className="text-slate-300 text-xs sm:text-sm font-medium leading-relaxed">
                 {isApplied 
                   ? (isApproved 
-                      ? 'Your shift is confirmed with escrow protection. View your job details anytime.' 
+                      ? 'Your job is confirmed with escrow protection. View your job details anytime.' 
                       : isOfferSent 
-                      ? 'The employer sent you a job offer for this shift! Accept below to confirm your booking.'
+                      ? 'The employer sent you a job offer! Accept below to confirm your hiring.'
                       : isDeclined 
-                        ? 'This application has been closed. Explore other verified trade shifts.' 
+                        ? 'This application has been closed. Explore other verified jobs.' 
                         : 'Your credentials and TrustScore are currently being reviewed by the employer.')
-                  : 'Applying directly shares your TrustScore and verified trade certificates.'}
+                  : 'Applying directly shares your TrustScore and verified worker credentials.'}
               </p>
             </div>
             
@@ -431,7 +425,7 @@ export default function JobDetailPage() {
                         className="flex-1 sm:flex-none px-5 py-3 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-black text-xs uppercase tracking-wider rounded-xl flex items-center justify-center gap-2 transition-all shadow-md active:scale-95 cursor-pointer whitespace-nowrap"
                       >
                         <CheckCircle2 className="w-4 h-4" />
-                        {statusMutation.isPending ? 'Accepting...' : 'Accept Shift Offer'}
+                        {statusMutation.isPending ? 'Accepting...' : 'Accept Job Offer'}
                       </button>
                       <button
                         onClick={() => {
@@ -450,7 +444,7 @@ export default function JobDetailPage() {
                       onClick={() => navigate('/search')}
                       className="w-full md:w-auto px-5 py-3 bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all cursor-pointer whitespace-nowrap text-center"
                     >
-                      Browse More Shifts
+                      Browse More Jobs
                     </button>
                   ) : (
                     <button 

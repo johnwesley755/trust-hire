@@ -137,7 +137,7 @@ export function ActiveJobsPage() {
                             className="bg-[#0066FF] hover:bg-blue-700 text-white px-8 py-3 rounded-full font-bold flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all w-full sm:w-auto"
                         >
                             <PlusCircle className="w-5 h-5" />
-                            Post New Shift
+                            Post a Job
                         </button>
                     </div>
                 </section>
@@ -148,7 +148,7 @@ export function ActiveJobsPage() {
                             <Package className="w-10 h-10 text-slate-300" />
                         </div>
                         <h3 className="text-2xl font-black text-[#0A1931] mb-3 tracking-tight">No Active Jobs</h3>
-                        <p className="text-slate-500 font-medium mb-8">You currently don't have any active job postings. Once you post a new shift, it will appear here for you to manage applications and track performance.</p>
+                        <p className="text-slate-500 font-medium mb-8">You currently don't have any active job postings. Once you post a new job, it will appear here for you to manage applications and track performance.</p>
                         <button 
                             onClick={() => navigate('/post-job')}
                             className="inline-flex items-center gap-2 px-8 py-4 bg-[#0066FF] hover:bg-blue-700 text-white font-bold rounded-full shadow-md hover:shadow-lg transition-all"

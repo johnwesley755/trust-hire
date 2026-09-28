@@ -22,7 +22,7 @@ import { JobSearchHero } from '../../jobs/components/JobSearchHero';
 import { AppLoader } from '../../../components/common/AppLoader';
 import { useSavedStore } from '../../../hooks/useSavedStore';
 
-const TRADE_CATEGORIES = [
+const JOB_CATEGORIES = [
   "All",
   "Construction",
   "Facility Management",
@@ -141,16 +141,16 @@ export const WorkerSearchPage = () => {
             </button>
           </div>
 
-          {/* Quick Trade Horizontal Pill Bar */}
+          {/* Quick Job Category Horizontal Pill Bar */}
           <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-            {TRADE_CATEGORIES.map((trade) => {
-              const isSelected = selectedTrade === trade;
+            {JOB_CATEGORIES.map((cat) => {
+              const isSelected = selectedTrade === cat;
               return (
                 <button
-                  key={trade}
+                  key={cat}
                   onClick={() => {
-                    setSelectedTrade(trade);
-                    updateSearchParams({ trade });
+                    setSelectedTrade(cat);
+                    updateSearchParams({ trade: cat });
                   }}
                   className={`px-3 py-1.5 rounded-full text-xs font-bold shrink-0 transition-all cursor-pointer ${
                     isSelected
@@ -158,7 +158,7 @@ export const WorkerSearchPage = () => {
                       : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
                   }`}
                 >
-                  {trade}
+                  {cat}
                 </button>
               );
             })}
@@ -187,20 +187,20 @@ export const WorkerSearchPage = () => {
               )}
             </div>
 
-            {/* Trade Category */}
+            {/* Job Category */}
             <div className="space-y-2">
               <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">
-                TRADE SPECIALIZATION
+                INDUSTRY & JOB CATEGORY
               </span>
               <div className="space-y-1">
-                {TRADE_CATEGORIES.map((trade) => {
-                  const isSelected = selectedTrade === trade;
+                {JOB_CATEGORIES.map((cat) => {
+                  const isSelected = selectedTrade === cat;
                   return (
                     <button
-                      key={trade}
+                      key={cat}
                       onClick={() => {
-                        setSelectedTrade(trade);
-                        updateSearchParams({ trade });
+                        setSelectedTrade(cat);
+                        updateSearchParams({ trade: cat });
                       }}
                       className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all text-left cursor-pointer ${
                         isSelected
@@ -208,7 +208,7 @@ export const WorkerSearchPage = () => {
                           : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/60'
                       }`}
                     >
-                      <span>{trade}</span>
+                      <span>{cat}</span>
                     </button>
                   );
                 })}
@@ -281,7 +281,7 @@ export const WorkerSearchPage = () => {
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex items-center gap-3.5 min-w-0">
                           <UserAvatar
-                            src={worker.profileImageUrl}
+                            src={worker.profileImageUrl || (worker as any).profile_image_url || worker.profilePhoto}
                             name={worker.name}
                             size="lg"
                           />
@@ -422,7 +422,7 @@ export const WorkerSearchPage = () => {
           {/* RIGHT COLUMN: Talent Hiring Quick Actions */}
           <div className="lg:col-span-3 space-y-6 lg:sticky lg:top-4">
             
-            {/* Quick Post Shift Card */}
+            {/* Quick Post Job Card */}
             <div className="bg-linear-to-br from-[#0A1931] to-[#0066FF] text-white rounded-2xl p-5 shadow-lg space-y-4">
               <div>
                 <span className="text-[10px] font-bold uppercase tracking-widest text-[#38BDF8]">
@@ -432,7 +432,7 @@ export const WorkerSearchPage = () => {
                   Need multiple workers fast?
                 </h3>
                 <p className="text-white/80 text-xs font-medium mt-1 leading-relaxed">
-                  Post your shift specifications and let our matching engine notify verified specialists within your area.
+                  Post your job requirements and let our matching engine notify verified workers within your area.
                 </p>
               </div>
 
@@ -493,25 +493,25 @@ export const WorkerSearchPage = () => {
               </button>
             </div>
 
-            {/* Trade Categories */}
+            {/* Job Categories */}
             <div className="space-y-2.5">
               <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">
-                Trade Specialization
+                Industry & Category
               </span>
               <div className="grid grid-cols-2 gap-2">
-                {TRADE_CATEGORIES.map((trade) => {
-                  const isSelected = selectedTrade === trade;
+                {JOB_CATEGORIES.map((cat) => {
+                  const isSelected = selectedTrade === cat;
                   return (
                     <button
-                      key={trade}
-                      onClick={() => setSelectedTrade(trade)}
+                      key={cat}
+                      onClick={() => setSelectedTrade(cat)}
                       className={`px-3 py-2 rounded-xl text-xs font-semibold text-left transition-all flex items-center justify-between cursor-pointer ${
                         isSelected
                           ? 'bg-blue-50 text-[#0066FF] font-bold border border-blue-200'
                           : 'bg-slate-50 text-slate-700 hover:bg-slate-100 border border-transparent'
                       }`}
                     >
-                      <span>{trade}</span>
+                      <span>{cat}</span>
                       {isSelected && <Check className="w-3.5 h-3.5" />}
                     </button>
                   );

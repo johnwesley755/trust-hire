@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface UserAvatarProps {
   src?: string | null;
@@ -26,6 +26,10 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
   statusOnline = true,
 }) => {
   const [hasError, setHasError] = useState(false);
+
+  useEffect(() => {
+    setHasError(false);
+  }, [src]);
 
   // Derive initial from name or default
   const initial = name?.trim() ? name.trim()[0].toUpperCase() : 'U';

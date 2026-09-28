@@ -59,7 +59,7 @@ export default function DashboardPage() {
                             Welcome back, {displayName}
                         </h1>
                         <p className="text-xs sm:text-sm text-slate-500 font-medium">
-                            Here is your verified talent operations and shift performance snapshot.
+                            Here is your verified talent operations and hiring performance snapshot.
                         </p>
                     </div>
 

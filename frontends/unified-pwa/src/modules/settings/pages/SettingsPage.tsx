@@ -223,7 +223,7 @@ export const SettingsPage = () => {
                     <span className="text-[10px] font-bold uppercase tracking-wider">Primary Email Address</span>
                   </div>
                   <p className="text-sm font-black text-[#0A1931] truncate">{user?.email || 'Not configured'}</p>
-                  <p className="text-[11px] text-slate-400 font-medium">Used for critical shift notifications and auth receipts.</p>
+                  <p className="text-[11px] text-slate-400 font-medium">Used for critical job notifications and auth receipts.</p>
                 </div>
 
                 <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-1.5">
@@ -234,7 +234,7 @@ export const SettingsPage = () => {
                   <p className="text-sm font-black text-[#0A1931]">
                     {user?.phoneNumber || (user as any)?.phone_number || '+91 • Not specified'}
                   </p>
-                  <p className="text-[11px] text-slate-400 font-medium">Direct hiring and supervisor coordination.</p>
+                  <p className="text-[11px] text-slate-400 font-medium">Direct hiring and employer coordination.</p>
                 </div>
 
                 <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-1.5">
@@ -243,14 +243,14 @@ export const SettingsPage = () => {
                     <span className="text-[10px] font-bold uppercase tracking-wider">Base Operating Hub</span>
                   </div>
                   <p className="text-sm font-black text-[#0A1931]">{user?.location || 'Chennai, Tamil Nadu'}</p>
-                  <p className="text-[11px] text-slate-400 font-medium">Radius center for local trade matching.</p>
+                  <p className="text-[11px] text-slate-400 font-medium">Radius center for local job matching.</p>
                 </div>
 
                 <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-1.5">
                   <div className="flex items-center gap-2 text-slate-400">
                     <Briefcase className="w-4 h-4 text-[#0066FF]" />
                     <span className="text-[10px] font-bold uppercase tracking-wider">
-                      {isEmployer ? 'Enterprise Tier' : 'Trade Level'}
+                      {isEmployer ? 'Enterprise Tier' : 'Worker Level'}
                     </span>
                   </div>
                   <p className="text-sm font-black text-[#0A1931]">
@@ -266,9 +266,9 @@ export const SettingsPage = () => {
                   <ShieldCheck className="w-5 h-5" />
                 </div>
                 <div className="space-y-1">
-                  <h3 className="text-xs font-bold text-[#0A1931]">Identity & Trade Verification</h3>
+                  <h3 className="text-xs font-bold text-[#0A1931]">Identity & Background Verification</h3>
                   <p className="text-xs text-slate-500 font-medium leading-relaxed">
-                    Your {isEmployer ? 'corporate registration' : 'Aadhaar & trade verification'} is authenticated with TrustHyre Escrow guarantee. To update official legal names or certificates, visit your live profile dossier.
+                    Your {isEmployer ? 'corporate registration' : 'Aadhaar & identity verification'} is authenticated with TrustHyre Escrow guarantee. To update official legal names or certificates, visit your live profile dossier.
                   </p>
                 </div>
               </div>
@@ -286,7 +286,7 @@ export const SettingsPage = () => {
                 <div className="pb-4 border-b border-slate-100">
                   <h2 className="text-base font-bold text-[#0A1931]">Notification Channels & Alerts</h2>
                   <p className="text-xs text-slate-500 font-medium mt-0.5">
-                    Customize how and when you receive critical alerts regarding shifts, applications, and payouts.
+                    Customize how and when you receive critical alerts regarding jobs, applications, and payouts.
                   </p>
                 </div>
 

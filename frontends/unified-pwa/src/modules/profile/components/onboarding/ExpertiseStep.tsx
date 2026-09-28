@@ -162,35 +162,6 @@ export default function ExpertiseStep({ formData, setFormData, onNext, onBack }:
                     </div>
                 </section>
 
-                {/* Experience & Rates Card */}
-                <section className="bg-white rounded-[2.5rem] p-10 shadow-[0_20px_40px_-10px_rgba(31,63,52,0.05)] border border-[#F8FAFC]/50 grid grid-cols-1 md:grid-cols-2 gap-10">
-                    <div className="space-y-4">
-                        <label className="font-headline text-[10px] font-bold text-[#0A1931]/40 block uppercase tracking-[0.2em] ml-2">Experience cycle (Years)</label>
-                        <div className="relative group">
-                            <input 
-                                className="w-full bg-[#F8FAFC] border-none rounded-3xl py-6 px-10 focus:ring-2 focus:ring-[#FACD15] font-headline font-bold text-3xl text-[#0A1931] outline-none shadow-inner transition-all" 
-                                type="number" 
-                                placeholder="0"
-                                value={formData.experienceYears}
-                                onChange={(e) => setFormData({...formData, experienceYears: e.target.value})}
-                            />
-                            <span className="absolute right-10 top-1/2 -translate-y-1/2 text-[#0A1931]/10 font-black font-headline text-2xl tracking-tighter">YRS</span>
-                        </div>
-                    </div>
-                    <div className="space-y-4">
-                        <label className="font-headline text-[10px] font-bold text-[#0A1931]/40 block uppercase tracking-[0.2em] ml-2">Market rate (₹/HR)</label>
-                        <div className="relative group">
-                            <input 
-                                className="w-full bg-[#F8FAFC] border-none rounded-3xl py-6 px-10 focus:ring-2 focus:ring-[#FACD15] font-headline font-bold text-3xl text-[#0A1931] outline-none shadow-inner transition-all" 
-                                type="text" 
-                                placeholder="450"
-                                value={formData.hourlyRate}
-                                onChange={(e) => setFormData({...formData, hourlyRate: e.target.value})}
-                            />
-                        </div>
-                    </div>
-                </section>
-
                 {/* Bottom Navigation */}
                 <div className="flex justify-between items-center pt-8">
                     <button 
@@ -201,7 +172,7 @@ export default function ExpertiseStep({ formData, setFormData, onNext, onBack }:
                     </button>
                     <button 
                         onClick={onNext}
-                        disabled={formData.skills.length === 0 || !formData.experienceYears || !formData.hourlyRate}
+                        disabled={formData.skills.length === 0}
                         className="bg-[#FACD15] text-[#002117] px-14 py-6 rounded-full font-bold font-headline uppercase tracking-[0.2em] text-sm shadow-[0_10px_0_0_#C39F00] active:translate-y-1 active:shadow-none transition-all flex items-center gap-4 disabled:opacity-50 disabled:shadow-none disabled:translate-y-0"
                     >
                         NEXT PROTOCOL

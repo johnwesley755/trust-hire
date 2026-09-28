@@ -80,7 +80,7 @@ export default function TrackerPage() {
             </span>
           </div>
           <p className="text-xs text-slate-500 font-medium mt-1">
-            Hyperlocal partner hub • Real-time shift matching active
+            Hyperlocal partner hub • Real-time job matching active
           </p>
         </div>
 
@@ -97,7 +97,7 @@ export default function TrackerPage() {
             className="px-4 py-2 bg-[#0066FF] hover:bg-blue-700 text-white rounded-xl text-xs font-bold uppercase tracking-wider shadow-sm active:scale-98 transition-all flex items-center gap-1.5 cursor-pointer"
           >
             <Zap className="w-3.5 h-3.5 text-amber-300 fill-amber-300" />
-            Browse Shifts
+            Browse Jobs
           </button>
         </div>
       </section>
@@ -116,7 +116,7 @@ export default function TrackerPage() {
               </span>
             </div>
             <p className="text-blue-100/80 text-xs mt-0.5 max-w-xl">
-              Shifts are dynamically ranked by your skills, hourly rate, and radius. Guaranteed escrow payout upon completion.
+              Jobs are dynamically ranked by your skills, salary rate, and radius. Guaranteed escrow payout upon completion.
             </p>
           </div>
         </div>
@@ -149,7 +149,7 @@ export default function TrackerPage() {
           <StatsSection 
             nearbyJobs={allJobs.length || unappliedRecommendedJobs.length} 
             earnings={earningsDisplay} 
-            completedShifts={completedApps.length}
+            completedJobs={completedApps.length}
           />
         );
       })()}
@@ -164,7 +164,7 @@ export default function TrackerPage() {
               <div>
                 <h2 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
                   <span className="w-1.5 h-4 bg-[#0066FF] rounded-full"></span>
-                  Top Recommended Shifts for You
+                  Top Recommended Jobs for You
                 </h2>
                 <p className="text-xs text-slate-400 font-medium">Ranked by proximity and your verified skill profile</p>
               </div>
@@ -233,13 +233,13 @@ export default function TrackerPage() {
             ) : recommendedJobs.length > 0 ? (
               <div className="text-center py-8 bg-emerald-50/60 rounded-xl border border-emerald-200">
                 <CheckCircle2 className="w-8 h-8 text-emerald-600 mx-auto mb-1.5" />
-                <p className="text-xs font-bold text-slate-800">You've applied to all top recommended shifts!</p>
+                <p className="text-xs font-bold text-slate-800">You've applied to all top recommended jobs!</p>
                 <p className="text-[11px] text-slate-500 mt-0.5">Track your application pipeline & escrow milestones in real-time.</p>
                 <button
                   onClick={() => navigate('/applied-jobs')}
                   className="mt-3 inline-flex items-center gap-1.5 px-4 py-2 bg-[#0066FF] hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-xs cursor-pointer"
                 >
-                  View Applied Shifts ({myApplications.length})
+                  View Applied Jobs ({myApplications.length})
                   <ChevronRight className="w-3.5 h-3.5" />
                 </button>
               </div>
@@ -262,7 +262,7 @@ export default function TrackerPage() {
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-sm font-extrabold text-slate-900 flex items-center gap-2">
                 <span className="w-1.5 h-4 bg-[#0066FF] rounded-full"></span>
-                Recent Shifts & Applications
+                Recent Job Applications
               </h2>
               <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
                 {myApplications.length} active applications
@@ -288,7 +288,7 @@ export default function TrackerPage() {
                         </div>
                         <div>
                           <p className="text-xs font-bold text-slate-800 leading-tight group-hover:text-[#0066FF] transition-colors">
-                            {app.job?.title || 'Applied Shift'}
+                            {app.job?.title || 'Applied Job'}
                           </p>
                           <p className="text-[10px] text-slate-400">
                             Applied {new Date(app.appliedAt).toLocaleDateString()}
@@ -326,7 +326,7 @@ export default function TrackerPage() {
                 ))
               ) : (
                 <div className="text-center py-6 text-xs font-medium text-slate-400">
-                  No active applications yet. Apply to shifts to track your pipeline.
+                  No active applications yet. Apply to jobs to track your pipeline.
                 </div>
               )}
             </div>

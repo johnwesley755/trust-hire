@@ -37,6 +37,8 @@ const SAVED_JOBS_KEY_PREFIX = 'trusthire_saved_jobs_';
 const SAVED_WORKERS_KEY_PREFIX = 'trusthire_saved_workers_';
 const SYNC_EVENT_NAME = 'trusthire_saved_sync_event';
 
+const serverSyncMap = new Map<string, boolean>();
+
 export const useSavedStore = () => {
   const { user } = useUser();
   const userId = user?.id || 'guest';
@@ -67,14 +69,15 @@ export const useSavedStore = () => {
   const [savedWorkers, setSavedWorkers] = useState<SavedWorker[]>(loadSavedWorkers);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Sync from DB when user is logged in
+  // Sync from DB once per session when user is logged in
   useEffect(() => {
     let isMounted = true;
 
     const fetchServerData = async () => {
-      if (!isLoggedIn) return;
+      if (!isLoggedIn || serverSyncMap.get(userId)) return;
       try {
         setIsLoading(true);
+        serverSyncMap.set(userId, true);
         if (user.role === 'EMPLOYER') {
           const serverWorkers = await savedService.getSavedWorkers();
           if (isMounted && Array.isArray(serverWorkers)) {

@@ -39,7 +39,7 @@ export const AdminJobsPage: React.FC = () => {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-black text-[#0A1931] tracking-tight">Job & Shift Moderation</h1>
+        <h1 className="text-2xl font-black text-[#0A1931] tracking-tight">Job Postings & Moderation</h1>
         <p className="text-xs sm:text-sm text-slate-500 mt-1">Review active requisitions, manage flagged postings, and maintain marketplace quality.</p>
       </div>
 

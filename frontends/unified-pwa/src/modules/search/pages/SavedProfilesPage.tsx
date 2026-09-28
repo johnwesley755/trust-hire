@@ -34,7 +34,7 @@ export const SavedProfilesPage: React.FC = () => {
                 Saved Profiles
               </h1>
               <p className="text-slate-500 text-xs sm:text-sm mt-1 font-medium">
-                Review and manage your bookmarked specialists for direct hiring and shift offers.
+                Review and manage your bookmarked specialists for direct hiring and job offers.
               </p>
             </div>
 

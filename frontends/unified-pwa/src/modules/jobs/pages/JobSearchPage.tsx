@@ -499,10 +499,10 @@ export default function JobSearchPage() {
                 </div>
               </div>
 
-              {/* Trade Category Filter */}
+              {/* Category Filter */}
               <div className="space-y-2.5">
                 <label className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">
-                  Trade / Industry
+                  Industry Category
                 </label>
                 <div className="flex flex-wrap gap-2">
                   {TRADE_CATEGORIES.map((cat) => {

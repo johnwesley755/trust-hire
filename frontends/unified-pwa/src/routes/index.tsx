@@ -114,16 +114,8 @@ export const router = createBrowserRouter([
                 element: <ApplicationManagementPage />,
               },
               {
-                path: '/jobs/:id',
-                element: <JobDetailPage />,
-              },
-              {
                 path: '/find-workers',
                 element: <WorkerSearchPage />,
-              },
-              {
-                path: '/worker/:id',
-                element: <WorkerProfilePage />,
               },
               {
                 path: '/saved-profiles',
@@ -153,14 +145,6 @@ export const router = createBrowserRouter([
                 element: <AppliedJobsPage />,
               },
               {
-                path: '/job/:id',
-                element: <JobDetailPage />,
-              },
-              {
-                path: '/jobs/:id',
-                element: <JobDetailPage />,
-              },
-              {
                 path: '/tests',
                 element: <SkillTestsPage />,
               },
@@ -175,7 +159,19 @@ export const router = createBrowserRouter([
             ]
           },
 
-          /* Shared Authenticated Routes */
+          /* Shared Authenticated Routes (Accessible to both Worker & Employer) */
+          {
+            path: '/job/:id',
+            element: <JobDetailPage />,
+          },
+          {
+            path: '/jobs/:id',
+            element: <JobDetailPage />,
+          },
+          {
+            path: '/worker/:id',
+            element: <WorkerProfilePage />,
+          },
           {
             path: '/profile',
             element: <ProfilePage />,

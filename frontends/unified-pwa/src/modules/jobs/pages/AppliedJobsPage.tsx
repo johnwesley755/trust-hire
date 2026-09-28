@@ -67,14 +67,14 @@ export default function AppliedJobsPage() {
           <div className="space-y-1">
             <div className="flex items-center gap-2">
               <h1 className="text-2xl sm:text-3xl font-extrabold text-[#0A1931] tracking-tight">
-                My Shift Applications
+                My Job Applications
               </h1>
               <span className="bg-blue-50 text-[#0066FF] text-xs font-bold px-2.5 py-0.5 rounded-full border border-blue-200">
                 Live Pipeline
               </span>
             </div>
             <p className="text-xs sm:text-sm text-slate-500 font-medium">
-              Tracking {applications.length} submitted shift applications & escrow guarantees
+              Tracking {applications.length} submitted applications & escrow guarantees
             </p>
           </div>
           
@@ -115,14 +115,14 @@ export default function AppliedJobsPage() {
             <div>
               <h3 className="text-lg font-bold text-slate-800">No applications in this view</h3>
               <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
-                Discover open shifts in your area and apply with 1-click verified credentials.
+                Discover open jobs in your area and apply with 1-click verified credentials.
               </p>
             </div>
             <button
               onClick={() => navigate('/search')}
               className="bg-[#0066FF] hover:bg-blue-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl uppercase tracking-wider shadow-sm cursor-pointer"
             >
-              Explore Available Shifts
+              Explore Available Jobs
             </button>
           </div>
         ) : (
@@ -156,7 +156,7 @@ export default function AppliedJobsPage() {
                     <div className="space-y-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-700 border border-slate-200">
-                          {job?.industry || 'General Trade'}
+                          {job?.industry || 'General Category'}
                         </span>
                         {isOfferSent ? (
                           <span className="px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-amber-100 text-amber-900 border border-amber-300 flex items-center gap-1 animate-pulse">
@@ -177,7 +177,7 @@ export default function AppliedJobsPage() {
                         )}
                       </div>
                       <h3 className="font-extrabold text-base sm:text-lg text-slate-900 group-hover:text-[#0066FF] transition-colors truncate">
-                        {job?.title || "Trade Shift"}
+                        {job?.title || "Job Opening"}
                       </h3>
                       <p className="text-xs text-slate-500 font-medium flex items-center gap-1 truncate">
                         <ShieldCheck className="w-3.5 h-3.5 text-[#0066FF] shrink-0" />
@@ -236,7 +236,7 @@ export default function AppliedJobsPage() {
                           Employer sent you a job offer!
                         </p>
                         <p className="text-[11px] text-amber-700 font-medium mt-0.5">
-                          Accept to confirm your shift and lock in secure escrow pay.
+                          Accept to confirm your job and lock in secure escrow pay.
                         </p>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
@@ -276,7 +276,7 @@ export default function AppliedJobsPage() {
                       onClick={() => navigate(`/job/${app.jobId}`)}
                       className="text-xs font-bold text-[#0066FF] hover:text-blue-700 flex items-center gap-1 group-hover:translate-x-0.5 transition-transform cursor-pointer"
                     >
-                      {isHired ? 'View Hired Shift' : 'View Shift Details'}
+                      {isHired ? 'View Hired Job' : 'View Job Details'}
                       <ChevronRight className="w-3.5 h-3.5" />
                     </button>
                   </div>

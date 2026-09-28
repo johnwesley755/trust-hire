@@ -54,7 +54,7 @@ Thumbs.db
 .vscode/
 .idea/
 *.iml
-
+static-images/
 # =========================
 # Expo / Native (optional)
 # =========================

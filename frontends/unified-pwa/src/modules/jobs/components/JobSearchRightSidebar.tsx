@@ -65,7 +65,7 @@ export const JobSearchRightSidebar: React.FC<JobSearchRightSidebarProps> = ({
               <span className="text-[#0066FF]">{displayLocation}</span>
             </h3>
             <p className="text-slate-400 text-xs font-medium mt-1">
-              Receive direct alerts for matching shifts & full-time roles.
+              Receive direct alerts for matching job openings and opportunities.
             </p>
           </div>
 
