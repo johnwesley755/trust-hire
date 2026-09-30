@@ -19,12 +19,12 @@ export const CandidateResumeModal: React.FC<CandidateResumeModalProps> = ({
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-900/60 backdrop-blur-xs overflow-y-auto">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-900/60 backdrop-blur-xs overflow-y-auto print:bg-transparent print:p-0 print:overflow-visible print:static">
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 15 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 15 }}
-          className="relative w-full max-w-4xl bg-[#F8FAFC] rounded-3xl p-4 sm:p-6 shadow-2xl border border-slate-200 my-auto max-h-[90vh] overflow-y-auto"
+          className="relative w-full max-w-4xl bg-[#F8FAFC] rounded-3xl p-4 sm:p-6 shadow-2xl border border-slate-200 my-auto max-h-[90vh] overflow-y-auto print:bg-white print:p-0 print:border-none print:shadow-none print:max-h-none print:overflow-visible print:my-0"
         >
           {/* Close button */}
           <button

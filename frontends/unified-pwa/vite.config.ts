@@ -11,6 +11,9 @@ export default defineConfig({
   plugins: [react(), tailwindcss(), VitePWA({
     registerType: 'autoUpdate',
     includeAssets: ['logo.png', 'vite.svg'],
+    workbox: {
+      maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
+    },
     manifest: {
       name: 'TrustHire | Unified Enterprise Portal',
       short_name: 'TrustHire',

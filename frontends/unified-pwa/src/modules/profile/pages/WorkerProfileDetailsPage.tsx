@@ -243,6 +243,12 @@ export default function WorkerProfileDetailsPage() {
     fullName: profile?.fullName || `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || 'Candidate',
     phoneNumber: formattedPhone !== 'Not provided' ? formattedPhone : '+91 98765 43210',
     email: displayEmail !== 'Not provided' ? displayEmail : 'candidate@trusthire.in',
+    profileImageUrl: profile?.profileImageUrl 
+      || profile?.profilePhoto 
+      || (profile as any)?.profile_image_url 
+      || user?.profileImageUrl 
+      || user?.profile_image_url 
+      || undefined,
     city: profile?.city || profile?.location || 'Chennai, India',
     area: profile?.area || profile?.address || '',
     highestEducation: profile?.highestEducation || 'Graduate / Diploma',
@@ -264,42 +270,10 @@ export default function WorkerProfileDetailsPage() {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] pb-24">
-      {/* MOBILE HEADER */}
-      <header className="lg:hidden bg-white sticky top-0 z-50 border-b border-slate-200 shadow-xs">
-        <div className="flex justify-between items-center px-4 py-3">
-          <div className="flex items-center gap-3">
-            <button 
-              onClick={() => setIsSidebarOpen(true)}
-              className="text-[#0A1931] hover:bg-slate-100 p-2 rounded-full active:scale-95 transition-all cursor-pointer"
-            >
-              <Menu className="w-5 h-5" />
-            </button>
-            <h1 className="text-lg font-black text-[#0A1931] tracking-tight">TrustHyre</h1>
-          </div>
-          <div className="flex items-center gap-2">
-            <button 
-              onClick={() => setIsResumeModalOpen(true)}
-              className="p-2 text-[#0066FF] hover:bg-blue-50 rounded-full transition-all cursor-pointer"
-              title="View Resume"
-            >
-              <FileText className="w-5 h-5" />
-            </button>
-            <button 
-              onClick={() => setIsEditModalOpen(true)}
-              className="p-2 text-slate-700 hover:bg-slate-100 rounded-full transition-all cursor-pointer"
-              title="Edit Profile"
-            >
-              <Edit2 className="w-4 h-4" />
-            </button>
-            <NotificationCenter />
-          </div>
-        </div>
-      </header>
-
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 lg:pt-10 space-y-6">
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 lg:pt-8 space-y-6">
         
-        {/* PAGE HEADER (Desktop) */}
-        <div className="hidden lg:flex justify-between items-end mb-8">
+        {/* PAGE HEADER */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-2 border-b border-slate-200/60 lg:border-none">
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="px-2.5 py-0.5 bg-blue-100 text-[#0066FF] text-[11px] font-black rounded-full uppercase tracking-wider">
@@ -307,27 +281,27 @@ export default function WorkerProfileDetailsPage() {
               </span>
               <span className="text-xs text-slate-400 font-semibold">• Profile & Resume</span>
             </div>
-            <h1 className="text-2xl font-black text-[#0A1931] tracking-tight">Worker Profile & Verified CV</h1>
-            <p className="text-slate-500 font-medium text-sm mt-1">Manage your identity, academic background, language skills, and downloadable CV.</p>
+            <h1 className="text-xl sm:text-2xl font-black text-[#0A1931] tracking-tight">Worker Profile & Verified CV</h1>
+            <p className="text-slate-500 font-medium text-xs sm:text-sm mt-0.5">Manage your identity, academic background, language skills, and downloadable CV.</p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto">
             <button 
               onClick={() => setIsResumeModalOpen(true)}
-              className="flex items-center gap-2 px-4 py-2.5 bg-[#0066FF] hover:bg-[#0052cc] text-white rounded-xl font-bold shadow-md shadow-blue-500/20 transition-all text-xs cursor-pointer active:scale-95"
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-[#0066FF] hover:bg-[#0052cc] text-white rounded-xl font-bold shadow-md shadow-blue-500/20 transition-all text-xs cursor-pointer active:scale-95 whitespace-nowrap"
             >
               <FileText className="w-4 h-4" /> View / Download CV
             </button>
             <button 
               onClick={() => setIsEditModalOpen(true)}
-              className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 text-slate-700 rounded-xl hover:bg-slate-50 font-bold shadow-xs transition-all text-xs cursor-pointer"
+              className="flex items-center justify-center gap-1.5 px-3.5 py-2.5 bg-white border border-slate-200 text-slate-700 rounded-xl hover:bg-slate-50 font-bold shadow-xs transition-all text-xs cursor-pointer whitespace-nowrap"
             >
-              <Edit2 className="w-3.5 h-3.5" /> Quick Edit
+              <Edit2 className="w-3.5 h-3.5" /> Edit
             </button>
             <Link 
               to="/onboarding"
-              className="flex items-center gap-1.5 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl font-bold transition-all text-xs"
+              className="flex items-center justify-center gap-1.5 px-3.5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl font-bold transition-all text-xs whitespace-nowrap"
             >
-              <Sparkles className="w-3.5 h-3.5 text-amber-500" /> Full Wizard
+              <Sparkles className="w-3.5 h-3.5 text-amber-500" /> Wizard
             </Link>
           </div>
         </div>

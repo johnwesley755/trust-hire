@@ -166,7 +166,7 @@ export const WorkerProfilePage = () => {
     fullName: worker?.name || 'Candidate',
     phoneNumber: worker?.phoneNumber || w?.phone_number || '+91 98765 43210',
     email: worker?.email || 'candidate@trusthire.in',
-    profileImageUrl: worker?.profilePhoto || w?.profile_image_url,
+    profileImageUrl: worker?.profilePhoto || (worker as any)?.profileImageUrl || (worker as any)?.profile_image_url || w?.profilePhoto || w?.profileImageUrl || w?.profile_image_url || undefined,
     city: worker?.city || worker?.location || 'Chennai, India',
     area: w?.area || worker?.address || '',
     location: worker?.address || worker?.location,
