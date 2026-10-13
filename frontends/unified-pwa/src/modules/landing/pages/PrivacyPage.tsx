@@ -33,7 +33,7 @@ const PrivacyPage = () => {
                             <ul className="list-disc pl-6 space-y-2 text-[#0A1931]/80">
                                 <li><strong>Identity Data</strong> includes first name, last name, username or similar identifier.</li>
                                 <li><strong>Contact Data</strong> includes email address and telephone numbers.</li>
-                                <li><strong>Technical Data</strong> includes internet protocol (IP) address, your login data, browser type and version, and operating system and platform.</li>
+                                <li><strong>Technical Data</strong> includes IP network address, your login data, browser type and version, and operating system and platform.</li>
                                 <li><strong>Usage Data</strong> includes information about how you use our website and services.</li>
                             </ul>
                         </section>

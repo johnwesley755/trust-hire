@@ -496,9 +496,9 @@ export const CandidateResumePDFDocument: React.FC<CandidateResumePDFDocumentProp
               )}
             </View>
 
-            {/* Protocol Guarantee Seal */}
+            {/* Verification Guarantee Seal */}
             <View style={styles.sealCard}>
-              <Text style={styles.sealTitle}>TrustHyre Protocol Verified</Text>
+              <Text style={styles.sealTitle}>TrustHyre Verified</Text>
               <Text style={styles.sealDesc}>
                 Candidate identity, phone & credentials verified across TrustHyre candidate network.
               </Text>

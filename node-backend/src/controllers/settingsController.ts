@@ -2,6 +2,7 @@ import { Context } from 'hono';
 import prisma from '../config/prisma';
 import bcrypt from 'bcryptjs';
 import { ApiResponse } from '../utils/ApiResponse';
+import { validatePasswordStrength } from '../utils/validators';
 
 export const getSettings = async (c: Context) => {
   try {
@@ -76,6 +77,12 @@ export const changePassword = async (c: Context) => {
 
     const isMatch = await bcrypt.compare(oldPassword, user.password_hash);
     if (!isMatch) return c.json(ApiResponse.error("Incorrect old password"), 400 as any);
+
+    // Security Gate: Enforce password complexity policy
+    const passwordCheck = validatePasswordStrength(newPassword);
+    if (!passwordCheck.valid) {
+      return c.json(ApiResponse.error(passwordCheck.error || "Password does not meet complexity requirements"), 400 as any);
+    }
 
     const hash = await bcrypt.hash(newPassword, 10);
     await prisma.user_metadata.update({

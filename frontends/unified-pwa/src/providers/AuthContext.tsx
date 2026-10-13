@@ -103,7 +103,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           const lastName = nameParts.slice(1).join(' ') || '';
 
           try {
+            const idToken = await fbUser.getIdToken();
             const syncRes = await apiClient.post('/api/auth/oauth-sync', {
+              idToken,
               email: fbUser.email,
               firstName,
               lastName,

@@ -76,7 +76,7 @@ export default function IdentityStep({ formData, setFormData, onNext }: Identity
                             </div>
                             <div>
                                 <span className="block font-headline font-bold text-[#0A1931]">Profile Image</span>
-                                <span className="text-xs text-[#0A1931]/50 uppercase tracking-widest">Protocol Verified</span>
+                                <span className="text-xs text-[#0A1931]/50 uppercase tracking-widest">Identity Verified</span>
                             </div>
                         </div>
 

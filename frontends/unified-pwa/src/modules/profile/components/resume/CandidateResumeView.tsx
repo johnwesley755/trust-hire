@@ -410,12 +410,12 @@ export const CandidateResumeView: React.FC<CandidateResumeViewProps> = ({
               </div>
             </div>
 
-            {/* TrustHyre Protocol Guarantee Stamp */}
+            {/* TrustHyre Authenticity Guarantee Stamp */}
             <div className="p-4 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50/70 border border-blue-100 text-center space-y-1.5 shadow-xs">
               <div className="w-9 h-9 rounded-full bg-white shadow-xs mx-auto flex items-center justify-center text-[#0066FF]">
                 <ShieldCheck className="w-5 h-5" />
               </div>
-              <p className="text-xs font-black text-[#0A1931]">TrustHyre Protocol Verified</p>
+              <p className="text-xs font-black text-[#0A1931]">TrustHyre Verified</p>
               <p className="text-[10px] text-slate-500 leading-relaxed">
                 Candidate identity & phone credentials verified across TrustHyre candidate network.
               </p>

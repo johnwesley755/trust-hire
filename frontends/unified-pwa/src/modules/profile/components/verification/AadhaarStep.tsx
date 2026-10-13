@@ -56,7 +56,7 @@ export default function AadhaarStep({ onUpload, preview, isPending }: AadhaarSte
                         </div>
                         <div className="flex-1 text-left">
                             <p className="text-xs font-bold text-[#0A1931] uppercase tracking-widest">Aadhaar Preview</p>
-                            <p className="text-[10px] text-[#414845]">Ready for protocol analysis</p>
+                            <p className="text-[10px] text-[#414845]">Ready for verification analysis</p>
                         </div>
                     </div>
                 )}

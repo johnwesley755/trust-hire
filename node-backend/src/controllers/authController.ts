@@ -1,4 +1,5 @@
 import { Context } from 'hono';
+import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import prisma from '../config/prisma';
@@ -6,6 +7,7 @@ import { ApiResponse } from '../utils/ApiResponse';
 import { v4 as uuidv4 } from 'uuid';
 import { sendEmail } from '../services/mailer';
 import { getOtpTemplate, getResetPasswordTemplate } from '../utils/emailTemplates';
+import { validatePasswordStrength } from '../utils/validators';
 
 export const register = async (c: Context) => {
   try {
@@ -32,6 +34,13 @@ export const register = async (c: Context) => {
       });
       if (existingPhone) {
         return c.json(ApiResponse.error("This phone number is already registered with another account. Please use a different phone number."), 400 as any);
+      }
+    }
+
+    if (password) {
+      const passwordCheck = validatePasswordStrength(password);
+      if (!passwordCheck.valid) {
+        return c.json(ApiResponse.error(passwordCheck.error || "Password does not meet complexity requirements"), 400 as any);
       }
     }
 
@@ -115,7 +124,7 @@ export const sendOtp = async (c: Context) => {
       return c.json(ApiResponse.error(`This email is registered as a ${user.role} account. A ${user.role.toLowerCase()} account cannot sign in or register as an ${targetRole.toLowerCase()}.`), 400 as any);
     }
 
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otp = crypto.randomInt(100000, 1000000).toString();
     const expiry = new Date(Date.now() + 15 * 60 * 1000);
 
     // Defect fix 1.2: Server-side OTP Persistence with 15m expiration
@@ -203,10 +212,10 @@ export const forgotPassword = async (c: Context) => {
         const correctPortal = user.role === 'EMPLOYER' ? 'Employer' : 'Candidate';
         return c.json(ApiResponse.error(`This account is registered as ${actualRoleLabel}. Please use the ${correctPortal} password recovery portal.`), 403 as any);
       }
-      const token = Math.floor(100000 + Math.random() * 900000).toString();
+      const token = crypto.randomInt(100000, 1000000).toString();
       await prisma.user_metadata.update({
         where: { email },
-        data: { reset_token: token, reset_token_expiry: new Date(Date.now() + 3600000) }
+        data: { reset_token: token, reset_token_expiry: new Date(Date.now() + 15 * 60 * 1000) }
       });
       await sendEmail(email, "Reset Password - TrustHyre", getResetPasswordTemplate(token));
     }
@@ -224,6 +233,12 @@ export const resetPassword = async (c: Context) => {
       where: { reset_token: token, reset_token_expiry: { gt: new Date() } }
     });
     if (!user) return c.json(ApiResponse.error("Invalid or expired token"), 400 as any);
+
+    // Security Gate: Enforce password complexity policy
+    const passwordCheck = validatePasswordStrength(password);
+    if (!passwordCheck.valid) {
+      return c.json(ApiResponse.error(passwordCheck.error || "Password does not meet complexity requirements"), 400 as any);
+    }
 
     const passwordHash = await bcrypt.hash(password, 10);
     await prisma.user_metadata.update({
@@ -343,12 +358,55 @@ export const getUsersByIds = async (c: Context) => {
 
 export const oauthSync = async (c: Context) => {
   try {
-    const { email, firstName, lastName, profileImageUrl } = (await c.req.json());
-    if (!email) {
-      return c.json(ApiResponse.error("Email is required"), 400 as any);
+    const { idToken, email, firstName, lastName, profileImageUrl } = (await c.req.json());
+
+    let verifiedEmail: string | null = null;
+
+    if (idToken) {
+      try {
+        // 1. Validate Google ID token via Google tokeninfo service
+        const gRes = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(idToken)}`);
+        if (gRes.ok) {
+          const gData = await gRes.json() as any;
+          if (gData.email && (gData.email_verified === 'true' || gData.email_verified === true)) {
+            verifiedEmail = gData.email.toLowerCase().trim();
+          }
+        }
+      } catch (e) {
+        // Fallback to Firebase Identity Toolkit
+      }
+
+      if (!verifiedEmail) {
+        try {
+          const fbKey = process.env.FIREBASE_API_KEY || 'AIzaSyC4gevbnB8eDxk5nskKjf5Nepr_9tVxThE';
+          const fbRes = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${fbKey}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ idToken })
+          });
+          if (fbRes.ok) {
+            const fbData = await fbRes.json() as any;
+            if (fbData.users?.[0]?.email) {
+              verifiedEmail = fbData.users[0].email.toLowerCase().trim();
+            }
+          }
+        } catch (e) {
+          // Ignore
+        }
+      }
     }
 
-    let user = await prisma.user_metadata.findUnique({ where: { email } });
+    // Security Gate: Reject unauthenticated/unverified claims
+    if (!verifiedEmail) {
+      if (process.env.ALLOW_INSECURE_DEV_OAUTH === 'true' && email) {
+        verifiedEmail = email.toLowerCase().trim();
+      } else {
+        return c.json(ApiResponse.error("Unauthorized: Valid OAuth ID token required"), 401 as any);
+      }
+    }
+
+    const targetEmail = verifiedEmail as string;
+    let user = await prisma.user_metadata.findUnique({ where: { email: targetEmail } });
     
     // Strictly block employers and admins from using Google OAuth
     if (user && user.role === 'EMPLOYER') {
@@ -363,7 +421,7 @@ export const oauthSync = async (c: Context) => {
       user = await prisma.user_metadata.create({
         data: {
           id: newId,
-          email,
+          email: targetEmail,
           first_name: firstName || 'Worker',
           last_name: lastName || '',
           profile_image_url: profileImageUrl,

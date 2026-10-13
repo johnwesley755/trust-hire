@@ -130,7 +130,7 @@ export const IdentityVerificationPage = () => {
         <div className="flex gap-10 mt-6 md:mt-0">
           <a className="hover:text-[#FACD15] transition-colors" href="#">Privacy Policy</a>
           <a className="hover:text-[#FACD15] transition-colors" href="#">Terms of Service</a>
-          <a className="hover:text-[#FACD15] transition-colors" href="#">Support Protocol</a>
+          <a className="hover:text-[#FACD15] transition-colors" href="#">Support Center</a>
         </div>
       </footer>
 

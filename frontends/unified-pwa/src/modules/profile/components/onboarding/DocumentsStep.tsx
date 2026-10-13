@@ -78,7 +78,7 @@ export default function DocumentsStep({ formData, setFormData, onNext, onBack }:
                             disabled={!formData.bio}
                             className="w-full sm:w-auto bg-[#FACD15] text-[#002117] px-10 py-4 rounded-lg font-headline font-extrabold text-sm uppercase tracking-widest shadow-[inset_0_-2px_0_rgba(0,0,0,0.1)] hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
                         >
-                            Next Protocol
+                            Next Step
                             <span className="material-symbols-outlined">arrow_forward</span>
                         </button>
                     </div>
@@ -92,7 +92,7 @@ export default function DocumentsStep({ formData, setFormData, onNext, onBack }:
                         <span className="material-symbols-outlined text-[#4a6b5e]">psychology</span>
                     </div>
                     <h4 className="font-headline font-bold text-[#0A1931] mb-2">Why Narrative?</h4>
-                    <p className="text-xs text-[#414845] leading-relaxed">Modern operators aren't just resumes. We use this summary to match you with high-trust protocols that value your specific tactical intuition.</p>
+                    <p className="text-xs text-[#414845] leading-relaxed">Modern operators aren't just resumes. We use this summary to match you with high-trust employers that value your specific tactical intuition.</p>
                 </div>
             </div>
         </div>

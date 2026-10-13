@@ -3,10 +3,32 @@ import prisma from '../config/prisma';
 import { ApiResponse } from '../utils/ApiResponse';
 import { v4 as uuidv4 } from 'uuid';
 
-const formatWorkerProfile = (profile: any, userMeta?: any, isVerified?: boolean) => {
+const maskPhoneNumber = (phone: string | null | undefined): string | null => {
+  if (!phone) return null;
+  const digits = String(phone).replace(/\D/g, '');
+  if (digits.length <= 4) return '******';
+  const prefix = digits.length > 10 ? `+${digits.slice(0, digits.length - 10)} ` : '';
+  const last4 = digits.slice(-4);
+  return `${prefix}******${last4}`;
+};
+
+const maskEmail = (email: string | null | undefined): string | null => {
+  if (!email) return null;
+  const parts = String(email).split('@');
+  if (parts.length !== 2) return '***@***';
+  const [local, domain] = parts;
+  if (local.length <= 2) return `${local[0] || '*'}***@${domain}`;
+  return `${local[0]}***${local[local.length - 1]}@${domain}`;
+};
+
+const formatWorkerProfile = (profile: any, userMeta?: any, isVerified?: boolean, maskContact: boolean = false) => {
   if (!profile) return profile;
-  const phoneNumber = userMeta?.phone_number || profile.phone_number || profile.phoneNumber || null;
-  const email = userMeta?.email || profile.email || null;
+  let phoneNumber = userMeta?.phone_number || profile.phone_number || profile.phoneNumber || null;
+  let email = userMeta?.email || profile.email || null;
+  if (maskContact) {
+    phoneNumber = maskPhoneNumber(phoneNumber);
+    email = maskEmail(email);
+  }
   const profileImageUrl = profile.profile_image_url || userMeta?.profile_image_url || profile.profileImageUrl || userMeta?.photoURL || null;
   const fullName = profile.full_name || `${userMeta?.first_name || ''} ${userMeta?.last_name || ''}`.trim() || 'Worker';
 
@@ -86,8 +108,10 @@ export const getMyProfile = async (c: Context) => {
 
 export const updateProfile = async (c: Context) => {
   try {
-    const userId = c.get('user')?.sub;
+    const authUser = c.get('user');
+    const userId = authUser?.sub;
     if (!userId) return c.json(ApiResponse.error("Unauthorized"), 401 as any);
+    const isAdmin = authUser?.role === 'ADMIN' || authUser?.role === 'admin';
 
     const data = (await c.req.json());
 
@@ -114,6 +138,7 @@ export const updateProfile = async (c: Context) => {
 
     const profileImageUrl = data.profileImageUrl || data.profile_image_url || data.profilePhoto || undefined;
 
+    // Security Gate: Strip privileged fields (level, trust_score, is_verified) from worker self-update
     const updatePayload: any = {
       full_name: data.fullName,
       profile_image_url: profileImageUrl,
@@ -127,7 +152,7 @@ export const updateProfile = async (c: Context) => {
       skills: data.skills,
       experience_years: data.experienceYears !== undefined ? Number(data.experienceYears) : undefined,
       hourly_rate: data.hourlyRate !== undefined ? Number(data.hourlyRate) : undefined,
-      level: data.level,
+      level: isAdmin ? data.level : undefined,
       is_available: data.isAvailable !== undefined ? Boolean(data.isAvailable) : undefined,
       
       // Demographics & Education
@@ -156,6 +181,8 @@ export const updateProfile = async (c: Context) => {
         id: uuidv4(),
         user_id: userId,
         ...updatePayload,
+        level: isAdmin && data.level ? data.level : 'L1',
+        level_number: 1,
         created_at: new Date()
       }
     });
@@ -228,7 +255,9 @@ export const getProfileCompletion = async (c: Context) => {
 
 export const getProfilesByUserIds = async (c: Context) => {
   try {
-    const employerId = c.get('user')?.sub;
+    const authUser = c.get('user');
+    const employerId = authUser?.sub;
+    const isAdmin = authUser?.role === 'ADMIN' || authUser?.role === 'admin';
     const userIds: string[] = (await c.req.json());
     const validUserIds = (userIds || []).filter(Boolean);
     if (validUserIds.length === 0) return c.json(ApiResponse.ok([]));
@@ -292,10 +321,15 @@ export const getProfilesByUserIds = async (c: Context) => {
       const meta = userMetaById.get(p.user_id) || userMetaById.get(p.id);
       const vRecord = verificationByUser.get(p.user_id) || verificationByUser.get(p.id);
       const isVerified = vRecord?.status === 'VERIFIED' || vRecord?.status === 'APPROVED' || Boolean(meta?.email_verified);
+      const isOfferSent = employerOffers.has(p.user_id) || employerOffers.has(p.id);
+      const isSelf = employerId && (employerId === p.user_id || employerId === p.id);
       
-      const f = formatWorkerProfile(p, meta, isVerified);
+      // Privacy Gate: Mask contact info unless admin, owner, or employer with active application/offer
+      const shouldMask = !isSelf && !isAdmin && !isOfferSent;
+      
+      const f = formatWorkerProfile(p, meta, isVerified, shouldMask);
       if (f) {
-        f.isOfferSent = employerOffers.has(f.user_id) || employerOffers.has(f.id);
+        f.isOfferSent = isOfferSent;
       }
       return f;
     });
@@ -340,6 +374,37 @@ export const getWorkerById = async (c: Context) => {
       return c.json(ApiResponse.error("Worker profile not found"), 404 as any);
     }
 
+    const authUser = c.get('user');
+    const requesterId = authUser?.sub;
+    const isAdmin = authUser?.role === 'ADMIN' || authUser?.role === 'admin';
+    const isSelf = requesterId && (requesterId === profile.user_id || requesterId === profile.id);
+
+    let hasEmployerRelation = false;
+    if (requesterId && !isSelf && !isAdmin) {
+      const employerProfile = await prisma.employer_profiles.findFirst({
+        where: { user_id: requesterId }
+      });
+      const employerOwnerId = employerProfile?.id || requesterId;
+
+      const employerJobs = await prisma.jobs.findMany({
+        where: { employer_id: employerOwnerId },
+        select: { id: true }
+      });
+
+      if (employerJobs.length > 0) {
+        const jobIds = employerJobs.map(j => j.id);
+        const application = await prisma.job_applications.findFirst({
+          where: {
+            job_id: { in: jobIds },
+            worker_id: { in: [profile.user_id, profile.id] }
+          }
+        });
+        if (application) {
+          hasEmployerRelation = true;
+        }
+      }
+    }
+
     const [userMeta, verification] = await Promise.all([
       prisma.user_metadata.findUnique({
         where: { id: profile.user_id },
@@ -359,8 +424,10 @@ export const getWorkerById = async (c: Context) => {
     ]);
 
     const isVerified = verification?.status === 'VERIFIED' || verification?.status === 'APPROVED' || Boolean(userMeta?.email_verified);
+    // Privacy Gate: Mask contact details unless requester is profile owner, admin, or related employer
+    const shouldMask = !isSelf && !isAdmin && !hasEmployerRelation;
 
-    return c.json(ApiResponse.ok(formatWorkerProfile(profile, userMeta, isVerified)));
+    return c.json(ApiResponse.ok(formatWorkerProfile(profile, userMeta, isVerified, shouldMask)));
   } catch (err: any) {
     return c.json(ApiResponse.error(err.message), 500 as any);
   }

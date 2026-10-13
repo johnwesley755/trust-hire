@@ -7,13 +7,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Building2, 
   User, 
-  ChevronRight, 
+  ArrowLeft,
   AlertCircle, 
   Loader2, 
   Eye, 
-  EyeOff, 
-  ShieldCheck, 
-  CheckCircle2 
+  EyeOff,
+  ShieldCheck,
+  ArrowRight,
+  CheckCircle2
 } from 'lucide-react';
 
 export const SignUpPage = () => {
@@ -22,26 +23,21 @@ export const SignUpPage = () => {
     const [activeRole, setActiveRole] = useState<'WORKER' | 'EMPLOYER'>(queryRole === 'EMPLOYER' ? 'EMPLOYER' : 'WORKER');
     
     // Candidate Form Fields
-    const [workerForm, setWorkerForm] = useState({
-        firstName: '',
-        lastName: '',
-        email: '',
-        phoneNumber: '',
-        password: '',
-    });
-
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
+    
     // Employer Form Fields
-    const [employerForm, setEmployerForm] = useState({
-        companyName: '',
-        email: '',
-        phoneNumber: '',
-        password: '',
-    });
-
+    const [companyName, setCompanyName] = useState('');
+    
+    // Shared Fields
+    const [email, setEmail] = useState('');
+    const [phoneNumber, setPhoneNumber] = useState('');
+    const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+    
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
-
+    
     const { user, isSignedIn, login, signInWithGoogle } = useAuth();
     const navigate = useNavigate();
 
@@ -68,75 +64,50 @@ export const SignUpPage = () => {
         setError('');
     };
 
-    // Candidate Registration Submit
-    const handleWorkerSignUp = async (e: React.FormEvent) => {
+    const handleStandardSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
         setError('');
 
-        if (workerForm.phoneNumber) {
-            const cleanPhone = workerForm.phoneNumber.replace(/\D/g, '');
-            if (cleanPhone.length !== 10 || !/^[6-9]\d{9}$/.test(cleanPhone)) {
-                setError('Please enter a valid 10-digit Indian mobile number (e.g. 9876543210)');
-                setIsLoading(false);
-                return;
-            }
+        // Sanitize Indian phone number
+        const cleanPhone = phoneNumber.replace(/\D/g, '');
+        if (cleanPhone.length !== 10) {
+            setError('Please enter a valid 10-digit Indian mobile number.');
+            setIsLoading(false);
+            return;
+        }
+
+        if (password.length < 6) {
+            setError('Password must be at least 6 characters long.');
+            setIsLoading(false);
+            return;
         }
 
         try {
-            const cleanPhone = workerForm.phoneNumber ? workerForm.phoneNumber.replace(/\D/g, '').slice(0, 10) : '';
-            const res = await apiClient.post('/api/auth/register', {
-                email: workerForm.email,
-                password: workerForm.password,
-                firstName: workerForm.firstName,
-                lastName: workerForm.lastName,
-                phoneNumber: cleanPhone || undefined,
-                role: 'WORKER'
-            });
+            const payload = activeRole === 'WORKER' 
+                ? {
+                    role: 'WORKER',
+                    email,
+                    password,
+                    firstName,
+                    lastName,
+                    phoneNumber: `+91${cleanPhone}`
+                }
+                : {
+                    role: 'EMPLOYER',
+                    email,
+                    password,
+                    firstName: companyName || 'Business',
+                    lastName: 'Employer',
+                    phoneNumber: `+91${cleanPhone}`
+                };
 
-            const token = res.data.token || res.data.data?.token;
-            const userData = res.data.user || res.data.data?.user;
-            login(token, userData);
-            navigate('/search');
+            const response = await apiClient.post('/api/auth/register', payload);
+            const userData = response.data.user;
+            login(response.data.token, userData);
+            navigate(userData.role === 'ADMIN' ? '/admin/dashboard' : userData.role === 'WORKER' ? '/search' : '/find-workers');
         } catch (err: any) {
             setError(err.response?.data?.message || 'Registration failed. Please check your information.');
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    // Employer Registration Submit
-    const handleEmployerSignUp = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setIsLoading(true);
-        setError('');
-
-        if (employerForm.phoneNumber) {
-            const cleanPhone = employerForm.phoneNumber.replace(/\D/g, '');
-            if (cleanPhone.length !== 10 || !/^[6-9]\d{9}$/.test(cleanPhone)) {
-                setError('Please enter a valid 10-digit Indian contact phone number (e.g. 9876543210)');
-                setIsLoading(false);
-                return;
-            }
-        }
-
-        try {
-            const cleanPhone = employerForm.phoneNumber ? employerForm.phoneNumber.replace(/\D/g, '').slice(0, 10) : '';
-            const res = await apiClient.post('/api/auth/register', {
-                email: employerForm.email,
-                password: employerForm.password,
-                firstName: employerForm.companyName || 'Business',
-                lastName: 'Employer',
-                phoneNumber: cleanPhone || undefined,
-                role: 'EMPLOYER'
-            });
-
-            const token = res.data.token || res.data.data?.token;
-            const userData = res.data.user || res.data.data?.user;
-            login(token, userData);
-            navigate('/onboarding');
-        } catch (err: any) {
-            setError(err.response?.data?.message || 'Employer registration failed. Please check your business details.');
         } finally {
             setIsLoading(false);
         }
@@ -145,63 +116,74 @@ export const SignUpPage = () => {
     const isCandidate = activeRole === 'WORKER';
 
     return (
-        <div className="min-h-screen bg-[#F0F2F6] flex items-center justify-center p-3 sm:p-6 md:p-10 font-sans">
+        <div className="min-h-screen bg-[#f4f4f4] flex items-center justify-center p-3 sm:p-6 lg:p-8 font-['Onest',system-ui,sans-serif] selection:bg-[#2563c9] selection:text-white">
             
             {/* Main Auth Card Container */}
-            <div className="w-full max-w-5xl bg-white rounded-3xl md:rounded-[32px] shadow-2xl shadow-slate-300/40 border border-slate-100 overflow-hidden grid grid-cols-1 md:grid-cols-12 min-h-[640px] transition-all">
+            <div className="w-full max-w-5xl bg-white rounded-[2rem] border border-[#e6e8ec] shadow-2xl shadow-slate-200/60 overflow-hidden grid grid-cols-1 lg:grid-cols-12 min-h-[660px] transition-all">
                 
-                {/* Left Side: Scenic Brand Visual Hero */}
-                <div className="md:col-span-5 lg:col-span-5 hidden md:block">
+                {/* Left Side: Brand Visual Hero matching Landing Hero Style */}
+                <div className="lg:col-span-5 p-2.5 hidden lg:block">
                     <AuthVisualHero role={activeRole} />
                 </div>
 
-                {/* Right Side: Clean Modern Form */}
-                <div className="md:col-span-7 lg:col-span-7 p-6 sm:p-10 lg:p-12 flex flex-col justify-between relative bg-white">
+                {/* Right Side: Clean Modern Form matching Landing Page Design System */}
+                <div className="lg:col-span-7 p-6 sm:p-10 lg:p-12 flex flex-col justify-between relative bg-white">
                     
-                    {/* Top Right Portal Switcher Affordance */}
-                    <div className="flex items-center justify-between sm:justify-end gap-3 mb-4">
-                        {/* Mobile Brand Logo */}
-                        <div className="md:hidden">
-                            <Link to="/" className="flex items-center gap-2">
-                                <img src="/logo.png" alt="TrustHyre Logo" className="w-8 h-8 object-contain" />
-                                <span className="text-xl font-black text-[#0A1931]">
-                                    Trust<span className="text-[#0066FF]">Hyre</span>
-                                </span>
+                    {/* Top Navigation Row: Back Link + Role Segmented Switcher */}
+                    <div className="flex items-center justify-between gap-3 mb-6">
+                        <div className="flex items-center gap-2">
+                            <Link 
+                                to="/" 
+                                className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.18em] text-[#717784] hover:text-[#0a0a0a] transition-colors"
+                            >
+                                <ArrowLeft className="w-3.5 h-3.5" />
+                                <span>Back to Home</span>
                             </Link>
                         </div>
 
-                        {/* Switcher Pill Button */}
-                        <button
-                            type="button"
-                            onClick={() => handleRoleToggle(isCandidate ? 'EMPLOYER' : 'WORKER')}
-                            className="group flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200/80 transition-all text-slate-700 text-xs font-semibold cursor-pointer border border-slate-200/60"
-                        >
-                            {isCandidate ? (
-                                <Building2 className="w-3.5 h-3.5 text-slate-600 group-hover:text-[#0066FF] transition-colors" />
-                            ) : (
-                                <User className="w-3.5 h-3.5 text-slate-600 group-hover:text-[#0066FF] transition-colors" />
-                            )}
-                            <span className="font-['Outfit',sans-serif]">
-                                {isCandidate ? 'For Companies' : 'For Job Seekers'}
-                            </span>
-                            <span className="w-5 h-5 rounded-full bg-linear-to-r from-[#0066FF] to-[#38BDF8] text-white flex items-center justify-center text-[10px] group-hover:translate-x-0.5 transition-transform shadow-2xs">
-                                <ChevronRight className="w-3 h-3" />
-                            </span>
-                        </button>
+                        {/* Segmented Pill Role Switcher */}
+                        <div className="inline-flex p-1 rounded-full bg-[#f4f4f4] border border-[#e6e8ec]">
+                            <button
+                                type="button"
+                                onClick={() => handleRoleToggle('WORKER')}
+                                className={`px-3.5 py-1.5 rounded-full text-xs font-medium uppercase tracking-wider transition-all cursor-pointer ${
+                                    isCandidate 
+                                        ? 'bg-[#0f2f63] text-white shadow-xs' 
+                                        : 'text-[#717784] hover:text-[#0a0a0a]'
+                                }`}
+                            >
+                                Job Seeker
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => handleRoleToggle('EMPLOYER')}
+                                className={`px-3.5 py-1.5 rounded-full text-xs font-medium uppercase tracking-wider transition-all cursor-pointer ${
+                                    !isCandidate 
+                                        ? 'bg-[#0f2f63] text-white shadow-xs' 
+                                        : 'text-[#717784] hover:text-[#0a0a0a]'
+                                }`}
+                            >
+                                Employer
+                            </button>
+                        </div>
                     </div>
 
                     {/* Centered Form Area */}
-                    <div className="max-w-md w-full mx-auto my-auto py-1">
+                    <div className="max-w-md w-full mx-auto my-auto py-2">
                         
-                        {/* Title & Subtitle */}
-                        <div className="mb-5">
-                            <h1 className="font-['Outfit',sans-serif] text-2xl sm:text-3xl font-extrabold text-[#0A1931] tracking-tight">
-                                {isCandidate ? 'Create Candidate Account' : 'Create Employer Account'}
+                        {/* Eyebrow & Title */}
+                        <div className="mb-6">
+                            <div className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.22em] text-[#717784] mb-2">
+                                <span className="w-1.5 h-1.5 rounded-full bg-[#2563c9]" />
+                                <span>{isCandidate ? 'Candidate Registration' : 'Employer Registration'}</span>
+                            </div>
+                            <h1 className="text-3xl sm:text-4xl font-medium tracking-tight text-[#0a0a0a] leading-[1.05]">
+                                Create an account
                             </h1>
-                            <p className="text-slate-500 text-xs sm:text-sm mt-1 font-medium">
+                            <p className="text-xs sm:text-sm text-[#717784] mt-2 leading-relaxed">
                                 {isCandidate 
-                                    ? 'Get discovered by verified employers & start receiving direct offers.' 
-                                    : 'Access our verified talent pool and hire verified candidates fast.'}
+                                    ? 'Get verified, discover high-paying jobs, and earn guaranteed daily payouts.' 
+                                    : 'Access India’s pre-screened technical talent pool with zero no-show guarantee.'}
                             </p>
                         </div>
 
@@ -212,7 +194,7 @@ export const SignUpPage = () => {
                                     initial={{ opacity: 0, y: -8 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     exit={{ opacity: 0, y: -8 }}
-                                    className="mb-4 p-3 bg-rose-50 border border-rose-200 text-rose-800 text-xs font-bold rounded-xl flex items-center gap-2.5 shadow-2xs"
+                                    className="mb-5 p-3.5 bg-rose-50 border border-rose-200 text-rose-800 text-xs font-medium rounded-xl flex items-center gap-2.5 shadow-2xs"
                                 >
                                     <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
                                     <span>{error}</span>
@@ -220,13 +202,162 @@ export const SignUpPage = () => {
                             )}
                         </AnimatePresence>
 
-                        {/* Google Quick Sign-Up for Candidates */}
+                        {/* Sign Up Form */}
+                        <form onSubmit={handleStandardSubmit} className="space-y-3.5">
+                            
+                            {/* Role Specific Name Inputs */}
+                            {isCandidate ? (
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div className="space-y-1.5">
+                                        <label className="block text-xs font-medium uppercase tracking-[0.16em] text-[#0a0a0a]">
+                                            First Name
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={firstName}
+                                            onChange={(e) => setFirstName(e.target.value)}
+                                            placeholder="John"
+                                            required
+                                            className="w-full bg-[#f4f4f4]/60 hover:bg-[#f4f4f4] focus:bg-white border border-[#e6e8ec] focus:border-[#0f2f63] rounded-xl px-4 py-3 text-sm text-[#0a0a0a] placeholder:text-[#9ea3ae] font-normal transition-all outline-hidden focus:ring-2 focus:ring-[#0f2f63]/10"
+                                        />
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <label className="block text-xs font-medium uppercase tracking-[0.16em] text-[#0a0a0a]">
+                                            Last Name
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={lastName}
+                                            onChange={(e) => setLastName(e.target.value)}
+                                            placeholder="Doe"
+                                            required
+                                            className="w-full bg-[#f4f4f4]/60 hover:bg-[#f4f4f4] focus:bg-white border border-[#e6e8ec] focus:border-[#0f2f63] rounded-xl px-4 py-3 text-sm text-[#0a0a0a] placeholder:text-[#9ea3ae] font-normal transition-all outline-hidden focus:ring-2 focus:ring-[#0f2f63]/10"
+                                        />
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="space-y-1.5">
+                                    <label className="block text-xs font-medium uppercase tracking-[0.16em] text-[#0a0a0a]">
+                                        Company / Enterprise Name
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={companyName}
+                                        onChange={(e) => setCompanyName(e.target.value)}
+                                        placeholder="Reliance Logistics Ltd"
+                                        required
+                                        className="w-full bg-[#f4f4f4]/60 hover:bg-[#f4f4f4] focus:bg-white border border-[#e6e8ec] focus:border-[#0f2f63] rounded-xl px-4 py-3 text-sm text-[#0a0a0a] placeholder:text-[#9ea3ae] font-normal transition-all outline-hidden focus:ring-2 focus:ring-[#0f2f63]/10"
+                                    />
+                                </div>
+                            )}
+
+                            {/* Email Field */}
+                            <div className="space-y-1.5">
+                                <label className="block text-xs font-medium uppercase tracking-[0.16em] text-[#0a0a0a]">
+                                    {isCandidate ? 'Email Address' : 'Official Work Email'}
+                                </label>
+                                <input
+                                    type="email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    placeholder={isCandidate ? 'name@example.com' : 'contact@company.com'}
+                                    required
+                                    className="w-full bg-[#f4f4f4]/60 hover:bg-[#f4f4f4] focus:bg-white border border-[#e6e8ec] focus:border-[#0f2f63] rounded-xl px-4 py-3 text-sm text-[#0a0a0a] placeholder:text-[#9ea3ae] font-normal transition-all outline-hidden focus:ring-2 focus:ring-[#0f2f63]/10"
+                                />
+                            </div>
+
+                            {/* Mobile Phone Field */}
+                            <div className="space-y-1.5">
+                                <label className="block text-xs font-medium uppercase tracking-[0.16em] text-[#0a0a0a]">
+                                    Mobile Number
+                                </label>
+                                <div className="flex rounded-xl overflow-hidden border border-[#e6e8ec] focus-within:border-[#0f2f63] focus-within:ring-2 focus-within:ring-[#0f2f63]/10 transition-all bg-[#f4f4f4]/60">
+                                    <span className="inline-flex items-center gap-1.5 px-3.5 bg-[#f4f4f4] text-xs font-medium text-[#717784] border-r border-[#e6e8ec] select-none">
+                                        <span>🇮🇳</span>
+                                        <span>+91</span>
+                                    </span>
+                                    <input
+                                        type="tel"
+                                        value={phoneNumber}
+                                        onChange={(e) => setPhoneNumber(e.target.value)}
+                                        placeholder="98765 43210"
+                                        maxLength={10}
+                                        required
+                                        className="w-full bg-transparent px-4 py-3 text-sm text-[#0a0a0a] placeholder:text-[#9ea3ae] font-normal outline-hidden"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Password Field */}
+                            <div className="space-y-1.5">
+                                <label className="block text-xs font-medium uppercase tracking-[0.16em] text-[#0a0a0a]">
+                                    Password
+                                </label>
+                                <div className="relative">
+                                    <input
+                                        type={showPassword ? 'text' : 'password'}
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        placeholder="Minimum 6 characters"
+                                        required
+                                        className="w-full bg-[#f4f4f4]/60 hover:bg-[#f4f4f4] focus:bg-white border border-[#e6e8ec] focus:border-[#0f2f63] rounded-xl px-4 py-3 pr-10 text-sm text-[#0a0a0a] placeholder:text-[#9ea3ae] font-normal transition-all outline-hidden focus:ring-2 focus:ring-[#0f2f63]/10"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#9ea3ae] hover:text-[#0a0a0a] transition-colors cursor-pointer"
+                                    >
+                                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Submit Button */}
+                            <button
+                                type="submit"
+                                disabled={isLoading || !email || !password || !phoneNumber}
+                                className="w-full mt-2 bg-[#0f2f63] hover:bg-[#2563c9] active:scale-[0.99] disabled:opacity-50 text-white py-3.5 px-5 rounded-full font-medium text-xs sm:text-sm tracking-wide uppercase transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer"
+                            >
+                                {isLoading ? (
+                                    <>
+                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                        <span>Creating Account...</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <span>{isCandidate ? 'Register as Candidate' : 'Register Enterprise'}</span>
+                                        <ArrowRight className="w-4 h-4" />
+                                    </>
+                                )}
+                            </button>
+                        </form>
+
+                        {/* Sign In Redirect Link */}
+                        <div className="mt-5 text-center">
+                            <p className="text-xs sm:text-sm text-[#717784] font-normal">
+                                Already have an account?{' '}
+                                <Link 
+                                    to={`/sign-in?role=${activeRole.toLowerCase()}`} 
+                                    className="font-medium text-[#0f2f63] hover:text-[#2563c9] underline underline-offset-2 transition-colors"
+                                >
+                                    Sign in
+                                </Link>
+                            </p>
+                        </div>
+
+                        {/* Optional Quick Google Signup for Workers */}
                         {isCandidate && (
-                            <div className="mb-4">
+                            <>
+                                <div className="flex items-center gap-3 my-5">
+                                    <div className="flex-1 h-px bg-[#e6e8ec]"></div>
+                                    <span className="text-[10px] font-medium uppercase tracking-[0.2em] text-[#9ea3ae]">or fast track with</span>
+                                    <div className="flex-1 h-px bg-[#e6e8ec]"></div>
+                                </div>
+
                                 <button
                                     type="button"
-                                    onClick={() => signInWithGoogle()}
-                                    className="w-full bg-slate-50 hover:bg-slate-100 border border-slate-200 hover:border-slate-300 text-slate-700 py-2.5 px-4 rounded-xl font-semibold text-xs sm:text-sm flex items-center justify-center gap-3 transition-all cursor-pointer shadow-2xs font-['Outfit',sans-serif]"
+                                    onClick={() => signInWithGoogle('WORKER')}
+                                    className="w-full bg-white hover:bg-[#f4f4f4] border border-[#e6e8ec] text-[#0a0a0a] py-3 px-4 rounded-full font-medium text-xs sm:text-sm tracking-wide uppercase flex items-center justify-center gap-3 transition-all cursor-pointer shadow-xs"
                                 >
                                     <svg className="w-4 h-4" viewBox="0 0 24 24">
                                         <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -236,227 +367,17 @@ export const SignUpPage = () => {
                                     </svg>
                                     <span>Sign up with Google</span>
                                 </button>
-                                
-                                <div className="flex items-center gap-3 my-3">
-                                    <div className="flex-1 h-px bg-slate-200"></div>
-                                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">or with email</span>
-                                    <div className="flex-1 h-px bg-slate-200"></div>
-                                </div>
-                            </div>
+                            </>
                         )}
 
-                        {/* Sign Up Form */}
-                        {isCandidate ? (
-                            /* Candidate Form */
-                            <form onSubmit={handleWorkerSignUp} className="space-y-3">
-                                <div className="grid grid-cols-2 gap-3">
-                                    <div className="space-y-1">
-                                        <label className="block text-[11px] font-bold text-slate-700 font-['Outfit',sans-serif]">First name</label>
-                                        <input
-                                            type="text"
-                                            value={workerForm.firstName}
-                                            onChange={(e) => setWorkerForm({ ...workerForm, firstName: e.target.value })}
-                                            placeholder="John"
-                                            required
-                                            className="w-full bg-slate-50/50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0066FF] rounded-xl px-3.5 py-2.5 text-xs text-slate-900 placeholder:text-slate-400 font-medium transition-all outline-none focus:ring-3 focus:ring-[#0066FF]/15"
-                                        />
-                                    </div>
-                                    <div className="space-y-1">
-                                        <label className="block text-[11px] font-bold text-slate-700 font-['Outfit',sans-serif]">Last name</label>
-                                        <input
-                                            type="text"
-                                            value={workerForm.lastName}
-                                            onChange={(e) => setWorkerForm({ ...workerForm, lastName: e.target.value })}
-                                            placeholder="Doe"
-                                            required
-                                            className="w-full bg-slate-50/50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0066FF] rounded-xl px-3.5 py-2.5 text-xs text-slate-900 placeholder:text-slate-400 font-medium transition-all outline-none focus:ring-3 focus:ring-[#0066FF]/15"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="space-y-1">
-                                    <label className="block text-[11px] font-bold text-slate-700 font-['Outfit',sans-serif]">Email address</label>
-                                    <input
-                                        type="email"
-                                        value={workerForm.email}
-                                        onChange={(e) => setWorkerForm({ ...workerForm, email: e.target.value })}
-                                        placeholder="candidate@gmail.com"
-                                        required
-                                        className="w-full bg-slate-50/50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0066FF] rounded-xl px-3.5 py-2.5 text-xs text-slate-900 placeholder:text-slate-400 font-medium transition-all outline-none focus:ring-3 focus:ring-[#0066FF]/15"
-                                    />
-                                </div>
-
-                                <div className="space-y-1">
-                                    <div className="flex justify-between items-center">
-                                        <label className="block text-[11px] font-bold text-slate-700 font-['Outfit',sans-serif]">Phone number</label>
-                                        <span className="text-[10px] text-slate-400 font-medium">10-Digit Mobile</span>
-                                    </div>
-                                    <div className="relative flex items-center">
-                                        <div className="absolute left-3 flex items-center gap-1 text-slate-600 font-bold text-xs pointer-events-none select-none border-r border-slate-200 pr-2 z-10">
-                                            <span className="text-sm leading-none">🇮🇳</span>
-                                            <span>+91</span>
-                                        </div>
-                                        <input
-                                            type="tel"
-                                            value={workerForm.phoneNumber}
-                                            onChange={(e) => {
-                                                const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
-                                                setWorkerForm({ ...workerForm, phoneNumber: digits });
-                                            }}
-                                            maxLength={10}
-                                            placeholder="98765 43210"
-                                            className="w-full bg-slate-50/50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0066FF] rounded-xl pl-16 pr-3.5 py-2.5 text-xs text-slate-900 placeholder:text-slate-400 font-medium transition-all outline-none focus:ring-3 focus:ring-[#0066FF]/15"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="space-y-1">
-                                    <label className="block text-[11px] font-bold text-slate-700 font-['Outfit',sans-serif]">Password</label>
-                                    <div className="relative">
-                                        <input
-                                            type={showPassword ? 'text' : 'password'}
-                                            value={workerForm.password}
-                                            onChange={(e) => setWorkerForm({ ...workerForm, password: e.target.value })}
-                                            placeholder="At least 6 characters"
-                                            required
-                                            minLength={6}
-                                            className="w-full bg-slate-50/50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0066FF] rounded-xl px-3.5 py-2.5 pr-10 text-xs text-slate-900 placeholder:text-slate-400 font-medium transition-all outline-none focus:ring-3 focus:ring-[#0066FF]/15"
-                                        />
-                                        <button
-                                            type="button"
-                                            onClick={() => setShowPassword(!showPassword)}
-                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
-                                        >
-                                            {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <button
-                                    type="submit"
-                                    disabled={isLoading || !workerForm.email || !workerForm.password}
-                                    className="w-full mt-2 bg-[#0066FF] hover:bg-[#0052CC] active:scale-[0.99] disabled:opacity-50 text-white py-3 px-4 rounded-xl font-bold text-xs sm:text-sm tracking-wide shadow-md shadow-[#0066FF]/25 hover:shadow-lg hover:shadow-[#0066FF]/35 transition-all flex items-center justify-center gap-2 cursor-pointer font-['Outfit',sans-serif]"
-                                >
-                                    {isLoading ? (
-                                        <>
-                                            <Loader2 className="w-4 h-4 animate-spin" />
-                                            <span>Creating Account...</span>
-                                        </>
-                                    ) : (
-                                        <span>Create Candidate Account</span>
-                                    )}
-                                </button>
-                            </form>
-                        ) : (
-                            /* Employer Form */
-                            <form onSubmit={handleEmployerSignUp} className="space-y-3">
-                                <div className="space-y-1">
-                                    <label className="block text-[11px] font-bold text-slate-700 font-['Outfit',sans-serif]">Company / Organization name</label>
-                                    <input
-                                        type="text"
-                                        value={employerForm.companyName}
-                                        onChange={(e) => setEmployerForm({ ...employerForm, companyName: e.target.value })}
-                                        placeholder="Acme Corp"
-                                        required
-                                        className="w-full bg-slate-50/50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0066FF] rounded-xl px-3.5 py-2.5 text-xs text-slate-900 placeholder:text-slate-400 font-medium transition-all outline-none focus:ring-3 focus:ring-[#0066FF]/15"
-                                    />
-                                </div>
-
-                                <div className="space-y-1">
-                                    <label className="block text-[11px] font-bold text-slate-700 font-['Outfit',sans-serif]">Official business email</label>
-                                    <input
-                                        type="email"
-                                        value={employerForm.email}
-                                        onChange={(e) => setEmployerForm({ ...employerForm, email: e.target.value })}
-                                        placeholder="hr@acme.com"
-                                        required
-                                        className="w-full bg-slate-50/50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0066FF] rounded-xl px-3.5 py-2.5 text-xs text-slate-900 placeholder:text-slate-400 font-medium transition-all outline-none focus:ring-3 focus:ring-[#0066FF]/15"
-                                    />
-                                </div>
-
-                                <div className="space-y-1">
-                                    <div className="flex justify-between items-center">
-                                        <label className="block text-[11px] font-bold text-slate-700 font-['Outfit',sans-serif]">Contact phone number</label>
-                                        <span className="text-[10px] text-slate-400 font-medium">10-Digit Mobile</span>
-                                    </div>
-                                    <div className="relative flex items-center">
-                                        <div className="absolute left-3 flex items-center gap-1 text-slate-600 font-bold text-xs pointer-events-none select-none border-r border-slate-200 pr-2 z-10">
-                                            <span className="text-sm leading-none">🇮🇳</span>
-                                            <span>+91</span>
-                                        </div>
-                                        <input
-                                            type="tel"
-                                            value={employerForm.phoneNumber}
-                                            onChange={(e) => {
-                                                const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
-                                                setEmployerForm({ ...employerForm, phoneNumber: digits });
-                                            }}
-                                            maxLength={10}
-                                            placeholder="98765 43210"
-                                            className="w-full bg-slate-50/50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0066FF] rounded-xl pl-16 pr-3.5 py-2.5 text-xs text-slate-900 placeholder:text-slate-400 font-medium transition-all outline-none focus:ring-3 focus:ring-[#0066FF]/15"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="space-y-1">
-                                    <label className="block text-[11px] font-bold text-slate-700 font-['Outfit',sans-serif]">Account password</label>
-                                    <div className="relative">
-                                        <input
-                                            type={showPassword ? 'text' : 'password'}
-                                            value={employerForm.password}
-                                            onChange={(e) => setEmployerForm({ ...employerForm, password: e.target.value })}
-                                            placeholder="At least 6 characters"
-                                            required
-                                            minLength={6}
-                                            className="w-full bg-slate-50/50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0066FF] rounded-xl px-3.5 py-2.5 pr-10 text-xs text-slate-900 placeholder:text-slate-400 font-medium transition-all outline-none focus:ring-3 focus:ring-[#0066FF]/15"
-                                        />
-                                        <button
-                                            type="button"
-                                            onClick={() => setShowPassword(!showPassword)}
-                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
-                                        >
-                                            {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <button
-                                    type="submit"
-                                    disabled={isLoading || !employerForm.email || !employerForm.password || !employerForm.companyName}
-                                    className="w-full mt-2 bg-[#0066FF] hover:bg-[#0052CC] active:scale-[0.99] disabled:opacity-50 text-white py-3 px-4 rounded-xl font-bold text-xs sm:text-sm tracking-wide shadow-md shadow-[#0066FF]/25 hover:shadow-lg hover:shadow-[#0066FF]/35 transition-all flex items-center justify-center gap-2 cursor-pointer font-['Outfit',sans-serif]"
-                                >
-                                    {isLoading ? (
-                                        <>
-                                            <Loader2 className="w-4 h-4 animate-spin" />
-                                            <span>Creating Business Account...</span>
-                                        </>
-                                    ) : (
-                                        <span>Create Employer Account</span>
-                                    )}
-                                </button>
-                            </form>
-                        )}
-
-                        {/* Sign In Redirect Link */}
-                        <div className="mt-4 text-center">
-                            <p className="text-xs sm:text-sm text-slate-600 font-medium">
-                                Already have an account?{' '}
-                                <Link 
-                                    to={`/sign-in?role=${activeRole.toLowerCase()}`} 
-                                    className="font-bold text-[#0A1931] hover:text-[#0066FF] transition-colors"
-                                >
-                                    Sign in.
-                                </Link>
-                            </p>
-                        </div>
                     </div>
 
                     {/* Bottom Footer Note */}
-                    <div className="pt-3 text-center text-[11px] text-slate-400 font-medium">
+                    <div className="pt-4 text-center text-xs text-[#717784]">
                         By creating an account, you agree to our{' '}
-                        <Link to="/terms" className="underline hover:text-slate-600">Terms of Service</Link>{' '}
+                        <Link to="/terms" className="underline hover:text-[#0a0a0a] transition-colors">Terms of Service</Link>{' '}
                         and{' '}
-                        <Link to="/privacy" className="underline hover:text-slate-600">Privacy Policy</Link>.
+                        <Link to="/privacy" className="underline hover:text-[#0a0a0a] transition-colors">Privacy Policy</Link>.
                     </div>
                 </div>
 
