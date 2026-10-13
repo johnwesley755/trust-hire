@@ -1,12 +1,25 @@
+import fs from 'node:fs'
+import path from 'node:path'
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
+// Resolve Windows Junction / symlink mismatch for Vite dev server dependency optimization
+try {
+  const realCwd = fs.realpathSync.native(process.cwd());
+  if (realCwd && realCwd.toLowerCase() !== process.cwd().toLowerCase()) {
+    process.chdir(realCwd);
+  }
+} catch {
+  // fallback
+}
 
 export default defineConfig({
   resolve: {
-    preserveSymlinks: true,
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
   },
   plugins: [react(), tailwindcss(), VitePWA({
     registerType: 'autoUpdate',

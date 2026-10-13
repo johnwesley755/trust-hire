@@ -31,7 +31,7 @@ export const SignInPage = () => {
     // Auto redirect when user becomes signed in
     React.useEffect(() => {
         if (isSignedIn && user) {
-            const target = user.role === 'ADMIN' ? '/admin/dashboard' : user.role === 'EMPLOYER' ? '/dashboard' : '/search';
+            const target = user.role === 'ADMIN' ? '/admin/dashboard' : user.role === 'EMPLOYER' ? '/find-workers' : '/search';
             navigate(target, { replace: true });
         }
     }, [isSignedIn, user, navigate]);
@@ -60,7 +60,7 @@ export const SignInPage = () => {
             const response = await apiClient.post('/api/auth/login', { email, password, role: activeRole });
             const userData = response.data.user;
             login(response.data.token, userData);
-            navigate(userData.role === 'ADMIN' ? '/admin/dashboard' : userData.role === 'WORKER' ? '/search' : '/dashboard');
+            navigate(userData.role === 'ADMIN' ? '/admin/dashboard' : userData.role === 'WORKER' ? '/search' : '/find-workers');
         } catch (err: any) {
             setError(err.response?.data?.message || 'Invalid email or password. Please verify your credentials.');
         } finally {
@@ -238,7 +238,7 @@ export const SignInPage = () => {
                             {/* Google Sign In */}
                             <button
                                 type="button"
-                                onClick={() => signInWithGoogle()}
+                                onClick={() => signInWithGoogle(activeRole)}
                                 className="w-full bg-slate-50 hover:bg-slate-100 border border-slate-200 hover:border-slate-300 text-slate-700 py-3 px-4 rounded-xl font-semibold text-xs sm:text-sm flex items-center justify-center gap-3 transition-all cursor-pointer shadow-2xs font-['Outfit',sans-serif]"
                             >
                                 <svg className="w-4 h-4" viewBox="0 0 24 24">

@@ -21,6 +21,7 @@ import { UserAvatar } from '../../../components/common/UserAvatar';
 import { JobSearchHero } from '../../jobs/components/JobSearchHero';
 import { AppLoader } from '../../../components/common/AppLoader';
 import { useSavedStore } from '../../../hooks/useSavedStore';
+import { DataTablePagination } from '../../../components/common/DataTablePagination';
 
 const JOB_CATEGORIES = [
   "All",
@@ -50,6 +51,8 @@ export const WorkerSearchPage = () => {
   const [experience, setExperience] = useState(searchParams.get('exp') || 'all');
   const [selectedTrade, setSelectedTrade] = useState(searchParams.get('trade') || 'All');
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   const { isWorkerSaved, toggleSaveWorker } = useSavedStore();
 
@@ -168,7 +171,7 @@ export const WorkerSearchPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           
           {/* DESKTOP LEFT COLUMN: Talent Filter Sidebar (Hidden on mobile) */}
-          <div className="hidden lg:block lg:col-span-3 bg-white rounded-2xl p-5 border border-slate-200/90 shadow-xs space-y-6 sticky top-4">
+          <div className="hidden lg:block lg:col-span-3 bg-white rounded-2xl p-5 border border-slate-200/90 shadow-xs space-y-6 lg:sticky lg:top-24 lg:self-start lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto">
             <div className="flex items-center justify-between pb-3 border-b border-slate-200">
               <div className="flex items-center gap-2">
                 <SlidersHorizontal className="w-4 h-4 text-[#0066FF]" />
@@ -248,8 +251,8 @@ export const WorkerSearchPage = () => {
           {/* CANDIDATES FEED: Shows FIRST on mobile and in Center on desktop */}
           <div className="lg:col-span-6 space-y-5">
             
-            {/* Header Result Count (Desktop) */}
-            <div className="hidden lg:flex items-center justify-between px-1">
+            {/* Header Result Count */}
+            <div className="flex items-center justify-between px-1 gap-2 flex-wrap">
               <span className="text-xs font-bold text-slate-500">
                 <strong className="text-slate-900 font-extrabold">{results.length}</strong> verified specialists available
               </span>
@@ -260,137 +263,159 @@ export const WorkerSearchPage = () => {
               <AppLoader variant="skeleton" />
             ) : results.length > 0 ? (
               <div className="space-y-4">
-                {results.map((worker: any) => {
-                  const skillList = worker.skills 
-                    ? worker.skills.split(',').map((s: string) => s.trim()).filter(Boolean) 
-                    : [];
 
-                  const displayRole = worker.level && !worker.level.startsWith('L')
-                    ? worker.level
-                    : worker.experienceYears
-                      ? `${worker.experienceYears}+ Yrs Exp`
-                      : 'Verified Specialist';
+                    {results
+                      .slice((Math.min(currentPage, Math.max(1, Math.ceil(results.length / pageSize))) - 1) * pageSize, Math.min(currentPage, Math.max(1, Math.ceil(results.length / pageSize))) * pageSize)
+                      .map((worker: any) => {
+                        const skillList = worker.skills 
+                          ? worker.skills.split(',').map((s: string) => s.trim()).filter(Boolean) 
+                          : [];
 
-                  return (
-                    <div
-                      key={worker.userId}
-                      onClick={() => navigate(`/worker/${worker.userId}`)}
-                      className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/90 hover:border-[#0066FF]/60 hover:shadow-lg transition-all duration-200 group cursor-pointer space-y-4"
-                    >
-                      {/* Card Header */}
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex items-center gap-3.5 min-w-0">
-                          <UserAvatar
-                            src={worker.profileImageUrl || (worker as any).profile_image_url || worker.profilePhoto}
-                            name={worker.name}
-                            size="lg"
-                          />
-                          <div className="min-w-0">
-                            <div className="flex items-center gap-1.5">
-                              <h3 className="text-base font-bold text-[#0A1931] group-hover:text-[#0066FF] transition-colors truncate">
-                                {worker.name}
-                              </h3>
-                              {worker.isVerified && (
-                                <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0" />
-                              )}
-                            </div>
-                            <div className="flex items-center gap-2 text-xs text-slate-500 font-medium mt-0.5">
-                              <span className="flex items-center gap-1 text-slate-700 font-bold">
-                                <MapPin className="w-3.5 h-3.5 text-[#0066FF]" />
-                                {worker.city || worker.location || 'Local Area'}
-                              </span>
-                              <span>•</span>
-                              <span className="px-2 py-0.5 bg-blue-50 text-[#0066FF] rounded-md font-bold text-[10px]">
-                                {displayRole}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
+                        const displayRole = worker.level && !worker.level.startsWith('L')
+                          ? worker.level
+                          : worker.experienceYears
+                            ? `${worker.experienceYears}+ Yrs Exp`
+                            : 'Verified Specialist';
 
-                        {/* Actions: Trust Score & Bookmark */}
-                        <div className="flex items-center gap-2 shrink-0">
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              toggleSaveWorker({
-                                userId: worker.userId,
-                                name: worker.name,
-                                profilePhoto: worker.profileImageUrl,
-                                profileImageUrl: worker.profileImageUrl,
-                                skills: skillList,
-                                city: worker.city || worker.location || 'Local Area',
-                                location: worker.location || worker.city || 'Local Area',
-                                experience: worker.experienceYears || 0,
-                                trustScore: worker.trustScore || '98%',
-                                isVerified: worker.isVerified,
-                                bio: worker.bio,
-                              });
-                            }}
-                            className={`p-2 rounded-xl border transition-all cursor-pointer ${
-                              isWorkerSaved(worker.userId)
-                                ? 'bg-blue-50 border-blue-200 text-[#0066FF]'
-                                : 'bg-slate-50 border-slate-200/80 text-slate-400 hover:text-slate-700 hover:bg-slate-100'
-                            }`}
-                            title={isWorkerSaved(worker.userId) ? 'Remove from Saved' : 'Save Profile'}
+                        return (
+                          <div
+                            key={worker.userId}
+                            onClick={() => navigate(`/worker/${worker.userId}`)}
+                            className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/90 hover:border-[#0066FF]/60 hover:shadow-lg transition-all duration-200 group cursor-pointer space-y-4"
                           >
-                            <Bookmark className={`w-4 h-4 ${isWorkerSaved(worker.userId) ? 'fill-current' : ''}`} />
-                          </button>
+                            {/* Card Header */}
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="flex items-center gap-3.5 min-w-0">
+                                <UserAvatar
+                                  src={worker.profileImageUrl || (worker as any).profile_image_url || worker.profilePhoto}
+                                  name={worker.name}
+                                  size="lg"
+                                />
+                                <div className="min-w-0">
+                                  <div className="flex items-center gap-1.5">
+                                    <h3 className="text-base font-bold text-[#0A1931] group-hover:text-[#0066FF] transition-colors truncate">
+                                      {worker.name}
+                                    </h3>
+                                    {worker.isVerified && (
+                                      <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0" />
+                                    )}
+                                  </div>
+                                  <div className="flex items-center gap-2 text-xs text-slate-500 font-medium mt-0.5">
+                                    <span className="flex items-center gap-1 text-slate-700 font-bold">
+                                      <MapPin className="w-3.5 h-3.5 text-[#0066FF]" />
+                                      {worker.city || worker.location || 'Local Area'}
+                                    </span>
+                                    <span>•</span>
+                                    <span className="px-2 py-0.5 bg-blue-50 text-[#0066FF] rounded-md font-bold text-[10px]">
+                                      {displayRole}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
 
-                          <div className="px-2.5 py-1 bg-amber-50 text-amber-800 border border-amber-200 rounded-lg flex items-center gap-1 text-xs font-extrabold">
-                            <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
-                            <span>{worker.trustScore ? `${worker.trustScore}%` : '98%'}</span>
+                              {/* Actions: Trust Score & Bookmark */}
+                              <div className="flex items-center gap-2 shrink-0">
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    toggleSaveWorker({
+                                      userId: worker.userId,
+                                      name: worker.name,
+                                      profilePhoto: worker.profileImageUrl,
+                                      profileImageUrl: worker.profileImageUrl,
+                                      skills: skillList,
+                                      city: worker.city || worker.location || 'Local Area',
+                                      location: worker.location || worker.city || 'Local Area',
+                                      experience: worker.experienceYears || 0,
+                                      trustScore: worker.trustScore || '98%',
+                                      isVerified: worker.isVerified,
+                                      bio: worker.bio,
+                                    });
+                                  }}
+                                  className={`p-2 rounded-xl border transition-all cursor-pointer ${
+                                    isWorkerSaved(worker.userId)
+                                      ? 'bg-blue-50 border-blue-200 text-[#0066FF]'
+                                      : 'bg-slate-50 border-slate-200/80 text-slate-400 hover:text-slate-700 hover:bg-slate-100'
+                                  }`}
+                                  title={isWorkerSaved(worker.userId) ? 'Remove from Saved' : 'Save Profile'}
+                                >
+                                  <Bookmark className={`w-4 h-4 ${isWorkerSaved(worker.userId) ? 'fill-current' : ''}`} />
+                                </button>
+
+                                {/* TrustScore - Temporarily hidden until TrustScore engine is fully implemented */}
+                                {/*
+                                <div className="px-2.5 py-1 bg-amber-50 text-amber-800 border border-amber-200 rounded-lg flex items-center gap-1 text-xs font-extrabold">
+                                  <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
+                                  <span>{worker.trustScore ? `${worker.trustScore}%` : '98%'}</span>
+                                </div>
+                                */}
+                              </div>
+                            </div>
+
+                            {/* Bio Snippet */}
+                            {worker.bio && (
+                              <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
+                                {worker.bio}
+                              </p>
+                            )}
+
+                            {/* Skills Tags */}
+                            {skillList.length > 0 && (
+                              <div className="flex flex-wrap gap-1.5 pt-1">
+                                {skillList.slice(0, 4).map((skill: string, idx: number) => (
+                                  <span
+                                    key={idx}
+                                    className="px-2.5 py-1 bg-slate-100 text-slate-700 text-[11px] font-semibold rounded-lg"
+                                  >
+                                    {skill}
+                                  </span>
+                                ))}
+                                {skillList.length > 4 && (
+                                  <span className="px-2 py-1 text-slate-400 text-[10px] font-bold">
+                                    +{skillList.length - 4} more
+                                  </span>
+                                )}
+                              </div>
+                            )}
+
+                            {/* Card Footer */}
+                            <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-xs">
+                              <span className="text-emerald-600 font-bold flex items-center gap-1">
+                                <CheckCircle2 className="w-3.5 h-3.5" />
+                                Verified & Ready to Book
+                              </span>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  navigate(`/worker/${worker.userId}`);
+                                }}
+                                className="px-3.5 py-1.5 bg-[#0066FF] hover:bg-[#0052CC] text-white rounded-lg font-bold text-xs shadow-xs transition-all flex items-center gap-1 cursor-pointer"
+                              >
+                                <span>View Profile</span>
+                                <ChevronRight className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
                           </div>
-                        </div>
-                      </div>
+                        );
+                      })}
 
-                      {/* Bio Snippet */}
-                      {worker.bio && (
-                        <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
-                          {worker.bio}
-                        </p>
-                      )}
-
-                      {/* Skills Tags */}
-                      {skillList.length > 0 && (
-                        <div className="flex flex-wrap gap-1.5 pt-1">
-                          {skillList.slice(0, 4).map((skill: string, idx: number) => (
-                            <span
-                              key={idx}
-                              className="px-2.5 py-1 bg-slate-100 text-slate-700 text-[11px] font-semibold rounded-lg"
-                            >
-                              {skill}
-                            </span>
-                          ))}
-                          {skillList.length > 4 && (
-                            <span className="px-2 py-1 text-slate-400 text-[10px] font-bold">
-                              +{skillList.length - 4} more
-                            </span>
-                          )}
-                        </div>
-                      )}
-
-                      {/* Card Footer */}
-                      <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-xs">
-                        <span className="text-emerald-600 font-bold flex items-center gap-1">
-                          <CheckCircle2 className="w-3.5 h-3.5" />
-                          Verified & Ready to Book
-                        </span>
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            navigate(`/worker/${worker.userId}`);
-                          }}
-                          className="px-3.5 py-1.5 bg-[#0066FF] hover:bg-[#0052CC] text-white rounded-lg font-bold text-xs shadow-xs transition-all flex items-center gap-1 cursor-pointer"
-                        >
-                          <span>View Profile</span>
-                          <ChevronRight className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })}
+                {/* Standardized Pagination Bar */}
+                <DataTablePagination
+                  currentPage={Math.min(currentPage, Math.max(1, Math.ceil(results.length / pageSize)))}
+                  totalPages={Math.max(1, Math.ceil(results.length / pageSize))}
+                  totalItems={results.length}
+                  pageSize={pageSize}
+                  pageSizeOptions={[5, 10, 20, 50]}
+                  onPageChange={(page) => setCurrentPage(page)}
+                  onPageSizeChange={(size) => {
+                    setPageSize(size);
+                    setCurrentPage(1);
+                  }}
+                  itemName="specialists"
+                  className="rounded-2xl border border-slate-200/90 shadow-xs"
+                />
               </div>
             ) : (
               <div className="bg-white rounded-2xl p-10 border border-slate-200 text-center space-y-4">
@@ -420,7 +445,7 @@ export const WorkerSearchPage = () => {
           </div>
 
           {/* RIGHT COLUMN: Talent Hiring Quick Actions */}
-          <div className="lg:col-span-3 space-y-6 lg:sticky lg:top-4">
+          <div className="lg:col-span-3 space-y-6 lg:sticky lg:top-24 lg:self-start lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto">
             
             {/* Quick Post Job Card */}
             <div className="bg-linear-to-br from-[#0A1931] to-[#0066FF] text-white rounded-2xl p-5 shadow-lg space-y-4">

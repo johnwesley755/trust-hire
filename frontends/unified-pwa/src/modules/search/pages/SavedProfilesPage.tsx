@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useSavedStore } from '../../../hooks/useSavedStore';
 import { UserAvatar } from '../../../components/common/UserAvatar';
+import { DataTablePagination } from '../../../components/common/DataTablePagination';
 import { 
   Bookmark, 
   MapPin, 
@@ -10,17 +11,54 @@ import {
   ChevronRight, 
   Users, 
   Trash2, 
-  Briefcase,
-  ArrowRight
+  Search,
+  ExternalLink
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
 
 export const SavedProfilesPage: React.FC = () => {
   const navigate = useNavigate();
   const { savedWorkers, removeSavedWorker } = useSavedStore();
 
+  // Search & Pagination State
+  const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
+  // Filter workers based on query
+  const filteredWorkers = useMemo(() => {
+    if (!searchQuery.trim()) return savedWorkers;
+    const q = searchQuery.toLowerCase();
+    return savedWorkers.filter(w => 
+      w.name.toLowerCase().includes(q) ||
+      (w.city && w.city.toLowerCase().includes(q)) ||
+      (w.location && w.location.toLowerCase().includes(q)) ||
+      (w.skills && w.skills.some(s => s.toLowerCase().includes(q)))
+    );
+  }, [savedWorkers, searchQuery]);
+
+  // Compute pagination
+  const totalItems = filteredWorkers.length;
+  const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+  
+  // Keep current page in bounds
+  const safeCurrentPage = Math.min(currentPage, totalPages);
+
+  const paginatedWorkers = useMemo(() => {
+    const startIndex = (safeCurrentPage - 1) * pageSize;
+    return filteredWorkers.slice(startIndex, startIndex + pageSize);
+  }, [filteredWorkers, safeCurrentPage, pageSize]);
+
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+  };
+
+  const handlePageSizeChange = (newSize: number) => {
+    setPageSize(newSize);
+    setCurrentPage(1);
+  };
+
   return (
-    <div className="min-h-screen bg-[#F8FAFC] pb-24">
+    <div className="min-h-screen bg-[#F8FAFC] pb-24 font-sans">
       {/* Header Banner */}
       <div className="bg-white border-b border-slate-200/80">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -40,7 +78,7 @@ export const SavedProfilesPage: React.FC = () => {
 
             <Link
               to="/find-workers"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#0066FF] hover:bg-[#0052CC] text-white text-xs sm:text-sm font-bold shadow-md shadow-[#0066FF]/25 transition-all cursor-pointer font-['Outfit',sans-serif]"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#0066FF] hover:bg-[#0052CC] text-white text-xs sm:text-sm font-bold shadow-md shadow-[#0066FF]/25 transition-all cursor-pointer font-['Outfit',sans-serif] self-start sm:self-auto"
             >
               <Users className="w-4 h-4" />
               <span>Browse Workers</span>
@@ -52,112 +90,197 @@ export const SavedProfilesPage: React.FC = () => {
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 lg:pt-8">
         {savedWorkers.length > 0 ? (
           <div className="space-y-4">
-            <div className="flex items-center justify-between text-xs text-slate-500 font-bold px-1">
-              <span>{savedWorkers.length} {savedWorkers.length === 1 ? 'specialist saved' : 'specialists saved'}</span>
+            {/* Control Bar: Search and Summary */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 shadow-xs">
+              <div className="relative flex-1 max-w-md">
+                <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  placeholder="Filter by candidate name, skill, or city..."
+                  className="w-full pl-9 pr-4 py-2 bg-slate-50 hover:bg-slate-100/60 focus:bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0066FF]/20 focus:border-[#0066FF] transition-all"
+                />
+              </div>
+
+              <div className="flex items-center gap-2 text-xs font-bold text-slate-500 px-1">
+                <span>
+                  {filteredWorkers.length}{' '}
+                  {filteredWorkers.length === 1 ? 'specialist' : 'specialists'}{' '}
+                  {searchQuery ? 'matching' : 'saved'}
+                </span>
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-              <AnimatePresence>
-                {savedWorkers.map((worker) => (
-                  <motion.div
-                    key={worker.userId}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    onClick={() => navigate(`/worker/${worker.userId}`)}
-                    className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/90 hover:border-[#0066FF]/60 hover:shadow-lg transition-all duration-200 group cursor-pointer space-y-4 relative"
-                  >
-                    {/* Top Row: Avatar + Details + Remove */}
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex items-center gap-3.5 min-w-0">
-                        <UserAvatar
-                          src={worker.profileImageUrl || worker.profilePhoto}
-                          name={worker.name}
-                          size="lg"
-                        />
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-1.5">
-                            <h3 className="text-base font-bold text-[#0A1931] group-hover:text-[#0066FF] transition-colors truncate font-['Outfit',sans-serif]">
-                              {worker.name}
-                            </h3>
-                            {worker.isVerified && (
-                              <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0" />
-                            )}
-                          </div>
-                          <div className="flex items-center gap-2 text-xs text-slate-500 font-medium mt-0.5">
-                            <span className="flex items-center gap-1 text-slate-700 font-bold">
-                              <MapPin className="w-3.5 h-3.5 text-[#0066FF]" />
-                              {worker.city || worker.location || 'Local Area'}
-                            </span>
-                            <span>•</span>
-                            <span className="px-2 py-0.5 bg-blue-50 text-[#0066FF] rounded-md font-bold text-[10px]">
-                              {worker.experience ? `${worker.experience}+ Yrs Exp` : 'Verified'}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
+            {/* Table View Container */}
+            <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs text-slate-600">
+                  <thead className="bg-slate-50/80 text-slate-500 uppercase text-[10px] font-extrabold border-b border-slate-200 tracking-wider">
+                    <tr>
+                      <th className="px-5 py-4">Candidate</th>
+                      <th className="px-5 py-4">Role & Experience</th>
+                      <th className="px-5 py-4">Location</th>
+                      <th className="px-5 py-4">Key Skills</th>
+                      {/* TrustScore - Temporarily hidden until TrustScore engine is fully implemented */}
+                      {/* <th className="px-5 py-4">Trust Score</th> */}
+                      <th className="px-5 py-4">Saved Date</th>
+                      <th className="px-5 py-4 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {paginatedWorkers.length > 0 ? (
+                      paginatedWorkers.map((worker) => (
+                        <tr
+                          key={worker.userId}
+                          className="hover:bg-blue-50/40 transition-colors group"
+                        >
+                          {/* Candidate Avatar & Name */}
+                          <td className="px-5 py-4">
+                            <div className="flex items-center gap-3">
+                              <UserAvatar
+                                src={worker.profileImageUrl || worker.profilePhoto}
+                                name={worker.name}
+                                size="md"
+                              />
+                              <div className="min-w-0">
+                                <div className="flex items-center gap-1.5">
+                                  <button
+                                    onClick={() => navigate(`/worker/${worker.userId}`)}
+                                    className="font-bold text-[#0A1931] group-hover:text-[#0066FF] transition-colors truncate hover:underline text-left cursor-pointer"
+                                  >
+                                    {worker.name}
+                                  </button>
+                                  {worker.isVerified && (
+                                    <span title="ID Verified" className="inline-flex shrink-0">
+                                      <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0" />
+                                    </span>
+                                  )}
+                                </div>
+                                <span className="text-[11px] text-slate-400 font-mono block">
+                                  ID: {worker.userId.slice(0, 8)}...
+                                </span>
+                              </div>
+                            </div>
+                          </td>
 
-                      {/* Remove Button */}
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          removeSavedWorker(worker.userId);
-                        }}
-                        className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors cursor-pointer shrink-0"
-                        title="Remove from Saved"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
+                          {/* Role & Experience */}
+                          <td className="px-5 py-4 whitespace-nowrap">
+                            <div className="space-y-1">
+                              <span className="font-semibold text-slate-800 text-xs block">
+                                {worker.skills?.[0] || 'Technician'}
+                              </span>
+                              <span className="inline-block px-2 py-0.5 bg-blue-50 text-[#0066FF] rounded-md font-bold text-[10px]">
+                                {worker.experience ? `${worker.experience}+ Yrs Exp` : 'Verified'}
+                              </span>
+                            </div>
+                          </td>
 
-                    {/* Bio Preview */}
-                    {worker.bio && (
-                      <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
-                        {worker.bio}
-                      </p>
-                    )}
+                          {/* Location */}
+                          <td className="px-5 py-4 whitespace-nowrap">
+                            <div className="flex items-center gap-1.5 text-slate-600 font-medium">
+                              <MapPin className="w-3.5 h-3.5 text-[#0066FF] shrink-0" />
+                              <span className="truncate max-w-[140px]">
+                                {worker.city || worker.location || 'Local Area'}
+                              </span>
+                            </div>
+                          </td>
 
-                    {/* Skills Badges */}
-                    {worker.skills && worker.skills.length > 0 && (
-                      <div className="flex flex-wrap gap-1.5 pt-1">
-                        {worker.skills.slice(0, 4).map((skill, idx) => (
-                          <span
-                            key={idx}
-                            className="px-2.5 py-1 bg-slate-100 text-slate-700 text-[11px] font-semibold rounded-lg"
+                          {/* Skills */}
+                          <td className="px-5 py-4">
+                            <div className="flex flex-wrap gap-1 max-w-[200px]">
+                              {worker.skills && worker.skills.length > 0 ? (
+                                <>
+                                  {worker.skills.slice(0, 3).map((skill, idx) => (
+                                    <span
+                                      key={idx}
+                                      className="px-2 py-0.5 bg-slate-100 text-slate-700 text-[10px] font-semibold rounded-md whitespace-nowrap"
+                                    >
+                                      {skill}
+                                    </span>
+                                  ))}
+                                  {worker.skills.length > 3 && (
+                                    <span className="text-slate-400 text-[10px] font-bold self-center">
+                                      +{worker.skills.length - 3}
+                                    </span>
+                                  )}
+                                </>
+                              ) : (
+                                <span className="text-slate-400 italic text-[11px]">General</span>
+                              )}
+                            </div>
+                          </td>
+
+                          {/* Trust Rating - Temporarily hidden until TrustScore engine is fully implemented */}
+                          {/*
+                          <td className="px-5 py-4 whitespace-nowrap">
+                            <div className="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-50 text-amber-800 border border-amber-200/80 rounded-lg text-xs font-extrabold">
+                              <Star className="w-3 h-3 fill-amber-500 text-amber-500" />
+                              <span>{worker.trustScore ? `${worker.trustScore}%` : '98%'}</span>
+                            </div>
+                          </td>
+                          */}
+
+                          {/* Saved Date */}
+                          <td className="px-5 py-4 whitespace-nowrap text-slate-500 font-medium">
+                            {new Date(worker.savedAt).toLocaleDateString()}
+                          </td>
+
+                          {/* Actions */}
+                          <td className="px-5 py-4 whitespace-nowrap text-right">
+                            <div className="flex items-center justify-end gap-1.5">
+                              <button
+                                type="button"
+                                onClick={() => navigate(`/worker/${worker.userId}`)}
+                                className="px-3 py-1.5 bg-[#0066FF] hover:bg-[#0052CC] text-white rounded-lg font-bold text-xs shadow-xs transition-all flex items-center gap-1 cursor-pointer font-['Outfit',sans-serif]"
+                              >
+                                <span>View Profile</span>
+                                <ChevronRight className="w-3.5 h-3.5" />
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => removeSavedWorker(worker.userId)}
+                                className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+                                title="Remove from Saved"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={6} className="px-6 py-12 text-center text-slate-400">
+                          <p className="font-semibold text-sm">No specialists match your filter criteria.</p>
+                          <button
+                            onClick={() => setSearchQuery('')}
+                            className="mt-2 text-xs font-bold text-[#0066FF] hover:underline"
                           >
-                            {skill}
-                          </span>
-                        ))}
-                        {worker.skills.length > 4 && (
-                          <span className="px-2 py-1 text-slate-400 text-[10px] font-bold">
-                            +{worker.skills.length - 4} more
-                          </span>
-                        )}
-                      </div>
+                            Clear search filter
+                          </button>
+                        </td>
+                      </tr>
                     )}
+                  </tbody>
+                </table>
+              </div>
 
-                    {/* Footer Actions */}
-                    <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-xs">
-                      <span className="text-slate-400 text-[11px]">
-                        Saved {new Date(worker.savedAt).toLocaleDateString()}
-                      </span>
-
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/worker/${worker.userId}`);
-                        }}
-                        className="px-3.5 py-1.5 bg-[#0066FF] hover:bg-[#0052CC] text-white rounded-lg font-bold text-xs shadow-xs transition-all flex items-center gap-1 cursor-pointer font-['Outfit',sans-serif]"
-                      >
-                        <span>View & Send Offer</span>
-                        <ChevronRight className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
+              {/* Table Footer: Standardized Pagination */}
+              <DataTablePagination
+                currentPage={safeCurrentPage}
+                totalPages={totalPages}
+                totalItems={totalItems}
+                pageSize={pageSize}
+                pageSizeOptions={[5, 10, 20, 50]}
+                onPageChange={handlePageChange}
+                onPageSizeChange={handlePageSizeChange}
+                itemName="saved profiles"
+              />
             </div>
           </div>
         ) : (
@@ -178,7 +301,7 @@ export const SavedProfilesPage: React.FC = () => {
                 className="inline-flex items-center gap-2 px-6 py-3 bg-[#0066FF] hover:bg-[#0052CC] text-white rounded-xl text-xs sm:text-sm font-bold shadow-md shadow-[#0066FF]/25 transition-all cursor-pointer font-['Outfit',sans-serif]"
               >
                 <span>Find Candidates Now</span>
-                <ArrowRight className="w-4 h-4" />
+                <ChevronRight className="w-4 h-4" />
               </Link>
             </div>
           </div>

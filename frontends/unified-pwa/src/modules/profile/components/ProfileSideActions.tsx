@@ -45,8 +45,8 @@ export const ProfileSideActions: React.FC<ProfileSideActionsProps> = ({ onLogout
               <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>security</span>
             </div>
             <div>
-              <h4 className="font-black text-[#0A1931] text-lg tracking-tight leading-none">Trust Score High</h4>
-              <p className="text-[10px] text-[#0A1931]/50 font-black uppercase tracking-widest mt-1">Verified Identity</p>
+              <h4 className="font-black text-[#0A1931] text-lg tracking-tight leading-none">Verified Identity</h4>
+              <p className="text-[10px] text-[#0A1931]/50 font-black uppercase tracking-widest mt-1">Compliance Audited</p>
             </div>
           </div>
           <p className="text-sm text-[#0A1931]/80 font-medium leading-relaxed mb-6">

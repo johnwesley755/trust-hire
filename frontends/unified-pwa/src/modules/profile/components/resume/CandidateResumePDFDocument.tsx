@@ -368,10 +368,13 @@ export const CandidateResumePDFDocument: React.FC<CandidateResumePDFDocumentProp
           </View>
 
           <View style={styles.headerRight}>
+            {/* TrustScore - Temporarily hidden until TrustScore engine is implemented */}
+            {/*
             <View style={styles.trustScoreBox}>
               <Text style={styles.trustScoreLabel}>TrustScore:</Text>
               <Text style={styles.trustScoreValue}>{data.trustScore || 85} / 100</Text>
             </View>
+            */}
 
             {data.phoneNumber && (
               <Text style={styles.contactItem}>+91 {data.phoneNumber.slice(-10)}</Text>

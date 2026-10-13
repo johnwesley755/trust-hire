@@ -121,7 +121,7 @@ export default function OnboardingPage() {
         companyName: formData.companyName || user?.companyName,
       });
 
-      navigate("/dashboard", { replace: true });
+      navigate("/find-workers", { replace: true });
     } catch (error: any) {
       console.error("Onboarding failure:", error);
       const msg = error.response?.data?.message || "Verification sync failed. Please try again.";

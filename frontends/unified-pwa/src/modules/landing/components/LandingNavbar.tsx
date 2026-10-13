@@ -18,7 +18,7 @@ export function LandingNavbar() {
   const { isSignedIn, user } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const targetDashboard = user?.role === 'EMPLOYER' ? '/dashboard' : '/search';
+  const targetDashboard = user?.role === 'ADMIN' ? '/admin/dashboard' : user?.role === 'EMPLOYER' ? '/find-workers' : '/search';
 
   return (
     <nav className="fixed top-0 w-full h-[72px] z-50 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-[0_2px_12px_rgba(10,25,49,0.04)] transition-all duration-300 font-sans">

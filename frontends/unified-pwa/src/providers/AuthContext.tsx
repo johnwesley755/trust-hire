@@ -198,7 +198,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           if (!parsed?.phoneNumber && !parsed?.phone_number) {
             window.location.href = '/onboarding';
           } else {
-            window.location.href = '/search';
+            const dest = parsed?.role === 'ADMIN' ? '/admin/dashboard' : parsed?.role === 'EMPLOYER' ? '/find-workers' : '/search';
+            window.location.href = dest;
           }
         } else if (retries > 40) { // 20 seconds timeout
           clearInterval(checkToken);

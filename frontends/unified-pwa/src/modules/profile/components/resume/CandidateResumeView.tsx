@@ -229,11 +229,14 @@ export const CandidateResumeView: React.FC<CandidateResumeViewProps> = ({
 
           {/* Contact Details & TrustScore Card */}
           <div className="w-full sm:w-auto flex flex-col sm:items-end gap-2.5 bg-slate-50 sm:bg-transparent p-3.5 sm:p-0 rounded-2xl border sm:border-none border-slate-100">
+            {/* TrustScore - Temporarily hidden until TrustScore engine is implemented */}
+            {/*
             <div className="flex items-center gap-2 bg-blue-50/90 px-3.5 py-1.5 rounded-xl border border-blue-100">
               <Sparkles className="w-3.5 h-3.5 text-[#0066FF]" />
               <span className="text-xs font-bold text-slate-700">TrustScore:</span>
               <span className="text-xs font-black text-[#0066FF]">{data.trustScore || 85} / 100</span>
             </div>
+            */}
 
             <div className="space-y-1.5 text-xs text-slate-600 font-medium">
               {data.phoneNumber && (

@@ -48,7 +48,7 @@ export const SignUpPage = () => {
     // Auto redirect when user becomes signed in
     React.useEffect(() => {
         if (isSignedIn && user) {
-            const target = user.role === 'EMPLOYER' ? '/dashboard' : '/search';
+            const target = user.role === 'ADMIN' ? '/admin/dashboard' : user.role === 'EMPLOYER' ? '/find-workers' : '/search';
             navigate(target, { replace: true });
         }
     }, [isSignedIn, user, navigate]);

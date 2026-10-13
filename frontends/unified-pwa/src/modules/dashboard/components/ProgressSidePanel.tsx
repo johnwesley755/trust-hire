@@ -42,7 +42,7 @@ export const ProgressSidePanel: React.FC<ProgressSidePanelProps> = ({ progress =
         <div className="relative z-10 space-y-4">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-black uppercase tracking-widest text-blue-200 flex items-center gap-1.5">
-              <ShieldCheck className="w-3.5 h-3.5 text-blue-300" /> TrustScore & Profile
+              <ShieldCheck className="w-3.5 h-3.5 text-blue-300" /> Verified Profile
             </span>
             <span className="text-xs font-bold bg-white/20 px-2 py-0.5 rounded-full">Top 5%</span>
           </div>
@@ -52,7 +52,7 @@ export const ProgressSidePanel: React.FC<ProgressSidePanelProps> = ({ progress =
               <h3 className="text-xl font-extrabold text-white tracking-tight">Profile Strength</h3>
               <span className="text-lg font-black text-amber-300">{progress}%</span>
             </div>
-            <p className="text-xs text-blue-100/70 font-medium">Complete verification to increase trust score</p>
+            <p className="text-xs text-blue-100/70 font-medium">Complete verification to boost your hiring chances</p>
           </div>
 
           <div className="h-2.5 w-full bg-white/20 rounded-full overflow-hidden">

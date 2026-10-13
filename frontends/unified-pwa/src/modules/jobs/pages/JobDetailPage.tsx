@@ -398,8 +398,8 @@ export default function JobDetailPage() {
                       ? 'The employer sent you a job offer! Accept below to confirm your hiring.'
                       : isDeclined 
                         ? 'This application has been closed. Explore other verified jobs.' 
-                        : 'Your credentials and TrustScore are currently being reviewed by the employer.')
-                  : 'Applying directly shares your TrustScore and verified worker credentials.'}
+                        : 'Your credentials and profile are currently being reviewed by the employer.')
+                  : 'Applying directly shares your verified worker credentials.'}
               </p>
             </div>
             

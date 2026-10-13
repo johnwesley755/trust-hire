@@ -44,7 +44,7 @@ export default function LandingPage() {
   const userDashboardTarget = isAdmin
     ? '/admin/dashboard'
     : isEmployer
-    ? '/dashboard'
+    ? '/find-workers'
     : '/search';
 
   useEffect(() => {

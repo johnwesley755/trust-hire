@@ -300,7 +300,7 @@ export const JobPostingPage = () => {
               </li>
               <li className="flex items-start gap-2">
                 <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                <span>Candidates with 4.8+ TrustScore get priority job routing.</span>
+                <span>Verified candidates get priority job routing.</span>
               </li>
             </ul>
           </section>

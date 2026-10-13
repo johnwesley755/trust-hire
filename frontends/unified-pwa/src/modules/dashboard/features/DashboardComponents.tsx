@@ -135,7 +135,8 @@ export const ApplicationsTable = () => {
                                 <th className="px-5 py-3.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">Candidate</th>
                                 <th className="px-5 py-3.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">Position</th>
                                 <th className="px-5 py-3.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">Tier</th>
-                                <th className="px-5 py-3.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">TrustScore</th>
+                                {/* TrustScore - Temporarily hidden until TrustScore engine is fully implemented */}
+                                {/* <th className="px-5 py-3.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">TrustScore</th> */}
                                 <th className="px-5 py-3.5 text-[10px] font-bold uppercase tracking-wider text-slate-400 text-right">Actions</th>
                             </tr>
                         </thead>
@@ -170,6 +171,8 @@ export const ApplicationsTable = () => {
                                                 {tier}
                                             </span>
                                         </td>
+                                        {/* TrustScore - Temporarily hidden until TrustScore engine is implemented */}
+                                        {/*
                                         <td className="px-5 py-4">
                                             <div className="flex items-center gap-1.5">
                                                 <div className="w-7 h-7 rounded-full border border-emerald-400 bg-emerald-50 flex items-center justify-center">
@@ -178,6 +181,7 @@ export const ApplicationsTable = () => {
                                                 <span className="text-[9px] font-bold uppercase text-emerald-600">Verified</span>
                                             </div>
                                         </td>
+                                        */}
                                         <td className="px-5 py-4 text-right">
                                             <button className="text-[#0066FF] font-bold text-xs flex items-center gap-1 ml-auto hover:bg-blue-50 px-3 py-1.5 rounded-xl transition-colors cursor-pointer">
                                                 Review & Hire <ArrowUpRight className="w-3.5 h-3.5" />

@@ -289,9 +289,12 @@ export const WorkerProfilePage = () => {
                     <span className="px-3 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-slate-700">
                       {worker?.experience || 0} Years Exp.
                     </span>
+                    {/* TrustScore - Temporarily hidden until TrustScore engine is implemented */}
+                    {/*
                     <span className="px-3 py-1 bg-amber-50 border border-amber-200 rounded-lg text-xs font-bold text-amber-800 flex items-center gap-1">
                       <Sparkles className="w-3 h-3 text-amber-600" /> TrustScore: {worker?.trustScore || 85}%
                     </span>
+                    */}
                   </div>
                 </div>
               </div>
