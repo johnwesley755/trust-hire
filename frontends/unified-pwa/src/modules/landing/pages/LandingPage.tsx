@@ -1,799 +1,1321 @@
-import { useEffect, useState } from "react";
-import Lenis from "@studio-freight/lenis";
+import React, { useEffect, useRef, useState } from "react";
+import Lenis from "lenis";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../../providers/AuthContext";
 import { 
   ShieldCheck, 
   CheckCircle2, 
-  Wallet, 
   Briefcase, 
   UserCheck, 
   Building2, 
-  Clock, 
-  Lock, 
-  CheckCheck, 
-  Navigation, 
-  Star, 
-  ArrowRight, 
-  Menu, 
-  X, 
-  Wrench, 
-  Timer, 
-  PhoneCall, 
-  HeartHandshake, 
-  Zap,
-  Check,
-  User,
-  BadgeCheck,
-  Headphones,
   LayoutDashboard,
-  FileCheck2,
-  Bookmark
+  Check,
+  X,
+  ArrowRight,
+  ChevronRight,
+  PhoneCall,
+  MapPin,
+  Mail,
+  Clock,
+  Sparkles
 } from "lucide-react";
+
+import { LANDING_IMAGES } from "../constants/landingAssets";
+
+// Trust Carousel Slide Data (Sourced from LANDING_IMAGES.specialists)
+const TRUST_SLIDES = LANDING_IMAGES.specialists;
+
+// Hero Collections Slider Data - High Demand Core Sectors
+const HERO_COLLECTIONS = [
+  {
+    image: LANDING_IMAGES.culinary.src,
+    brand: "TrustHyre Culinary",
+    title: "Chefs & Kitchen Crews",
+    cta: "Hire culinary staff",
+    alt: LANDING_IMAGES.culinary.alt,
+  },
+  {
+    image: LANDING_IMAGES.electrician.src,
+    brand: "TrustHyre Power",
+    title: "Certified Electricians",
+    cta: "Hire specialists",
+    alt: LANDING_IMAGES.electrician.alt,
+  },
+  {
+    image: LANDING_IMAGES.warehouseLogistics.src,
+    brand: "Fleet Logistics",
+    title: "Warehouse & Supply",
+    cta: "Deploy crew",
+    alt: LANDING_IMAGES.warehouseLogistics.alt,
+  },
+  {
+    image: LANDING_IMAGES.plumbing.src,
+    brand: "Commercial Trades",
+    title: "Plumbers & Pipefitters",
+    cta: "Browse trades",
+    alt: LANDING_IMAGES.plumbing.alt,
+  },
+];
+
+// Numbered Primary Workforce Sectors (All TrustHyre Core Domains)
+const WORKFORCE_TRACKS = [
+  {
+    index: "01",
+    name: "Commercial Culinary & Hospitality",
+    description: "Executive chefs, line cooks, kitchen supervisors, and banquet crews for restaurants, hotels, and cloud kitchens.",
+    href: "/sign-up?role=employer",
+  },
+  {
+    index: "02",
+    name: "Electrical Systems & Industrial Wiring",
+    description: "Licensed electricians, panel assemblers, high-voltage technicians, and maintenance wiremen.",
+    href: "/sign-up?role=employer",
+  },
+  {
+    index: "03",
+    name: "Warehouse Logistics, Fulfillment & Fleet",
+    description: "Certified forklift drivers, inventory controllers, packaging staff, and route delivery personnel.",
+    href: "/sign-up?role=employer",
+  },
+  {
+    index: "04",
+    name: "Commercial Plumbing & Pipefitting",
+    description: "Licensed plumbers, drainage specialists, pipeline welders, and water infrastructure technicians.",
+    href: "/sign-up?role=employer",
+  },
+  {
+    index: "05",
+    name: "Carpentry, Masonry & Construction",
+    description: "Skilled carpenters, structural masons, drywall finish crews, and civil infrastructure specialists.",
+    href: "/sign-up?role=employer",
+  },
+  {
+    index: "06",
+    name: "Facility Security & Site Protection",
+    description: "Licensed security personnel, access controllers, perimeter monitors, and verified safety officers.",
+    href: "/sign-up?role=employer",
+  },
+  {
+    index: "07",
+    name: "Commercial Cleaning & Sanitation",
+    description: "Industrial deep-cleaning crews, food-grade facility sanitation, and corporate housekeeping.",
+    href: "/sign-up?role=employer",
+  },
+];
+
+// Testimonials Data
+const TESTIMONIALS = [
+  {
+    quote: "We staffed an entire 40-person fulfillment shift in under two hours. Every single worker arrived on time, face-verified, and ready.",
+    author: "Priya Anand",
+    role: "Regional Logistics Director, Apex Supply",
+  },
+  {
+    quote: "The digital escrow structure gives us complete confidence. Wages are released instantly when the shift concludes with zero paperwork friction.",
+    author: "Lukas Brenner",
+    role: "Project Head, Urban Infra Works",
+  },
+  {
+    quote: "As an electrician, I get steady shifts with honest wages deposited directly to my UPI every evening. It transformed my earnings.",
+    author: "Dana Okafor",
+    role: "Senior Wireman & Crew Lead",
+  },
+];
 
 export default function LandingPage() {
   const navigate = useNavigate();
   const { isSignedIn, user } = useAuth();
-  const [activeRole, setActiveRole] = useState<'hire' | 'work'>('hire');
-  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
+  const [ready, setReady] = useState(false);
+  const [loaderExited, setLoaderExited] = useState(false);
 
-  const isEmployer = user?.role === 'EMPLOYER';
-  const isAdmin = user?.role === 'ADMIN';
-  const isCandidate = user?.role === 'WORKER';
+  // Overlays
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalSubmitting, setModalSubmitting] = useState(false);
+  const [modalSubmitted, setModalSubmitted] = useState(false);
+  const [modalForm, setModalForm] = useState({ name: "", email: "", requirement: "" });
 
-  const userDashboardTarget = isAdmin
-    ? '/admin/dashboard'
-    : isEmployer
-    ? '/find-workers'
-    : '/search';
+  // Carousels State
+  const [activeTrustSlide, setActiveTrustSlide] = useState(0);
+  const [trustGhostKey, setTrustGhostKey] = useState(0);
+  const [activeHeroCollection, setActiveHeroCollection] = useState(0);
+
+  // Hero Multi-Sector Background Transition
+  const [activeHeroBgIdx, setActiveHeroBgIdx] = useState(0);
 
   useEffect(() => {
+    const bgTimer = setInterval(() => {
+      setActiveHeroBgIdx((prev) => (prev + 1) % LANDING_IMAGES.heroBackgrounds.length);
+    }, 5000);
+    return () => clearInterval(bgTimer);
+  }, []);
+
+  // Parallax Values
+  const [heroParallax, setHeroParallax] = useState(0);
+  const [ghostParallax, setGhostParallax] = useState(0);
+
+  const lenisRef = useRef<Lenis | null>(null);
+  const trustSectionRef = useRef<HTMLElement | null>(null);
+
+  const isEmployer = user?.role === "EMPLOYER";
+  const isAdmin = user?.role === "ADMIN";
+  const isCandidate = user?.role === "WORKER";
+
+  // --------------------------------------------------------------------------
+  // 1. Lenis Smooth Scroll Setup + Adaptive Scaling
+  // --------------------------------------------------------------------------
+  useEffect(() => {
+    window.scrollTo(0, 0);
+
     const lenis = new Lenis({
       duration: 1.2,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smoothWheel: true,
     });
+    lenisRef.current = lenis;
 
+    // Start with scroll locked for intro loader
+    lenis.stop();
+
+    let rafId: number;
     function raf(time: number) {
       lenis.raf(time);
-      requestAnimationFrame(raf);
+      rafId = requestAnimationFrame(raf);
     }
-    requestAnimationFrame(raf);
+    rafId = requestAnimationFrame(raf);
 
-    // Smooth scroll for anchor links
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-      anchor.addEventListener('click', (e) => {
-        const href = anchor.getAttribute('href');
-        if (href) {
-          const target = document.querySelector(href);
-          if (target) {
-            e.preventDefault();
-            target.scrollIntoView({ behavior: 'smooth' });
-          }
-        }
-      });
-    });
+    // Track scroll for parallax effects
+    const onScroll = () => {
+      const scrollY = window.scrollY;
+      const vh = window.innerHeight;
+      
+      // Hero parallax: 0% -> 12%
+      const heroP = Math.min(Math.max(scrollY / vh, 0), 1);
+      setHeroParallax(heroP * 12);
 
-    return () => lenis.destroy();
+      // Ghost words parallax in Trust section
+      if (trustSectionRef.current) {
+        const rect = trustSectionRef.current.getBoundingClientRect();
+        const sectionProgress = (vh - rect.top) / (vh + rect.height);
+        const clampedProgress = Math.min(Math.max(sectionProgress, 0), 1);
+        setGhostParallax((clampedProgress - 0.5) * 6); // -3% to +3%
+      }
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+
+    // Adaptive Rem Scaling for ultra-wide screens (width > 1920)
+    const handleResize = () => {
+      const FONT_BASE = 16, BASE_W = 1920, COEF = 0.6666;
+      const innerW = window.innerWidth;
+      const reduction = ((BASE_W - innerW) / BASE_W) * 100 * COEF;
+      const size = FONT_BASE - (FONT_BASE * reduction) / 100;
+      if (size > FONT_BASE) {
+        document.documentElement.style.fontSize = size + "px";
+      } else {
+        document.documentElement.style.removeProperty("font-size");
+      }
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", handleResize);
+      lenis.destroy();
+    };
   }, []);
 
-  return (
-    <div className="bg-surface font-sans text-slate-800 antialiased selection:bg-brand-500 selection:text-white min-h-screen">
-      {/* Persisted Top Navigation Bar */}
-      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-100 transition-all">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-8">
-            <Link to="/" className="flex items-center gap-2.5 group">
-              <div className="w-10 h-10 flex items-center justify-center group-hover:scale-105 transition-transform bg-blue-50 border border-blue-100 rounded-xl p-1">
-                <img src="/logo.png" alt="TrustHyre Logo" className="w-full h-full object-contain" />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-2xl font-extrabold tracking-tight text-slate-900 leading-none">
-                  Trust<span className="text-[#0066FF]">Hyre</span>
-                </span>
-                <span className="text-[10px] font-bold text-slate-400 tracking-wide mt-0.5 uppercase">VERIFIED WORKFORCE</span>
-              </div>
-            </Link>
+  // --------------------------------------------------------------------------
+  // 2. Intro Curtain Loader Timing
+  // --------------------------------------------------------------------------
+  useEffect(() => {
+    const MIN_VISIBLE = 1400;
+    const EXIT_MS = 850;
 
-            {/* Navigation Links */}
-            <nav className="hidden md:flex items-center gap-7 text-sm font-semibold text-slate-600">
-              <a href="#how-it-works" className="hover:text-[#0066FF] transition-colors">How It Works</a>
-              <a href="#popular-jobs" className="hover:text-[#0066FF] transition-colors">Popular Jobs</a>
-              <a href="#benefits" className="hover:text-[#0066FF] transition-colors">Why People Trust Us</a>
-              <a href="#faq" className="hover:text-[#0066FF] transition-colors">Help & FAQ</a>
-            </nav>
+    const timer = setTimeout(() => {
+      setReady(true);
+      if (lenisRef.current) {
+        lenisRef.current.start();
+      }
+      setTimeout(() => {
+        setLoaderExited(true);
+      }, EXIT_MS);
+    }, MIN_VISIBLE);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  // --------------------------------------------------------------------------
+  // 3. Hero Collection Slider Autoplay (3800ms)
+  // --------------------------------------------------------------------------
+  useEffect(() => {
+    if (!ready) return;
+    const interval = setInterval(() => {
+      setActiveHeroCollection((prev) => (prev + 1) % HERO_COLLECTIONS.length);
+    }, 3800);
+    return () => clearInterval(interval);
+  }, [ready]);
+
+  // --------------------------------------------------------------------------
+  // 4. Scroll Lock for Modals / Fullscreen Menu
+  // --------------------------------------------------------------------------
+  useEffect(() => {
+    const isLocked = isMenuOpen || isModalOpen;
+    if (lenisRef.current) {
+      if (isLocked) {
+        lenisRef.current.stop();
+        document.documentElement.style.overflow = "hidden";
+      } else if (ready) {
+        lenisRef.current.start();
+        document.documentElement.style.removeProperty("overflow");
+      }
+    }
+  }, [isMenuOpen, isModalOpen, ready]);
+
+  // Handle ESC key for modal/menu
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setIsMenuOpen(false);
+        setIsModalOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  // Cycle Trust Slides
+  const handleTrustPrev = () => {
+    setActiveTrustSlide((prev) => (prev === 0 ? TRUST_SLIDES.length - 1 : prev - 1));
+    setTrustGhostKey((k) => k + 1);
+  };
+  const handleTrustNext = () => {
+    setActiveTrustSlide((prev) => (prev + 1) % TRUST_SLIDES.length);
+    setTrustGhostKey((k) => k + 1);
+  };
+  const handleTrustDot = (idx: number) => {
+    setActiveTrustSlide(idx);
+    setTrustGhostKey((k) => k + 1);
+  };
+
+  // Form Submit Stub
+  const handleModalSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!modalForm.name || !modalForm.email) return;
+    setModalSubmitting(true);
+    setTimeout(() => {
+      setModalSubmitting(false);
+      setModalSubmitted(true);
+    }, 700);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setTimeout(() => {
+      setModalSubmitted(false);
+      setModalForm({ name: "", email: "", requirement: "" });
+    }, 350);
+  };
+
+  const currentSlide = TRUST_SLIDES[activeTrustSlide];
+
+  return (
+    <div className="baseline-root bg-white text-[#0a0a0a] min-h-screen selection:bg-[#2563c9] selection:text-white font-['Onest',system-ui,sans-serif]">
+      
+      {/* ===================================================================== */}
+      {/* 0. INTRO CURTAIN LOADER */}
+      {/* ===================================================================== */}
+      {!loaderExited && (
+        <div 
+          className={`fixed inset-0 z-[200] bg-[#0f2f63] text-white flex flex-col items-center justify-center transition-transform duration-[850ms] ease-[cubic-bezier(0.65,0,0.35,1)] ${
+            ready ? "-translate-y-[105%]" : "translate-y-0"
+          }`}
+        >
+          {/* Brand Wordmark with initial fade/rise */}
+          <div className="flex items-center gap-3.5 mb-8 animate-[fadeRise_600ms_cubic-bezier(0.16,1,0.3,1)_forwards]">
+            <div className="w-8 h-8 rounded-full border-[2.2px] border-white flex items-center justify-center p-1.5">
+              <ShieldCheck className="w-full h-full text-white" />
+            </div>
+            <span className="text-2xl font-medium tracking-[0.22em] uppercase">TrustHyre</span>
           </div>
 
-          {/* Right Header Controls based on Auth State */}
-          <div className="flex items-center gap-3">
-            {isSignedIn ? (
-              <div className="flex items-center gap-2.5">
-                {isAdmin ? (
-                  <Link
-                    to="/admin/dashboard"
-                    className="px-4.5 py-2.5 rounded-xl text-xs font-bold bg-blue-50 hover:bg-blue-100 text-[#0066FF] border border-blue-200/80 shadow-xs flex items-center gap-2 transition-all cursor-pointer"
-                  >
-                    <ShieldCheck className="w-4 h-4 text-[#0066FF]" />
-                    <span>Admin Command Center</span>
-                  </Link>
-                ) : isEmployer ? (
-                  <>
-                    <Link
-                      to="/find-workers"
-                      className="hidden sm:inline-flex px-4 py-2 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-100 transition-colors items-center gap-1.5 border border-slate-200 bg-white shadow-xs"
-                    >
-                      <UserCheck className="w-4 h-4 text-[#0066FF]" />
-                      <span>Find Candidates</span>
-                    </Link>
-                    <Link
-                      to="/dashboard"
-                      className="px-4.5 py-2.5 rounded-xl text-xs font-bold bg-[#0066FF] hover:bg-[#0052CC] text-white shadow-md shadow-blue-500/20 active:scale-95 transition-all flex items-center gap-2 cursor-pointer"
-                    >
-                      <LayoutDashboard className="w-4 h-4" />
-                      <span>Employer Dashboard</span>
-                    </Link>
-                  </>
-                ) : (
-                  <>
-                    <Link
-                      to="/search"
-                      className="hidden sm:inline-flex px-4 py-2 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-100 transition-colors items-center gap-1.5 border border-slate-200 bg-white shadow-xs"
-                    >
-                      <Briefcase className="w-4 h-4 text-[#0066FF]" />
-                      <span>Find Jobs</span>
-                    </Link>
-                    <Link
-                      to="/applied-jobs"
-                      className="px-4.5 py-2.5 rounded-xl text-xs font-bold bg-[#0066FF] hover:bg-[#0052CC] text-white shadow-md shadow-blue-500/20 active:scale-95 transition-all flex items-center gap-2 cursor-pointer"
-                    >
-                      <CheckCircle2 className="w-4 h-4" />
-                      <span>My Applied Jobs</span>
-                    </Link>
-                  </>
-                )}
-              </div>
-            ) : (
-              <>
-                <Link to="/sign-in?role=worker" className="hidden sm:inline-flex px-4 py-2 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-100 transition-colors items-center gap-1.5 border border-slate-200 bg-white shadow-xs">
-                  <UserCheck className="w-4 h-4 text-[#0066FF]" />
-                  <span>Candidate Login</span>
-                </Link>
-                <Link to="/sign-in?role=employer" className="hidden sm:inline-flex px-4 py-2 rounded-xl text-xs font-bold bg-[#0066FF] hover:bg-[#0052CC] text-white shadow-md shadow-blue-500/20 active:scale-95 transition-all items-center gap-1.5">
-                  <Building2 className="w-4 h-4" />
-                  <span>Employer Login</span>
-                </Link>
-              </>
-            )}
-
-            {/* Mobile Hamburger Toggle Button */}
-            <button
-              type="button"
-              onClick={() => setIsMobileNavOpen(!isMobileNavOpen)}
-              className="md:hidden p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 transition-colors"
-              aria-label="Toggle Menu"
-            >
-              {isMobileNavOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </button>
+          {/* Progress Bar Track */}
+          <div className="w-40 h-[1.5px] rounded-full bg-white/20 overflow-hidden relative">
+            <div 
+              className="absolute inset-y-0 left-0 bg-white origin-left transition-transform duration-[1280ms] ease-[cubic-bezier(0.65,0,0.35,1)] delay-100"
+              style={{ transform: ready ? "scaleX(1)" : "scaleX(0.08)", width: "100%" }}
+            />
           </div>
         </div>
+      )}
 
-        {/* Mobile Navigation Drawer */}
-        {isMobileNavOpen && (
-          <div className="md:hidden bg-white border-b border-slate-200 px-4 py-5 space-y-4 shadow-xl">
-            <nav className="flex flex-col space-y-3 text-sm font-bold text-slate-700">
-              <a 
-                href="#how-it-works" 
-                onClick={() => setIsMobileNavOpen(false)}
-                className="px-3 py-2 rounded-lg hover:bg-slate-50 transition-colors"
+      {/* ===================================================================== */}
+      {/* FULLSCREEN MENU OVERLAY */}
+      {/* ===================================================================== */}
+      {isMenuOpen && (
+        <div className="fixed inset-0 z-[120] flex flex-col pointer-events-auto">
+          {/* Navy Backdrop */}
+          <div 
+            onClick={() => setIsMenuOpen(false)}
+            className="absolute inset-0 bg-[#0f2f63] opacity-98 transition-opacity duration-300"
+          />
+
+          {/* Inner Content */}
+          <div className="relative z-10 flex flex-col justify-between h-full p-6 sm:p-10 text-white">
+            {/* Top Row: Brand & Close Button */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-7 h-7 rounded-full border border-white/40 flex items-center justify-center">
+                  <ShieldCheck className="w-4 h-4 text-white" />
+                </div>
+                <span className="text-base font-medium tracking-[0.2em] uppercase">TrustHyre</span>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setIsMenuOpen(false)}
+                className="w-10 h-10 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center transition-transform hover:rotate-90 group cursor-pointer"
+                aria-label="Close menu"
               >
-                How It Works
+                <X className="w-5 h-5 text-white transition-transform duration-200" />
+              </button>
+            </div>
+
+            {/* Center Navigation Links */}
+            <nav className="flex flex-col gap-2 my-auto">
+              {[
+                { label: "Categories", href: "#categories" },
+                { label: "Technology", href: "#technology" },
+                { label: "Metrics", href: "#metrics" },
+                { label: "Reviews", href: "#reviews" },
+                { label: "Contact", href: "#contact" },
+              ].map((item, idx) => (
+                <a
+                  key={item.label}
+                  href={item.href}
+                  onClick={() => setIsMenuOpen(false)}
+                  style={{ animationDelay: `${120 + idx * 70}ms` }}
+                  className="text-5xl sm:text-7xl font-medium tracking-tight text-white hover:text-[#5790e6] transition-colors leading-[1.05] block py-1"
+                >
+                  {item.label}
+                </a>
+              ))}
+            </nav>
+
+            {/* Bottom Row */}
+            <div className="border-t border-white/15 pt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsMenuOpen(false);
+                  setIsModalOpen(true);
+                }}
+                className="px-7 py-3.5 rounded-full bg-white text-[#0f2f63] font-medium text-sm tracking-wide uppercase hover:bg-[#5790e6] hover:text-white transition-all cursor-pointer flex items-center gap-2"
+              >
+                <span>Book a Consultation</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+
+              <div className="flex items-center gap-6 text-sm text-white/70">
+                <Link to="/sign-in?role=worker" className="hover:text-white transition-colors">Candidate Login</Link>
+                <Link to="/sign-in?role=employer" className="hover:text-white transition-colors">Employer Login</Link>
+                <Link to="/privacy" className="hover:text-white transition-colors">Privacy</Link>
+                <Link to="/terms" className="hover:text-white transition-colors">Terms</Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ===================================================================== */}
+      {/* CONTACT / VISIT MODAL */}
+      {/* ===================================================================== */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-[140] flex items-end sm:items-center justify-center p-3 sm:p-6 pointer-events-auto">
+          {/* Backdrop Blur */}
+          <div 
+            onClick={handleCloseModal}
+            className="absolute inset-0 bg-[#0f2f63]/60 backdrop-blur-md transition-opacity duration-300"
+          />
+
+          {/* Modal Panel */}
+          <div 
+            role="dialog"
+            aria-modal="true"
+            className="relative w-full max-w-lg bg-white rounded-[2rem] p-6 sm:p-8 shadow-2xl text-[#0a0a0a] max-h-[90svh] overflow-y-auto animate-[modalSpring_400ms_cubic-bezier(0.16,1,0.3,1)_forwards]"
+          >
+            {/* Header */}
+            <div className="flex items-start justify-between">
+              <div>
+                <div className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.22em] text-[#717784] mb-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#2563c9]" />
+                  <span>Workforce Consultation</span>
+                </div>
+                <h3 className="text-3xl sm:text-4xl font-medium tracking-tight text-[#0a0a0a] leading-[1.05]">
+                  Deploy Verified <br /> Crews Directly
+                </h3>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleCloseModal}
+                className="w-10 h-10 rounded-full bg-[#f4f4f4] hover:bg-[#e6e8ec] flex items-center justify-center transition-transform hover:rotate-90 cursor-pointer"
+                aria-label="Close"
+              >
+                <X className="w-5 h-5 text-[#0a0a0a]" />
+              </button>
+            </div>
+
+            {modalSubmitted ? (
+              <div className="mt-8 p-6 rounded-2xl bg-[#f4f4f4] text-center space-y-3">
+                <div className="w-12 h-12 rounded-full bg-[#2563c9] text-white flex items-center justify-center mx-auto">
+                  <Check className="w-6 h-6" />
+                </div>
+                <h4 className="text-xl font-medium text-[#0a0a0a]">Request Received</h4>
+                <p className="text-sm text-[#717784] leading-relaxed">
+                  Thanks, <span className="font-medium text-[#0a0a0a]">{modalForm.name.split(" ")[0] || "there"}</span> — our field team will be in touch within 15 minutes to confirm shift requirements.
+                </p>
+                <button
+                  type="button"
+                  onClick={handleCloseModal}
+                  className="w-full mt-4 py-3.5 rounded-full bg-[#0a0a0a] hover:bg-[#0f2f63] text-white font-medium text-sm tracking-wide uppercase transition-colors cursor-pointer"
+                >
+                  Done
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleModalSubmit} className="mt-6 flex flex-col gap-4">
+                <div>
+                  <label className="block text-xs font-medium uppercase tracking-[0.18em] text-[#717784] mb-1.5">
+                    Full Name *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Alex Rivera"
+                    value={modalForm.name}
+                    onChange={(e) => setModalForm({ ...modalForm, name: e.target.value })}
+                    className="w-full rounded-xl border border-[#e6e8ec] bg-white px-4 py-3 text-sm focus:border-[#5790e6] focus:outline-hidden transition-colors"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium uppercase tracking-[0.18em] text-[#717784] mb-1.5">
+                    Work Email *
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    placeholder="you@company.com"
+                    value={modalForm.email}
+                    onChange={(e) => setModalForm({ ...modalForm, email: e.target.value })}
+                    className="w-full rounded-xl border border-[#e6e8ec] bg-white px-4 py-3 text-sm focus:border-[#5790e6] focus:outline-hidden transition-colors"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium uppercase tracking-[0.18em] text-[#717784] mb-1.5">
+                    What workers or shifts do you need?
+                  </label>
+                  <textarea
+                    rows={3}
+                    placeholder="We need 15 warehouse logistics workers for weekend night shifts..."
+                    value={modalForm.requirement}
+                    onChange={(e) => setModalForm({ ...modalForm, requirement: e.target.value })}
+                    className="w-full rounded-xl border border-[#e6e8ec] bg-white px-4 py-3 text-sm focus:border-[#5790e6] focus:outline-hidden transition-colors resize-none"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={modalSubmitting}
+                  className="w-full mt-2 py-4 rounded-full bg-[#0a0a0a] hover:bg-[#0f2f63] text-white font-medium text-sm tracking-wide uppercase transition-colors cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
+                >
+                  {modalSubmitting ? "Sending..." : "Request Workforce Dispatch"}
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ===================================================================== */}
+      {/* MAIN CONTENT WRAPPER WITH INSET PAGE FRAME (p-2 sm:p-3) */}
+      {/* ===================================================================== */}
+      <main className="w-full p-2 sm:p-3 overflow-x-clip bg-white">
+        
+        {/* =================================================================== */}
+        {/* 1. HERO SECTION */}
+        {/* =================================================================== */}
+        <section className="relative isolate overflow-hidden rounded-[2rem] bg-[#0f2f63] text-white min-h-[38rem] h-[calc(100svh-1.5rem)] flex flex-col justify-between">
+          
+          {/* Parallax Background Plate with Multi-Sector Crossfade Transitions */}
+          <div 
+            className="absolute inset-x-0 -top-[16%] h-[132%] w-full -z-10 pointer-events-none transition-transform duration-75 ease-out overflow-hidden"
+            style={{ transform: `translateY(${heroParallax}%)` }}
+          >
+            {LANDING_IMAGES.heroBackgrounds.map((bg, idx) => (
+              <img 
+                key={bg.src}
+                src={bg.src}
+                alt={bg.alt}
+                className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out ${
+                  idx === activeHeroBgIdx ? "opacity-100 scale-105" : "opacity-0 scale-100"
+                }`}
+                loading={idx === 0 ? "eager" : "lazy"}
+              />
+            ))}
+            {/* Top-to-bottom Overlay Gradients */}
+            <div className="absolute inset-0 bg-gradient-to-b from-[#0f2f63]/80 via-[#0f2f63]/50 to-[#0f2f63]/85" />
+          </div>
+
+          {/* SITE HEADER (Transparent inside Hero) */}
+          <header className="w-full px-6 py-6 sm:px-10 sm:py-8 flex items-center justify-between text-xs z-20">
+            {/* Left Navigation (Desktop) */}
+            <nav className="hidden lg:flex items-center gap-8 flex-1">
+              <a href="#categories" className="text-white/85 hover:text-white transition-colors tracking-wide">
+                Categories & Talent
               </a>
-              <a 
-                href="#popular-jobs" 
-                onClick={() => setIsMobileNavOpen(false)}
-                className="px-3 py-2 rounded-lg hover:bg-slate-50 transition-colors"
-              >
-                Popular Jobs
+              <a href="#technology" className="text-white/85 hover:text-white transition-colors tracking-wide">
+                Trust & Verification
               </a>
-              <a 
-                href="#benefits" 
-                onClick={() => setIsMobileNavOpen(false)}
-                className="px-3 py-2 rounded-lg hover:bg-slate-50 transition-colors"
-              >
-                Why People Trust Us
-              </a>
-              <a 
-                href="#faq" 
-                onClick={() => setIsMobileNavOpen(false)}
-                className="px-3 py-2 rounded-lg hover:bg-slate-50 transition-colors"
-              >
-                Help & FAQ
+              <a href="#metrics" className="text-white/85 hover:text-white transition-colors tracking-wide">
+                By The Numbers
               </a>
             </nav>
 
-            <div className="pt-3 border-t border-slate-100 flex flex-col gap-2.5">
-              {isSignedIn ? (
-                <Link
-                  to={userDashboardTarget}
-                  onClick={() => setIsMobileNavOpen(false)}
-                  className="w-full py-2.5 px-4 rounded-xl text-xs font-bold bg-[#0066FF] hover:bg-[#0052CC] text-white text-center flex items-center justify-center gap-2 shadow-md"
-                >
-                  <LayoutDashboard className="w-4 h-4" />
-                  <span>{isAdmin ? 'Admin Dashboard' : isEmployer ? 'Employer Dashboard' : 'My Candidate Portal'}</span>
-                </Link>
-              ) : (
-                <>
-                  <Link
-                    to="/sign-in?role=worker"
-                    onClick={() => setIsMobileNavOpen(false)}
-                    className="w-full py-2.5 px-4 rounded-xl text-xs font-bold text-slate-800 bg-slate-100 hover:bg-slate-200 text-center flex items-center justify-center gap-2"
-                  >
-                    <UserCheck className="w-4 h-4 text-[#0066FF]" />
-                    <span>Candidate Login</span>
-                  </Link>
-                  <Link
-                    to="/sign-in?role=employer"
-                    onClick={() => setIsMobileNavOpen(false)}
-                    className="w-full py-2.5 px-4 rounded-xl text-xs font-bold bg-[#0066FF] hover:bg-[#0052CC] text-white text-center flex items-center justify-center gap-2 shadow-md"
-                  >
-                    <Building2 className="w-4 h-4" />
-                    <span>Employer Login</span>
-                  </Link>
-                </>
-              )}
+            {/* Center Brand */}
+            <div className="flex items-center justify-center gap-2 flex-1 lg:justify-center">
+              <div className="w-6 h-6 rounded-full border border-white/60 flex items-center justify-center p-1">
+                <ShieldCheck className="w-full h-full text-white" />
+              </div>
+              <span className="text-base font-medium tracking-[0.2em] uppercase text-white">TrustHyre</span>
             </div>
-          </div>
-        )}
-      </header>
 
-      <main className="space-y-24 md:space-y-32">
-        {/* ========================================================================= */}
-        {/* SECTION 1: HERO - SIMPLE PROMISE FOR BOTH WORKERS & EMPLOYERS */}
-        {/* ========================================================================= */}
-        <section className="relative pt-8 md:pt-14 pb-12 overflow-hidden" id="hero">
-          {/* Ambient background decoration */}
-          <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[900px] h-[450px] bg-gradient-to-r from-blue-200/50 via-sky-100/40 to-emerald-100/40 blur-3xl rounded-full -z-10 pointer-events-none"></div>
-
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
-              {/* Left Content: Plain English, Zero Jargon */}
-              <div className="lg:col-span-6 space-y-6 text-center lg:text-left">
-                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-50 border border-blue-200 text-[#0066FF] text-xs font-bold tracking-wide uppercase shadow-xs">
-                  <span className="w-2 h-2 rounded-full bg-[#0066FF] animate-ping"></span>
-                  Fast, Guaranteed & Honest
-                </div>
-
-                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.15]">
-                  Get Trusted Workers. <br />
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0066FF] to-blue-600">Find Daily Jobs.</span> <br />
-                  Paid Right on Time.
-                </h1>
-
-                <p className="text-base sm:text-lg text-slate-600 font-body max-w-xl mx-auto lg:mx-0 leading-relaxed">
-                  No middleman delays, no unfair cuts. TrustHyre connects everyday businesses with verified skilled workers, technicians, and specialists with guaranteed safe payments.
-                </p>
-
-                {/* Dual Simple Action Pill Buttons */}
-                <div className="pt-2 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
-                  {isSignedIn ? (
-                    isAdmin ? (
-                      <>
-                        <Link to="/admin/dashboard" className="w-full sm:w-auto px-7 py-4 rounded-2xl bg-[#0066FF] hover:bg-[#0052CC] text-white font-bold text-base shadow-xl shadow-blue-500/30 flex items-center justify-center gap-2.5 group transition-all hover:scale-[1.02]">
-                          <ShieldCheck className="w-5 h-5" />
-                          <span>Open Admin Command</span>
-                        </Link>
-                        <Link to="/admin/verifications" className="w-full sm:w-auto px-7 py-4 rounded-2xl bg-white hover:bg-slate-50 border-2 border-slate-200 text-slate-800 font-bold text-base shadow-xs flex items-center justify-center gap-2.5 hover:border-[#0066FF] hover:text-[#0066FF] transition-all hover:scale-[1.02]">
-                          <FileCheck2 className="w-5 h-5 text-blue-600" />
-                          <span>Review Verification Queue</span>
-                        </Link>
-                      </>
-                    ) : isEmployer ? (
-                      <>
-                        <Link to="/post-job" className="w-full sm:w-auto px-7 py-4 rounded-2xl bg-[#0066FF] hover:bg-[#0052CC] text-white font-bold text-base shadow-xl shadow-blue-500/30 flex items-center justify-center gap-2.5 group transition-all hover:scale-[1.02]">
-                          <Briefcase className="w-5 h-5 group-hover:rotate-6 transition-transform" />
-                          <span>Post a New Job</span>
-                        </Link>
-                        <Link to="/find-workers" className="w-full sm:w-auto px-7 py-4 rounded-2xl bg-white hover:bg-slate-50 border-2 border-slate-200 text-slate-800 font-bold text-base shadow-xs flex items-center justify-center gap-2.5 hover:border-[#0066FF] hover:text-[#0066FF] transition-all hover:scale-[1.02]">
-                          <UserCheck className="w-5 h-5 text-emerald-600" />
-                          <span>Find Verified Candidates</span>
-                        </Link>
-                      </>
-                    ) : (
-                      <>
-                        <Link to="/search" className="w-full sm:w-auto px-7 py-4 rounded-2xl bg-[#0066FF] hover:bg-[#0052CC] text-white font-bold text-base shadow-xl shadow-blue-500/30 flex items-center justify-center gap-2.5 group transition-all hover:scale-[1.02]">
-                          <Briefcase className="w-5 h-5 group-hover:rotate-6 transition-transform" />
-                          <span>Browse Available Jobs</span>
-                        </Link>
-                        <Link to="/applied-jobs" className="w-full sm:w-auto px-7 py-4 rounded-2xl bg-white hover:bg-slate-50 border-2 border-slate-200 text-slate-800 font-bold text-base shadow-xs flex items-center justify-center gap-2.5 hover:border-[#0066FF] hover:text-[#0066FF] transition-all hover:scale-[1.02]">
-                          <CheckCircle2 className="w-5 h-5 text-emerald-600" />
-                          <span>View My Applied Jobs</span>
-                        </Link>
-                      </>
-                    )
+            {/* Right Header Controls */}
+            <div className="flex items-center justify-end gap-4 flex-1">
+              {isSignedIn ? (
+                <div className="hidden sm:flex items-center gap-2">
+                  {isAdmin ? (
+                    <Link
+                      to="/admin/dashboard"
+                      className="px-4 py-2 rounded-full text-xs font-medium bg-white text-[#0f2f63] hover:bg-[#5790e6] hover:text-white transition-colors flex items-center gap-1.5"
+                    >
+                      <ShieldCheck className="w-3.5 h-3.5" />
+                      <span>Admin Hub</span>
+                    </Link>
+                  ) : isEmployer ? (
+                    <>
+                      <Link
+                        to="/find-workers"
+                        className="px-3.5 py-2 rounded-full text-xs font-medium text-white/90 hover:text-white transition-colors"
+                      >
+                        Find Candidates
+                      </Link>
+                      <Link
+                        to="/dashboard"
+                        className="px-4 py-2 rounded-full text-xs font-medium bg-white text-[#0f2f63] hover:bg-[#5790e6] hover:text-white transition-colors"
+                      >
+                        Dashboard
+                      </Link>
+                    </>
                   ) : (
                     <>
-                      <Link to="/sign-up?role=employer" className="w-full sm:w-auto px-7 py-4 rounded-2xl bg-[#0066FF] hover:bg-[#0052CC] text-white font-bold text-base shadow-xl shadow-blue-500/30 flex items-center justify-center gap-2.5 group transition-all hover:scale-[1.02]">
-                        <Briefcase className="w-5 h-5 group-hover:rotate-6 transition-transform" />
-                        <span>I Need to Hire Workers</span>
+                      <Link
+                        to="/search"
+                        className="px-3.5 py-2 rounded-full text-xs font-medium text-white/90 hover:text-white transition-colors"
+                      >
+                        Find Shifts
                       </Link>
-                      <Link to="/sign-up?role=worker" className="w-full sm:w-auto px-7 py-4 rounded-2xl bg-white hover:bg-slate-50 border-2 border-slate-200 text-slate-800 font-bold text-base shadow-xs flex items-center justify-center gap-2.5 hover:border-[#0066FF] hover:text-[#0066FF] transition-all hover:scale-[1.02]">
-                        <Wallet className="w-5 h-5 text-emerald-600" />
-                        <span>I Want Daily Jobs & Work</span>
+                      <Link
+                        to="/applied-jobs"
+                        className="px-4 py-2 rounded-full text-xs font-medium bg-white text-[#0f2f63] hover:bg-[#5790e6] hover:text-white transition-colors"
+                      >
+                        My Jobs
                       </Link>
                     </>
                   )}
                 </div>
+              ) : (
+                <>
+                  <Link
+                    to="/sign-in?role=worker"
+                    className="hidden md:inline-flex text-white/80 hover:text-white uppercase tracking-wider text-xs transition-colors"
+                  >
+                    Worker Login
+                  </Link>
+                  <Link
+                    to="/sign-in?role=employer"
+                    className="hidden sm:inline-flex text-white/80 hover:text-white uppercase tracking-wider text-xs transition-colors"
+                  >
+                    Employer Login
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => setIsModalOpen(true)}
+                    className="hidden sm:inline-flex uppercase tracking-wider text-xs hover:underline underline-offset-4 text-white font-medium cursor-pointer"
+                  >
+                    Book a Visit
+                  </button>
+                </>
+              )}
 
-                {/* Trust proof badges in simple terms */}
-                <div className="pt-4 border-t border-slate-200/80 flex flex-wrap items-center justify-center lg:justify-start gap-6 text-xs text-slate-500 font-medium">
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                    <span>Government ID Checked</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Lock className="w-4 h-4 text-[#0066FF] shrink-0" />
-                    <span>Safe Money Escrow</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Clock className="w-4 h-4 text-amber-500 shrink-0" />
-                    <span>Same-Day Direct Payout</span>
-                  </div>
-                </div>
-              </div>
+              {/* Hamburger Button */}
+              <button
+                type="button"
+                onClick={() => setIsMenuOpen(true)}
+                className="w-10 h-10 rounded-full bg-white/15 backdrop-blur-xs hover:bg-white/25 flex flex-col items-center justify-center gap-1.25 transition-colors cursor-pointer"
+                aria-label="Open menu"
+              >
+                <span className="w-4 h-[1px] bg-white block" />
+                <span className="w-4 h-[1px] bg-white block" />
+              </button>
+            </div>
+          </header>
 
-              {/* Right Content: Real Photography with Overlaid Floating Cards */}
-              <div className="lg:col-span-6 relative">
-                <div className="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-white bg-slate-100 group">
-                  <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuB-Lj0Ng7SlNWBdmMHa5JbtqPxAzSkk5KG_RFvduc7waqQtB4DN3_HEfqsTldQxZLEOkxojWUBJnoDLPK4KiLN6hrLuoYeGJb1DIOPPlYfvgLwGZYLPjtX2PY2gDaQekUhbNa1EuXYcf1sg0KoqbBPR4uegU3U_xOHPzsijIaarOvf56Lh1mGyrZsRme0ZxUwmzAgj688Ppm4OS6doU5acw0nAfjnzTODKZKt8YuZa7OeaCDHCBvQ8fEQ" alt="Real friendly blue collar workers team" className="w-full h-[420px] sm:h-[480px] object-cover object-center group-hover:scale-105 transition-transform duration-700" />
-                  
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent"></div>
+          {/* GIANT TITLE BLOCK WITH CLIP-MASK WORD REVEAL */}
+          <div className="px-6 sm:px-10 pt-4 sm:pt-6">
+            <h1 className="text-[12.2vw] font-medium uppercase leading-[0.85] tracking-[-0.025em] text-white whitespace-nowrap overflow-hidden">
+              {["OWN", "THE", "SHIFT"].map((word, wIdx) => (
+                <span 
+                  key={word} 
+                  className="inline-block overflow-hidden pb-[0.08em] mr-[0.25em] last:mr-0 align-bottom"
+                >
+                  <span 
+                    className={`inline-block transition-all duration-[1100ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                      ready ? "translate-y-0 opacity-100" : "translate-y-[115%] opacity-0"
+                    }`}
+                    style={{ transitionDelay: `${wIdx * 140}ms` }}
+                  >
+                    {word}
+                  </span>
+                </span>
+              ))}
+            </h1>
+          </div>
 
-                  <div className="absolute bottom-4 left-5 right-5 text-white flex items-center justify-between">
-                    <div>
-                      <p className="font-bold text-sm sm:text-base flex items-center gap-1.5">
-                        <BadgeCheck className="w-4 h-4 text-emerald-400 shrink-0" /> Over 140,000+ Active Pros
-                      </p>
-                      <p className="text-xs text-white/80">From local neighborhood repairs to factory jobs</p>
-                    </div>
-                    <span className="px-3 py-1 rounded-full bg-emerald-500/90 backdrop-blur-sm text-xs font-extrabold uppercase tracking-wide text-white">4.9 ★ Rated</span>
-                  </div>
-                </div>
-
-                {/* Floating Interactive Card 1: Worker Payment Proof */}
-                <div className="absolute -top-5 -left-4 sm:-left-8 bg-white/95 backdrop-blur-md p-3.5 sm:p-4 rounded-2xl shadow-xl border border-slate-100 flex items-center gap-3.5 max-w-[260px] animate-float">
-                  <div className="w-11 h-11 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold shrink-0">
-                    <Wallet className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide">Daily Job Completed</span>
-                    <p className="text-sm font-extrabold text-slate-900">₹1,200 Transferred</p>
-                    <p className="text-[11px] text-emerald-600 font-bold flex items-center gap-1">
-                      <CheckCheck className="w-3.5 h-3.5" /> Direct UPI Paid
+          {/* BOTTOM ROW (Tagline + Floating Cluster) */}
+          {/* Bottom Row inside Hero: Stacked Tagline + Active Sector Pill + Sliders */}
+          <div className="mt-auto px-6 pb-8 sm:px-10 sm:pb-10 flex flex-col sm:flex-row items-start sm:items-end justify-between gap-6">
+            
+            {/* Tagline Stacked Lines + Active Sector Indicator */}
+            <div className="space-y-3">
+              <div className="space-y-1">
+                {["SHOW UP,", "GET PAID."].map((line, lIdx) => (
+                  <div key={line} className="overflow-hidden pb-[0.14em]">
+                    <p 
+                      className={`text-3xl sm:text-[2.4rem] font-medium uppercase leading-[0.95] tracking-tight text-white/85 transition-all duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                        ready ? "translate-y-0 opacity-100" : "translate-y-[115%] opacity-0"
+                      }`}
+                      style={{ transitionDelay: `${350 + lIdx * 110}ms` }}
+                    >
+                      {line}
                     </p>
                   </div>
-                </div>
-
-                {/* Floating Interactive Card 2: Fast Arrival */}
-                <div className="absolute -bottom-6 -right-2 sm:-right-6 bg-white/95 backdrop-blur-md p-3.5 sm:p-4 rounded-2xl shadow-xl border border-slate-100 flex items-center gap-3.5 max-w-[240px] animate-float-delayed">
-                  <div className="w-11 h-11 rounded-xl bg-blue-100 text-[#0066FF] flex items-center justify-center font-bold shrink-0">
-                    <Navigation className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide">Nearby Worker Found</span>
-                    <p className="text-sm font-extrabold text-slate-900">Arrives in 18 mins</p>
-                    <p className="text-[11px] text-slate-500">ID & Police Check Verified</p>
-                  </div>
-                </div>
-
+                ))}
               </div>
+
+              {/* Active Sector Crossfade Indicator Pill */}
+              <div 
+                className={`inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-[0.7rem] text-white/90 transition-all duration-500 ${
+                  ready ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+                }`}
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-[#5790e6] animate-pulse" />
+                <span className="font-medium uppercase tracking-wider">{LANDING_IMAGES.heroBackgrounds[activeHeroBgIdx].label}</span>
+                <div className="flex items-center gap-1 ml-1">
+                  {LANDING_IMAGES.heroBackgrounds.map((_, dotIdx) => (
+                    <span 
+                      key={dotIdx}
+                      className={`h-1 rounded-full transition-all duration-300 ${
+                        dotIdx === activeHeroBgIdx ? "w-3 bg-white" : "w-1 bg-white/40"
+                      }`}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Right Cluster */}
+            <div className="flex items-end gap-4 w-full sm:w-auto">
+              
+              {/* Collection Slider (3800ms Auto-advance Card) */}
+              <div 
+                className={`hidden md:flex flex-col gap-2.5 w-64 transition-all duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)] delay-[650ms] ${
+                  ready ? "translate-y-0 opacity-100" : "translate-y-7 opacity-0"
+                }`}
+              >
+                <div className="rounded-[1.5rem] border border-white/15 bg-white/10 backdrop-blur-md p-3 shadow-xl flex items-center gap-3">
+                  <div className="w-14 h-14 rounded-xl overflow-hidden shrink-0">
+                    <img 
+                      src={HERO_COLLECTIONS[activeHeroCollection].image}
+                      alt={HERO_COLLECTIONS[activeHeroCollection].alt}
+                      className="w-full h-full object-cover transition-opacity duration-300"
+                    />
+                  </div>
+                  <div className="flex flex-col text-left overflow-hidden">
+                    <span className="text-[0.7rem] font-medium uppercase tracking-wider text-white">
+                      {HERO_COLLECTIONS[activeHeroCollection].brand}
+                    </span>
+                    <span className="text-[0.7rem] uppercase text-white/80 truncate">
+                      {HERO_COLLECTIONS[activeHeroCollection].title}
+                    </span>
+                    <Link 
+                      to="/sign-up?role=employer" 
+                      className="text-[0.65rem] underline text-[#5790e6] hover:text-white mt-1 transition-colors"
+                    >
+                      {HERO_COLLECTIONS[activeHeroCollection].cta} →
+                    </Link>
+                  </div>
+                </div>
+
+                {/* Slider Dots */}
+                <div className="flex items-center gap-1.5 px-2">
+                  {HERO_COLLECTIONS.map((_, dotIdx) => (
+                    <button
+                      key={dotIdx}
+                      type="button"
+                      onClick={() => setActiveHeroCollection(dotIdx)}
+                      className={`h-1.5 rounded-full transition-all duration-300 ${
+                        activeHeroCollection === dotIdx ? "w-5 bg-white" : "w-1.5 bg-white/40"
+                      }`}
+                      aria-label={`Slide ${dotIdx + 1}`}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              {/* Membership / Verified Workers Card */}
+              <article 
+                className={`w-full max-w-xs sm:w-60 rounded-[1.5rem] border border-white/15 bg-white/10 backdrop-blur-md p-3 shadow-xl flex items-stretch gap-3 transition-all duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)] delay-[780ms] ${
+                  ready ? "translate-y-0 opacity-100" : "translate-y-7 opacity-0"
+                }`}
+              >
+                <div className="flex flex-col justify-between text-left py-0.5">
+                  <span className="text-3xl font-medium leading-none text-white tracking-tight">
+                    14K+
+                  </span>
+                  {/* Avatar circles row */}
+                  <div className="flex items-center -space-x-2 my-2">
+                    {["#5790e6", "#c2e029", "#0b6e97", "#ffffff"].map((color, cIdx) => (
+                      <span 
+                        key={cIdx}
+                        className="w-5 h-5 rounded-full border border-[#0f2f63]/40 block shrink-0"
+                        style={{ backgroundColor: color }}
+                      />
+                    ))}
+                  </div>
+                  <span className="text-[0.65rem] text-white/80 uppercase tracking-wide">
+                    Verified on platform
+                  </span>
+                </div>
+
+                <div className="w-16 aspect-[3/4] rounded-xl overflow-hidden shrink-0 ml-auto">
+                  <img 
+                    src={LANDING_IMAGES.memberBadge.src}
+                    alt={LANDING_IMAGES.memberBadge.alt}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              </article>
 
             </div>
           </div>
         </section>
 
-        {/* ========================================================================= */}
-        {/* SECTION 2: HOW IT WORKS - SIMPLE STEPS */}
-        {/* ========================================================================= */}
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" id="how-it-works">
-          
-          <div className="text-center max-w-3xl mx-auto space-y-3">
-            <span className="px-3.5 py-1.5 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold uppercase tracking-wider border border-emerald-200">
-              Easy 3-Step Process
-            </span>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
-              Clear, simple, and zero confusion.
-            </h2>
-            <p className="text-slate-600 text-base sm:text-lg">
-              Whether you need an honest technician in an hour, or you are looking for dependable work today, here is how everything runs safely.
-            </p>
-
-            {/* Dynamic Toggle */}
-            <div className="pt-4 flex justify-center">
-              <div className="inline-flex p-1.5 bg-slate-100 rounded-2xl border border-slate-200" id="roles">
-                <button 
-                  onClick={() => setActiveRole('hire')} 
-                  className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center gap-2 cursor-pointer ${activeRole === 'hire' ? 'bg-[#0066FF] text-white shadow-md shadow-blue-500/30' : 'text-slate-600 hover:text-slate-900'}`}
-                >
-                  <Building2 className="w-4 h-4" />
-                  <span>For Employers / Hiring</span>
-                </button>
-                <button 
-                  onClick={() => setActiveRole('work')} 
-                  className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center gap-2 cursor-pointer ${activeRole === 'work' ? 'bg-[#0066FF] text-white shadow-md shadow-blue-500/30' : 'text-slate-600 hover:text-slate-900'}`}
-                >
-                  <Wrench className="w-4 h-4" />
-                  <span>For Workers / Job Seekers</span>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* VIEW A: FOR EMPLOYERS / HIRING */}
-          {activeRole === 'hire' && (
-            <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8 transition-opacity duration-300">
-              
-              {/* Step 1 */}
-              <div className="step-card bg-white p-7 rounded-3xl border border-slate-200/90 shadow-sm relative overflow-hidden group">
-                <div className="w-14 h-14 rounded-2xl bg-blue-50 text-[#0066FF] flex items-center justify-center font-black text-2xl mb-6 group-hover:scale-110 transition-transform">
-                  1
-                </div>
-                <h3 className="text-xl font-bold text-slate-900 mb-2">Tell Us Who You Need</h3>
-                <p className="text-slate-600 text-sm leading-relaxed mb-4">
-                  Pick the job role (electrician, plumber, warehouse associate), job date and location. No complicated contracts or hidden booking charges.
-                </p>
-                <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-100 text-xs text-slate-500 flex items-center gap-2">
-                  <Timer className="w-4 h-4 text-[#0066FF]" />
-                  <span>Takes only 45 seconds to post</span>
-                </div>
-              </div>
-
-              {/* Step 2 */}
-              <div className="step-card bg-white p-7 rounded-3xl border border-slate-200/90 shadow-sm relative overflow-hidden group">
-                <div className="w-14 h-14 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center font-black text-2xl mb-6 group-hover:scale-110 transition-transform">
-                  2
-                </div>
-                <h3 className="text-xl font-bold text-slate-900 mb-2">Funds Stay Safe in Escrow</h3>
-                <p className="text-slate-600 text-sm leading-relaxed mb-4">
-                  You pre-lock the daily wage in a secure platform vault. The money is never handed over upfront until the worker arrives and finishes their job properly.
-                </p>
-                <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-100 text-xs text-slate-500 flex items-center gap-2">
-                  <ShieldCheck className="w-4 h-4 text-amber-500" />
-                  <span>100% money back if worker no-shows</span>
-                </div>
-              </div>
-
-              {/* Step 3 */}
-              <div className="step-card bg-white p-7 rounded-3xl border border-slate-200/90 shadow-sm relative overflow-hidden group">
-                <div className="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-black text-2xl mb-6 group-hover:scale-110 transition-transform">
-                  3
-                </div>
-                <h3 className="text-xl font-bold text-slate-900 mb-2">Check In & Release Payment</h3>
-                <p className="text-slate-600 text-sm leading-relaxed mb-4">
-                  The worker arrives with a clean photo badge. Once they finish their job, you confirm with a simple 4-digit mobile OTP to release the funds.
-                </p>
-                <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-100 text-xs text-slate-500 flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  <span>Zero payment arguments or friction</span>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* VIEW B: FOR WORKERS / JOB SEEKERS */}
-          {activeRole === 'work' && (
-            <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8 transition-opacity duration-300">
-              
-              {/* Worker Step 1 */}
-              <div className="step-card bg-white p-7 rounded-3xl border border-slate-200/90 shadow-sm relative overflow-hidden group">
-                <div className="w-14 h-14 rounded-2xl bg-blue-50 text-[#0066FF] flex items-center justify-center font-black text-2xl mb-6 group-hover:scale-110 transition-transform">
-                  1
-                </div>
-                <h3 className="text-xl font-bold text-slate-900 mb-2">Get Verified with Aadhaar / ID</h3>
-                <p className="text-slate-600 text-sm leading-relaxed mb-4">
-                  Upload your photo, government ID, and work experience once. Our team approves you in 2 hours so employers can trust your verified profile.
-                </p>
-                <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-100 text-xs text-slate-500 flex items-center gap-2">
-                  <BadgeCheck className="w-4 h-4 text-[#0066FF]" />
-                  <span>Free badges & safe membership</span>
-                </div>
-              </div>
-
-              {/* Worker Step 2 */}
-              <div className="step-card bg-white p-7 rounded-3xl border border-slate-200/90 shadow-sm relative overflow-hidden group">
-                <div className="w-14 h-14 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center font-black text-2xl mb-6 group-hover:scale-110 transition-transform">
-                  2
-                </div>
-                <h3 className="text-xl font-bold text-slate-900 mb-2">1-Click Apply to Nearby Jobs</h3>
-                <p className="text-slate-600 text-sm leading-relaxed mb-4">
-                  See open jobs near your home with clear wage numbers beforehand (e.g. ₹850/day). You know the exact job, location, and hours before saying yes.
-                </p>
-                <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-100 text-xs text-slate-500 flex items-center gap-2">
-                  <Navigation className="w-4 h-4 text-amber-500" />
-                  <span>Only jobs within 5 km to 10 km</span>
-                </div>
-              </div>
-
-              {/* Worker Step 3 */}
-              <div className="step-card bg-white p-7 rounded-3xl border border-slate-200/90 shadow-sm relative overflow-hidden group">
-                <div className="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-black text-2xl mb-6 group-hover:scale-110 transition-transform">
-                  3
-                </div>
-                <h3 className="text-xl font-bold text-slate-900 mb-2">Guaranteed Same-Day Payment</h3>
-                <p className="text-slate-600 text-sm leading-relaxed mb-4">
-                  The wage is locked in escrow before you even step on site. The moment the day ends, money hits your UPI or bank account automatically. No begging for your hard-earned pay!
-                </p>
-                <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-100 text-xs text-slate-500 flex items-center gap-2">
-                  <Wallet className="w-4 h-4 text-emerald-600" />
-                  <span>Direct to PhonePe / Google Pay / Bank</span>
-                </div>
-              </div>
-            </div>
-          )}
-        </section>
-
-        {/* ========================================================================= */}
-        {/* SECTION 3: POPULAR JOBS & VERIFIED SKILLED WORKERS */}
-        {/* ========================================================================= */}
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" id="popular-jobs">
-          
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
-            <div>
-              <span className="px-3.5 py-1.5 rounded-full bg-blue-50 text-[#0066FF] text-xs font-bold uppercase tracking-wider border border-blue-200">
-                Popular Job Roles
+        {/* =================================================================== */}
+        {/* 2. TRUST SECTION ("TRUSTED BY SERIOUS BUSINESSES") */}
+        {/* =================================================================== */}
+        <section 
+          ref={trustSectionRef}
+          className="relative isolate overflow-hidden bg-white px-6 py-8 sm:px-10 sm:py-12 text-[#0a0a0a]"
+        >
+          {/* Top Badges Row - Tight Spacing */}
+          <div className="relative z-20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 mb-6 sm:mb-8">
+            
+            {/* 100% Circle Badge */}
+            <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-[#f4f4f4] flex flex-col items-center justify-center p-3 text-center shrink-0 shadow-xs">
+              <span className="text-xl sm:text-2xl font-medium tracking-tight text-[#0a0a0a]">100%</span>
+              <span className="text-[0.55rem] text-[#717784] max-w-[8em] leading-tight mt-1 uppercase tracking-wider">
+                Escrow backed & payout insured
               </span>
-              <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mt-2">
-                Find the right worker for every job.
+            </div>
+
+            {/* Badge Card */}
+            <article className="max-w-md bg-[#f4f4f4] rounded-[1.5rem] p-4 sm:p-5 flex flex-col gap-2 shadow-xs">
+              <div className="flex items-center gap-3">
+                <span className="rounded-xl bg-white px-3 py-1 text-xs font-medium text-[#0a0a0a] shadow-xs">
+                  #01
+                </span>
+                <h3 className="text-base sm:text-lg font-medium text-[#0a0a0a] tracking-tight">
+                  Enterprise Workforce Infrastructure
+                </h3>
+              </div>
+              <p className="text-xs text-[#717784] leading-relaxed">
+                Trusted by hotels, restaurants, industrial plants, and supply chain hubs nationwide. Biometric attendance and automated escrow payouts keep daily operations running seamlessly.
+              </p>
+            </article>
+          </div>
+
+          {/* OVERSIZED GHOST HEADINGS (2 ROWS OF 2 WORDS) */}
+          <div className="relative max-w-6xl mx-auto my-1 pointer-events-none select-none z-0">
+            <h2 key={trustGhostKey} className="text-[7.4vw] font-medium uppercase leading-[0.98] tracking-tight text-center">
+              
+              {/* Row 1: Word 1 & Word 2 */}
+              <div 
+                className="flex justify-between items-center transition-transform duration-100 ease-out"
+                style={{ transform: `translateX(${ghostParallax}%)` }}
+              >
+                <span className="overflow-hidden inline-block pb-[0.08em]">
+                  <span className="inline-block text-[#d7dae1] animate-[ghostSlideUp_700ms_cubic-bezier(0.16,1,0.3,1)_forwards]">
+                    {currentSlide.headline[0]}
+                  </span>
+                </span>
+                <span className="overflow-hidden inline-block pb-[0.08em]">
+                  <span className="inline-block text-[#d7dae1] animate-[ghostSlideUp_700ms_cubic-bezier(0.16,1,0.3,1)_forwards]">
+                    {currentSlide.headline[1]}
+                  </span>
+                </span>
+              </div>
+
+              {/* Row 2: Word 3 (Ink) & Word 4 (Ghost) */}
+              <div 
+                className="flex justify-between items-center transition-transform duration-100 ease-out"
+                style={{ transform: `translateX(${-ghostParallax}%)` }}
+              >
+                <span className="overflow-hidden inline-block pb-[0.08em]">
+                  <span className="inline-block text-[#0a0a0a] animate-[ghostSlideUp_700ms_cubic-bezier(0.16,1,0.3,1)_forwards]">
+                    {currentSlide.headline[2]}
+                  </span>
+                </span>
+                <span className="overflow-hidden inline-block pb-[0.08em]">
+                  <span className="inline-block text-[#d7dae1] animate-[ghostSlideUp_700ms_cubic-bezier(0.16,1,0.3,1)_forwards]">
+                    {currentSlide.headline[3]}
+                  </span>
+                </span>
+              </div>
+
+            </h2>
+          </div>
+
+          {/* CENTER SPECIALIST CARD - Nested with negative margin to eliminate whitespace and overlap editorial poster */}
+          <div className="relative z-10 mx-auto -mt-16 sm:-mt-24 md:-mt-32 w-48 sm:w-56 pointer-events-auto">
+            <figure className="relative aspect-[3/4] rounded-[1.5rem] bg-[#2563c9] overflow-hidden rotate-6 shadow-2xl transition-transform duration-500 hover:rotate-3">
+              <img 
+                key={currentSlide.image}
+                src={currentSlide.image}
+                alt={currentSlide.alt}
+                className="w-full h-full object-cover animate-[fadeIn_400ms_ease-out_forwards]"
+              />
+              {/* Glass Caption */}
+              <figcaption className="absolute inset-x-2.5 bottom-2.5 rounded-xl bg-[#0f2f63]/60 backdrop-blur-md p-2.5 text-white text-left shadow-lg">
+                <p className="text-xs sm:text-sm font-medium tracking-tight truncate">{currentSlide.name}</p>
+                <p className="text-[0.6rem] text-white/80 uppercase tracking-wide mt-0.5 truncate">{currentSlide.role}</p>
+              </figcaption>
+            </figure>
+          </div>
+
+          {/* CAROUSEL CONTROLS ROW - Tightly spaced */}
+          <div className="relative z-20 mt-6 sm:mt-8 flex items-center justify-between">
+            {/* Prev Button */}
+            <button
+              type="button"
+              onClick={handleTrustPrev}
+              className="w-11 h-11 sm:w-12 sm:h-12 rounded-full border border-[#e6e8ec] hover:border-[#0a0a0a] text-[#0a0a0a] flex items-center justify-center transition-colors cursor-pointer group"
+              aria-label="Previous slide"
+            >
+              <ArrowRight className="w-4 h-4 rotate-180 transition-transform group-hover:scale-115" />
+            </button>
+
+            {/* Carousel Dots */}
+            <div className="flex items-center gap-2">
+              {TRUST_SLIDES.map((_, sIdx) => (
+                <button
+                  key={sIdx}
+                  type="button"
+                  onClick={() => handleTrustDot(sIdx)}
+                  className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
+                    activeTrustSlide === sIdx ? "w-6 bg-[#0a0a0a]" : "w-1.5 bg-[#d7dae1]"
+                  }`}
+                  aria-label={`Slide ${sIdx + 1}`}
+                />
+              ))}
+            </div>
+
+            {/* Next Button */}
+            <button
+              type="button"
+              onClick={handleTrustNext}
+              className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#0a0a0a] hover:bg-[#0f2f63] text-white flex items-center justify-center transition-colors cursor-pointer group"
+              aria-label="Next slide"
+            >
+              <ArrowRight className="w-4 h-4 transition-transform group-hover:scale-115" />
+            </button>
+          </div>
+
+        </section>
+
+        {/* =================================================================== */}
+        {/* 3. PROGRAMS / WORKFORCE TRACKS SECTION (Tight Spacing) */}
+        {/* =================================================================== */}
+        <section id="categories" className="bg-[#f4f4f4] py-12 sm:py-16 px-6 sm:px-10 text-[#0a0a0a]">
+          <div className="max-w-6xl mx-auto">
+            {/* Section Header */}
+            <div>
+              <div className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.22em] text-[#717784] mb-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#2563c9]" />
+                <span>Enterprise Sectors</span>
+              </div>
+              <h2 className="text-3xl sm:text-4xl font-medium tracking-tight text-[#0a0a0a] leading-[0.98]">
+                Every industry <br /> on demand
               </h2>
-              <p className="text-slate-600 text-base mt-1">
-                Real photos of verified workers working across homes, offices, and logistics hubs.
+            </div>
+
+            {/* Core Sector Rows (Tighter Spacing) */}
+            <ul className="mt-8 divide-y divide-[#e6e8ec] border-y border-[#e6e8ec]">
+              {WORKFORCE_TRACKS.map((track) => (
+                <li key={track.index}>
+                  <Link
+                    to={track.href}
+                    className="group py-4 sm:py-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 transition-colors hover:bg-white/70 px-3 sm:px-4 rounded-xl cursor-pointer"
+                  >
+                    <div className="flex items-baseline sm:items-center gap-4 sm:gap-6 flex-1">
+                      <span className="w-8 sm:w-10 text-xs sm:text-sm font-medium text-[#717784]">
+                        {track.index}
+                      </span>
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-6 flex-1">
+                        <h3 className="text-xl sm:text-2xl font-medium tracking-tight text-[#0a0a0a] min-w-[16rem]">
+                          {track.name}
+                        </h3>
+                        <p className="text-xs sm:text-sm text-[#717784] max-w-lg">
+                          {track.description}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Trailing Arrow Circle (Spring on Hover) */}
+                    <div className="w-9 h-9 rounded-full border border-[#e6e8ec] flex items-center justify-center shrink-0 self-end sm:self-center group-hover:border-[#0a0a0a] transition-colors">
+                      <ArrowRight className="w-3.5 h-3.5 text-[#0a0a0a] opacity-55 group-hover:opacity-100 group-hover:translate-x-1.5 transition-all duration-300" />
+                    </div>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+
+        {/* =================================================================== */}
+        {/* 4. FACILITIES / VERIFICATION TECH SECTION (-mt-6 Overlap) */}
+        {/* =================================================================== */}
+        <section 
+          id="technology" 
+          className="relative z-10 -mt-6 sm:-mt-8 rounded-[2rem] bg-white pt-10 pb-12 px-6 sm:px-10 text-[#0a0a0a] shadow-sm"
+        >
+          <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 items-end">
+            
+            {/* Intro Column */}
+            <div className="max-w-md">
+              <div className="w-14 h-14 rounded-[1.25rem] overflow-hidden mb-4 shadow-sm">
+                <img 
+                  src={LANDING_IMAGES.siteInspectorThumbnail.src} 
+                  alt={LANDING_IMAGES.siteInspectorThumbnail.alt}
+                  className="w-full h-full object-cover" 
+                />
+              </div>
+
+              <h2 className="text-3xl sm:text-4xl font-medium tracking-tight text-[#0a0a0a] leading-[0.98]">
+                Enterprise-Grade <br /> Verification Tech
+              </h2>
+
+              <p className="text-xs sm:text-sm text-[#717784] mt-4 leading-relaxed max-w-sm">
+                Every technician is identity-checked, face-matched on site via geofenced attendance, and compensated through automated escrow so your shifts run reliably.
               </p>
             </div>
 
-            <Link to="/search" className="text-sm font-bold text-[#0066FF] hover:underline inline-flex items-center gap-1 group">
-              <span>Browse all 40+ job categories</span>
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Card 1 */}
-            <div className="job-card bg-white rounded-3xl overflow-hidden border border-slate-200/80 shadow-sm flex flex-col">
-              <div className="relative h-56 overflow-hidden">
-                <img src="https://lh3.googleusercontent.com/aida/AEtjO1V-KC9nF7ATlICKsAgpI3kdfFTbQlH0n4FTWUz3LfIiUX7A9HTMEa0-rmmfuGWA2kK9JN2ljpWoj4wdUy4Ao1InCslfAG0sE3AsmRJ4tEdgdZomAKmuGcafOsbDbdfs3n6qVXp7RTsGfhtC0SwmrW5xGBpNj1yFN_b-sCk9AsoFPEeEFGgj5r6lrKdMhbOO6vJYC0JimQ_34n45UUP6ql4WbIiFXYBv969bYkjfxlM-QUsQiLeO063Ykpu9" alt="Master electrician testing control panel" className="w-full h-full object-cover object-center" />
-                <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-emerald-600 flex items-center gap-1 shadow-xs">
-                  <BadgeCheck className="w-3.5 h-3.5" /> <span>Certified Electrician</span>
-                </div>
-                <div className="absolute bottom-3 right-3 bg-slate-900/80 backdrop-blur-sm px-2.5 py-1 rounded-lg text-xs font-semibold text-white">
-                  ₹850 - ₹1,100 / day
-                </div>
-              </div>
-              <div className="p-6 flex-1 flex flex-col justify-between">
-                <div>
-                  <h3 className="text-lg font-bold text-slate-900">Electrical & Wiring Specialists</h3>
-                  <p className="text-slate-500 text-sm mt-1.5 leading-relaxed">
-                    Short circuits, home wiring, commercial panels, inverter setups, and factory maintenance.
-                  </p>
-                </div>
-                <div className="pt-5 mt-4 border-t border-slate-100 flex items-center justify-between">
-                  <span className="text-xs text-slate-500 font-medium flex items-center gap-1">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500"></span> 240 Available in City
-                  </span>
-                  <button onClick={() => navigate('/sign-up?role=employer')} className="text-xs font-bold text-[#0066FF] hover:underline cursor-pointer">Hire Worker &rarr;</button>
-                </div>
-              </div>
-            </div>
-
-            {/* Card 2 */}
-            <div className="job-card bg-white rounded-3xl overflow-hidden border border-slate-200/80 shadow-sm flex flex-col">
-              <div className="relative h-56 overflow-hidden">
-                <img src="https://lh3.googleusercontent.com/aida/AEtjO1WyKUOnuUuld6Ab09bXGEJ_3KIPzynkUkxDuAPysVrhoIQfOGyIAaQqs4zXQhe4x2s_kwrwCDFcvX_xVI-tZeDKgV78yE5mi66W5Qitbv_euZ5W-b5UMlvmwhZITohTLOIH6goOf64W0yyvkO4lvFKHlGFtJ4z1NhBVyUB8_lt1VHBUdJrVHb69hKZbrPgMrKbgEL9O2mgDnF8gkWTkf3OGB-DYXuZ87D7aHOP7brMQe0xqFadEIX-w5E9i" alt="Modern warehouse fulfillment logistics" className="w-full h-full object-cover object-center" />
-                <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-[#0066FF] flex items-center gap-1 shadow-xs">
-                  <Briefcase className="w-3.5 h-3.5" /> <span>Warehouse & Packers</span>
-                </div>
-                <div className="absolute bottom-3 right-3 bg-slate-900/80 backdrop-blur-sm px-2.5 py-1 rounded-lg text-xs font-semibold text-white">
-                  ₹700 - ₹950 / day
-                </div>
-              </div>
-              <div className="p-6 flex-1 flex flex-col justify-between">
-                <div>
-                  <h3 className="text-lg font-bold text-slate-900">Logistics, Sorting & Inventory</h3>
-                  <p className="text-slate-500 text-sm mt-1.5 leading-relaxed">
-                    E-commerce packing, loading/unloading, forklift operators, and seasonal surge crews on short notice.
-                  </p>
-                </div>
-                <div className="pt-5 mt-4 border-t border-slate-100 flex items-center justify-between">
-                  <span className="text-xs text-slate-500 font-medium flex items-center gap-1">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500"></span> 580 Available in City
-                  </span>
-                  <button onClick={() => navigate('/sign-up?role=employer')} className="text-xs font-bold text-[#0066FF] hover:underline cursor-pointer">Hire Worker &rarr;</button>
-                </div>
-              </div>
-            </div>
-
-            {/* Card 3 */}
-            <div className="job-card bg-white rounded-3xl overflow-hidden border border-slate-200/80 shadow-sm flex flex-col">
-              <div className="relative h-56 overflow-hidden">
-                <img src="https://lh3.googleusercontent.com/aida/AEtjO1Xle3WKHP7eUaktG49hHl4-x8nyAOHLdgparmDhUcaQzwifc1PH0mWt0DiYADV14c1LDQI9LmX_IYpS269pUMezu2v-7w2KTCoItQX-PeEtukQZOX8bRJ3nUmMNKq3GkUL3UWdwlqKhfB9FSHXyqsIjQW1a5hRCyQqsNIwyuYrig0ktNP_9UeGKv2IQ7Wd-_v3kw9p-NLH2TnFk_IYpSzHngwxKB_ZYIXSYtNSOvmwcC3yWxbCSwX2K22k" alt="Collaborative industrial team" className="w-full h-full object-cover object-center" />
-                <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-blue-600 flex items-center gap-1 shadow-xs">
-                  <Wrench className="w-3.5 h-3.5" /> <span>Plumbers & Fitters</span>
-                </div>
-                <div className="absolute bottom-3 right-3 bg-slate-900/80 backdrop-blur-sm px-2.5 py-1 rounded-lg text-xs font-semibold text-white">
-                  ₹750 - ₹1,000 / day
-                </div>
-              </div>
-              <div className="p-6 flex-1 flex flex-col justify-between">
-                <div>
-                  <h3 className="text-lg font-bold text-slate-900">Plumbing & Facility Technicians</h3>
-                  <p className="text-slate-500 text-sm mt-1.5 leading-relaxed">
-                    Pipe repairs, bathroom installations, motor pumps, carpentry maintenance, and site fitters.
-                  </p>
-                </div>
-                <div className="pt-5 mt-4 border-t border-slate-100 flex items-center justify-between">
-                  <span className="text-xs text-slate-500 font-medium flex items-center gap-1">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500"></span> 190 Available in City
-                  </span>
-                  <button onClick={() => navigate('/sign-up?role=employer')} className="text-xs font-bold text-[#0066FF] hover:underline cursor-pointer">Hire Worker &rarr;</button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ========================================================================= */}
-        {/* SECTION 4: WHY PEOPLE TRUST US */}
-        {/* ========================================================================= */}
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" id="benefits">
-          
-          <div className="bg-gradient-to-br from-blue-900 via-slate-900 to-indigo-950 rounded-3xl text-white p-8 sm:p-12 lg:p-14 relative overflow-hidden shadow-2xl">
-            
-            <div className="absolute top-0 right-0 w-96 h-96 bg-[#0066FF]/20 rounded-full blur-3xl -z-0 pointer-events-none"></div>
-            <div className="absolute bottom-0 left-0 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl -z-0 pointer-events-none"></div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center relative z-10">
+            {/* Staggered Verification Cards */}
+            <div className="flex items-end gap-4">
               
-              {/* Left */}
-              <div className="lg:col-span-5">
-                <div className="relative rounded-2xl overflow-hidden border-2 border-white/20 shadow-2xl group">
-                  <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuASJofa83rqahZjEDKORvqiKm6uWbIqpS9OB0-zvyETwTqX9I8vf_bjjt2ZP0hItPGMdZL_ng-FymjUCD8xHKWU8gSeuavfMbGmUhPdAURAoU_Y9gfqaxQDKGMxCg3WEkVs_FDRT95rHe_bVpLKElRlFHceoD_LV0CaB9LjHCI-OQzheVR3U4zL5aPDZ1W-nFyd9vgrG3ISE_JGEp3rJLN8cpS1fMz9la_O2LGRBxgYd219ufVkjtDZdw" alt="Smiling Indian worker receiving daily pay on smartphone" className="w-full h-80 sm:h-96 object-cover object-center group-hover:scale-105 transition-transform duration-500" />
-                  
-                  <div className="absolute bottom-4 left-4 right-4 bg-slate-900/90 backdrop-blur-md p-3.5 rounded-xl border border-white/10">
-                    <p className="text-sm font-semibold text-white">"No more waiting 30 days for my wages."</p>
-                    <p className="text-xs text-slate-300 mt-0.5">Ramesh Kumar • Electrician in Bengaluru (340+ jobs completed)</p>
-                  </div>
-                </div>
-              </div>
+              {/* Tile 1: Biometric Verification */}
+              <figure className="flex-1 aspect-[3/4] rounded-[1.5rem] overflow-hidden relative bg-[#f4f4f4] group shadow-lg transition-transform duration-500 hover:scale-[1.02]">
+                <img 
+                  src={LANDING_IMAGES.biometricGeofence.src} 
+                  alt={LANDING_IMAGES.biometricGeofence.alt}
+                  className="w-full h-full object-cover"
+                />
+                <figcaption className="absolute inset-x-2.5 bottom-2.5 rounded-xl bg-[#0f2f63]/60 backdrop-blur-md p-2.5 text-white text-left shadow-lg">
+                  <p className="text-xs sm:text-sm font-medium tracking-tight">Biometric Geofence</p>
+                  <p className="text-[0.6rem] text-white/85 leading-snug mt-0.5">
+                    Face-verified punch-in ensures 100% genuine on-site attendance.
+                  </p>
+                </figcaption>
+              </figure>
 
-              {/* Right */}
-              <div className="lg:col-span-7 space-y-6">
-                <span className="px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-sm text-emerald-400 text-xs font-bold uppercase tracking-wider border border-emerald-400/30">
-                  100% Peace of Mind
-                </span>
+              {/* Tile 2: Smart Escrow Vault (Staggered mb-6) */}
+              <figure className="flex-1 aspect-[3/4] rounded-[1.5rem] overflow-hidden relative bg-[#f4f4f4] mb-6 group shadow-lg transition-transform duration-500 hover:scale-[1.02]">
+                <img 
+                  src={LANDING_IMAGES.digitalEscrowVault.src} 
+                  alt={LANDING_IMAGES.digitalEscrowVault.alt}
+                  className="w-full h-full object-cover"
+                />
+                <figcaption className="absolute inset-x-2.5 bottom-2.5 rounded-xl bg-[#0b6e97]/60 backdrop-blur-md p-2.5 text-white text-left shadow-lg">
+                  <p className="text-xs sm:text-sm font-medium tracking-tight">Digital Escrow Vault</p>
+                  <p className="text-[0.6rem] text-white/85 leading-snug mt-0.5">
+                    Automated payouts release directly to UPI once work is approved.
+                  </p>
+                </figcaption>
+              </figure>
 
-                <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white leading-tight">
-                  We eliminated every headache of daily wage work.
-                </h2>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-2">
-                  
-                  <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm space-y-1.5 hover:bg-white/10 transition-colors">
-                    <div className="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-1">
-                      <UserCheck className="w-4 h-4" />
-                    </div>
-                    <h4 className="font-bold text-base text-white">Government ID Verified</h4>
-                    <p className="text-xs text-slate-300 leading-relaxed">
-                      Every worker is checked with official Aadhaar records and basic police clearance before booking.
-                    </p>
-                  </div>
-
-                  <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm space-y-1.5 hover:bg-white/10 transition-colors">
-                    <div className="w-8 h-8 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center mb-1">
-                      <Lock className="w-4 h-4" />
-                    </div>
-                    <h4 className="font-bold text-base text-white">Escrow Payment Vault</h4>
-                    <p className="text-xs text-slate-300 leading-relaxed">
-                      Funds are safely locked before the job begins and only disbursed when both parties agree work was done.
-                    </p>
-                  </div>
-
-                  <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm space-y-1.5 hover:bg-white/10 transition-colors">
-                    <div className="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center mb-1">
-                      <ShieldCheck className="w-4 h-4" />
-                    </div>
-                    <h4 className="font-bold text-base text-white">₹5 Lakh Insurance Included</h4>
-                    <p className="text-xs text-slate-300 leading-relaxed">
-                      Every active job comes with automatic accidental medical coverage so workers are protected on the job.
-                    </p>
-                  </div>
-
-                  <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm space-y-1.5 hover:bg-white/10 transition-colors">
-                    <div className="w-8 h-8 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center mb-1">
-                      <Headphones className="w-4 h-4" />
-                    </div>
-                    <h4 className="font-bold text-base text-white">24/7 Regional Phone Help</h4>
-                    <p className="text-xs text-slate-300 leading-relaxed">
-                      Real people speaking Hindi, Kannada, Tamil, Telugu, and English ready on call for help anytime.
-                    </p>
-                  </div>
-
-                </div>
-
-                <div className="pt-4 flex flex-col sm:flex-row items-center gap-4">
-                  <Link to="/sign-up?role=worker" className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-[#0066FF] hover:bg-[#0052CC] text-white font-bold text-base shadow-xl shadow-blue-500/30 flex items-center justify-center gap-2 hover:scale-[1.02] transition-all">
-                    <span>Join TrustHyre Free Today</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </Link>
-                  <span className="text-xs text-slate-400">No registration fee • Start in 5 minutes</span>
-                </div>
-
-              </div>
             </div>
           </div>
         </section>
+
+        {/* =================================================================== */}
+        {/* 5. STATS SECTION (Deep Navy Band - Tight Spacing) */}
+        {/* =================================================================== */}
+        <section 
+          id="metrics" 
+          className="mt-3 rounded-[2rem] bg-[#0f2f63] text-white py-12 sm:py-14 px-6 sm:px-10"
+        >
+          <div className="max-w-6xl mx-auto">
+            {/* Header */}
+            <div>
+              <div className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.22em] text-white/70 mb-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#5790e6]" />
+                <span>Enterprise Scale</span>
+              </div>
+              <h2 className="text-3xl sm:text-4xl font-medium tracking-tight text-white leading-[0.98]">
+                A platform that <br /> keeps score
+              </h2>
+            </div>
+
+            {/* 4-Up Metrics Grid */}
+            <dl className="mt-8 sm:mt-10 grid grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-8">
+              {[
+                { value: "24", label: "Regional Operating Hubs" },
+                { value: "14K+", label: "Verified Technicians" },
+                { value: "100%", label: "Escrow Backed Settlements" },
+                { value: "15m", label: "Average Shift Fill Speed" },
+              ].map((stat, idx) => (
+                <div key={idx} className="border-t border-white/20 pt-4 text-left">
+                  <dt className="sr-only">{stat.label}</dt>
+                  <dd>
+                    <div className="text-4xl sm:text-5xl font-medium tracking-tight text-white leading-none">
+                      {stat.value}
+                    </div>
+                    <div className="text-xs sm:text-sm text-white/65 mt-2 leading-snug">
+                      {stat.label}
+                    </div>
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        </section>
+
+        {/* =================================================================== */}
+        {/* 6. TESTIMONIALS SECTION (Tight Spacing) */}
+        {/* =================================================================== */}
+        <section id="reviews" className="py-10 sm:py-14 px-6 sm:px-10 bg-white text-[#0a0a0a]">
+          <div className="max-w-6xl mx-auto">
+            {/* Header */}
+            <div>
+              <div className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.22em] text-[#717784] mb-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#2563c9]" />
+                <span>Enterprise Feedback</span>
+              </div>
+              <h2 className="text-3xl sm:text-4xl font-medium tracking-tight text-[#0a0a0a] leading-[0.98]">
+                Loved by operations <br /> teams & managers
+              </h2>
+            </div>
+
+            {/* 3-Up Cards */}
+            <ul className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-5">
+              {TESTIMONIALS.map((t, idx) => (
+                <li key={idx}>
+                  <div className="flex flex-col justify-between h-full rounded-[1.5rem] bg-[#f4f4f4] p-6 transition-transform duration-300 hover:-translate-y-1.5 shadow-xs">
+                    <span className="text-3xl font-serif text-[#2563c9] leading-none">
+                      “
+                    </span>
+                    <blockquote className="text-sm sm:text-base text-[#0a0a0a] leading-relaxed my-3">
+                      {t.quote}
+                    </blockquote>
+                    <figcaption className="border-t border-[#e6e8ec] pt-3 text-left">
+                      <p className="font-medium text-sm text-[#0a0a0a]">{t.author}</p>
+                      <p className="text-xs text-[#717784] mt-0.5">{t.role}</p>
+                    </figcaption>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+
+        {/* =================================================================== */}
+        {/* 7. FOOTER SECTION (Deep Navy Corporate) */}
+        {/* =================================================================== */}
+        <footer id="contact" className="mt-3 rounded-[2rem] bg-[#0f2f63] text-white py-10 sm:py-12 px-6 sm:px-10">
+          <div className="max-w-6xl mx-auto">
+            
+            {/* Top CTA Band */}
+            <div className="border-b border-white/15 pb-8 sm:pb-10 flex flex-col sm:flex-row items-start sm:items-end justify-between gap-6">
+              <div>
+                <div className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.22em] text-white/70 mb-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#5790e6]" />
+                  <span>Corporate Onboarding</span>
+                </div>
+                <h3 className="text-4xl sm:text-5xl font-medium tracking-tight text-white leading-[0.94]">
+                  Deploy enterprise <br /> talent today
+                </h3>
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+                <Link
+                  to="/sign-up?role=employer"
+                  className="w-full sm:w-auto px-6 py-3 rounded-full bg-white text-[#0f2f63] font-medium text-xs tracking-wide uppercase hover:bg-[#5790e6] hover:text-white transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-lg"
+                >
+                  <span>Post Urgent Shift</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(true)}
+                  className="w-full sm:w-auto px-6 py-3 rounded-full border border-white/30 text-white font-medium text-xs tracking-wide uppercase hover:bg-white/10 transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <span>Corporate Consultation</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Columns Grid */}
+            <div className="py-10 grid grid-cols-1 md:grid-cols-4 gap-8 border-b border-white/15 text-left">
+              
+              {/* Brand Column */}
+              <div className="space-y-3 max-w-xs">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-6 h-6 rounded-full border border-white/60 flex items-center justify-center p-1">
+                    <ShieldCheck className="w-full h-full text-white" />
+                  </div>
+                  <span className="text-base font-medium tracking-[0.18em] uppercase text-white">TrustHyre Technologies Inc.</span>
+                </div>
+
+                <p className="text-xs text-white/70 leading-relaxed">
+                  Enterprise on-demand workforce infrastructure company. Verified skilled trades, commercial culinary, logistics crews, and automated escrow settlements.
+                </p>
+
+                <address className="not-italic text-xs text-white/80 space-y-1.5 pt-2">
+                  <div className="flex items-center gap-2">
+                    <Mail className="w-3.5 h-3.5 text-white/50" />
+                    <a href="mailto:enterprise@trusthyre.com" className="hover:underline">enterprise@trusthyre.com</a>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <PhoneCall className="w-3.5 h-3.5 text-white/50" />
+                    <a href="tel:18004198973" className="hover:underline">1800-419-8973 (Toll Free)</a>
+                  </div>
+                  <div className="flex items-center gap-2 text-white/60">
+                    <MapPin className="w-3.5 h-3.5" />
+                    <span>Corporate HQ: TrustHyre Tower, Tech Corridor, Bangalore</span>
+                  </div>
+                </address>
+              </div>
+
+              {/* Column: For Employers */}
+              <div>
+                <h4 className="text-xs font-medium uppercase tracking-[0.2em] text-white/50 mb-3">
+                  Enterprise Sectors
+                </h4>
+                <ul className="space-y-2.5 text-xs text-white/80">
+                  <li><Link to="/sign-up?role=employer" className="hover:text-white transition-colors">Commercial Culinary & Chefs</Link></li>
+                  <li><Link to="/sign-up?role=employer" className="hover:text-white transition-colors">Certified Electrical Trades</Link></li>
+                  <li><Link to="/sign-up?role=employer" className="hover:text-white transition-colors">Warehouse & Logistics Fleet</Link></li>
+                  <li><Link to="/sign-up?role=employer" className="hover:text-white transition-colors">Plumbing & Facility Maintenance</Link></li>
+                  <li><Link to="/terms" className="hover:text-white transition-colors">Enterprise Escrow Vault</Link></li>
+                </ul>
+              </div>
+
+              {/* Column: For Workers */}
+              <div>
+                <h4 className="text-xs font-medium uppercase tracking-[0.2em] text-white/50 mb-3">
+                  Workforce Network
+                </h4>
+                <ul className="space-y-2.5 text-xs text-white/80">
+                  <li><Link to="/sign-up?role=worker" className="hover:text-white transition-colors">Culinary & Kitchen Shifts</Link></li>
+                  <li><Link to="/sign-up?role=worker" className="hover:text-white transition-colors">Electrician & Trade Shifts</Link></li>
+                  <li><Link to="/sign-up?role=worker" className="hover:text-white transition-colors">Daily UPI Settlements</Link></li>
+                  <li><Link to="/sign-up?role=worker" className="hover:text-white transition-colors">Biometric Identity Verification</Link></li>
+                  <li><Link to="/terms" className="hover:text-white transition-colors">On-Site Safety Standards</Link></li>
+                </ul>
+              </div>
+
+              {/* Column: Company & Governance */}
+              <div>
+                <h4 className="text-xs font-medium uppercase tracking-[0.2em] text-white/50 mb-3">
+                  Corporate Governance
+                </h4>
+                <ul className="space-y-2.5 text-xs text-white/80">
+                  <li><a href="#technology" className="hover:text-white transition-colors">Verification Infrastructure</a></li>
+                  <li><a href="#metrics" className="hover:text-white transition-colors">Platform Reliability & Scale</a></li>
+                  <li><Link to="/privacy" className="hover:text-white transition-colors">Privacy & Data Governance</Link></li>
+                  <li><Link to="/terms" className="hover:text-white transition-colors">Terms of Enterprise Service</Link></li>
+                </ul>
+              </div>
+
+            </div>
+
+            {/* Bottom Bar */}
+            <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
+              <p>© 2026 TrustHyre Technologies Inc. Registered Corporate Enterprise. Bonded & Verified Daily Operations.</p>
+              
+              <div className="flex items-center gap-6">
+                <Link to="/privacy" className="hover:text-white transition-colors">Privacy</Link>
+                <Link to="/terms" className="hover:text-white transition-colors">Terms</Link>
+              </div>
+            </div>
+
+          </div>
+        </footer>
+
       </main>
 
-      {/* ========================================================================= */}
-      {/* FOOTER */}
-      {/* ========================================================================= */}
-      <footer className="mt-28 bg-white border-t border-slate-200 py-12 text-slate-600" id="faq">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 pb-10 border-b border-slate-100">
-            <div className="space-y-3 md:col-span-1">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 flex items-center justify-center bg-blue-50 border border-blue-100 rounded-lg p-1">
-                  <img src="/logo.png" alt="TrustHyre Logo" className="w-full h-full object-contain" />
-                </div>
-                <span className="text-xl font-black text-slate-900">Trust<span className="text-[#0066FF]">Hyre</span></span>
-              </div>
-              <p className="text-xs text-slate-500 leading-relaxed">
-                The honest daily wage & skilled workforce platform built for India's hardworking technicians and growing businesses.
-              </p>
-              <div className="text-xs text-emerald-600 font-semibold flex items-center gap-1">
-                <span className="w-2 h-2 rounded-full bg-emerald-500"></span> 100% Escrow Insured
-              </div>
-            </div>
-
-            {/* Quick Links: Employers */}
-            <div>
-              <h5 className="text-xs font-bold text-slate-900 uppercase tracking-wider mb-3">For Businesses & Homes</h5>
-              <ul className="space-y-2 text-xs">
-                <li><Link to="/sign-up?role=employer" className="hover:text-[#0066FF] transition-colors">Post an Urgent Job</Link></li>
-                <li><Link to="/sign-up?role=employer" className="hover:text-[#0066FF] transition-colors">Hire Certified Electricians</Link></li>
-                <li><Link to="/sign-up?role=employer" className="hover:text-[#0066FF] transition-colors">Warehouse & Logistics Crews</Link></li>
-                <li><Link to="/sign-up?role=employer" className="hover:text-[#0066FF] transition-colors">How Escrow Protects You</Link></li>
-              </ul>
-            </div>
-
-            {/* Quick Links: Workers */}
-            <div>
-              <h5 className="text-xs font-bold text-slate-900 uppercase tracking-wider mb-3">For Workers & Job Seekers</h5>
-              <ul className="space-y-2 text-xs">
-                <li><Link to="/sign-up?role=worker" className="hover:text-[#0066FF] transition-colors">Find Jobs Near Me</Link></li>
-                <li><Link to="/sign-up?role=worker" className="hover:text-[#0066FF] transition-colors">Daily Payment & UPI Wallet</Link></li>
-                <li><Link to="/sign-up?role=worker" className="hover:text-[#0066FF] transition-colors">Get ID Verification Badge</Link></li>
-                <li><Link to="/sign-up?role=worker" className="hover:text-[#0066FF] transition-colors">Accident Insurance Policy</Link></li>
-              </ul>
-            </div>
-
-            {/* Helpline & Support */}
-            <div>
-              <h5 className="text-xs font-bold text-slate-900 uppercase tracking-wider mb-3">Need Help? Talk to Us</h5>
-              <p className="text-xs text-slate-500 mb-2">Toll-free customer helpline available in 5 languages:</p>
-              <p className="text-sm font-extrabold text-slate-900 mb-1">1800-419-8973</p>
-              <p className="text-[11px] text-slate-400">support@trusthyre.com • 7 AM to 10 PM daily</p>
-            </div>
-          </div>
-
-          {/* Bottom copyright & trust line */}
-          <div className="pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-3">
-            <p>&copy; 2024 TrustHyre Technologies. Safe, Verified & Prompt Daily Payouts.</p>
-            <div className="flex gap-4">
-              <Link to="/privacy" className="hover:underline">Privacy Policy</Link>
-              <Link to="/terms" className="hover:underline">Terms of Service</Link>
-              <Link to="/terms" className="hover:underline">Safety Guidelines</Link>
-            </div>
-          </div>
-        </div>
-      </footer>
+      {/* Scoped CSS animations for custom spring-like clip reveals */}
+      <style>{`
+        @keyframes ghostSlideUp {
+          from {
+            transform: translateY(115%);
+            opacity: 0;
+          }
+          to {
+            transform: translateY(0);
+            opacity: 1;
+          }
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes fadeRise {
+          from {
+            opacity: 0;
+            transform: translateY(16px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        @keyframes modalSpring {
+          from {
+            opacity: 0;
+            transform: scale(0.96) translateY(24px);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+          }
+        }
+      `}</style>
     </div>
   );
 }

@@ -4,6 +4,61 @@ import { ApiResponse } from '../utils/ApiResponse';
 import { v4 as uuidv4 } from 'uuid';
 import { uploadMedia } from '../services/cloudinary';
 
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const ALLOWED_DOC_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
+const ALLOWED_LIVE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+
+function validateMediaPayload(input: any, allowedTypes: string[]): { valid: boolean; error?: string } {
+  if (Buffer.isBuffer(input)) {
+    if (input.length > MAX_FILE_SIZE) {
+      return { valid: false, error: "File size exceeds the 5MB limit." };
+    }
+    // Check magic bytes to prevent MIME-spoofing
+    const isJpeg = input.length >= 3 && input[0] === 0xff && input[1] === 0xd8 && input[2] === 0xff;
+    const isPng = input.length >= 4 && input[0] === 0x89 && input[1] === 0x50 && input[2] === 0x4e && input[3] === 0x47;
+    const isPdf = input.length >= 4 && input[0] === 0x25 && input[1] === 0x50 && input[2] === 0x44 && input[3] === 0x46;
+    const isWebp = input.length >= 12 && input.slice(0, 4).toString('ascii') === 'RIFF' && input.slice(8, 12).toString('ascii') === 'WEBP';
+
+    let detectedMime = '';
+    if (isJpeg) detectedMime = 'image/jpeg';
+    else if (isPng) detectedMime = 'image/png';
+    else if (isWebp) detectedMime = 'image/webp';
+    else if (isPdf) detectedMime = 'application/pdf';
+
+    if (!detectedMime || !allowedTypes.includes(detectedMime)) {
+      return { valid: false, error: `Invalid file format. Allowed formats: ${allowedTypes.join(', ')}` };
+    }
+    return { valid: true };
+  }
+
+  if (typeof input === 'string') {
+    if (input.startsWith('data:')) {
+      const match = input.match(/^data:([a-zA-Z0-9\/+-]+);base64,(.+)$/);
+      if (!match) {
+        return { valid: false, error: "Invalid base64 Data URL format." };
+      }
+      const mime = match[1].toLowerCase();
+      if (!allowedTypes.includes(mime)) {
+        return { valid: false, error: `Invalid file format (${mime}). Allowed formats: ${allowedTypes.join(', ')}` };
+      }
+      const base64Data = match[2];
+      const approxSizeBytes = Math.ceil((base64Data.length * 3) / 4);
+      if (approxSizeBytes > MAX_FILE_SIZE) {
+        return { valid: false, error: "File size exceeds the 5MB limit." };
+      }
+      return { valid: true };
+    }
+
+    if (input.startsWith('http://') || input.startsWith('https://')) {
+      return { valid: true };
+    }
+
+    return { valid: false, error: "Unsupported media format." };
+  }
+
+  return { valid: false, error: "Unsupported media payload." };
+}
+
 export const uploadDoc = async (c: Context) => {
   try {
     const userId = c.get('user')?.sub;
@@ -16,7 +71,14 @@ export const uploadDoc = async (c: Context) => {
       const body = await c.req.parseBody();
       const file = body['file'] || body['document'] || body['doc'];
       if (file && typeof file === 'object' && 'arrayBuffer' in (file as any)) {
-        const arrayBuf = await (file as any).arrayBuffer();
+        const fileObj = file as any;
+        if (fileObj.size && fileObj.size > MAX_FILE_SIZE) {
+          return c.json(ApiResponse.error("File size exceeds 5MB limit"), 400 as any);
+        }
+        if (fileObj.type && !ALLOWED_DOC_TYPES.includes(fileObj.type.toLowerCase())) {
+          return c.json(ApiResponse.error(`Invalid file type: ${fileObj.type}. Allowed: ${ALLOWED_DOC_TYPES.join(', ')}`), 400 as any);
+        }
+        const arrayBuf = await fileObj.arrayBuffer();
         mediaInput = Buffer.from(arrayBuf);
       } else if (typeof file === 'string') {
         mediaInput = file;
@@ -28,6 +90,12 @@ export const uploadDoc = async (c: Context) => {
 
     if (!mediaInput) {
       return c.json(ApiResponse.error("No document image provided"), 400 as any);
+    }
+
+    // Security Gate: Strict MIME & payload validation
+    const validation = validateMediaPayload(mediaInput, ALLOWED_DOC_TYPES);
+    if (!validation.valid) {
+      return c.json(ApiResponse.error(validation.error || "Invalid document format"), 400 as any);
     }
 
     const result = await uploadMedia(mediaInput, 'verifications/docs');
@@ -71,7 +139,14 @@ export const captureLive = async (c: Context) => {
       const body = await c.req.parseBody();
       const file = body['file'] || body['live'] || body['image'];
       if (file && typeof file === 'object' && 'arrayBuffer' in (file as any)) {
-        const arrayBuf = await (file as any).arrayBuffer();
+        const fileObj = file as any;
+        if (fileObj.size && fileObj.size > MAX_FILE_SIZE) {
+          return c.json(ApiResponse.error("File size exceeds 5MB limit"), 400 as any);
+        }
+        if (fileObj.type && !ALLOWED_LIVE_TYPES.includes(fileObj.type.toLowerCase())) {
+          return c.json(ApiResponse.error(`Invalid image type: ${fileObj.type}. Allowed: ${ALLOWED_LIVE_TYPES.join(', ')}`), 400 as any);
+        }
+        const arrayBuf = await fileObj.arrayBuffer();
         mediaInput = Buffer.from(arrayBuf);
       } else if (typeof file === 'string') {
         mediaInput = file;
@@ -83,6 +158,12 @@ export const captureLive = async (c: Context) => {
 
     if (!mediaInput) {
       return c.json(ApiResponse.error("No live capture image provided"), 400 as any);
+    }
+
+    // Security Gate: Strict MIME & payload validation for live photo
+    const validation = validateMediaPayload(mediaInput, ALLOWED_LIVE_TYPES);
+    if (!validation.valid) {
+      return c.json(ApiResponse.error(validation.error || "Invalid live photo format"), 400 as any);
     }
 
     const result = await uploadMedia(mediaInput, 'verifications/live');

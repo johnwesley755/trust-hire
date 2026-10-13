@@ -7,11 +7,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Building2, 
   User, 
-  ChevronRight, 
+  ArrowLeft,
   AlertCircle, 
   Loader2, 
   Eye, 
-  EyeOff 
+  EyeOff,
+  ShieldCheck,
+  ArrowRight
 } from 'lucide-react';
 
 export const SignInPage = () => {
@@ -71,63 +73,75 @@ export const SignInPage = () => {
     const isCandidate = activeRole === 'WORKER';
 
     return (
-        <div className="min-h-screen bg-[#F0F2F6] flex items-center justify-center p-3 sm:p-6 md:p-10 font-sans">
+        <div className="min-h-screen bg-[#f4f4f4] flex items-center justify-center p-3 sm:p-6 lg:p-8 font-['Onest',system-ui,sans-serif] selection:bg-[#2563c9] selection:text-white">
             
             {/* Main Auth Card Container */}
-            <div className="w-full max-w-5xl bg-white rounded-3xl md:rounded-[32px] shadow-2xl shadow-slate-300/40 border border-slate-100 overflow-hidden grid grid-cols-1 md:grid-cols-12 min-h-[620px] transition-all">
+            <div className="w-full max-w-5xl bg-white rounded-[2rem] border border-[#e6e8ec] shadow-2xl shadow-slate-200/60 overflow-hidden grid grid-cols-1 lg:grid-cols-12 min-h-[640px] transition-all">
                 
-                {/* Left Side: Scenic Brand Visual Hero */}
-                <div className="md:col-span-5 lg:col-span-5 hidden md:block">
+                {/* Left Side: Brand Visual Hero matching Landing Hero Style */}
+                <div className="lg:col-span-5 p-2.5 hidden lg:block">
                     <AuthVisualHero role={activeRole} />
                 </div>
 
-                {/* Right Side: Clean Modern Form */}
-                <div className="md:col-span-7 lg:col-span-7 p-6 sm:p-10 lg:p-12 flex flex-col justify-between relative bg-white">
+                {/* Right Side: Clean Modern Form matching Landing Page Design System */}
+                <div className="lg:col-span-7 p-6 sm:p-10 lg:p-12 flex flex-col justify-between relative bg-white">
                     
-                    {/* Top Right Portal Switcher Affordance */}
-                    <div className="flex items-center justify-between sm:justify-end gap-3 mb-6">
-                        {/* Mobile Brand Logo */}
-                        <div className="md:hidden">
-                            <Link to="/" className="flex items-center gap-2">
-                                <img src="/logo.png" alt="TrustHyre Logo" className="w-8 h-8 object-contain" />
-                                <span className="text-xl font-black text-[#0A1931]">
-                                    Trust<span className="text-[#0066FF]">Hyre</span>
-                                </span>
+                    {/* Top Navigation Row: Back Link + Role Segmented Switcher */}
+                    <div className="flex items-center justify-between gap-3 mb-6">
+                        {/* Mobile Brand Logo / Desktop Back Link */}
+                        <div className="flex items-center gap-2">
+                            <Link 
+                                to="/" 
+                                className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.18em] text-[#717784] hover:text-[#0a0a0a] transition-colors"
+                            >
+                                <ArrowLeft className="w-3.5 h-3.5" />
+                                <span>Back to Home</span>
                             </Link>
                         </div>
 
-                        {/* Switcher Pill Button */}
-                        <button
-                            type="button"
-                            onClick={() => handleRoleToggle(isCandidate ? 'EMPLOYER' : 'WORKER')}
-                            className="group flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200/80 transition-all text-slate-700 text-xs font-semibold cursor-pointer border border-slate-200/60"
-                        >
-                            {isCandidate ? (
-                                <Building2 className="w-3.5 h-3.5 text-slate-600 group-hover:text-[#0066FF] transition-colors" />
-                            ) : (
-                                <User className="w-3.5 h-3.5 text-slate-600 group-hover:text-[#0066FF] transition-colors" />
-                            )}
-                            <span className="font-['Outfit',sans-serif]">
-                                {isCandidate ? 'For Companies' : 'For Job Seekers'}
-                            </span>
-                            <span className="w-5 h-5 rounded-full bg-linear-to-r from-[#0066FF] to-[#38BDF8] text-white flex items-center justify-center text-[10px] group-hover:translate-x-0.5 transition-transform shadow-2xs">
-                                <ChevronRight className="w-3 h-3" />
-                            </span>
-                        </button>
+                        {/* Segmented Pill Role Switcher */}
+                        <div className="inline-flex p-1 rounded-full bg-[#f4f4f4] border border-[#e6e8ec]">
+                            <button
+                                type="button"
+                                onClick={() => handleRoleToggle('WORKER')}
+                                className={`px-3.5 py-1.5 rounded-full text-xs font-medium uppercase tracking-wider transition-all cursor-pointer ${
+                                    isCandidate 
+                                        ? 'bg-[#0f2f63] text-white shadow-xs' 
+                                        : 'text-[#717784] hover:text-[#0a0a0a]'
+                                }`}
+                            >
+                                Job Seeker
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => handleRoleToggle('EMPLOYER')}
+                                className={`px-3.5 py-1.5 rounded-full text-xs font-medium uppercase tracking-wider transition-all cursor-pointer ${
+                                    !isCandidate 
+                                        ? 'bg-[#0f2f63] text-white shadow-xs' 
+                                        : 'text-[#717784] hover:text-[#0a0a0a]'
+                                }`}
+                            >
+                                Employer
+                            </button>
+                        </div>
                     </div>
 
                     {/* Centered Form Area */}
                     <div className="max-w-md w-full mx-auto my-auto py-2">
                         
-                        {/* Title & Subtitle */}
+                        {/* Eyebrow & Title */}
                         <div className="mb-6">
-                            <h1 className="font-['Outfit',sans-serif] text-2xl sm:text-3xl font-extrabold text-[#0A1931] tracking-tight">
-                                {isCandidate ? 'Candidate Sign In' : 'Employer Sign In'}
+                            <div className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.22em] text-[#717784] mb-2">
+                                <span className="w-1.5 h-1.5 rounded-full bg-[#2563c9]" />
+                                <span>{isCandidate ? 'Candidate Portal' : 'Employer Portal'}</span>
+                            </div>
+                            <h1 className="text-3xl sm:text-4xl font-medium tracking-tight text-[#0a0a0a] leading-[1.05]">
+                                Sign in to TrustHyre
                             </h1>
-                            <p className="text-slate-500 text-xs sm:text-sm mt-1 font-medium">
+                            <p className="text-xs sm:text-sm text-[#717784] mt-2 leading-relaxed">
                                 {isCandidate 
-                                    ? 'Access verified jobs, real-time match alerts, and direct payouts.' 
-                                    : 'Hire pre-screened professionals and manage hiring pipeline.'}
+                                    ? 'Access verified jobs, biometric shifts, and daily UPI escrow settlements.' 
+                                    : 'Access your hiring pipeline, active job postings, and verified candidates.'}
                             </p>
                         </div>
 
@@ -138,7 +152,7 @@ export const SignInPage = () => {
                                     initial={{ opacity: 0, y: -8 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     exit={{ opacity: 0, y: -8 }}
-                                    className="mb-5 p-3.5 bg-rose-50 border border-rose-200 text-rose-800 text-xs font-bold rounded-xl flex items-center gap-2.5 shadow-2xs"
+                                    className="mb-5 p-3.5 bg-rose-50 border border-rose-200 text-rose-800 text-xs font-medium rounded-xl flex items-center gap-2.5 shadow-2xs"
                                 >
                                     <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
                                     <span>{error}</span>
@@ -151,28 +165,28 @@ export const SignInPage = () => {
                             
                             {/* Email Field */}
                             <div className="space-y-1.5">
-                                <label className="block text-xs font-bold text-slate-700 font-['Outfit',sans-serif]">
-                                    {isCandidate ? 'Username or email' : 'Business email'}
+                                <label className="block text-xs font-medium uppercase tracking-[0.16em] text-[#0a0a0a]">
+                                    {isCandidate ? 'Email address or username' : 'Business email'}
                                 </label>
                                 <input
                                     type="email"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    placeholder={isCandidate ? 'Enter your username or email' : 'Enter your company email'}
+                                    placeholder={isCandidate ? 'name@example.com' : 'hr@company.com'}
                                     required
-                                    className="w-full bg-slate-50/50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0066FF] rounded-xl px-4 py-3 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 font-medium transition-all outline-none focus:ring-3 focus:ring-[#0066FF]/15"
+                                    className="w-full bg-[#f4f4f4]/60 hover:bg-[#f4f4f4] focus:bg-white border border-[#e6e8ec] focus:border-[#0f2f63] rounded-xl px-4 py-3 text-sm text-[#0a0a0a] placeholder:text-[#9ea3ae] font-normal transition-all outline-hidden focus:ring-2 focus:ring-[#0f2f63]/10"
                                 />
                             </div>
 
                             {/* Password Field */}
                             <div className="space-y-1.5">
                                 <div className="flex items-center justify-between">
-                                    <label className="block text-xs font-bold text-slate-700 font-['Outfit',sans-serif]">
+                                    <label className="block text-xs font-medium uppercase tracking-[0.16em] text-[#0a0a0a]">
                                         Password
                                     </label>
                                     <Link 
-                                        to="/forgot-password" 
-                                        className="text-xs font-semibold text-slate-500 hover:text-[#0066FF] transition-colors"
+                                        to={`/forgot-password?role=${activeRole.toLowerCase()}`}
+                                        className="text-xs font-medium text-[#717784] hover:text-[#0f2f63] transition-colors"
                                     >
                                         Forgot password?
                                     </Link>
@@ -182,14 +196,14 @@ export const SignInPage = () => {
                                         type={showPassword ? 'text' : 'password'}
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
-                                        placeholder="Enter your password"
+                                        placeholder="••••••••••••"
                                         required
-                                        className="w-full bg-slate-50/50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0066FF] rounded-xl px-4 py-3 pr-10 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 font-medium transition-all outline-none focus:ring-3 focus:ring-[#0066FF]/15"
+                                        className="w-full bg-[#f4f4f4]/60 hover:bg-[#f4f4f4] focus:bg-white border border-[#e6e8ec] focus:border-[#0f2f63] rounded-xl px-4 py-3 pr-10 text-sm text-[#0a0a0a] placeholder:text-[#9ea3ae] font-normal transition-all outline-hidden focus:ring-2 focus:ring-[#0f2f63]/10"
                                     />
                                     <button
                                         type="button"
                                         onClick={() => setShowPassword(!showPassword)}
-                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+                                        className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#9ea3ae] hover:text-[#0a0a0a] transition-colors cursor-pointer"
                                     >
                                         {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                                     </button>
@@ -200,7 +214,7 @@ export const SignInPage = () => {
                             <button
                                 type="submit"
                                 disabled={isLoading || !email || !password}
-                                className="w-full mt-2 bg-[#0066FF] hover:bg-[#0052CC] active:scale-[0.99] disabled:opacity-50 text-white py-3.5 px-4 rounded-xl font-bold text-xs sm:text-sm tracking-wide shadow-md shadow-[#0066FF]/25 hover:shadow-lg hover:shadow-[#0066FF]/35 transition-all flex items-center justify-center gap-2 cursor-pointer font-['Outfit',sans-serif]"
+                                className="w-full mt-2 bg-[#0f2f63] hover:bg-[#2563c9] active:scale-[0.99] disabled:opacity-50 text-white py-3.5 px-5 rounded-full font-medium text-xs sm:text-sm tracking-wide uppercase transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer"
                             >
                                 {isLoading ? (
                                     <>
@@ -208,29 +222,32 @@ export const SignInPage = () => {
                                         <span>Signing In...</span>
                                     </>
                                 ) : (
-                                    <span>Sign In</span>
+                                    <>
+                                        <span>Sign In</span>
+                                        <ArrowRight className="w-4 h-4" />
+                                    </>
                                 )}
                             </button>
                         </form>
 
                         {/* Sign Up Redirect Link */}
                         <div className="mt-5 text-center">
-                            <p className="text-xs sm:text-sm text-slate-600 font-medium">
+                            <p className="text-xs sm:text-sm text-[#717784] font-normal">
                                 Don't have an account?{' '}
                                 <Link 
                                     to={`/sign-up?role=${activeRole.toLowerCase()}`} 
-                                    className="font-bold text-[#0A1931] hover:text-[#0066FF] transition-colors"
+                                    className="font-medium text-[#0f2f63] hover:text-[#2563c9] underline underline-offset-2 transition-colors"
                                 >
-                                    Sign up.
+                                    Create an account
                                 </Link>
                             </p>
                         </div>
 
                         {/* OR Divider */}
                         <div className="flex items-center gap-3 my-5">
-                            <div className="flex-1 h-px bg-slate-200"></div>
-                            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">OR</span>
-                            <div className="flex-1 h-px bg-slate-200"></div>
+                            <div className="flex-1 h-px bg-[#e6e8ec]"></div>
+                            <span className="text-[10px] font-medium uppercase tracking-[0.2em] text-[#9ea3ae]">or continue with</span>
+                            <div className="flex-1 h-px bg-[#e6e8ec]"></div>
                         </div>
 
                         {/* Social Sign In */}
@@ -239,7 +256,7 @@ export const SignInPage = () => {
                             <button
                                 type="button"
                                 onClick={() => signInWithGoogle(activeRole)}
-                                className="w-full bg-slate-50 hover:bg-slate-100 border border-slate-200 hover:border-slate-300 text-slate-700 py-3 px-4 rounded-xl font-semibold text-xs sm:text-sm flex items-center justify-center gap-3 transition-all cursor-pointer shadow-2xs font-['Outfit',sans-serif]"
+                                className="w-full bg-white hover:bg-[#f4f4f4] border border-[#e6e8ec] text-[#0a0a0a] py-3 px-4 rounded-full font-medium text-xs sm:text-sm tracking-wide uppercase flex items-center justify-center gap-3 transition-all cursor-pointer shadow-xs"
                             >
                                 <svg className="w-4 h-4" viewBox="0 0 24 24">
                                     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -253,11 +270,11 @@ export const SignInPage = () => {
                     </div>
 
                     {/* Bottom Footer Note */}
-                    <div className="pt-4 text-center text-[11px] text-slate-400 font-medium">
+                    <div className="pt-4 text-center text-xs text-[#717784]">
                         By signing in, you agree to our{' '}
-                        <Link to="/terms" className="underline hover:text-slate-600">Terms of Service</Link>{' '}
+                        <Link to="/terms" className="underline hover:text-[#0a0a0a] transition-colors">Terms of Service</Link>{' '}
                         and{' '}
-                        <Link to="/privacy" className="underline hover:text-slate-600">Privacy Policy</Link>.
+                        <Link to="/privacy" className="underline hover:text-[#0a0a0a] transition-colors">Privacy Policy</Link>.
                     </div>
                 </div>
 

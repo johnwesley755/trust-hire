@@ -46,8 +46,41 @@ app.use('*', async (c, next) => {
   await next();
 });
 
-app.use('*', logger());
-app.use('*', cors({ origin: (origin) => origin || '*', allowHeaders: ['Content-Type', 'Authorization'], allowMethods: ['POST', 'GET', 'OPTIONS', 'PUT', 'DELETE', 'PATCH'], credentials: true }));
+import { secureHeaders } from 'hono/secure-headers';
+
+const ALLOWED_ORIGINS = [
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'http://localhost:4173',
+  'http://localhost:8787',
+  'http://127.0.0.1:5173',
+  'https://trusthire.in',
+  'https://www.trusthire.in',
+  'https://app.trusthire.in',
+  'https://trust-hire-6edba.web.app',
+  'https://trust-hire-6edba.firebaseapp.com'
+];
+
+app.use('*', secureHeaders({
+  xContentTypeOptions: 'nosniff',
+  xFrameOptions: 'DENY',
+  xXssProtection: '1; mode=block',
+  referrerPolicy: 'strict-origin-when-cross-origin',
+  strictTransportSecurity: 'max-age=31536000; includeSubDomains',
+}));
+
+app.use('*', cors({
+  origin: (origin) => {
+    if (!origin) return ALLOWED_ORIGINS[0];
+    if (ALLOWED_ORIGINS.includes(origin) || origin.endsWith('.trusthire.in')) {
+      return origin;
+    }
+    return '';
+  },
+  allowHeaders: ['Content-Type', 'Authorization', 'x-internal-secret'],
+  allowMethods: ['POST', 'GET', 'OPTIONS', 'PUT', 'DELETE', 'PATCH'],
+  credentials: true
+}));
 app.options('*', (c) => c.body(null, 204));
 
 app.route('/api/auth', authRoutes);

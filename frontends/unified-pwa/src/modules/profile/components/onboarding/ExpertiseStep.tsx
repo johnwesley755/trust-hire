@@ -48,7 +48,7 @@ export default function ExpertiseStep({ formData, setFormData, onNext, onBack }:
         {/* Header Section */}
         <div className="mb-12 relative">
             <div className="hidden md:block mb-2">
-                <span className="font-headline text-[10px] font-bold text-[#FACD15] uppercase tracking-[0.3em]">Protocol Two</span>
+                <span className="font-headline text-[10px] font-bold text-[#FACD15] uppercase tracking-[0.3em]">Step Two</span>
             </div>
             <h1 className="font-headline text-[3.5rem] font-bold text-[#0A1931] leading-[1.1] tracking-tight mb-4">
                 Expertise
@@ -175,7 +175,7 @@ export default function ExpertiseStep({ formData, setFormData, onNext, onBack }:
                         disabled={formData.skills.length === 0}
                         className="bg-[#FACD15] text-[#002117] px-14 py-6 rounded-full font-bold font-headline uppercase tracking-[0.2em] text-sm shadow-[0_10px_0_0_#C39F00] active:translate-y-1 active:shadow-none transition-all flex items-center gap-4 disabled:opacity-50 disabled:shadow-none disabled:translate-y-0"
                     >
-                        NEXT PROTOCOL
+                        NEXT STEP
                         <span className="material-symbols-outlined font-black">arrow_forward</span>
                     </button>
                 </div>

@@ -22,6 +22,7 @@ import {
   TableRow, 
   TableCell 
 } from "@/components/ui/table";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
@@ -101,34 +102,37 @@ export default function AppliedJobsPage() {
           
           {/* Status Filter Tabs & View Toggle */}
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex gap-1.5 bg-slate-100 p-1 rounded-xl border border-slate-200 self-start md:self-auto overflow-x-auto no-scrollbar">
-              {['All', 'Offers Received', 'Under Review', 'Approved & Hired'].map(filter => {
-                const count = applications.filter(app => {
-                  if (filter === 'All') return true;
-                  if (filter === 'Offers Received') return app.status === 'OFFER_SENT';
-                  if (filter === 'Under Review') return app.status === 'PENDING' || app.status === 'REVIEWING' || app.status === 'APPLIED';
-                  if (filter === 'Approved & Hired') return app.status === 'ACCEPTED' || app.status === 'APPROVED' || app.status === 'COMPLETED';
-                  return true;
-                }).length;
+            <Tabs 
+              value={activeFilter} 
+              onValueChange={(val) => {
+                setActiveFilter(val);
+                setCurrentPage(1);
+              }}
+              className="space-y-0"
+            >
+              <TabsList className="bg-slate-100 p-1 rounded-xl border border-slate-200">
+                {['All', 'Offers Received', 'Under Review', 'Approved & Hired'].map(filter => {
+                  const count = applications.filter(app => {
+                    if (filter === 'All') return true;
+                    if (filter === 'Offers Received') return app.status === 'OFFER_SENT';
+                    if (filter === 'Under Review') return app.status === 'PENDING' || app.status === 'REVIEWING' || app.status === 'APPLIED';
+                    if (filter === 'Approved & Hired') return app.status === 'ACCEPTED' || app.status === 'APPROVED' || app.status === 'COMPLETED';
+                    return true;
+                  }).length;
 
-                return (
-                  <button 
-                    key={filter}
-                    onClick={() => {
-                      setActiveFilter(filter);
-                      setCurrentPage(1);
-                    }}
-                    className={`${
-                      activeFilter === filter 
-                        ? 'bg-[#0066FF] text-white shadow-xs font-bold' 
-                        : 'text-slate-600 hover:text-[#0066FF] font-semibold'
-                    } px-3.5 py-1.5 rounded-lg text-xs transition-all active:scale-95 cursor-pointer whitespace-nowrap`}
-                  >
-                    {filter} ({count})
-                  </button>
-                );
-              })}
-            </div>
+                  return (
+                    <TabsTrigger
+                      key={filter}
+                      value={filter}
+                      count={count}
+                      className="px-3 py-1 text-xs"
+                    >
+                      {filter}
+                    </TabsTrigger>
+                  );
+                })}
+              </TabsList>
+            </Tabs>
 
             {/* View Switcher Toggle */}
             <div className="flex items-center bg-white p-1 rounded-xl border border-slate-200/80 shadow-2xs">

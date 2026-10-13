@@ -26,7 +26,7 @@ export default function BiometricStep({ onCapture, preview, isPending }: Biometr
         <section className="flex-1 px-8 md:px-16 py-12 md:py-16 flex flex-col justify-center">
             <div className="max-w-xl mx-auto md:mx-0 w-full text-left">
                 <div className="mb-10">
-                    <span className="inline-block px-4 py-1.5 rounded-full bg-[#d1fae5] text-[#002117] font-bold text-[0.75rem] uppercase tracking-wider mb-6">Security Protocol</span>
+                    <span className="inline-block px-4 py-1.5 rounded-full bg-[#d1fae5] text-[#002117] font-bold text-[0.75rem] uppercase tracking-wider mb-6">Security Verification</span>
                     <h1 className="font-headline font-extrabold text-4xl md:text-5xl text-[#1b1c19] tracking-tighter leading-[1.1] mb-4">Biometric Match</h1>
                     <p className="text-[#414845] text-lg opacity-80 leading-relaxed font-body">AI cross-referencing your live signature with the logged documentation artifacts. Please ensure clear lighting.</p>
                 </div>
@@ -61,7 +61,7 @@ export default function BiometricStep({ onCapture, preview, isPending }: Biometr
                     className="w-full bg-[#1b1c19] text-[#FACD15] font-headline font-extrabold py-6 rounded-[2rem] shadow-2xl disabled:opacity-30 transition-all flex items-center justify-center gap-4 text-xl tracking-widest hover:bg-neutral-800"
                 >
                     {isPending ? <Loader2 className="animate-spin w-8 h-8" /> : (
-                        <>Authorize Protocol <ChevronRight className="w-6 h-6" /></>
+                        <>Authorize Verification <ChevronRight className="w-6 h-6" /></>
                     )}
                 </button>
             </div>

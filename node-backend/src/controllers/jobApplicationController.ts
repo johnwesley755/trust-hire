@@ -282,9 +282,35 @@ export const updateApplicationStatus = async (c: Context) => {
       return c.json(ApiResponse.error("Forbidden: You are not authorized to modify this application."), 403 as any);
     }
 
+    const normalizedStatus = status.toUpperCase();
+
+    // Security Gate: Restrict role-based status transitions
+    if (!isAdmin) {
+      if (isApplicant && !isEmployerOwner) {
+        // Applicant transitions
+        if (application.status === 'OFFER_SENT') {
+          // Applicant may only accept or decline an active offer
+          if (!['ACCEPTED', 'DECLINED'].includes(normalizedStatus)) {
+            return c.json(ApiResponse.error("Invalid status: You may only accept or decline an active offer."), 400 as any);
+          }
+        } else {
+          // Pending or reviewing: applicant can only withdraw
+          if (!['WITHDRAWN', 'DECLINED', 'REJECTED'].includes(normalizedStatus)) {
+            return c.json(ApiResponse.error("Forbidden: Candidates cannot approve or accept their own pending applications."), 403 as any);
+          }
+        }
+      } else if (isEmployerOwner) {
+        // Employer transitions
+        const allowedEmployerStatuses = ['REVIEWING', 'OFFER_SENT', 'ACCEPTED', 'APPROVED', 'REJECTED', 'COMPLETED'];
+        if (!allowedEmployerStatuses.includes(normalizedStatus)) {
+          return c.json(ApiResponse.error(`Invalid status: Must be one of ${allowedEmployerStatuses.join(', ')}`), 400 as any);
+        }
+      }
+    }
+
     const updated = await prisma.job_applications.update({
       where: { id: applicationId },
-      data: { status }
+      data: { status: normalizedStatus }
     });
 
     // Notify target party

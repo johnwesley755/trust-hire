@@ -23,7 +23,7 @@ const FEATURES = [
   },
   {
     title: "Biometric Security",
-    desc: "Integrated face-match protocol ensures that 100% of attendance is verified and proxy-free.",
+    desc: "Integrated face-match verification ensures that 100% of attendance is verified and proxy-free.",
     icon: ShieldCheck,
     color: "bg-brand-accent",
     textColor: "text-white"
