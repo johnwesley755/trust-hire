@@ -7,3 +7,10 @@ dist/
 .env
 .env.*
 !.env.example
+
+# Service account & cloud credentials
+*service-account*.json
+firebase-service-account.json
+serviceAccountKey.json
+*.pem
+*.key

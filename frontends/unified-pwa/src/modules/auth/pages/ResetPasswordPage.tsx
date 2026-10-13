@@ -4,7 +4,7 @@ import { authService } from '../../../services/auth.service';
 import { resetPasswordSchema } from '../../../validations/zodSchema';
 import { AuthVisualHero } from '../components/AuthVisualHero';
 import { motion, AnimatePresence } from 'framer-motion';
-import { AlertCircle, Loader2, ArrowLeft, CheckCircle2, Eye, EyeOff, KeyRound } from 'lucide-react';
+import { AlertCircle, Loader2, ArrowLeft, CheckCircle2, Eye, EyeOff, KeyRound, ArrowRight } from 'lucide-react';
 
 export default function ResetPasswordPage() {
     const [searchParams] = useSearchParams();
@@ -46,63 +46,72 @@ export default function ResetPasswordPage() {
     };
 
     return (
-        <div className="min-h-screen bg-[#F0F2F6] flex items-center justify-center p-3 sm:p-6 md:p-10 font-sans">
+        <div className="w-full min-h-screen p-2 sm:p-3 bg-white font-['Onest',system-ui,sans-serif] selection:bg-[#2563c9] selection:text-white flex flex-col">
             
-            {/* Main Card Container */}
-            <div className="w-full max-w-5xl bg-white rounded-3xl md:rounded-[32px] shadow-2xl shadow-slate-300/40 border border-slate-100 overflow-hidden grid grid-cols-1 md:grid-cols-12 min-h-[600px] transition-all">
+            {/* Framed Full-Screen Canvas matching Landing Page Architecture */}
+            <div className="relative w-full flex-1 min-h-[calc(100svh-1rem)] sm:min-h-[calc(100svh-1.5rem)] lg:h-[calc(100svh-1.5rem)] rounded-[2rem] overflow-hidden border border-[#e6e8ec] bg-white shadow-xl grid grid-cols-1 lg:grid-cols-12 transition-all">
                 
-                {/* Left Side: Brand Visual Hero */}
-                <div className="md:col-span-5 lg:col-span-5 hidden md:block">
+                {/* Left Side: Full-Bleed Brand Visual Hero */}
+                <div className="lg:col-span-5 xl:col-span-5 hidden lg:block h-full">
                     <AuthVisualHero role="WORKER" />
                 </div>
 
-                {/* Right Side: Clean Modern Form */}
-                <div className="md:col-span-7 lg:col-span-7 p-6 sm:p-10 lg:p-12 flex flex-col justify-between relative bg-white">
+                {/* Right Side: Clean Modern Form with Independent Smooth Scroll */}
+                <div className="lg:col-span-7 xl:col-span-7 p-6 sm:p-10 lg:p-12 flex flex-col justify-between relative bg-white h-full overflow-y-auto">
                     
-                    {/* Top Back Link */}
-                    <div className="flex items-center justify-between gap-3 mb-4">
+                    {/* Top Navigation Row: Back Link */}
+                    <div className="flex items-center justify-between gap-3 mb-6 sm:mb-8">
                         <Link 
                             to="/sign-in" 
-                            className="inline-flex items-center gap-2 text-xs font-bold text-slate-600 hover:text-[#0066FF] transition-colors"
+                            className="inline-flex items-center gap-2 text-xs font-medium uppercase text-[#717784] hover:text-[#0a0a0a] transition-colors"
                         >
-                            <ArrowLeft className="w-4 h-4" />
+                            <ArrowLeft className="w-3.5 h-3.5" />
                             <span>Back to Sign In</span>
                         </Link>
                     </div>
 
+                    {/* Mobile Only: Ambient Hero Banner */}
+                    <div className="block lg:hidden mb-6">
+                        <AuthVisualHero role="WORKER" isMobileBanner={true} />
+                    </div>
+
                     {/* Centered Area */}
                     <div className="max-w-md w-full mx-auto my-auto py-2">
-                        
                         {isSuccess ? (
                             <motion.div 
-                                initial={{ opacity: 0, scale: 0.95 }}
+                                initial={{ opacity: 0, scale: 0.96 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 className="text-center space-y-4"
                             >
                                 <div className="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto shadow-xs border border-emerald-100">
-                                    <CheckCircle2 className="w-8 h-8" />
+                                    <CheckCircle2 className="w-8 h-8 text-emerald-500" />
                                 </div>
-                                <h1 className="font-['Outfit',sans-serif] text-2xl sm:text-3xl font-extrabold text-[#0A1931] tracking-tight">
+                                <h1 className="text-3xl font-medium text-[#0a0a0a]">
                                     Password Reset Complete
                                 </h1>
-                                <p className="text-slate-500 text-xs sm:text-sm font-medium leading-relaxed">
+                                <p className="text-xs sm:text-sm text-[#717784] leading-relaxed">
                                     Your password has been successfully updated. You can now securely log in with your new credentials.
                                 </p>
                                 <button
                                     onClick={() => navigate('/sign-in')}
-                                    className="w-full mt-4 bg-[#0066FF] hover:bg-[#0052CC] text-white py-3.5 px-4 rounded-xl font-bold text-xs sm:text-sm tracking-wide shadow-md shadow-[#0066FF]/25 hover:shadow-lg transition-all cursor-pointer font-['Outfit',sans-serif]"
+                                    className="w-full mt-4 bg-[#0f2f63] hover:bg-[#2563c9] text-white py-3.5 px-5 rounded-full font-medium text-xs sm:text-sm uppercase transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer"
                                 >
-                                    Log In Now
+                                    <span>Log In Now</span>
+                                    <ArrowRight className="w-4 h-4" />
                                 </button>
                             </motion.div>
                         ) : (
                             <div>
-                                <div className="mb-5">
-                                    <h1 className="font-['Outfit',sans-serif] text-2xl sm:text-3xl font-extrabold text-[#0A1931] tracking-tight">
-                                        Create New Password
+                                <div className="mb-6">
+                                    <div className="inline-flex items-center gap-2 text-xs font-medium uppercase text-[#717784] mb-2">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-[#2563c9]" />
+                                        <span>Security Verification</span>
+                                    </div>
+                                    <h1 className="text-3xl sm:text-4xl font-medium text-[#0a0a0a] leading-[1.05]">
+                                        Create new password
                                     </h1>
-                                    <p className="text-slate-500 text-xs sm:text-sm mt-1 font-medium">
-                                        Enter your verification code and choose a new secure password.
+                                    <p className="text-xs sm:text-sm text-[#717784] mt-2 leading-relaxed">
+                                        Enter your 6-digit verification code and set a strong new password.
                                     </p>
                                 </div>
 
@@ -112,7 +121,7 @@ export default function ResetPasswordPage() {
                                             initial={{ opacity: 0, y: -8 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             exit={{ opacity: 0, y: -8 }}
-                                            className="mb-4 p-3 bg-rose-50 border border-rose-200 text-rose-800 text-xs font-bold rounded-xl flex items-center gap-2.5 shadow-2xs"
+                                            className="mb-5 p-3.5 bg-rose-50 border border-rose-200 text-rose-800 text-xs font-medium rounded-xl flex items-center gap-2.5 shadow-2xs"
                                         >
                                             <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
                                             <span>{error}</span>
@@ -120,9 +129,9 @@ export default function ResetPasswordPage() {
                                     )}
                                 </AnimatePresence>
 
-                                <form onSubmit={handleSubmit} className="space-y-3.5">
-                                    <div className="space-y-1">
-                                        <label className="block text-[11px] font-bold text-slate-700 font-['Outfit',sans-serif]">
+                                <form onSubmit={handleSubmit} className="space-y-4">
+                                    <div className="space-y-1.5">
+                                        <label className="block text-xs font-medium uppercase text-[#0a0a0a]">
                                             6-Digit Reset Code
                                         </label>
                                         <div className="relative">
@@ -132,14 +141,14 @@ export default function ResetPasswordPage() {
                                                 onChange={(e) => setToken(e.target.value.trim())}
                                                 placeholder="e.g. 123456"
                                                 required
-                                                className="w-full bg-slate-50/50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0066FF] rounded-xl px-3.5 py-2.5 pl-9 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 font-mono tracking-widest transition-all outline-none focus:ring-3 focus:ring-[#0066FF]/15"
+                                                className="w-full bg-[#f4f4f4]/60 hover:bg-[#f4f4f4] focus:bg-white border border-[#e6e8ec] focus:border-[#0f2f63] rounded-xl px-4 py-3 pl-10 text-sm text-[#0a0a0a] placeholder:text-[#9ea3ae] font-mono transition-all outline-hidden focus:ring-2 focus:ring-[#0f2f63]/10"
                                             />
-                                            <KeyRound className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                                            <KeyRound className="w-4 h-4 text-[#9ea3ae] absolute left-3.5 top-1/2 -translate-y-1/2" />
                                         </div>
                                     </div>
 
-                                    <div className="space-y-1">
-                                        <label className="block text-[11px] font-bold text-slate-700 font-['Outfit',sans-serif]">
+                                    <div className="space-y-1.5">
+                                        <label className="block text-xs font-medium uppercase text-[#0a0a0a]">
                                             New Password
                                         </label>
                                         <div className="relative">
@@ -147,23 +156,23 @@ export default function ResetPasswordPage() {
                                                 type={showPassword ? 'text' : 'password'}
                                                 value={password}
                                                 onChange={(e) => setPassword(e.target.value)}
-                                                placeholder="At least 8 characters (letters & numbers)"
+                                                placeholder="At least 8 characters"
                                                 required
                                                 minLength={8}
-                                                className="w-full bg-slate-50/50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0066FF] rounded-xl px-3.5 py-2.5 pr-10 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 font-medium transition-all outline-none focus:ring-3 focus:ring-[#0066FF]/15"
+                                                className="w-full bg-[#f4f4f4]/60 hover:bg-[#f4f4f4] focus:bg-white border border-[#e6e8ec] focus:border-[#0f2f63] rounded-xl px-4 py-3 pr-10 text-sm text-[#0a0a0a] placeholder:text-[#9ea3ae] font-normal transition-all outline-hidden focus:ring-2 focus:ring-[#0f2f63]/10"
                                             />
                                             <button
                                                 type="button"
                                                 onClick={() => setShowPassword(!showPassword)}
-                                                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+                                                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#9ea3ae] hover:text-[#0a0a0a] transition-colors cursor-pointer"
                                             >
-                                                {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                                                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                                             </button>
                                         </div>
                                     </div>
 
-                                    <div className="space-y-1">
-                                        <label className="block text-[11px] font-bold text-slate-700 font-['Outfit',sans-serif]">
+                                    <div className="space-y-1.5">
+                                        <label className="block text-xs font-medium uppercase text-[#0a0a0a]">
                                             Confirm New Password
                                         </label>
                                         <input
@@ -172,14 +181,14 @@ export default function ResetPasswordPage() {
                                             onChange={(e) => setConfirmPassword(e.target.value)}
                                             placeholder="Re-enter your password"
                                             required
-                                            className="w-full bg-slate-50/50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0066FF] rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 font-medium transition-all outline-none focus:ring-3 focus:ring-[#0066FF]/15"
+                                            className="w-full bg-[#f4f4f4]/60 hover:bg-[#f4f4f4] focus:bg-white border border-[#e6e8ec] focus:border-[#0f2f63] rounded-xl px-4 py-3 text-sm text-[#0a0a0a] placeholder:text-[#9ea3ae] font-normal transition-all outline-hidden focus:ring-2 focus:ring-[#0f2f63]/10"
                                         />
                                     </div>
 
                                     <button
                                         type="submit"
                                         disabled={isLoading || !token || !password || !confirmPassword}
-                                        className="w-full mt-2 bg-[#0066FF] hover:bg-[#0052CC] active:scale-[0.99] disabled:opacity-50 text-white py-3 px-4 rounded-xl font-bold text-xs sm:text-sm tracking-wide shadow-md shadow-[#0066FF]/25 hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer font-['Outfit',sans-serif]"
+                                        className="w-full mt-2 bg-[#0f2f63] hover:bg-[#2563c9] active:scale-[0.99] disabled:opacity-50 text-white py-3.5 px-5 rounded-full font-medium text-xs sm:text-sm uppercase transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer"
                                     >
                                         {isLoading ? (
                                             <>
@@ -187,23 +196,24 @@ export default function ResetPasswordPage() {
                                                 <span>Updating Password...</span>
                                             </>
                                         ) : (
-                                            <span>Save New Password</span>
+                                            <>
+                                                <span>Save New Password</span>
+                                                <ArrowRight className="w-4 h-4" />
+                                            </>
                                         )}
                                     </button>
                                 </form>
                             </div>
                         )}
-
                     </div>
 
                     {/* Bottom Help */}
-                    <div className="pt-4 text-center text-xs text-slate-400 font-medium">
+                    <div className="pt-4 text-center text-xs text-[#717784]">
                         Need help? Return to{' '}
-                        <Link to="/sign-in" className="font-bold text-[#0A1931] hover:text-[#0066FF] transition-colors">
+                        <Link to="/sign-in" className="font-medium text-[#0f2f63] hover:text-[#2563c9] underline underline-offset-2 transition-colors">
                             Sign In
                         </Link>
                     </div>
-
                 </div>
 
             </div>

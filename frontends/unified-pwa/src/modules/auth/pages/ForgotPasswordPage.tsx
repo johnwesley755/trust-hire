@@ -4,7 +4,7 @@ import { authService } from '../../../services/auth.service';
 import { forgotPasswordSchema } from '../../../validations/zodSchema';
 import { AuthVisualHero } from '../components/AuthVisualHero';
 import { motion, AnimatePresence } from 'framer-motion';
-import { AlertCircle, Loader2, ArrowLeft, MailCheck, Mail, Building2, User } from 'lucide-react';
+import { AlertCircle, Loader2, ArrowLeft, MailCheck, ArrowRight } from 'lucide-react';
 
 export default function ForgotPasswordPage() {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -45,91 +45,101 @@ export default function ForgotPasswordPage() {
         }
     };
 
+    const isCandidate = activeRole === 'WORKER';
+
     return (
-        <div className="min-h-screen bg-[#F0F2F6] flex items-center justify-center p-3 sm:p-6 md:p-10 font-sans">
+        <div className="w-full min-h-screen p-2 sm:p-3 bg-white font-['Onest',system-ui,sans-serif] selection:bg-[#2563c9] selection:text-white flex flex-col">
             
-            {/* Main Card Container */}
-            <div className="w-full max-w-5xl bg-white rounded-3xl md:rounded-[32px] shadow-2xl shadow-slate-300/40 border border-slate-100 overflow-hidden grid grid-cols-1 md:grid-cols-12 min-h-[580px] transition-all">
+            {/* Framed Full-Screen Canvas matching Landing Page Architecture */}
+            <div className="relative w-full flex-1 min-h-[calc(100svh-1rem)] sm:min-h-[calc(100svh-1.5rem)] lg:h-[calc(100svh-1.5rem)] rounded-[2rem] overflow-hidden border border-[#e6e8ec] bg-white shadow-xl grid grid-cols-1 lg:grid-cols-12 transition-all">
                 
-                {/* Left Side: Brand Visual Hero */}
-                <div className="md:col-span-5 lg:col-span-5 hidden md:block">
+                {/* Left Side: Full-Bleed Brand Visual Hero */}
+                <div className="lg:col-span-5 xl:col-span-5 hidden lg:block h-full">
                     <AuthVisualHero role={activeRole} />
                 </div>
 
-                {/* Right Side: Clean Modern Form */}
-                <div className="md:col-span-7 lg:col-span-7 p-6 sm:p-10 lg:p-12 flex flex-col justify-between relative bg-white">
+                {/* Right Side: Clean Modern Form with Independent Smooth Scroll */}
+                <div className="lg:col-span-7 xl:col-span-7 p-6 sm:p-10 lg:p-12 flex flex-col justify-between relative bg-white h-full overflow-y-auto">
                     
-                    {/* Top Back Link & Role Switcher */}
-                    <div className="flex items-center justify-between gap-3 mb-6">
+                    {/* Top Navigation Row: Back Link + Role Segmented Switcher */}
+                    <div className="flex items-center justify-between gap-3 mb-6 sm:mb-8">
                         <Link 
                             to={`/sign-in?role=${activeRole.toLowerCase()}`} 
-                            className="inline-flex items-center gap-2 text-xs font-bold text-slate-600 hover:text-[#0066FF] transition-colors"
+                            className="inline-flex items-center gap-2 text-xs font-medium uppercase text-[#717784] hover:text-[#0a0a0a] transition-colors"
                         >
-                            <ArrowLeft className="w-4 h-4" />
+                            <ArrowLeft className="w-3.5 h-3.5" />
                             <span>Back to Sign In</span>
                         </Link>
 
-                        <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-200/80">
+                        {/* Segmented Pill Role Switcher */}
+                        <div className="inline-flex p-1 rounded-full bg-[#f4f4f4] border border-[#e6e8ec]">
                             <button
                                 type="button"
                                 onClick={() => handleRoleToggle('WORKER')}
-                                className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                                    activeRole === 'WORKER'
-                                        ? 'bg-white text-[#0A1931] shadow-xs'
-                                        : 'text-slate-500 hover:text-slate-800'
+                                className={`px-3.5 py-1.5 rounded-full text-xs font-medium uppercase transition-all cursor-pointer ${
+                                    isCandidate 
+                                        ? 'bg-[#0f2f63] text-white shadow-xs' 
+                                        : 'text-[#717784] hover:text-[#0a0a0a]'
                                 }`}
                             >
-                                <User className="w-3.5 h-3.5" />
-                                <span>Candidate</span>
+                                Job Seeker
                             </button>
                             <button
                                 type="button"
                                 onClick={() => handleRoleToggle('EMPLOYER')}
-                                className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                                    activeRole === 'EMPLOYER'
-                                        ? 'bg-white text-[#0A1931] shadow-xs'
-                                        : 'text-slate-500 hover:text-slate-800'
+                                className={`px-3.5 py-1.5 rounded-full text-xs font-medium uppercase transition-all cursor-pointer ${
+                                    !isCandidate 
+                                        ? 'bg-[#0f2f63] text-white shadow-xs' 
+                                        : 'text-[#717784] hover:text-[#0a0a0a]'
                                 }`}
                             >
-                                <Building2 className="w-3.5 h-3.5" />
-                                <span>Employer</span>
+                                Employer
                             </button>
                         </div>
                     </div>
 
+                    {/* Mobile Only: Ambient Hero Banner */}
+                    <div className="block lg:hidden mb-6">
+                        <AuthVisualHero role={activeRole} isMobileBanner={true} />
+                    </div>
+
                     {/* Centered Area */}
                     <div className="max-w-md w-full mx-auto my-auto py-4">
-                        
                         {isSuccess ? (
                             <motion.div 
-                                initial={{ opacity: 0, scale: 0.95 }}
+                                initial={{ opacity: 0, scale: 0.96 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 className="text-center space-y-4"
                             >
-                                <div className="w-16 h-16 bg-blue-50 text-[#0066FF] rounded-2xl flex items-center justify-center mx-auto shadow-xs border border-blue-100">
-                                    <MailCheck className="w-8 h-8" />
+                                <div className="w-16 h-16 bg-blue-50 text-[#0f2f63] rounded-2xl flex items-center justify-center mx-auto shadow-xs border border-[#e6e8ec]">
+                                    <MailCheck className="w-8 h-8 text-[#2563c9]" />
                                 </div>
-                                <h1 className="font-['Outfit',sans-serif] text-2xl sm:text-3xl font-extrabold text-[#0A1931] tracking-tight">
+                                <h1 className="text-3xl font-medium text-[#0a0a0a]">
                                     Check your email
                                 </h1>
-                                <p className="text-slate-500 text-xs sm:text-sm font-medium leading-relaxed">
-                                    We sent a reset code to <strong className="text-slate-800">{email}</strong>. Please check your inbox and spam folder.
+                                <p className="text-xs sm:text-sm text-[#717784] leading-relaxed">
+                                    We sent a recovery code to <strong className="text-[#0a0a0a] font-medium">{email}</strong>. Please check your inbox and spam folder.
                                 </p>
                                 <button
                                     onClick={() => navigate('/reset-password')}
-                                    className="w-full mt-4 bg-[#0066FF] hover:bg-[#0052CC] text-white py-3.5 px-4 rounded-xl font-bold text-xs sm:text-sm tracking-wide shadow-md shadow-[#0066FF]/25 hover:shadow-lg transition-all cursor-pointer font-['Outfit',sans-serif]"
+                                    className="w-full mt-4 bg-[#0f2f63] hover:bg-[#2563c9] text-white py-3.5 px-5 rounded-full font-medium text-xs sm:text-sm uppercase transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer"
                                 >
-                                    Enter 6-Digit Reset Code
+                                    <span>Enter 6-Digit Reset Code</span>
+                                    <ArrowRight className="w-4 h-4" />
                                 </button>
                             </motion.div>
                         ) : (
                             <div>
                                 <div className="mb-6">
-                                    <h1 className="font-['Outfit',sans-serif] text-2xl sm:text-3xl font-extrabold text-[#0A1931] tracking-tight">
-                                        Forgot Password?
+                                    <div className="inline-flex items-center gap-2 text-xs font-medium uppercase text-[#717784] mb-2">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-[#2563c9]" />
+                                        <span>Account Recovery</span>
+                                    </div>
+                                    <h1 className="text-3xl sm:text-4xl font-medium text-[#0a0a0a] leading-[1.05]">
+                                        Reset your password
                                     </h1>
-                                    <p className="text-slate-500 text-xs sm:text-sm mt-1 font-medium">
-                                        Enter your registered email and we'll send you a password recovery code.
+                                    <p className="text-xs sm:text-sm text-[#717784] mt-2 leading-relaxed">
+                                        Enter your registered email address and we'll dispatch a 6-digit verification code.
                                     </p>
                                 </div>
 
@@ -139,7 +149,7 @@ export default function ForgotPasswordPage() {
                                             initial={{ opacity: 0, y: -8 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             exit={{ opacity: 0, y: -8 }}
-                                            className="mb-4 p-3.5 bg-rose-50 border border-rose-200 text-rose-800 text-xs font-bold rounded-xl flex items-center gap-2.5 shadow-2xs"
+                                            className="mb-5 p-3.5 bg-rose-50 border border-rose-200 text-rose-800 text-xs font-medium rounded-xl flex items-center gap-2.5 shadow-2xs"
                                         >
                                             <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
                                             <span>{error}</span>
@@ -149,26 +159,23 @@ export default function ForgotPasswordPage() {
 
                                 <form onSubmit={handleSubmit} className="space-y-4">
                                     <div className="space-y-1.5">
-                                        <label className="block text-xs font-bold text-slate-700 font-['Outfit',sans-serif]">
-                                            Account Email
+                                        <label className="block text-xs font-medium uppercase text-[#0a0a0a]">
+                                            {isCandidate ? 'Candidate Email Address' : 'Official Work Email'}
                                         </label>
-                                        <div className="relative">
-                                            <input
-                                                type="email"
-                                                value={email}
-                                                onChange={(e) => setEmail(e.target.value)}
-                                                placeholder="Enter your registered email"
-                                                required
-                                                className="w-full bg-slate-50/50 hover:bg-white focus:bg-white border border-slate-200 focus:border-[#0066FF] rounded-xl px-4 py-3 pl-10 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 font-medium transition-all outline-none focus:ring-3 focus:ring-[#0066FF]/15"
-                                            />
-                                            <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                                        </div>
+                                        <input
+                                            type="email"
+                                            value={email}
+                                            onChange={(e) => setEmail(e.target.value)}
+                                            placeholder={isCandidate ? 'name@example.com' : 'contact@company.com'}
+                                            required
+                                            className="w-full bg-[#f4f4f4]/60 hover:bg-[#f4f4f4] focus:bg-white border border-[#e6e8ec] focus:border-[#0f2f63] rounded-xl px-4 py-3 text-sm text-[#0a0a0a] placeholder:text-[#9ea3ae] font-normal transition-all outline-hidden focus:ring-2 focus:ring-[#0f2f63]/10"
+                                        />
                                     </div>
 
                                     <button
                                         type="submit"
                                         disabled={isLoading || !email}
-                                        className="w-full mt-2 bg-[#0066FF] hover:bg-[#0052CC] active:scale-[0.99] disabled:opacity-50 text-white py-3.5 px-4 rounded-xl font-bold text-xs sm:text-sm tracking-wide shadow-md shadow-[#0066FF]/25 hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer font-['Outfit',sans-serif]"
+                                        className="w-full mt-2 bg-[#0f2f63] hover:bg-[#2563c9] active:scale-[0.99] disabled:opacity-50 text-white py-3.5 px-5 rounded-full font-medium text-xs sm:text-sm uppercase transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer"
                                     >
                                         {isLoading ? (
                                             <>
@@ -176,23 +183,24 @@ export default function ForgotPasswordPage() {
                                                 <span>Sending Code...</span>
                                             </>
                                         ) : (
-                                            <span>Send Recovery Code</span>
+                                            <>
+                                                <span>Send Recovery Code</span>
+                                                <ArrowRight className="w-4 h-4" />
+                                            </>
                                         )}
                                     </button>
                                 </form>
                             </div>
                         )}
-
                     </div>
 
-                    {/* Bottom Help */}
-                    <div className="pt-4 text-center text-xs text-slate-400 font-medium">
-                        Remember your credentials?{' '}
-                        <Link to="/sign-in" className="font-bold text-[#0A1931] hover:text-[#0066FF] transition-colors">
-                            Sign In
-                        </Link>
+                    {/* Bottom Footer Note */}
+                    <div className="pt-4 text-center text-xs text-[#717784]">
+                        Need urgent assistance? Contact{' '}
+                        <a href="mailto:support@trusthyre.com" className="underline hover:text-[#0a0a0a] transition-colors">
+                            support@trusthyre.com
+                        </a>
                     </div>
-
                 </div>
 
             </div>

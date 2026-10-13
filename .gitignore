@@ -12,6 +12,13 @@ out/
 .env.*
 !.env.example
 
+# Service account & cloud credentials
+*service-account*.json
+firebase-service-account.json
+serviceAccountKey.json
+*.pem
+*.key
+
 # logs
 npm-debug.log*
 yarn-debug.log*

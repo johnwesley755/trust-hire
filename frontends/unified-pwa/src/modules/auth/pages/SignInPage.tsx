@@ -7,13 +7,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Building2, 
   User, 
-  ArrowLeft,
+  ArrowLeft, 
   AlertCircle, 
   Loader2, 
   Eye, 
-  EyeOff,
-  ShieldCheck,
-  ArrowRight
+  EyeOff, 
+  ShieldCheck, 
+  ArrowRight 
 } from 'lucide-react';
 
 export const SignInPage = () => {
@@ -73,26 +73,26 @@ export const SignInPage = () => {
     const isCandidate = activeRole === 'WORKER';
 
     return (
-        <div className="min-h-screen bg-[#f4f4f4] flex items-center justify-center p-3 sm:p-6 lg:p-8 font-['Onest',system-ui,sans-serif] selection:bg-[#2563c9] selection:text-white">
+        <div className="w-full min-h-screen p-2 sm:p-3 bg-white font-['Onest',system-ui,sans-serif] selection:bg-[#2563c9] selection:text-white flex flex-col">
             
-            {/* Main Auth Card Container */}
-            <div className="w-full max-w-5xl bg-white rounded-[2rem] border border-[#e6e8ec] shadow-2xl shadow-slate-200/60 overflow-hidden grid grid-cols-1 lg:grid-cols-12 min-h-[640px] transition-all">
+            {/* Framed Full-Screen Canvas matching Landing Page Architecture */}
+            <div className="relative w-full flex-1 min-h-[calc(100svh-1rem)] sm:min-h-[calc(100svh-1.5rem)] lg:h-[calc(100svh-1.5rem)] rounded-[2rem] overflow-hidden border border-[#e6e8ec] bg-white shadow-xl grid grid-cols-1 lg:grid-cols-12 transition-all">
                 
-                {/* Left Side: Brand Visual Hero matching Landing Hero Style */}
-                <div className="lg:col-span-5 p-2.5 hidden lg:block">
+                {/* Left Side: Full-Bleed Brand Visual Hero */}
+                <div className="lg:col-span-5 xl:col-span-5 hidden lg:block h-full">
                     <AuthVisualHero role={activeRole} />
                 </div>
 
-                {/* Right Side: Clean Modern Form matching Landing Page Design System */}
-                <div className="lg:col-span-7 p-6 sm:p-10 lg:p-12 flex flex-col justify-between relative bg-white">
+                {/* Right Side: Clean Modern Form with Independent Smooth Scroll */}
+                <div className="lg:col-span-7 xl:col-span-7 p-6 sm:p-10 lg:p-12 flex flex-col justify-between relative bg-white h-full overflow-y-auto">
                     
                     {/* Top Navigation Row: Back Link + Role Segmented Switcher */}
-                    <div className="flex items-center justify-between gap-3 mb-6">
+                    <div className="flex items-center justify-between gap-3 mb-6 sm:mb-8">
                         {/* Mobile Brand Logo / Desktop Back Link */}
                         <div className="flex items-center gap-2">
                             <Link 
                                 to="/" 
-                                className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.18em] text-[#717784] hover:text-[#0a0a0a] transition-colors"
+                                className="inline-flex items-center gap-2 text-xs font-medium uppercase text-[#717784] hover:text-[#0a0a0a] transition-colors"
                             >
                                 <ArrowLeft className="w-3.5 h-3.5" />
                                 <span>Back to Home</span>
@@ -104,7 +104,7 @@ export const SignInPage = () => {
                             <button
                                 type="button"
                                 onClick={() => handleRoleToggle('WORKER')}
-                                className={`px-3.5 py-1.5 rounded-full text-xs font-medium uppercase tracking-wider transition-all cursor-pointer ${
+                                className={`px-3.5 py-1.5 rounded-full text-xs font-medium uppercase transition-all cursor-pointer ${
                                     isCandidate 
                                         ? 'bg-[#0f2f63] text-white shadow-xs' 
                                         : 'text-[#717784] hover:text-[#0a0a0a]'
@@ -115,7 +115,7 @@ export const SignInPage = () => {
                             <button
                                 type="button"
                                 onClick={() => handleRoleToggle('EMPLOYER')}
-                                className={`px-3.5 py-1.5 rounded-full text-xs font-medium uppercase tracking-wider transition-all cursor-pointer ${
+                                className={`px-3.5 py-1.5 rounded-full text-xs font-medium uppercase transition-all cursor-pointer ${
                                     !isCandidate 
                                         ? 'bg-[#0f2f63] text-white shadow-xs' 
                                         : 'text-[#717784] hover:text-[#0a0a0a]'
@@ -126,16 +126,21 @@ export const SignInPage = () => {
                         </div>
                     </div>
 
+                    {/* Mobile Only: Ambient Hero Banner */}
+                    <div className="block lg:hidden mb-6">
+                        <AuthVisualHero role={activeRole} isMobileBanner={true} />
+                    </div>
+
                     {/* Centered Form Area */}
                     <div className="max-w-md w-full mx-auto my-auto py-2">
                         
                         {/* Eyebrow & Title */}
                         <div className="mb-6">
-                            <div className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.22em] text-[#717784] mb-2">
+                            <div className="inline-flex items-center gap-2 text-xs font-medium uppercase text-[#717784] mb-2">
                                 <span className="w-1.5 h-1.5 rounded-full bg-[#2563c9]" />
                                 <span>{isCandidate ? 'Candidate Portal' : 'Employer Portal'}</span>
                             </div>
-                            <h1 className="text-3xl sm:text-4xl font-medium tracking-tight text-[#0a0a0a] leading-[1.05]">
+                            <h1 className="text-3xl sm:text-4xl font-medium text-[#0a0a0a] leading-[1.05]">
                                 Sign in to TrustHyre
                             </h1>
                             <p className="text-xs sm:text-sm text-[#717784] mt-2 leading-relaxed">
@@ -165,7 +170,7 @@ export const SignInPage = () => {
                             
                             {/* Email Field */}
                             <div className="space-y-1.5">
-                                <label className="block text-xs font-medium uppercase tracking-[0.16em] text-[#0a0a0a]">
+                                <label className="block text-xs font-medium uppercase text-[#0a0a0a]">
                                     {isCandidate ? 'Email address or username' : 'Business email'}
                                 </label>
                                 <input
@@ -181,7 +186,7 @@ export const SignInPage = () => {
                             {/* Password Field */}
                             <div className="space-y-1.5">
                                 <div className="flex items-center justify-between">
-                                    <label className="block text-xs font-medium uppercase tracking-[0.16em] text-[#0a0a0a]">
+                                    <label className="block text-xs font-medium uppercase text-[#0a0a0a]">
                                         Password
                                     </label>
                                     <Link 
@@ -214,7 +219,7 @@ export const SignInPage = () => {
                             <button
                                 type="submit"
                                 disabled={isLoading || !email || !password}
-                                className="w-full mt-2 bg-[#0f2f63] hover:bg-[#2563c9] active:scale-[0.99] disabled:opacity-50 text-white py-3.5 px-5 rounded-full font-medium text-xs sm:text-sm tracking-wide uppercase transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer"
+                                className="w-full mt-2 bg-[#0f2f63] hover:bg-[#2563c9] active:scale-[0.99] disabled:opacity-50 text-white py-3.5 px-5 rounded-full font-medium text-xs sm:text-sm uppercase transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer"
                             >
                                 {isLoading ? (
                                     <>
@@ -246,7 +251,7 @@ export const SignInPage = () => {
                         {/* OR Divider */}
                         <div className="flex items-center gap-3 my-5">
                             <div className="flex-1 h-px bg-[#e6e8ec]"></div>
-                            <span className="text-[10px] font-medium uppercase tracking-[0.2em] text-[#9ea3ae]">or continue with</span>
+                            <span className="text-[10px] font-medium uppercase text-[#9ea3ae]">or continue with</span>
                             <div className="flex-1 h-px bg-[#e6e8ec]"></div>
                         </div>
 
@@ -256,7 +261,7 @@ export const SignInPage = () => {
                             <button
                                 type="button"
                                 onClick={() => signInWithGoogle(activeRole)}
-                                className="w-full bg-white hover:bg-[#f4f4f4] border border-[#e6e8ec] text-[#0a0a0a] py-3 px-4 rounded-full font-medium text-xs sm:text-sm tracking-wide uppercase flex items-center justify-center gap-3 transition-all cursor-pointer shadow-xs"
+                                className="w-full bg-white hover:bg-[#f4f4f4] border border-[#e6e8ec] text-[#0a0a0a] py-3 px-4 rounded-full font-medium text-xs sm:text-sm uppercase flex items-center justify-center gap-3 transition-all cursor-pointer shadow-xs"
                             >
                                 <svg className="w-4 h-4" viewBox="0 0 24 24">
                                     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
