@@ -1198,7 +1198,7 @@ export default function LandingPage() {
                   <div className="w-6 h-6 rounded-full border border-white/60 flex items-center justify-center p-1">
                     <ShieldCheck className="w-full h-full text-white" />
                   </div>
-                  <span className="text-base font-medium tracking-[0.18em] uppercase text-white">TrustHyre Technologies Inc.</span>
+                  <span className="text-base font-medium tracking-[0.18em] uppercase text-white">TrustHyre</span>
                 </div>
 
                 <p className="text-xs text-white/70 leading-relaxed">
@@ -1266,7 +1266,8 @@ export default function LandingPage() {
 
             {/* Bottom Bar */}
             <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
-              <p>© 2026 TrustHyre Technologies Inc. Registered Corporate Enterprise. Bonded & Verified Daily Operations.</p>
+             
+              {/* <p>© 2026 TrustHyre Technologies Inc. Registered Corporate Enterprise. Bonded & Verified Daily Operations.</p> */}
               
               <div className="flex items-center gap-6">
                 <Link to="/privacy" className="hover:text-white transition-colors">Privacy</Link>

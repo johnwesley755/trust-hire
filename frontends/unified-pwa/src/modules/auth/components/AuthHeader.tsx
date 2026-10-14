@@ -11,10 +11,10 @@ export const AuthHeader = () => {
                         <img src="/logo.png" alt="TrustHyre Logo" className="w-full h-full object-contain" />
                     </div>
                     <div className="flex flex-col">
-                        <span className="text-2xl font-extrabold tracking-tight text-slate-900 leading-none">
+                        <span className="text-2xl font-extrabold text-slate-900 leading-none">
                         Trust<span className="text-brand-500">Hyre</span>
                         </span>
-                        <span className="text-[11px] font-medium text-slate-400 tracking-wide mt-0.5">VERIFIED WORKFORCE</span>
+                        <span className="text-[11px] font-medium text-slate-400 mt-0.5">VERIFIED WORKFORCE</span>
                     </div>
                 </Link>
                 <div className="flex items-center gap-6">

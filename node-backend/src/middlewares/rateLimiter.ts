@@ -23,21 +23,18 @@ export const createRateLimiter = (options: RateLimitOptions) => {
 
   const hits = new Map<string, ClientRecord>();
 
-  // Cleanup expired keys periodically to prevent memory exhaustion
-  const timer = setInterval(() => {
+  return async (c: Context, next: Next) => {
     const now = Date.now();
-    for (const [key, record] of hits.entries()) {
-      if (now > record.resetTime) {
-        hits.delete(key);
+
+    // Lazy cleanup inside request handler to prevent memory leaks without global scope timers
+    if (hits.size > 100) {
+      for (const [k, record] of hits.entries()) {
+        if (now > record.resetTime) {
+          hits.delete(k);
+        }
       }
     }
-  }, Math.max(windowMs, 60000));
 
-  if (typeof timer.unref === 'function') {
-    timer.unref();
-  }
-
-  return async (c: Context, next: Next) => {
     let key: string;
     if (keyGenerator) {
       key = await keyGenerator(c);
@@ -49,7 +46,6 @@ export const createRateLimiter = (options: RateLimitOptions) => {
       key = `${c.req.path}:${ip}`;
     }
 
-    const now = Date.now();
     let record = hits.get(key);
 
     if (!record || now > record.resetTime) {

@@ -8,6 +8,7 @@
     "start": "ts-node src/server.ts",
     "dev": "ts-node src/server.ts",
     "dev:cloudflare": "wrangler dev",
+    "deploy": "wrangler deploy",
     "seed:admin": "ts-node prisma/seed-admin.ts",
     "postinstall": "prisma generate"
   },

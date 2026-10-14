@@ -64,7 +64,7 @@ export const getOtpTemplate = (otp: string) => {
                     <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
                         <tr>
                             <td align="left" style="color: #94A3B8; font-size: 11px; font-weight: 500;">
-                                &copy; ${new Date().getFullYear()} TrustHyre Technologies. All rights reserved.
+                                &copy; ${new Date().getFullYear()} TrustHyre. All rights reserved.
                             </td>
                             <td align="right" style="color: #94A3B8; font-size: 11px; font-weight: 600;">
                                 🛡️ 256-Bit SSL Encrypted Verification
@@ -145,7 +145,7 @@ export const getResetPasswordTemplate = (token: string) => {
                     <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
                         <tr>
                             <td align="left" style="color: #94A3B8; font-size: 11px; font-weight: 500;">
-                                &copy; ${new Date().getFullYear()} TrustHyre Technologies. All rights reserved.
+                                &copy; ${new Date().getFullYear()} TrustHyre. All rights reserved.
                             </td>
                             <td align="right" style="color: #94A3B8; font-size: 11px; font-weight: 600;">
                                 🛡️ 256-Bit SSL Encrypted Verification

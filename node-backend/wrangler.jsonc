@@ -19,17 +19,5 @@
   },
   "vars": {
     "ENVIRONMENT": "production"
-  },
-  "env": {
-    "production": {
-      "vars": {
-        "ENVIRONMENT": "production"
-      }
-    },
-    "preview": {
-      "vars": {
-        "ENVIRONMENT": "preview"
-      }
-    }
   }
 }
