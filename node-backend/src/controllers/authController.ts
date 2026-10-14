@@ -358,7 +358,7 @@ export const getUsersByIds = async (c: Context) => {
 
 export const oauthSync = async (c: Context) => {
   try {
-    const { idToken, email, firstName, lastName, profileImageUrl } = (await c.req.json());
+    const { idToken, email, firstName, lastName, profileImageUrl, role } = (await c.req.json());
 
     let verifiedEmail: string | null = null;
 
@@ -406,14 +406,21 @@ export const oauthSync = async (c: Context) => {
     }
 
     const targetEmail = verifiedEmail as string;
+    const requestedRole: 'WORKER' | 'EMPLOYER' = role === 'EMPLOYER' ? 'EMPLOYER' : 'WORKER';
+
     let user = await prisma.user_metadata.findUnique({ where: { email: targetEmail } });
     
-    // Strictly block employers and admins from using Google OAuth
-    if (user && user.role === 'EMPLOYER') {
-      return c.json(ApiResponse.error("This email is registered as an Employer account. Employers must sign in with Business Email OTP."), 403 as any);
-    }
-    if (user && user.role === 'ADMIN') {
-      return c.json(ApiResponse.error("Admin accounts must sign in using the Admin portal."), 403 as any);
+    // Clear, helpful role mismatch messages (No generic errors)
+    if (user) {
+      if (user.role === 'ADMIN') {
+        return c.json(ApiResponse.error("Admin accounts must sign in using the Admin portal."), 403 as any);
+      }
+      if (requestedRole === 'WORKER' && user.role === 'EMPLOYER') {
+        return c.json(ApiResponse.error("This email is registered as an Employer profile. Please switch to the Employer Portal to sign in."), 403 as any);
+      }
+      if (requestedRole === 'EMPLOYER' && user.role === 'WORKER') {
+        return c.json(ApiResponse.error("This email is registered as a Candidate profile. Please switch to the Candidate Portal to sign in."), 403 as any);
+      }
     }
 
     if (!user) {
@@ -422,29 +429,40 @@ export const oauthSync = async (c: Context) => {
         data: {
           id: newId,
           email: targetEmail,
-          first_name: firstName || 'Worker',
+          first_name: firstName || (requestedRole === 'EMPLOYER' ? 'Employer' : 'Worker'),
           last_name: lastName || '',
           profile_image_url: profileImageUrl,
-          role: 'WORKER', // Google OAuth is strictly for WORKER role
+          role: requestedRole,
           created_at: new Date(),
           updated_at: new Date(),
           email_verified: true,
-          onboarded: false, // New worker must complete onboarding (phone number, trade, location)
+          onboarded: false,
         }
       });
 
-      await prisma.worker_profiles.create({
-        data: {
-          user_id: newId,
-          full_name: `${firstName || 'Worker'} ${lastName || ''}`.trim(),
-          level: 'L1',
-          level_number: 1,
-          level_score: 100,
-          experience_years: 1,
-          created_at: new Date(),
-          updated_at: new Date(),
-        }
-      }).catch((e: any) => console.warn("Worker profile auto-creation notice:", e.message));
+      if (requestedRole === 'EMPLOYER') {
+        await prisma.employer_profiles.create({
+          data: {
+            user_id: newId,
+            company_name: `${firstName || 'Enterprise'} Company`,
+            created_at: new Date(),
+            updated_at: new Date(),
+          }
+        }).catch((e: any) => console.warn("Employer profile auto-creation notice:", e.message));
+      } else {
+        await prisma.worker_profiles.create({
+          data: {
+            user_id: newId,
+            full_name: `${firstName || 'Worker'} ${lastName || ''}`.trim(),
+            level: 'L1',
+            level_number: 1,
+            level_score: 100,
+            experience_years: 1,
+            created_at: new Date(),
+            updated_at: new Date(),
+          }
+        }).catch((e: any) => console.warn("Worker profile auto-creation notice:", e.message));
+      }
     } else {
       user = await prisma.user_metadata.update({
         where: { id: user.id },
@@ -465,7 +483,7 @@ export const oauthSync = async (c: Context) => {
 
     const sanitizedUser = {
       ...user,
-      onboarded: Boolean(user.onboarded && user.phone_number),
+      onboarded: Boolean(user.onboarded && (user.role === 'EMPLOYER' || user.phone_number)),
     };
 
     return c.json(ApiResponse.ok("OAuth sync successful", { token, user: sanitizedUser }));
