@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useAuth, useUser } from "../../../providers/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import apiClient from "../../../api/apiClient";
+import trustHyreLogo from "../../../assets/TrustHyre Skills and Opportunities Logo.png";
 import { 
   User, 
   MapPin, 
@@ -514,11 +515,12 @@ export default function WorkerOnboardingPage() {
       
       {/* Top Main Navbar Branding */}
       <header className="max-w-6xl w-full mx-auto flex items-center justify-between py-2 px-4 mb-4">
-        <Link to="/" className="flex items-center gap-2">
-          <img src="/logo.png" alt="TrustHyre" className="w-8 h-8 object-contain" />
-          <span className="text-xl font-black text-[#0A1931]">
-            Trust<span className="text-[#0066FF]">Hyre</span>
-          </span>
+        <Link to="/" className="flex items-center group py-1" aria-label="TrustHyre Home">
+          <img 
+            src={trustHyreLogo} 
+            alt="TrustHyre" 
+            className="h-10 sm:h-12 w-auto object-contain block select-none mix-blend-multiply group-hover:opacity-90 transition-opacity" 
+          />
         </Link>
         <button
           type="button"

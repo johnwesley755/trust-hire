@@ -1,6 +1,7 @@
 import React from 'react';
 import { Outlet, NavLink, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../../providers/AuthContext';
+import trustHyreLogo from '../../../assets/TrustHyre Skills and Opportunities Logo.png';
 import { 
   LayoutDashboard, 
   FileCheck2, 
@@ -34,24 +35,12 @@ export const AdminLayout: React.FC = () => {
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between shadow-xs">
         <div className="flex items-center gap-8">
           {/* Official TrustHyre Logo */}
-          <Link to="/admin/dashboard" className="flex items-center gap-2.5 group">
-            <div className="w-10 h-10 rounded-xl bg-blue-50/90 border border-blue-100 p-1 flex items-center justify-center group-hover:scale-105 transition-transform shadow-xs">
-              <img 
-                src="/logo.png" 
-                alt="TrustHyre" 
-                className="w-full h-full object-contain" 
-              />
-            </div>
-            <div className="flex flex-col">
-              <div className="flex items-baseline">
-                <span className="text-xl font-black tracking-tight text-[#0A1931] font-['Outfit',sans-serif]">
-                  Trust<span className="text-[#0066FF]">Hyre</span>
-                </span>
-              </div>
-              <span className="text-[10px] font-black uppercase tracking-widest text-[#0066FF] block -mt-1">
-                Admin Console
-              </span>
-            </div>
+          <Link to="/admin/dashboard" className="flex items-center group py-1" aria-label="TrustHyre Admin Dashboard">
+            <img 
+              src={trustHyreLogo} 
+              alt="TrustHyre" 
+              className="h-10 sm:h-12 w-auto object-contain block select-none mix-blend-multiply group-hover:opacity-90 transition-opacity" 
+            />
           </Link>
 
           {/* Desktop Nav Links */}

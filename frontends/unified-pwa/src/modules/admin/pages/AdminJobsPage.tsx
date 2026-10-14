@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { adminService, type AdminJobItem } from '../../../services/admin.service';
 import { Briefcase, Search, Trash2, MapPin, IndianRupee, Users, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { AppLoader } from '../../../components/common/AppLoader';
 
 export const AdminJobsPage: React.FC = () => {
   const queryClient = useQueryClient();
@@ -75,9 +76,7 @@ export const AdminJobsPage: React.FC = () => {
 
       {/* Jobs Grid */}
       {isLoading ? (
-        <div className="flex justify-center py-20">
-          <Loader2 className="w-8 h-8 text-[#0066FF] animate-spin" />
-        </div>
+        <AppLoader variant="page" message="Loading job requisitions..." />
       ) : jobs.length === 0 ? (
         <div className="text-center py-20 bg-white rounded-3xl border border-slate-200/80 shadow-xs">
           <Briefcase className="w-10 h-10 text-slate-400 mx-auto mb-3" />

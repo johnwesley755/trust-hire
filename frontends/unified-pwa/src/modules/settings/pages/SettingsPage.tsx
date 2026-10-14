@@ -242,7 +242,7 @@ export const SettingsPage = () => {
                     <MapPin className="w-4 h-4 text-[#0066FF]" />
                     <span className="text-[10px] font-bold uppercase tracking-wider">Base Operating Hub</span>
                   </div>
-                  <p className="text-sm font-black text-[#0A1931]">{user?.location || 'Chennai, Tamil Nadu'}</p>
+                  <p className="text-sm font-black text-[#0A1931]">{user?.location || 'Pan India / Not specified'}</p>
                   <p className="text-[11px] text-slate-400 font-medium">Radius center for local job matching.</p>
                 </div>
 

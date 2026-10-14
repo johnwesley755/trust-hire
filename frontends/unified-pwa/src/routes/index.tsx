@@ -146,7 +146,7 @@ export const router = createBrowserRouter([
               },
               {
                 path: '/tests',
-                element: <SkillTestsPage />,
+                element: <Navigate to="/level" replace />,
               },
               {
                 path: '/level',

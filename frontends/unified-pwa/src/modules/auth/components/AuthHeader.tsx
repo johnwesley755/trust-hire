@@ -1,21 +1,17 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import logo from '../../../assets/logo.png';
+import trustHyreLogo from '../../../assets/TrustHyre Skills and Opportunities Logo.png';
 
 export const AuthHeader = () => {
     return (
         <header className="absolute top-0 left-0 w-full z-50 bg-white/90 backdrop-blur-md border-b border-slate-100 transition-all">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-                <Link to="/" className="flex items-center gap-2.5 group">
-                    <div className="w-10 h-10 flex items-center justify-center group-hover:scale-105 transition-transform">
-                        <img src="/logo.png" alt="TrustHyre Logo" className="w-full h-full object-contain" />
-                    </div>
-                    <div className="flex flex-col">
-                        <span className="text-2xl font-extrabold text-slate-900 leading-none">
-                        Trust<span className="text-brand-500">Hyre</span>
-                        </span>
-                        <span className="text-[11px] font-medium text-slate-400 mt-0.5">VERIFIED WORKFORCE</span>
-                    </div>
+                <Link to="/" className="flex items-center group py-1" aria-label="TrustHyre Home">
+                    <img 
+                      src={trustHyreLogo} 
+                      alt="TrustHyre" 
+                      className="h-11 sm:h-12 md:h-14 w-auto object-contain block select-none mix-blend-multiply group-hover:opacity-90 transition-opacity" 
+                    />
                 </Link>
                 <div className="flex items-center gap-6">
                     <Link className="flex items-center gap-2 text-slate-600 hover:text-brand-500 transition-colors font-bold text-sm" to="/">

@@ -3,6 +3,8 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth, useUser } from '../providers/AuthContext';
 import { UserAvatar } from '../components/common/UserAvatar';
 import { NotificationCenter } from '../modules/dashboard/features/notifications/NotificationCenter';
+import { NavbarSearchInput } from '../modules/search/components/NavbarSearchInput';
+import trustHyreLogo from '../assets/TrustHyre Skills and Opportunities Logo.png';
 import { 
   Upload, 
   PlusCircle, 
@@ -11,9 +13,16 @@ import {
   Settings, 
   LogOut, 
   Menu, 
-  X,
+  X, 
+  Bookmark,
+  Search,
   Briefcase,
-  Bookmark
+  Award,
+  Activity,
+  CheckCircle2,
+  LayoutDashboard,
+  FileText,
+  Users
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -25,29 +34,38 @@ export const AppTopNavbar = () => {
 
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const profileMenuRef = useRef<HTMLDivElement>(null);
 
+  const isAuthenticated = Boolean(user);
   const isEmployer = user?.role === 'EMPLOYER';
 
-  // Navigation Links
+  // Navigation Links tailored to role
   const workerNavLinks = [
-    { name: 'Find Jobs', path: '/search' },
-    { name: 'Saved Jobs', path: '/saved-jobs' },
-    { name: 'Applied Jobs', path: '/applied-jobs' },
-    { name: 'Activity Tracker', path: '/tracker' },
-    { name: 'Profile', path: '/profile' },
+    { name: 'Find Jobs', path: '/search', icon: Briefcase },
+    { name: 'Applied Jobs', path: '/applied-jobs', icon: CheckCircle2 },
+    { name: 'Saved Jobs', path: '/saved-jobs', icon: Bookmark },
+    { name: 'Activity Tracker', path: '/tracker', icon: Activity },
   ];
 
   const employerNavLinks = [
-    { name: 'Find Workers', path: '/find-workers' },
-    { name: 'Saved Profiles', path: '/saved-profiles' },
-    { name: 'Post a Job', path: '/post-job' },
-    { name: 'My Active Jobs', path: '/jobs' },
-    { name: 'Dashboard', path: '/dashboard' },
-    { name: 'Profile', path: '/profile' },
+    { name: 'Find Workers', path: '/find-workers', icon: Users },
+    { name: 'My Active Jobs', path: '/jobs', icon: Briefcase },
+    { name: 'Post a Job', path: '/post-job', icon: PlusCircle },
+    { name: 'Saved Profiles', path: '/saved-profiles', icon: Bookmark },
+    { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
   ];
 
-  const navLinks = isEmployer ? employerNavLinks : workerNavLinks;
+  const guestNavLinks = [
+    { name: 'Find Jobs', path: '/search', icon: Briefcase },
+    { name: 'Find Workers', path: '/find-workers', icon: Users },
+  ];
+
+  const navLinks = !isAuthenticated
+    ? guestNavLinks
+    : isEmployer
+    ? employerNavLinks
+    : workerNavLinks;
 
   // Close profile menu when clicking outside
   useEffect(() => {
@@ -71,191 +89,292 @@ export const AppTopNavbar = () => {
     : (user?.email?.split('@')[0] || 'My Account');
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-xs text-[#0A1931] select-none font-sans">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between gap-4">
+    <header className="sticky top-0 z-50 w-full bg-white/90 backdrop-blur-md border-b border-[#e6e8ec] shadow-xs text-[#0a0a0a] select-none font-['Onest',system-ui,sans-serif]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-18 flex items-center justify-between gap-3 sm:gap-4">
         
-        {/* Left: Prominent TrustHyre Brand Logo */}
-        <div className="flex items-center gap-8">
-          <Link to="/" className="flex items-center gap-2.5 group">
-            <div className="w-10 h-10 rounded-xl bg-blue-50/90 border border-blue-100 p-1 flex items-center justify-center group-hover:scale-105 transition-transform shadow-xs">
-              <img 
-                src="/logo.png" 
-                alt="TrustHyre" 
-                className="w-full h-full object-contain" 
-              />
-            </div>
-            <div className="flex items-baseline">
-              <span className="text-xl sm:text-2xl font-black tracking-tight text-[#0A1931] font-['Outfit',sans-serif]">
-                Trust<span className="text-[#0066FF]">Hyre</span>
-              </span>
-            </div>
+        {/* Left: Brand Logo */}
+        <div className="flex items-center gap-4 sm:gap-6 shrink-0">
+          <Link to="/" className="flex items-center group py-1" aria-label="TrustHyre Home">
+            <img 
+              src={trustHyreLogo} 
+              alt="TrustHyre" 
+              className="h-10 sm:h-12 md:h-14 w-auto object-contain block select-none mix-blend-multiply group-hover:opacity-90 transition-opacity" 
+            />
           </Link>
 
-          {/* Desktop Center Navigation Links */}
-          <nav className="hidden md:flex items-center gap-1 sm:gap-1.5">
+          {/* Desktop Nav Links - Complete List without Truncation */}
+          <nav className="hidden lg:flex items-center gap-1">
             {navLinks.map((link) => {
               const isActive = location.pathname === link.path || (link.path === '/search' && location.pathname === '/');
               return (
                 <Link
                   key={link.path}
                   to={link.path}
-                  className={`relative px-3.5 py-2 text-xs sm:text-sm font-semibold transition-all rounded-lg ${
+                  className={`px-3 py-1.5 text-xs font-medium rounded-full transition-all ${
                     isActive 
-                      ? 'text-[#0A1931] font-bold' 
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70'
+                      ? 'bg-[#0f2f63] text-white shadow-xs' 
+                      : 'text-[#717784] hover:text-[#0a0a0a] hover:bg-[#f4f4f4]'
                   }`}
                 >
-                  <span>{link.name}</span>
-                  {isActive && (
-                    <motion.div
-                      layoutId="activeNavIndicator"
-                      className="absolute bottom-0 left-3.5 right-3.5 h-0.5 bg-[#0066FF] rounded-full"
-                    />
-                  )}
+                  {link.name}
                 </Link>
               );
             })}
           </nav>
         </div>
 
-        {/* Right Actions: CTA + Notifications + Profile Menu */}
-        <div className="flex items-center gap-3 sm:gap-3.5">
+        {/* Center: Hallmark N13 Inline Capsule Search Bar */}
+        <div className="hidden md:flex items-center flex-1 max-w-xs md:max-w-sm lg:max-w-md mx-2">
+          <NavbarSearchInput 
+            className="w-full" 
+            placeholder={isEmployer ? "Search specialists, skills..." : "Search jobs, roles..."} 
+          />
+        </div>
+
+        {/* Right Actions: CTA + Notifications + Profile Menu / Guest Buttons */}
+        <div className="flex items-center gap-2 sm:gap-3">
           
-          {/* Quick CTA Action Button */}
-          {isEmployer ? (
-            <Link
-              to="/post-job"
-              className="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0066FF] hover:bg-[#0052CC] text-white text-xs font-bold shadow-md shadow-[#0066FF]/25 transition-all cursor-pointer font-['Outfit',sans-serif]"
-            >
-              <PlusCircle className="w-3.5 h-3.5" />
-              <span>Post a Job</span>
-            </Link>
-          ) : (
-            <Link
-              to="/profile"
-              className="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-50 hover:bg-blue-100 text-[#0066FF] border border-blue-200 text-xs font-bold transition-all cursor-pointer font-['Outfit',sans-serif]"
-            >
-              <Upload className="w-3.5 h-3.5" />
-              <span>Upload Resume</span>
-            </Link>
-          )}
+          {/* Mobile Search Toggle Button */}
+          <button
+            type="button"
+            onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
+            className="md:hidden p-2 rounded-full text-[#717784] hover:text-[#0a0a0a] bg-[#f4f4f4] hover:bg-[#e6e8ec] transition-colors cursor-pointer"
+            aria-label="Toggle mobile search"
+          >
+            <Search className="w-4 h-4" />
+          </button>
 
-          {/* Notification Center */}
-          <div className="relative">
-            <NotificationCenter />
-          </div>
-
-          {/* User Profile Dropdown Pill */}
-          <div className="relative" ref={profileMenuRef}>
-            <button
-              onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-              className="flex items-center gap-2.5 p-1.5 pl-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 transition-all cursor-pointer"
-            >
-              <UserAvatar
-                src={user?.profileImageUrl}
-                name={displayName}
-                size="sm"
-              />
-              <span className="hidden lg:block text-xs font-bold text-slate-800 max-w-[120px] truncate font-['Outfit',sans-serif]">
-                {displayName}
-              </span>
-              <ChevronDown className={`w-3.5 h-3.5 text-slate-500 transition-transform duration-200 ${isProfileMenuOpen ? 'rotate-180' : ''}`} />
-            </button>
-
-            {/* Dropdown Menu Modal */}
-            <AnimatePresence>
-              {isProfileMenuOpen && (
-                <motion.div
-                  initial={{ opacity: 0, y: 8, scale: 0.96 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 8, scale: 0.96 }}
-                  transition={{ duration: 0.15 }}
-                  className="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-2xl border border-slate-100 py-2 text-[#0A1931] z-50 font-sans"
+          {/* Authenticated Controls */}
+          {isAuthenticated ? (
+            <>
+              {/* Quick Primary CTA Action Button */}
+              {isEmployer ? (
+                <Link
+                  to="/post-job"
+                  className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#0f2f63] hover:bg-[#2563c9] text-white text-xs font-medium uppercase shadow-xs transition-all active:scale-95 cursor-pointer"
                 >
-                  {/* User Profile Card Header */}
-                  <div className="px-4 py-3 border-b border-slate-100">
-                    <div className="flex items-center gap-2.5">
-                      <UserAvatar
-                        src={user?.profileImageUrl}
-                        name={displayName}
-                        size="md"
-                      />
-                      <div className="min-w-0">
-                        <p className="text-xs font-bold text-slate-900 truncate font-['Outfit',sans-serif]">
-                          {displayName}
-                        </p>
-                        <p className="text-[10px] text-slate-400 font-medium truncate">
-                          {user?.email}
-                        </p>
-                        <span className="inline-block mt-1 px-2 py-0.5 bg-blue-50 text-[#0066FF] text-[9px] font-extrabold rounded-md uppercase tracking-wider">
-                          {isEmployer ? 'Verified Employer' : 'Specialist Worker'}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Menu Items */}
-                  <div className="py-1">
-                    <button
-                      onClick={() => {
-                        setIsProfileMenuOpen(false);
-                        navigate('/profile');
-                      }}
-                      className="w-full px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 flex items-center gap-3 transition-colors cursor-pointer text-left"
-                    >
-                      <User className="w-4 h-4 text-slate-400" />
-                      <span>My Profile</span>
-                    </button>
-
-                    <button
-                      onClick={() => {
-                        setIsProfileMenuOpen(false);
-                        navigate(isEmployer ? '/saved-profiles' : '/saved-jobs');
-                      }}
-                      className="w-full px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 flex items-center gap-3 transition-colors cursor-pointer text-left"
-                    >
-                      <Bookmark className="w-4 h-4 text-slate-400" />
-                      <span>{isEmployer ? 'Saved Profiles' : 'Saved Jobs'}</span>
-                    </button>
-
-                    <button
-                      onClick={() => {
-                        setIsProfileMenuOpen(false);
-                        navigate('/settings');
-                      }}
-                      className="w-full px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 flex items-center gap-3 transition-colors cursor-pointer text-left"
-                    >
-                      <Settings className="w-4 h-4 text-slate-400" />
-                      <span>Account Settings</span>
-                    </button>
-                  </div>
-
-                  {/* Divider & Sign Out */}
-                  <div className="pt-1 border-t border-slate-100">
-                    <button
-                      onClick={handleLogout}
-                      className="w-full px-4 py-2.5 text-xs font-bold text-rose-600 hover:bg-rose-50 flex items-center gap-3 transition-colors cursor-pointer text-left"
-                    >
-                      <LogOut className="w-4 h-4 text-rose-500" />
-                      <span>Sign Out</span>
-                    </button>
-                  </div>
-                </motion.div>
+                  <PlusCircle className="w-3.5 h-3.5" />
+                  <span>Post a Job</span>
+                </Link>
+              ) : (
+                <Link
+                  to="/profile"
+                  className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#f4f4f4] hover:bg-[#e6e8ec] text-[#0f2f63] border border-[#e6e8ec] text-xs font-medium uppercase transition-all active:scale-95 cursor-pointer"
+                >
+                  <Upload className="w-3.5 h-3.5" />
+                  <span>Upload Resume</span>
+                </Link>
               )}
-            </AnimatePresence>
-          </div>
+
+              {/* Notification Center */}
+              <div className="relative">
+                <NotificationCenter />
+              </div>
+
+              {/* User Profile Dropdown Pill */}
+              <div className="relative" ref={profileMenuRef}>
+                <button
+                  onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+                  className="flex items-center gap-2 p-1 pl-1.5 pr-2 rounded-full bg-[#f4f4f4] hover:bg-[#e6e8ec] border border-[#e6e8ec] transition-all cursor-pointer"
+                >
+                  <UserAvatar
+                    src={user?.profileImageUrl}
+                    name={displayName}
+                    size="sm"
+                  />
+                  <span className="hidden lg:block text-xs font-medium text-[#0a0a0a] max-w-[110px] truncate">
+                    {displayName}
+                  </span>
+                  <ChevronDown className={`w-3.5 h-3.5 text-[#717784] transition-transform duration-200 ${isProfileMenuOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                {/* Dropdown Menu Modal */}
+                <AnimatePresence>
+                  {isProfileMenuOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 6, scale: 0.98 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 6, scale: 0.98 }}
+                      transition={{ duration: 0.12 }}
+                      className="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-[#e6e8ec] py-2 text-[#0a0a0a] z-50 font-['Onest',system-ui,sans-serif]"
+                    >
+                      {/* User Profile Card Header */}
+                      <div className="px-4 py-3 border-b border-[#e6e8ec]">
+                        <div className="flex items-center gap-2.5">
+                          <UserAvatar
+                            src={user?.profileImageUrl}
+                            name={displayName}
+                            size="md"
+                          />
+                          <div className="min-w-0">
+                            <p className="text-xs font-semibold text-[#0a0a0a] truncate">
+                              {displayName}
+                            </p>
+                            <p className="text-[10px] text-[#717784] font-normal truncate">
+                              {user?.email}
+                            </p>
+                            <span className="inline-block mt-1 px-2 py-0.5 bg-[#e6eefc] text-[#0f2f63] text-[9px] font-medium rounded-full uppercase">
+                              {isEmployer ? 'Verified Employer' : 'Specialist Candidate'}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Menu Items tailored to Role */}
+                      <div className="py-1">
+                        <button
+                          onClick={() => {
+                            setIsProfileMenuOpen(false);
+                            navigate('/profile');
+                          }}
+                          className="w-full px-4 py-2 text-xs font-medium text-[#0a0a0a] hover:bg-[#f4f4f4] flex items-center gap-3 transition-colors cursor-pointer text-left"
+                        >
+                          <User className="w-4 h-4 text-[#717784]" />
+                          <span>{isEmployer ? 'Company Profile' : 'My Profile & CV'}</span>
+                        </button>
+
+                        {isEmployer ? (
+                          <>
+                            <button
+                              onClick={() => {
+                                setIsProfileMenuOpen(false);
+                                navigate('/dashboard');
+                              }}
+                              className="w-full px-4 py-2 text-xs font-medium text-[#0a0a0a] hover:bg-[#f4f4f4] flex items-center gap-3 transition-colors cursor-pointer text-left"
+                            >
+                              <LayoutDashboard className="w-4 h-4 text-[#717784]" />
+                              <span>Employer Dashboard</span>
+                            </button>
+                            <button
+                              onClick={() => {
+                                setIsProfileMenuOpen(false);
+                                navigate('/jobs');
+                              }}
+                              className="w-full px-4 py-2 text-xs font-medium text-[#0a0a0a] hover:bg-[#f4f4f4] flex items-center gap-3 transition-colors cursor-pointer text-left"
+                            >
+                              <Briefcase className="w-4 h-4 text-[#717784]" />
+                              <span>Active Jobs & Applicants</span>
+                            </button>
+                            <button
+                              onClick={() => {
+                                setIsProfileMenuOpen(false);
+                                navigate('/saved-profiles');
+                              }}
+                              className="w-full px-4 py-2 text-xs font-medium text-[#0a0a0a] hover:bg-[#f4f4f4] flex items-center gap-3 transition-colors cursor-pointer text-left"
+                            >
+                              <Bookmark className="w-4 h-4 text-[#717784]" />
+                              <span>Saved Talent Profiles</span>
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <button
+                              onClick={() => {
+                                setIsProfileMenuOpen(false);
+                                navigate('/applied-jobs');
+                              }}
+                              className="w-full px-4 py-2 text-xs font-medium text-[#0a0a0a] hover:bg-[#f4f4f4] flex items-center gap-3 transition-colors cursor-pointer text-left"
+                            >
+                              <CheckCircle2 className="w-4 h-4 text-[#717784]" />
+                              <span>Applied Jobs</span>
+                            </button>
+                            <button
+                              onClick={() => {
+                                setIsProfileMenuOpen(false);
+                                navigate('/saved-jobs');
+                              }}
+                              className="w-full px-4 py-2 text-xs font-medium text-[#0a0a0a] hover:bg-[#f4f4f4] flex items-center gap-3 transition-colors cursor-pointer text-left"
+                            >
+                              <Bookmark className="w-4 h-4 text-[#717784]" />
+                              <span>Saved Jobs</span>
+                            </button>
+                            <button
+                              onClick={() => {
+                                setIsProfileMenuOpen(false);
+                                navigate('/tracker');
+                              }}
+                              className="w-full px-4 py-2 text-xs font-medium text-[#0a0a0a] hover:bg-[#f4f4f4] flex items-center gap-3 transition-colors cursor-pointer text-left"
+                            >
+                              <Activity className="w-4 h-4 text-[#717784]" />
+                              <span>Activity Tracker</span>
+                            </button>
+                          </>
+                        )}
+
+                        <button
+                          onClick={() => {
+                            setIsProfileMenuOpen(false);
+                            navigate('/settings');
+                          }}
+                          className="w-full px-4 py-2 text-xs font-medium text-[#0a0a0a] hover:bg-[#f4f4f4] flex items-center gap-3 transition-colors cursor-pointer text-left"
+                        >
+                          <Settings className="w-4 h-4 text-[#717784]" />
+                          <span>Account Settings</span>
+                        </button>
+                      </div>
+
+                      {/* Divider & Sign Out */}
+                      <div className="pt-1 border-t border-[#e6e8ec]">
+                        <button
+                          onClick={handleLogout}
+                          className="w-full px-4 py-2 text-xs font-medium text-rose-600 hover:bg-rose-50 flex items-center gap-3 transition-colors cursor-pointer text-left"
+                        >
+                          <LogOut className="w-4 h-4 text-rose-500" />
+                          <span>Sign Out</span>
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </>
+          ) : (
+            /* Guest / Unauthenticated Actions */
+            <div className="flex items-center gap-2">
+              <Link
+                to="/sign-in"
+                className="px-4 py-2 rounded-full text-xs font-medium text-[#0a0a0a] hover:bg-[#f4f4f4] transition-colors"
+              >
+                Sign In
+              </Link>
+              <Link
+                to="/sign-up"
+                className="px-4 py-2 rounded-full bg-[#0f2f63] hover:bg-[#2563c9] text-white text-xs font-medium uppercase shadow-xs transition-all active:scale-95"
+              >
+                Get Started
+              </Link>
+            </div>
+          )}
 
           {/* Mobile Hamburger Button */}
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="md:hidden p-2 text-slate-700 hover:text-[#0066FF] rounded-xl bg-slate-100 cursor-pointer"
+            className="lg:hidden p-2 text-[#0a0a0a] hover:bg-[#f4f4f4] rounded-full border border-[#e6e8ec] cursor-pointer"
+            aria-label="Toggle mobile menu"
           >
-            {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            {isMobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
           </button>
 
         </div>
 
       </div>
+
+      {/* Expandable Mobile Search Row */}
+      <AnimatePresence>
+        {isMobileSearchOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="md:hidden border-t border-[#e6e8ec] px-4 py-2.5 bg-[#f4f4f4]"
+          >
+            <NavbarSearchInput 
+              className="w-full bg-white" 
+              placeholder={isEmployer ? "Search specialists, skills..." : "Search jobs, roles..."} 
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Mobile Drawer Menu */}
       <AnimatePresence>
@@ -264,50 +383,181 @@ export const AppTopNavbar = () => {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-white border-t border-slate-200 px-4 py-4 space-y-2 shadow-lg"
+            className="lg:hidden bg-white border-t border-[#e6e8ec] px-4 py-4 space-y-3 shadow-xl max-h-[calc(100vh-4.5rem)] overflow-y-auto"
           >
-            {navLinks.map((link) => {
-              const isActive = location.pathname === link.path;
-              return (
-                <Link
-                  key={link.path}
-                  to={link.path}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className={`block px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
-                    isActive 
-                      ? 'bg-blue-50 text-[#0066FF]' 
-                      : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900'
-                  }`}
-                >
-                  {link.name}
-                </Link>
-              );
-            })}
-
-            <div className="pt-2 border-t border-slate-100 flex flex-col gap-2">
-              {isEmployer ? (
-                <Link
-                  to="/post-job"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="w-full py-2.5 px-4 bg-[#0066FF] text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2"
-                >
-                  <PlusCircle className="w-4 h-4" />
-                  <span>Post a Job</span>
-                </Link>
-              ) : (
-                <Link
-                  to="/profile"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="w-full py-2.5 px-4 bg-blue-50 text-[#0066FF] border border-blue-200 rounded-xl text-xs font-bold flex items-center justify-center gap-2"
-                >
-                  <Upload className="w-4 h-4" />
-                  <span>Upload Resume</span>
-                </Link>
-              )}
+            <div className="space-y-1">
+              <span className="text-[10px] font-bold uppercase text-[#717784] px-3.5">
+                Navigation
+              </span>
+              {navLinks.map((link) => {
+                const Icon = link.icon;
+                const isActive = location.pathname === link.path;
+                return (
+                  <Link
+                    key={link.path}
+                    to={link.path}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all ${
+                      isActive 
+                        ? 'bg-[#0f2f63] text-white' 
+                        : 'text-[#0a0a0a] hover:bg-[#f4f4f4]'
+                    }`}
+                  >
+                    {Icon && <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-[#717784]'}`} />}
+                    <span>{link.name}</span>
+                  </Link>
+                );
+              })}
             </div>
+
+            {/* Account Quick Links for Mobile if Logged In */}
+            {isAuthenticated && (
+              <div className="pt-3 border-t border-[#e6e8ec] space-y-2">
+                {/* User Mobile Profile Capsule Header */}
+                <div className="p-3 bg-[#f4f4f4] rounded-2xl border border-[#e6e8ec] flex items-center gap-3">
+                  <UserAvatar
+                    src={user?.profileImageUrl}
+                    name={displayName}
+                    size="md"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-bold text-[#0a0a0a] truncate">
+                      {displayName}
+                    </p>
+                    <p className="text-[11px] text-[#717784] font-normal truncate">
+                      {user?.email}
+                    </p>
+                    <span className="inline-block mt-0.5 px-2 py-0.5 bg-[#0f2f63]/10 text-[#0f2f63] text-[9px] font-semibold rounded-full uppercase">
+                      {isEmployer ? 'Verified Employer' : 'Specialist Candidate'}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="space-y-1 pt-1">
+                  <span className="text-[10px] font-bold uppercase text-[#717784] px-3.5">
+                    Account & Profile
+                  </span>
+
+                  <Link
+                    to="/profile"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs font-medium text-[#0a0a0a] hover:bg-[#f4f4f4]"
+                  >
+                    <User className="w-4 h-4 text-[#717784]" />
+                    <span>{isEmployer ? 'Company Profile' : 'My Profile & CV'}</span>
+                  </Link>
+
+                  {isEmployer ? (
+                    <>
+                      <Link
+                        to="/dashboard"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs font-medium text-[#0a0a0a] hover:bg-[#f4f4f4]"
+                      >
+                        <LayoutDashboard className="w-4 h-4 text-[#717784]" />
+                        <span>Employer Dashboard</span>
+                      </Link>
+                      <Link
+                        to="/jobs"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs font-medium text-[#0a0a0a] hover:bg-[#f4f4f4]"
+                      >
+                        <Briefcase className="w-4 h-4 text-[#717784]" />
+                        <span>Active Jobs & Applicants</span>
+                      </Link>
+                      <Link
+                        to="/saved-profiles"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs font-medium text-[#0a0a0a] hover:bg-[#f4f4f4]"
+                      >
+                        <Bookmark className="w-4 h-4 text-[#717784]" />
+                        <span>Saved Talent Profiles</span>
+                      </Link>
+                      <Link
+                        to="/tracker"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs font-medium text-[#0a0a0a] hover:bg-[#f4f4f4]"
+                      >
+                        <Activity className="w-4 h-4 text-[#717784]" />
+                        <span>Activity Tracker</span>
+                      </Link>
+                    </>
+                  ) : (
+                    <>
+                      <Link
+                        to="/applied-jobs"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs font-medium text-[#0a0a0a] hover:bg-[#f4f4f4]"
+                      >
+                        <CheckCircle2 className="w-4 h-4 text-[#717784]" />
+                        <span>Applied Jobs</span>
+                      </Link>
+                      <Link
+                        to="/saved-jobs"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs font-medium text-[#0a0a0a] hover:bg-[#f4f4f4]"
+                      >
+                        <Bookmark className="w-4 h-4 text-[#717784]" />
+                        <span>Saved Jobs</span>
+                      </Link>
+                      <Link
+                        to="/tracker"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs font-medium text-[#0a0a0a] hover:bg-[#f4f4f4]"
+                      >
+                        <Activity className="w-4 h-4 text-[#717784]" />
+                        <span>Activity Tracker</span>
+                      </Link>
+                    </>
+                  )}
+
+                  <Link
+                    to="/settings"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs font-medium text-[#0a0a0a] hover:bg-[#f4f4f4]"
+                  >
+                    <Settings className="w-4 h-4 text-[#717784]" />
+                    <span>Account Settings</span>
+                  </Link>
+
+                  <button
+                    onClick={() => {
+                      setIsMobileMenuOpen(false);
+                      handleLogout();
+                    }}
+                    className="w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs font-medium text-rose-600 hover:bg-rose-50 text-left cursor-pointer"
+                  >
+                    <LogOut className="w-4 h-4 text-rose-500" />
+                    <span>Sign Out</span>
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Guest Action Buttons */}
+            {!isAuthenticated && (
+              <div className="pt-3 border-t border-[#e6e8ec] flex flex-col gap-2">
+                <Link
+                  to="/sign-in"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="w-full py-2.5 px-4 bg-[#f4f4f4] hover:bg-[#e6e8ec] text-[#0a0a0a] border border-[#e6e8ec] rounded-full text-xs font-medium uppercase text-center"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  to="/sign-up"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="w-full py-2.5 px-4 bg-[#0f2f63] hover:bg-[#2563c9] text-white rounded-full text-xs font-medium uppercase text-center shadow-xs"
+                >
+                  Get Started
+                </Link>
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
     </header>
   );
 };
+
+

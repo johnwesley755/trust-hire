@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { notificationService, type AppNotification } from '../../../../services/notification.service';
-import { Bell, BellOff, CheckCircle2, Info, AlertTriangle, Clock, RefreshCw, Trash2, X } from 'lucide-react';
+import { Bell, BellOff, CheckCircle2, Info, AlertTriangle, Clock, RefreshCw, Trash2, CheckCheck } from 'lucide-react';
 import { useSocket } from '../../../../providers/SocketProvider';
 import { formatDistanceToNow } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
@@ -14,7 +14,7 @@ export const NotificationCenter = () => {
     const { subscribe, connected } = useSocket();
     const containerRef = useRef<HTMLDivElement>(null);
 
-    const { data: notifications = [], isLoading, refetch, isRefetching } = useQuery<AppNotification[]>({
+    const { data: notifications = [], refetch, isRefetching } = useQuery<AppNotification[]>({
         queryKey: ['notifications'],
         queryFn: async () => {
             const data = await notificationService.getNotifications();
@@ -31,18 +31,22 @@ export const NotificationCenter = () => {
             queryClient.setQueryData<AppNotification[]>(['notifications'], (old = []) => [newNotification, ...old]);
         });
         return () => unsubscribe();
-    }, [subscribe, queryClient, connected]);
+    }, [connected, subscribe, queryClient]);
 
-    // Close on click outside
+    // Close on outside click
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
                 setIsOpen(false);
             }
         };
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, []);
+        if (isOpen) {
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [isOpen]);
 
     const deleteMutation = useMutation({
         mutationFn: (id: string) => notificationService.deleteNotification(id),
@@ -61,12 +65,24 @@ export const NotificationCenter = () => {
         }
     });
 
+    const markAllReadMutation = useMutation({
+        mutationFn: () => notificationService.markAllAsRead(),
+        onSuccess: () => {
+            queryClient.setQueryData<AppNotification[]>(['notifications'], (old = []) =>
+                old.map(n => ({ ...n, isRead: true, is_read: true }))
+            );
+            queryClient.setQueryData<number>(['unreadCount'], 0);
+        }
+    });
+
     const handleNotificationClick = (n: AppNotification) => {
         setIsOpen(false);
 
         const t = n.type?.toUpperCase();
-        if (t === 'NEW_APPLICATION' || t === 'JOB_CREATED') {
-            navigate('/jobs');
+        if (t === 'APPLICATION_SUBMITTED' || t === 'APPLICATION_UPDATE') {
+            navigate('/applied-jobs');
+        } else if (t === 'NEW_JOB' || t === 'JOB_MATCH') {
+            navigate('/search');
         } else if (t === 'WELCOME') {
             navigate('/profile');
         }
@@ -78,64 +94,72 @@ export const NotificationCenter = () => {
 
     const getIcon = (type?: string) => {
         const t = type?.toUpperCase();
-        if (t === 'JOB_CREATED' || t === 'SUCCESS' || t === 'ACCEPTED') {
+        if (t === 'SUCCESS' || t === 'APPLICATION_ACCEPTED' || t === 'APPLICATION_SUBMITTED') {
             return <CheckCircle2 className="w-4 h-4 text-emerald-600" />;
         }
-        if (t === 'NEW_APPLICATION' || t === 'OFFER_SENT') {
-            return <Bell className="w-4 h-4 text-[#0066FF]" />;
+        if (t === 'WARNING') return <AlertTriangle className="w-4 h-4 text-amber-500" />;
+        if (t === 'INFO' || t === 'APPLICATION_UPDATE' || t === 'WELCOME') {
+            return <Info className="w-4 h-4 text-[#0f2f63]" />;
         }
-        if (t === 'ALERT' || t === 'WARNING') {
-            return <AlertTriangle className="w-4 h-4 text-amber-600" />;
-        }
-        return <Info className="w-4 h-4 text-indigo-600" />;
+        return <Bell className="w-4 h-4 text-[#0f2f63]" />;
     };
 
     return (
-        <div className="relative" ref={containerRef}>
+        <div className="relative font-['Onest',system-ui,sans-serif]" ref={containerRef}>
             {/* Bell Trigger Button */}
             <button 
                 onClick={() => setIsOpen(!isOpen)}
-                className={`w-10 h-10 flex items-center justify-center rounded-xl transition-all relative group cursor-pointer ${
+                className={`w-9 h-9 flex items-center justify-center rounded-full transition-all relative cursor-pointer border ${
                     isOpen 
-                        ? 'bg-blue-50 text-[#0066FF] border border-blue-200' 
-                        : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200'
+                        ? 'bg-[#0f2f63]/10 text-[#0f2f63] border-[#0f2f63]/30' 
+                        : 'bg-[#f4f4f4] hover:bg-[#e6e8ec] text-[#0a0a0a] border-[#e6e8ec]'
                 }`}
                 title="Notifications"
             >
                 <Bell className="w-4 h-4" />
                 {unreadCount > 0 && (
-                    <span className="absolute -top-1 -right-1 min-w-4 h-4 px-1 bg-rose-500 text-white text-[9px] font-black flex items-center justify-center rounded-full border-2 border-white shadow-2xs animate-pulse">
+                    <span className="absolute -top-1 -right-1 min-w-4 h-4 px-1 bg-[#ba1a1a] text-white text-[9px] font-bold flex items-center justify-center rounded-full border border-white shadow-xs animate-pulse">
                         {unreadCount > 9 ? '9+' : unreadCount}
                     </span>
                 )}
             </button>
 
-            {/* Notification Popover Modal */}
+            {/* Notification Popover Dropdown */}
             <AnimatePresence>
                 {isOpen && (
                     <motion.div 
-                        initial={{ opacity: 0, y: 8, scale: 0.96 }}
+                        initial={{ opacity: 0, y: 6, scale: 0.98 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 8, scale: 0.96 }}
-                        transition={{ duration: 0.15 }}
-                        className="absolute right-0 mt-2 w-[calc(100vw-2rem)] sm:w-88 md:w-96 bg-white border border-slate-200 rounded-2xl shadow-2xl z-50 overflow-hidden font-sans text-[#0A1931]"
+                        exit={{ opacity: 0, y: 6, scale: 0.98 }}
+                        transition={{ duration: 0.12 }}
+                        className="absolute right-0 mt-2.5 w-[calc(100vw-2rem)] sm:w-88 md:w-96 bg-white border border-[#e6e8ec] rounded-2xl shadow-2xl z-50 overflow-hidden text-[#0a0a0a]"
                     >
                         {/* Header */}
-                        <div className="px-4 py-3.5 border-b border-slate-100 flex justify-between items-center bg-slate-50/70">
+                        <div className="px-4 py-3.5 border-b border-[#e6e8ec] flex justify-between items-center bg-[#fbfbfb]">
                             <div className="flex items-center gap-2">
-                                <h4 className="text-xs font-black uppercase tracking-wider text-slate-900 font-['Outfit',sans-serif]">
+                                <h4 className="text-xs font-bold text-[#0a0a0a]">
                                     Notifications
                                 </h4>
                                 {unreadCount > 0 && (
-                                    <span className="px-1.5 py-0.5 rounded-full bg-blue-100 text-[#0066FF] text-[10px] font-bold">
+                                    <span className="px-2 py-0.5 rounded-full bg-[#0f2f63]/10 text-[#0f2f63] text-[10px] font-bold">
                                         {unreadCount} new
                                     </span>
                                 )}
                             </div>
                             <div className="flex items-center gap-1.5">
+                                {unreadCount > 0 && (
+                                    <button 
+                                        onClick={() => markAllReadMutation.mutate()}
+                                        className="text-[11px] font-semibold text-[#0f2f63] hover:underline flex items-center gap-1 px-1.5 py-1 rounded cursor-pointer"
+                                        title="Mark all as read"
+                                    >
+                                        <CheckCheck className="w-3 h-3" />
+                                        <span>Read all</span>
+                                    </button>
+                                )}
                                 <button 
                                     onClick={() => refetch()}
-                                    className="p-1 hover:bg-slate-200/60 rounded-lg transition-colors cursor-pointer text-slate-500"
+                                    className="p-1 hover:bg-[#f4f4f4] rounded-lg transition-colors cursor-pointer text-[#717784]"
                                     title="Refresh"
                                 >
                                     <RefreshCw className={`w-3.5 h-3.5 ${isRefetching ? 'animate-spin' : ''}`} />
@@ -143,7 +167,7 @@ export const NotificationCenter = () => {
                                 {notifications.length > 0 && (
                                     <button 
                                         onClick={() => deleteAllMutation.mutate()}
-                                        className="p-1 hover:bg-rose-50 text-slate-400 hover:text-rose-600 rounded-lg transition-colors cursor-pointer"
+                                        className="p-1 hover:bg-rose-50 text-[#717784] hover:text-rose-600 rounded-lg transition-colors cursor-pointer"
                                         title="Clear All"
                                     >
                                         <Trash2 className="w-3.5 h-3.5" />
@@ -153,22 +177,22 @@ export const NotificationCenter = () => {
                         </div>
                         
                         {/* Notification List Body */}
-                        <div className="max-h-84 overflow-y-auto no-scrollbar divide-y divide-slate-100">
+                        <div className="max-h-84 overflow-y-auto divide-y divide-[#e6e8ec]">
                             {notifications.length > 0 ? (
                                 notifications.map((n) => (
                                     <div 
                                         key={n.id} 
                                         onClick={() => handleNotificationClick(n)}
-                                        className={`p-3.5 transition-all hover:bg-slate-50 cursor-pointer flex gap-3 items-start group ${
-                                            n.isRead ? 'opacity-60 bg-white' : 'bg-blue-50/30'
+                                        className={`p-3.5 transition-all hover:bg-[#f4f4f4] cursor-pointer flex gap-3 items-start group ${
+                                            n.isRead ? 'opacity-60 bg-white' : 'bg-[#e6eefc]/30'
                                         }`}
                                     >
-                                        <div className="mt-0.5 w-8 h-8 shrink-0 rounded-xl bg-slate-100 border border-slate-200/80 flex items-center justify-center shadow-2xs">
+                                        <div className="mt-0.5 w-8 h-8 shrink-0 rounded-xl bg-white border border-[#e6e8ec] flex items-center justify-center shadow-2xs">
                                             {getIcon(n.type)}
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <div className="flex justify-between items-start gap-2">
-                                                <p className="text-xs font-bold text-slate-900 leading-snug truncate">
+                                                <p className="text-xs font-bold text-[#0a0a0a] leading-snug truncate">
                                                     {n.title}
                                                 </p>
                                                 <button 
@@ -176,18 +200,16 @@ export const NotificationCenter = () => {
                                                         e.stopPropagation();
                                                         deleteMutation.mutate(n.id);
                                                     }}
-                                                    className="opacity-0 group-hover:opacity-100 p-0.5 hover:text-rose-600 text-slate-400 transition-opacity"
+                                                    className="opacity-0 group-hover:opacity-100 p-0.5 hover:text-rose-600 text-[#717784] transition-opacity"
                                                     title="Dismiss"
                                                 >
-                                                    <X className="w-3.5 h-3.5" />
+                                                    <Trash2 className="w-3 h-3" />
                                                 </button>
                                             </div>
-                                            <p className="text-xs text-slate-600 font-medium leading-relaxed mt-0.5 line-clamp-2">
-                                                {n.message}
-                                            </p>
-                                            <div className="flex items-center gap-1.5 mt-1.5 text-slate-400">
-                                                <Clock className="w-3 h-3" />
-                                                <span className="text-[10px] font-semibold">
+                                            <p className="text-[11px] text-[#717784] font-medium line-clamp-2 mt-0.5">{n.message}</p>
+                                            <div className="flex items-center gap-1 mt-1 text-[10px] text-[#717784]">
+                                                <Clock className="w-2.5 h-2.5" />
+                                                <span>
                                                     {n.createdAt ? formatDistanceToNow(new Date(n.createdAt), { addSuffix: true }) : 'just now'}
                                                 </span>
                                             </div>
@@ -195,34 +217,15 @@ export const NotificationCenter = () => {
                                     </div>
                                 ))
                             ) : (
-                                <div className="py-12 px-6 text-center space-y-2">
-                                    <div className="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto text-slate-400">
-                                        <BellOff className="w-6 h-6" />
+                                <div className="p-10 text-center space-y-2">
+                                    <div className="w-10 h-10 bg-[#f4f4f4] rounded-full flex items-center justify-center mx-auto text-[#717784]">
+                                        <BellOff className="w-5 h-5" />
                                     </div>
-                                    <p className="text-xs font-bold text-slate-500 font-['Outfit',sans-serif]">
-                                        All caught up!
-                                    </p>
-                                    <p className="text-[11px] text-slate-400 font-medium">
-                                        You have no new alerts or notifications at this time.
-                                    </p>
+                                    <p className="text-xs font-semibold text-[#0a0a0a]">All caught up!</p>
+                                    <p className="text-[11px] text-[#717784]">No new shift or application alerts.</p>
                                 </div>
                             )}
                         </div>
-                        
-                        {/* Footer */}
-                        {notifications.length > 0 && (
-                            <div className="p-2.5 bg-slate-50/70 flex justify-between items-center px-4 border-t border-slate-100 text-[11px]">
-                                <span className="text-slate-400 font-semibold">
-                                    {notifications.length} alerts in inbox
-                                </span>
-                                <button 
-                                    onClick={() => deleteAllMutation.mutate()}
-                                    className="font-bold text-rose-600 hover:underline cursor-pointer"
-                                >
-                                    Clear all
-                                </button>
-                            </div>
-                        )}
                     </motion.div>
                 )}
             </AnimatePresence>

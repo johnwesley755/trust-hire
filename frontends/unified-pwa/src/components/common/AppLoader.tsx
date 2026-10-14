@@ -1,6 +1,5 @@
 import React from 'react';
-import { Loader2 } from 'lucide-react';
-import logo from '../../assets/logo.png';
+import { Loader2, ShieldCheck } from 'lucide-react';
 
 export interface AppLoaderProps {
   variant?: 'fullscreen' | 'page' | 'inline' | 'skeleton';
@@ -24,55 +23,60 @@ export const AppLoader: React.FC<AppLoaderProps> = ({
     }[size];
 
     return (
-      <div className={`inline-flex items-center gap-2 ${className}`}>
+      <div className={`inline-flex items-center gap-2 font-['Onest',system-ui,sans-serif] ${className}`}>
         <Loader2 className={`${sizeClasses} animate-spin text-current shrink-0`} />
         {message && <span className="text-xs font-medium">{message}</span>}
       </div>
     );
   }
 
-  // Fullscreen Splash/Auth Loader
+  // Fullscreen Splash/Auth Loader with frosted Hallmark canvas
   if (variant === 'fullscreen') {
     return (
-      <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#0A1931] text-white p-4">
+      <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white/95 backdrop-blur-md text-[#0a0a0a] p-4 font-['Onest',system-ui,sans-serif]">
         <div className="relative flex items-center justify-center mb-5">
-          {/* Outer glowing pulsing ring */}
-          <div className="absolute w-20 h-20 rounded-full border-2 border-[#0066FF]/30 animate-ping" />
-          <div className="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 p-2.5 flex items-center justify-center shadow-xl">
-            <img src="/logo.png" alt="TrustHyre" className="w-full h-full object-contain" />
+          {/* Subtle outer pulsing ring */}
+          <div className="absolute w-20 h-20 rounded-full border-2 border-[#0f2f63]/20 animate-ping" />
+          <div className="w-16 h-16 rounded-3xl bg-[#f4f4f4] border border-[#e6e8ec] p-3 flex items-center justify-center shadow-xs">
+            <ShieldCheck className="w-9 h-9 text-[#0f2f63]" />
           </div>
         </div>
         <div className="flex items-center gap-2 mb-2">
-          <Loader2 className="w-5 h-5 text-[#38BDF8] animate-spin" />
-          <span className="text-sm font-extrabold tracking-wide font-['Outfit',sans-serif]">Trust<span className="text-[#38BDF8]">Hyre</span></span>
+          <Loader2 className="w-4 h-4 text-[#0f2f63] animate-spin" />
+          <span 
+            className="text-lg font-bold text-[#0a0a0a]"
+            style={{ fontFamily: 'Onest, system-ui, sans-serif' }}
+          >
+            Trust<span className="text-[#0f2f63]">Hyre</span>
+          </span>
         </div>
-        <p className="text-xs font-semibold text-slate-400 tracking-wider uppercase">
+        <p className="text-xs font-semibold text-[#717784]">
           {message || 'Connecting to verified network...'}
         </p>
       </div>
     );
   }
 
-  // Skeleton variant for job feed loading
+  // Skeleton variant for job/candidate feed loading
   if (variant === 'skeleton') {
     return (
-      <div className={`space-y-4 w-full ${className}`}>
+      <div className={`space-y-4 w-full font-['Onest',system-ui,sans-serif] ${className}`}>
         {[1, 2, 3].map((i) => (
           <div
             key={i}
-            className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs animate-pulse space-y-4"
+            className="bg-white rounded-2xl p-6 border border-[#e6e8ec] shadow-2xs animate-pulse space-y-4"
           >
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-slate-200 rounded-xl shrink-0" />
+              <div className="w-12 h-12 bg-[#f4f4f4] rounded-2xl shrink-0" />
               <div className="space-y-2 flex-1 min-w-0">
-                <div className="h-4 bg-slate-200 rounded w-1/3" />
-                <div className="h-3 bg-slate-200 rounded w-1/4" />
+                <div className="h-4 bg-[#f4f4f4] rounded-md w-1/3" />
+                <div className="h-3 bg-[#f4f4f4] rounded-md w-1/4" />
               </div>
             </div>
-            <div className="grid grid-cols-3 gap-3 pt-2 border-t border-slate-100">
-              <div className="h-3 bg-slate-100 rounded w-1/2" />
-              <div className="h-3 bg-slate-100 rounded w-1/2" />
-              <div className="h-3 bg-slate-100 rounded w-1/2" />
+            <div className="grid grid-cols-3 gap-3 pt-2 border-t border-[#e6e8ec]">
+              <div className="h-3 bg-[#f4f4f4] rounded-md w-1/2" />
+              <div className="h-3 bg-[#f4f4f4] rounded-md w-1/2" />
+              <div className="h-3 bg-[#f4f4f4] rounded-md w-1/2" />
             </div>
           </div>
         ))}
@@ -80,7 +84,7 @@ export const AppLoader: React.FC<AppLoaderProps> = ({
     );
   }
 
-  // Default Page / Container Loader
+  // Default Page / Common Background Loader
   const spinnerSizes = {
     sm: 'w-6 h-6',
     md: 'w-8 h-8',
@@ -88,14 +92,25 @@ export const AppLoader: React.FC<AppLoaderProps> = ({
   }[size];
 
   return (
-    <div className={`min-h-[260px] flex flex-col items-center justify-center gap-3 p-6 ${className}`}>
+    <div className={`w-full min-h-[50vh] flex flex-col items-center justify-center gap-3 p-6 font-['Onest',system-ui,sans-serif] ${className}`}>
       <div className="relative flex items-center justify-center">
-        <div className="w-12 h-12 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center shadow-2xs">
-          <Loader2 className={`${spinnerSizes} text-[#0066FF] animate-spin`} />
+        {/* Subtle breathing ripple */}
+        <div className="absolute w-16 h-16 rounded-full border-2 border-[#0f2f63]/15 animate-ping" />
+        <div className="w-14 h-14 rounded-2xl bg-[#f4f4f4] border border-[#e6e8ec] flex items-center justify-center shadow-2xs text-[#0f2f63] relative z-10">
+          <ShieldCheck className="w-7 h-7 text-[#0f2f63]" />
         </div>
       </div>
-      <p className="text-xs font-bold uppercase tracking-wider text-slate-400 font-['Outfit',sans-serif]">
-        {message || 'Loading content...'}
+      <div className="flex items-center gap-2 mt-2">
+        <Loader2 className="w-4 h-4 text-[#0f2f63] animate-spin" />
+        <span 
+          className="text-sm font-bold text-[#0a0a0a]"
+          style={{ fontFamily: 'Onest, system-ui, sans-serif' }}
+        >
+          Trust<span className="text-[#0f2f63]">Hyre</span>
+        </span>
+      </div>
+      <p className="text-xs font-semibold text-[#717784]">
+        {message || 'Loading verified content...'}
       </p>
     </div>
   );

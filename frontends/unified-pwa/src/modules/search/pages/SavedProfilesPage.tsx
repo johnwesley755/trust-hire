@@ -7,20 +7,26 @@ import {
   Bookmark, 
   MapPin, 
   ShieldCheck, 
-  Star, 
   ChevronRight, 
   Users, 
   Trash2, 
   Search,
-  ExternalLink
+  LayoutGrid,
+  List,
+  Sparkles,
+  CheckCircle2,
+  ArrowRight,
+  Clock,
+  Briefcase
 } from 'lucide-react';
 
 export const SavedProfilesPage: React.FC = () => {
   const navigate = useNavigate();
   const { savedWorkers, removeSavedWorker } = useSavedStore();
 
-  // Search & Pagination State
+  // Search, View Mode & Pagination State
   const [searchQuery, setSearchQuery] = useState('');
+  const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
@@ -58,42 +64,71 @@ export const SavedProfilesPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] pb-24 font-sans">
-      {/* Header Banner */}
-      <div className="bg-white border-b border-slate-200/80">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
-              <div className="flex items-center gap-2 text-xs font-bold text-[#0066FF] uppercase tracking-wider mb-1">
-                <Bookmark className="w-4 h-4 fill-current" />
-                <span>Shortlisted Candidates</span>
-              </div>
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-[#0A1931] tracking-tight font-['Outfit',sans-serif]">
-                Saved Profiles
-              </h1>
-              <p className="text-slate-500 text-xs sm:text-sm mt-1 font-medium">
-                Review and manage your bookmarked specialists for direct hiring and job offers.
-              </p>
+    <div className="w-full min-h-screen p-2 sm:p-3 bg-white font-['Onest',system-ui,sans-serif] text-[#0a0a0a]">
+      <div className="max-w-7xl mx-auto space-y-6 pb-20">
+
+        {/* 1. Hallmark Hero Header Banner */}
+        <div className="rounded-[2rem] border border-[#e6e8ec] bg-[#f4f4f4] p-6 sm:p-8 shadow-xs relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-[#0f2f63]/5 to-transparent rounded-full blur-3xl pointer-events-none" />
+          
+          <div className="relative z-10 space-y-4">
+            {/* 4-Point Hallmark Trust Ribbon */}
+            <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs font-medium text-[#717784] border-b border-[#e6e8ec] pb-4">
+              <span className="flex items-center gap-1.5 text-[#0a0a0a]">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                Verified Talent
+              </span>
+              <span className="text-[#e6e8ec]">•</span>
+              <span className="flex items-center gap-1.5 text-[#0a0a0a]">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                Escrow Wage Lock
+              </span>
+              <span className="text-[#e6e8ec]">•</span>
+              <span className="flex items-center gap-1.5 text-[#0a0a0a]">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                Direct Offer Dispatch
+              </span>
+              <span className="text-[#e6e8ec]">•</span>
+              <span className="flex items-center gap-1.5 text-[#0a0a0a]">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                Zero Ghosting Policy
+              </span>
             </div>
 
-            <Link
-              to="/find-workers"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#0066FF] hover:bg-[#0052CC] text-white text-xs sm:text-sm font-bold shadow-md shadow-[#0066FF]/25 transition-all cursor-pointer font-['Outfit',sans-serif] self-start sm:self-auto"
-            >
-              <Users className="w-4 h-4" />
-              <span>Browse Workers</span>
-            </Link>
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pt-2">
+              <div className="space-y-2 max-w-2xl">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0f2f63]/10 text-[#0f2f63] text-xs font-semibold">
+                  <Bookmark className="w-3.5 h-3.5 fill-current" />
+                  <span>SHORTLISTED SPECIALISTS</span>
+                </div>
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#0a0a0a] tracking-tight">
+                  Saved Candidate Profiles
+                </h1>
+                <p className="text-[#717784] text-sm leading-relaxed">
+                  Review and manage your bookmarked specialists. Compare skills, track verification status, and extend direct shift offers instantly.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <Link
+                  to="/find-workers"
+                  className="rounded-full bg-[#0f2f63] hover:bg-[#2563c9] text-white text-xs sm:text-sm font-medium uppercase px-5 py-3 transition-all flex items-center gap-2 shadow-sm active:scale-95 cursor-pointer"
+                >
+                  <Users className="w-4 h-4" />
+                  <span>Browse Talent Directory</span>
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
 
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 lg:pt-8">
+        {/* 2. Main Content Body */}
         {savedWorkers.length > 0 ? (
-          <div className="space-y-4">
-            {/* Control Bar: Search and Summary */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 shadow-xs">
+          <div className="space-y-5">
+            {/* Tactile Control Bar */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-[#f4f4f4] p-3 sm:p-4 rounded-[1.5rem] border border-[#e6e8ec] shadow-xs">
               <div className="relative flex-1 max-w-md">
-                <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#717784]" />
                 <input
                   type="text"
                   value={searchQuery}
@@ -101,204 +136,361 @@ export const SavedProfilesPage: React.FC = () => {
                     setSearchQuery(e.target.value);
                     setCurrentPage(1);
                   }}
-                  placeholder="Filter by candidate name, skill, or city..."
-                  className="w-full pl-9 pr-4 py-2 bg-slate-50 hover:bg-slate-100/60 focus:bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0066FF]/20 focus:border-[#0066FF] transition-all"
+                  placeholder="Filter by candidate name, skill, or location..."
+                  className="w-full pl-9 pr-4 py-2 bg-white border border-[#e6e8ec] rounded-full text-xs font-medium text-[#0a0a0a] placeholder:text-[#717784] focus:outline-none focus:ring-2 focus:ring-[#0f2f63]/20 focus:border-[#0f2f63] transition-all"
                 />
               </div>
 
-              <div className="flex items-center gap-2 text-xs font-bold text-slate-500 px-1">
-                <span>
+              <div className="flex items-center justify-between sm:justify-end gap-3">
+                <span className="text-xs font-medium text-[#717784] px-1">
                   {filteredWorkers.length}{' '}
                   {filteredWorkers.length === 1 ? 'specialist' : 'specialists'}{' '}
                   {searchQuery ? 'matching' : 'saved'}
                 </span>
+
+                {/* View Mode Toggle */}
+                <div className="flex items-center gap-1 bg-white p-1 rounded-full border border-[#e6e8ec]">
+                  <button
+                    type="button"
+                    onClick={() => setViewMode('grid')}
+                    className={`p-1.5 rounded-full transition-all cursor-pointer ${
+                      viewMode === 'grid'
+                        ? 'bg-[#0f2f63] text-white shadow-xs'
+                        : 'text-[#717784] hover:text-[#0a0a0a]'
+                    }`}
+                    title="Grid View"
+                  >
+                    <LayoutGrid className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setViewMode('table')}
+                    className={`p-1.5 rounded-full transition-all cursor-pointer ${
+                      viewMode === 'table'
+                        ? 'bg-[#0f2f63] text-white shadow-xs'
+                        : 'text-[#717784] hover:text-[#0a0a0a]'
+                    }`}
+                    title="Table View"
+                  >
+                    <List className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               </div>
             </div>
 
-            {/* Table View Container */}
-            <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs text-slate-600">
-                  <thead className="bg-slate-50/80 text-slate-500 uppercase text-[10px] font-extrabold border-b border-slate-200 tracking-wider">
-                    <tr>
-                      <th className="px-5 py-4">Candidate</th>
-                      <th className="px-5 py-4">Role & Experience</th>
-                      <th className="px-5 py-4">Location</th>
-                      <th className="px-5 py-4">Key Skills</th>
-                      {/* TrustScore - Temporarily hidden until TrustScore engine is fully implemented */}
-                      {/* <th className="px-5 py-4">Trust Score</th> */}
-                      <th className="px-5 py-4">Saved Date</th>
-                      <th className="px-5 py-4 text-right">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {paginatedWorkers.length > 0 ? (
-                      paginatedWorkers.map((worker) => (
-                        <tr
-                          key={worker.userId}
-                          className="hover:bg-blue-50/40 transition-colors group"
-                        >
-                          {/* Candidate Avatar & Name */}
-                          <td className="px-5 py-4">
-                            <div className="flex items-center gap-3">
-                              <UserAvatar
-                                src={worker.profileImageUrl || worker.profilePhoto}
-                                name={worker.name}
-                                size="md"
-                              />
-                              <div className="min-w-0">
-                                <div className="flex items-center gap-1.5">
-                                  <button
-                                    onClick={() => navigate(`/worker/${worker.userId}`)}
-                                    className="font-bold text-[#0A1931] group-hover:text-[#0066FF] transition-colors truncate hover:underline text-left cursor-pointer"
-                                  >
-                                    {worker.name}
-                                  </button>
-                                  {worker.isVerified && (
-                                    <span title="ID Verified" className="inline-flex shrink-0">
-                                      <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0" />
-                                    </span>
-                                  )}
-                                </div>
-                                <span className="text-[11px] text-slate-400 font-mono block">
-                                  ID: {worker.userId.slice(0, 8)}...
+            {/* View Mode 1: Modern Tactile Grid View */}
+            {viewMode === 'grid' && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                {paginatedWorkers.length > 0 ? (
+                  paginatedWorkers.map((worker) => {
+                    const skillList = Array.isArray(worker.skills) ? worker.skills : [];
+                    return (
+                      <div
+                        key={worker.userId}
+                        onClick={() => navigate(`/worker/${worker.userId}`)}
+                        className="rounded-[2rem] border border-[#e6e8ec] bg-[#f4f4f4] p-5 sm:p-6 shadow-xs hover:border-[#0f2f63]/40 transition-all flex flex-col justify-between group cursor-pointer space-y-4"
+                      >
+                        {/* Header: Avatar, Name & Remove Bookmark */}
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex items-center gap-3.5 min-w-0">
+                            <UserAvatar
+                              src={worker.profileImageUrl || (worker as any).profile_image_url || worker.profilePhoto}
+                              name={worker.name}
+                              size="md"
+                            />
+                            <div className="min-w-0">
+                              <div className="flex items-center gap-1.5">
+                                <h3 className="font-extrabold text-[#0a0a0a] group-hover:text-[#0f2f63] transition-colors truncate text-sm sm:text-base">
+                                  {worker.name}
+                                </h3>
+                                {worker.isVerified && (
+                                  <span title="Identity Verified">
+                                    <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+                                  </span>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-2 text-xs text-[#717784] mt-0.5">
+                                <span className="flex items-center gap-1">
+                                  <MapPin className="w-3 h-3 text-[#0f2f63]" />
+                                  <span>{worker.city || worker.location || 'Local Area'}</span>
+                                </span>
+                                <span>•</span>
+                                <span className="font-mono text-[11px]">
+                                  ID: {worker.userId.slice(0, 8)}
                                 </span>
                               </div>
                             </div>
-                          </td>
+                          </div>
 
-                          {/* Role & Experience */}
-                          <td className="px-5 py-4 whitespace-nowrap">
-                            <div className="space-y-1">
-                              <span className="font-semibold text-slate-800 text-xs block">
-                                {worker.skills?.[0] || 'Technician'}
-                              </span>
-                              <span className="inline-block px-2 py-0.5 bg-blue-50 text-[#0066FF] rounded-md font-bold text-[10px]">
-                                {worker.experience ? `${worker.experience}+ Yrs Exp` : 'Verified'}
-                              </span>
-                            </div>
-                          </td>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              removeSavedWorker(worker.userId);
+                            }}
+                            className="p-2 rounded-full text-[#717784] hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer border border-transparent hover:border-rose-200"
+                            title="Remove from saved profiles"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
 
-                          {/* Location */}
-                          <td className="px-5 py-4 whitespace-nowrap">
-                            <div className="flex items-center gap-1.5 text-slate-600 font-medium">
-                              <MapPin className="w-3.5 h-3.5 text-[#0066FF] shrink-0" />
-                              <span className="truncate max-w-[140px]">
-                                {worker.city || worker.location || 'Local Area'}
-                              </span>
-                            </div>
-                          </td>
+                        {/* Experience & Role Capsule */}
+                        <div className="flex items-center gap-2">
+                          <span className="px-3 py-1 rounded-full bg-[#0f2f63]/10 text-[#0f2f63] text-xs font-semibold">
+                            {skillList[0] || 'Technical Specialist'}
+                          </span>
+                          <span className="px-3 py-1 rounded-full bg-white border border-[#e6e8ec] text-[#0a0a0a] text-xs font-medium">
+                            {worker.experience ? `${worker.experience}+ Yrs Experience` : 'Certified'}
+                          </span>
+                        </div>
 
-                          {/* Skills */}
-                          <td className="px-5 py-4">
-                            <div className="flex flex-wrap gap-1 max-w-[200px]">
-                              {worker.skills && worker.skills.length > 0 ? (
-                                <>
-                                  {worker.skills.slice(0, 3).map((skill, idx) => (
-                                    <span
-                                      key={idx}
-                                      className="px-2 py-0.5 bg-slate-100 text-slate-700 text-[10px] font-semibold rounded-md whitespace-nowrap"
+                        {/* Skills Row */}
+                        {skillList.length > 0 && (
+                          <div className="flex flex-wrap gap-1.5">
+                            {skillList.slice(0, 4).map((skill: string, idx: number) => (
+                              <span
+                                key={idx}
+                                className="px-2.5 py-0.5 bg-white hover:bg-slate-100 text-[#0a0a0a] text-xs font-medium rounded-full border border-[#e6e8ec] transition-colors"
+                              >
+                                {skill}
+                              </span>
+                            ))}
+                            {skillList.length > 4 && (
+                              <span className="px-2 py-0.5 text-[#717784] text-xs font-medium self-center">
+                                +{skillList.length - 4} more
+                              </span>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Hallmark Trust Check Badges */}
+                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-2 text-[11px] text-[#717784] font-medium border-t border-[#e6e8ec]">
+                          <span className="inline-flex items-center gap-1.5 text-[#0a0a0a]">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                            Biometric Checked
+                          </span>
+                          <span className="inline-flex items-center gap-1.5 text-[#0a0a0a]">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                            Skill Verified
+                          </span>
+                          <span className="inline-flex items-center gap-1.5 text-[#0a0a0a]">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                            Escrow Protected
+                          </span>
+                        </div>
+
+                        {/* Footer Actions */}
+                        <div className="flex items-center justify-between pt-3 border-t border-[#e6e8ec] text-xs">
+                          <span className="flex items-center gap-1 text-[#717784] text-[11px]">
+                            <Clock className="w-3 h-3" />
+                            <span>Saved {new Date(worker.savedAt).toLocaleDateString()}</span>
+                          </span>
+
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(`/worker/${worker.userId}`);
+                            }}
+                            className="rounded-full bg-[#0f2f63] hover:bg-[#2563c9] text-white text-xs font-medium uppercase px-4 py-2 transition-all flex items-center gap-1.5 shadow-sm active:scale-95 cursor-pointer"
+                          >
+                            <span>View Dossier</span>
+                            <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="col-span-full py-12 text-center text-[#717784] bg-[#f4f4f4] rounded-[2rem] border border-[#e6e8ec]">
+                    <p className="font-semibold text-sm">No specialists match your filter criteria.</p>
+                    <button
+                      onClick={() => setSearchQuery('')}
+                      className="mt-2 text-xs font-bold text-[#0f2f63] hover:underline"
+                    >
+                      Clear search query
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* View Mode 2: Tactile High-Craft Table View */}
+            {viewMode === 'table' && (
+              <div className="rounded-[2rem] border border-[#e6e8ec] bg-white overflow-hidden shadow-xs">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs text-[#0a0a0a]">
+                    <thead className="bg-[#f4f4f4] text-[#717784] text-xs font-bold border-b border-[#e6e8ec]">
+                      <tr>
+                        <th className="px-5 py-4">Specialist</th>
+                        <th className="px-5 py-4">Role & Experience</th>
+                        <th className="px-5 py-4">Location</th>
+                        <th className="px-5 py-4">Key Skills</th>
+                        <th className="px-5 py-4">Saved Date</th>
+                        <th className="px-5 py-4 text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[#e6e8ec]">
+                      {paginatedWorkers.length > 0 ? (
+                        paginatedWorkers.map((worker) => (
+                          <tr
+                            key={worker.userId}
+                            className="hover:bg-[#f4f4f4]/60 transition-colors group"
+                          >
+                            {/* Candidate Avatar & Name */}
+                            <td className="px-5 py-4">
+                              <div className="flex items-center gap-3">
+                                <UserAvatar
+                                  src={worker.profileImageUrl || (worker as any).profile_image_url || worker.profilePhoto}
+                                  name={worker.name}
+                                  size="md"
+                                />
+                                <div className="min-w-0">
+                                  <div className="flex items-center gap-1.5">
+                                    <button
+                                      onClick={() => navigate(`/worker/${worker.userId}`)}
+                                      className="font-bold text-[#0a0a0a] group-hover:text-[#0f2f63] transition-colors truncate hover:underline text-left cursor-pointer text-sm"
                                     >
-                                      {skill}
-                                    </span>
-                                  ))}
-                                  {worker.skills.length > 3 && (
-                                    <span className="text-slate-400 text-[10px] font-bold self-center">
-                                      +{worker.skills.length - 3}
-                                    </span>
-                                  )}
-                                </>
-                              ) : (
-                                <span className="text-slate-400 italic text-[11px]">General</span>
-                              )}
-                            </div>
-                          </td>
+                                      {worker.name}
+                                    </button>
+                                    {worker.isVerified && (
+                                      <span title="Identity Verified" className="inline-flex shrink-0">
+                                        <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+                                      </span>
+                                    )}
+                                  </div>
+                                  <span className="text-[11px] text-[#717784] font-mono block">
+                                    ID: {worker.userId.slice(0, 8)}
+                                  </span>
+                                </div>
+                              </div>
+                            </td>
 
-                          {/* Trust Rating - Temporarily hidden until TrustScore engine is fully implemented */}
-                          {/*
-                          <td className="px-5 py-4 whitespace-nowrap">
-                            <div className="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-50 text-amber-800 border border-amber-200/80 rounded-lg text-xs font-extrabold">
-                              <Star className="w-3 h-3 fill-amber-500 text-amber-500" />
-                              <span>{worker.trustScore ? `${worker.trustScore}%` : '98%'}</span>
-                            </div>
-                          </td>
-                          */}
+                            {/* Role & Experience */}
+                            <td className="px-5 py-4 whitespace-nowrap">
+                              <div className="space-y-1">
+                                <span className="font-semibold text-[#0a0a0a] text-xs block">
+                                  {worker.skills?.[0] || 'Technical Specialist'}
+                                </span>
+                                <span className="inline-block px-2.5 py-0.5 bg-[#0f2f63]/10 text-[#0f2f63] rounded-full font-semibold text-[11px]">
+                                  {worker.experience ? `${worker.experience}+ Yrs Exp` : 'Verified'}
+                                </span>
+                              </div>
+                            </td>
 
-                          {/* Saved Date */}
-                          <td className="px-5 py-4 whitespace-nowrap text-slate-500 font-medium">
-                            {new Date(worker.savedAt).toLocaleDateString()}
-                          </td>
+                            {/* Location */}
+                            <td className="px-5 py-4 whitespace-nowrap">
+                              <div className="flex items-center gap-1.5 text-[#0a0a0a] font-medium">
+                                <MapPin className="w-3.5 h-3.5 text-[#0f2f63] shrink-0" />
+                                <span className="truncate max-w-[140px]">
+                                  {worker.city || worker.location || 'Local Area'}
+                                </span>
+                              </div>
+                            </td>
 
-                          {/* Actions */}
-                          <td className="px-5 py-4 whitespace-nowrap text-right">
-                            <div className="flex items-center justify-end gap-1.5">
-                              <button
-                                type="button"
-                                onClick={() => navigate(`/worker/${worker.userId}`)}
-                                className="px-3 py-1.5 bg-[#0066FF] hover:bg-[#0052CC] text-white rounded-lg font-bold text-xs shadow-xs transition-all flex items-center gap-1 cursor-pointer font-['Outfit',sans-serif]"
-                              >
-                                <span>View Profile</span>
-                                <ChevronRight className="w-3.5 h-3.5" />
-                              </button>
+                            {/* Skills */}
+                            <td className="px-5 py-4">
+                              <div className="flex flex-wrap gap-1 max-w-[200px]">
+                                {worker.skills && worker.skills.length > 0 ? (
+                                  <>
+                                    {worker.skills.slice(0, 3).map((skill, idx) => (
+                                      <span
+                                        key={idx}
+                                        className="px-2 py-0.5 bg-[#f4f4f4] text-[#0a0a0a] text-[10px] font-medium rounded-full border border-[#e6e8ec] whitespace-nowrap"
+                                      >
+                                        {skill}
+                                      </span>
+                                    ))}
+                                    {worker.skills.length > 3 && (
+                                      <span className="text-[#717784] text-[10px] font-medium self-center">
+                                        +{worker.skills.length - 3}
+                                      </span>
+                                    )}
+                                  </>
+                                ) : (
+                                  <span className="text-[#717784] italic text-[11px]">Verified Skills</span>
+                                )}
+                              </div>
+                            </td>
 
-                              <button
-                                type="button"
-                                onClick={() => removeSavedWorker(worker.userId)}
-                                className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
-                                title="Remove from Saved"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
-                            </div>
+                            {/* Saved Date */}
+                            <td className="px-5 py-4 whitespace-nowrap text-[#717784] font-medium">
+                              {new Date(worker.savedAt).toLocaleDateString()}
+                            </td>
+
+                            {/* Actions */}
+                            <td className="px-5 py-4 whitespace-nowrap text-right">
+                              <div className="flex items-center justify-end gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => navigate(`/worker/${worker.userId}`)}
+                                  className="rounded-full bg-[#0f2f63] hover:bg-[#2563c9] text-white text-xs font-medium uppercase px-3 py-1.5 transition-all flex items-center gap-1 cursor-pointer"
+                                >
+                                  <span>View</span>
+                                  <ChevronRight className="w-3.5 h-3.5" />
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={() => removeSavedWorker(worker.userId)}
+                                  className="p-1.5 text-[#717784] hover:text-rose-600 hover:bg-rose-50 rounded-full transition-colors cursor-pointer"
+                                  title="Remove from Saved"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan={6} className="px-6 py-12 text-center text-[#717784]">
+                            <p className="font-semibold text-sm">No specialists match your filter criteria.</p>
+                            <button
+                              onClick={() => setSearchQuery('')}
+                              className="mt-2 text-xs font-bold text-[#0f2f63] hover:underline"
+                            >
+                              Clear search query
+                            </button>
                           </td>
                         </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td colSpan={6} className="px-6 py-12 text-center text-slate-400">
-                          <p className="font-semibold text-sm">No specialists match your filter criteria.</p>
-                          <button
-                            onClick={() => setSearchQuery('')}
-                            className="mt-2 text-xs font-bold text-[#0066FF] hover:underline"
-                          >
-                            Clear search filter
-                          </button>
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
               </div>
+            )}
 
-              {/* Table Footer: Standardized Pagination */}
-              <DataTablePagination
-                currentPage={safeCurrentPage}
-                totalPages={totalPages}
-                totalItems={totalItems}
-                pageSize={pageSize}
-                pageSizeOptions={[5, 10, 20, 50]}
-                onPageChange={handlePageChange}
-                onPageSizeChange={handlePageSizeChange}
-                itemName="saved profiles"
-              />
-            </div>
+            {/* Standardized Pagination Bar */}
+            <DataTablePagination
+              currentPage={safeCurrentPage}
+              totalPages={totalPages}
+              totalItems={totalItems}
+              pageSize={pageSize}
+              pageSizeOptions={[5, 10, 20, 50]}
+              onPageChange={handlePageChange}
+              onPageSizeChange={handlePageSizeChange}
+              itemName="saved specialists"
+              className="rounded-[1.5rem] border border-[#e6e8ec] bg-[#f4f4f4] p-3 shadow-xs"
+            />
           </div>
         ) : (
           /* Empty State */
-          <div className="bg-white rounded-3xl p-12 text-center border border-slate-200/80 shadow-xs max-w-xl mx-auto my-12 space-y-4">
-            <div className="w-16 h-16 bg-blue-50 text-[#0066FF] rounded-2xl flex items-center justify-center mx-auto border border-blue-100 shadow-xs">
-              <Bookmark className="w-8 h-8" />
+          <div className="rounded-[2rem] border border-[#e6e8ec] bg-[#f4f4f4] p-12 text-center max-w-xl mx-auto space-y-4">
+            <div className="w-16 h-16 rounded-full bg-[#0f2f63]/10 text-[#0f2f63] flex items-center justify-center mx-auto border border-[#0f2f63]/20 shadow-xs">
+              <Bookmark className="w-8 h-8 fill-current" />
             </div>
-            <h2 className="text-xl font-extrabold text-[#0A1931] font-['Outfit',sans-serif]">
+            <h2 className="text-xl sm:text-2xl font-extrabold text-[#0a0a0a]">
               No Saved Profiles Yet
             </h2>
-            <p className="text-slate-500 text-xs sm:text-sm max-w-md mx-auto leading-relaxed">
-              When browsing specialists and candidates, tap the bookmark icon to save profiles here for quick access and direct hiring.
+            <p className="text-[#717784] text-xs sm:text-sm max-w-md mx-auto leading-relaxed">
+              When browsing specialists and candidates in the talent directory, click the bookmark icon to save profiles here for fast review and direct hiring.
             </p>
             <div className="pt-2">
               <Link
                 to="/find-workers"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-[#0066FF] hover:bg-[#0052CC] text-white rounded-xl text-xs sm:text-sm font-bold shadow-md shadow-[#0066FF]/25 transition-all cursor-pointer font-['Outfit',sans-serif]"
+                className="inline-flex items-center gap-2 rounded-full bg-[#0f2f63] hover:bg-[#2563c9] text-white text-xs sm:text-sm font-medium uppercase px-6 py-3 transition-all shadow-sm active:scale-95 cursor-pointer"
               >
                 <span>Find Candidates Now</span>
                 <ChevronRight className="w-4 h-4" />
@@ -306,7 +498,8 @@ export const SavedProfilesPage: React.FC = () => {
             </div>
           </div>
         )}
-      </main>
+
+      </div>
     </div>
   );
 };

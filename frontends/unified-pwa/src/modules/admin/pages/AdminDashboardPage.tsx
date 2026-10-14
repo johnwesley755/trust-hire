@@ -2,6 +2,7 @@ import React from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { adminService } from '../../../services/admin.service';
 import { Link } from 'react-router-dom';
+import { AppLoader } from '../../../components/common/AppLoader';
 import { 
   Users, 
   Briefcase, 
@@ -42,9 +43,7 @@ export const AdminDashboardPage: React.FC = () => {
 
   if (isLoadingStats) {
     return (
-      <div className="flex items-center justify-center py-24">
-        <Loader2 className="w-8 h-8 text-[#0066FF] animate-spin" />
-      </div>
+      <AppLoader variant="page" message="Loading admin intelligence..." />
     );
   }
 

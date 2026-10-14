@@ -7,6 +7,7 @@ import { dashboardService } from '../../../services/dashboard.service';
 import { queryKeys } from '../../../lib/queryKeys';
 import { useNavigate } from 'react-router-dom';
 import { UserAvatar } from '../../../components/common/UserAvatar';
+import { AppLoader } from '../../../components/common/AppLoader';
 
 export const StatsGrid = () => {
     const { data: stats } = useQuery({ 
@@ -100,7 +101,7 @@ export const ApplicationsTable = () => {
     const workersById = new Map(workers.map((worker) => [worker.userId, worker]));
     const jobsById = new Map(jobs.filter((job: any) => job.id).map((job: any) => [job.id!, job]));
 
-    if (isLoading) return <div className="text-center py-20"><Loader2 className="w-10 h-10 text-[#0066FF] animate-spin mx-auto" /></div>;
+    if (isLoading) return <AppLoader variant="page" message="Loading applicant records..." />;
 
     if (isError) return (
         <div className="text-center py-20 bg-white rounded-2xl border border-slate-200 shadow-xs">

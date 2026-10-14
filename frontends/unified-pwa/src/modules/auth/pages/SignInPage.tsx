@@ -108,7 +108,7 @@ export const SignInPage = () => {
         <div className="w-full min-h-screen p-2 sm:p-3 bg-white font-['Onest',system-ui,sans-serif] selection:bg-[#2563c9] selection:text-white flex flex-col">
             
             {/* Framed Full-Screen Canvas matching Landing Page Architecture */}
-            <div className="relative w-full flex-1 min-h-[calc(100svh-1rem)] sm:min-h-[calc(100svh-1.5rem)] lg:h-[calc(100svh-1.5rem)] rounded-[2rem] overflow-hidden border border-[#e6e8ec] bg-white shadow-xl grid grid-cols-1 lg:grid-cols-12 transition-all">
+            <div className="relative w-full flex-1 min-h-[calc(100svh-1rem)] sm:min-h-[calc(100svh-1.5rem)] lg:h-[calc(100svh-1.5rem)] rounded-2xl sm:rounded-[2rem] overflow-hidden border border-[#e6e8ec] bg-white shadow-xl grid grid-cols-1 lg:grid-cols-12 transition-all">
                 
                 {/* Left Side: Full-Bleed Brand Visual Hero */}
                 <div className="lg:col-span-5 xl:col-span-5 hidden lg:block h-full">
@@ -116,10 +116,10 @@ export const SignInPage = () => {
                 </div>
 
                 {/* Right Side: Clean Modern Form with Independent Smooth Scroll */}
-                <div className="lg:col-span-7 xl:col-span-7 p-6 sm:p-10 lg:p-12 flex flex-col justify-between relative bg-white h-full overflow-y-auto">
+                <div className="lg:col-span-7 xl:col-span-7 p-4 sm:p-8 lg:p-12 flex flex-col justify-between relative bg-white h-full overflow-y-auto">
                     
                     {/* Top Navigation Row: Back Link + Role Segmented Switcher */}
-                    <div className="flex items-center justify-between gap-3 mb-6 sm:mb-8">
+                    <div className="flex flex-wrap items-center justify-between gap-3 mb-6 sm:mb-8">
                         {/* Mobile Brand Logo / Desktop Back Link */}
                         <div className="flex items-center gap-2">
                             <Link 
@@ -211,7 +211,7 @@ export const SignInPage = () => {
                                     onChange={(e) => setEmail(e.target.value)}
                                     placeholder={isCandidate ? 'name@example.com' : 'hr@company.com'}
                                     required
-                                    className="w-full bg-[#f4f4f4]/60 hover:bg-[#f4f4f4] focus:bg-white border border-[#e6e8ec] focus:border-[#0f2f63] rounded-xl px-4 py-3 text-sm text-[#0a0a0a] placeholder:text-[#9ea3ae] font-normal transition-all outline-hidden focus:ring-2 focus:ring-[#0f2f63]/10"
+                                    className="w-full bg-[#f4f4f4]/60 hover:bg-[#f4f4f4] focus:bg-white border border-[#e6e8ec] focus:border-[#0f2f63] rounded-xl px-4 py-3 text-base sm:text-sm text-[#0a0a0a] placeholder:text-[#9ea3ae] font-normal transition-all outline-hidden focus:ring-2 focus:ring-[#0f2f63]/10"
                                 />
                             </div>
 
@@ -219,7 +219,7 @@ export const SignInPage = () => {
                             <div className="space-y-1.5">
                                 <div className="flex items-center justify-between">
                                     <label className="block text-xs font-medium uppercase text-[#0a0a0a]">
-                                        Password
+                                         Password
                                     </label>
                                     <Link 
                                         to={`/forgot-password?role=${activeRole.toLowerCase()}`}
@@ -235,7 +235,7 @@ export const SignInPage = () => {
                                         onChange={(e) => setPassword(e.target.value)}
                                         placeholder="••••••••••••"
                                         required
-                                        className="w-full bg-[#f4f4f4]/60 hover:bg-[#f4f4f4] focus:bg-white border border-[#e6e8ec] focus:border-[#0f2f63] rounded-xl px-4 py-3 pr-10 text-sm text-[#0a0a0a] placeholder:text-[#9ea3ae] font-normal transition-all outline-hidden focus:ring-2 focus:ring-[#0f2f63]/10"
+                                        className="w-full bg-[#f4f4f4]/60 hover:bg-[#f4f4f4] focus:bg-white border border-[#e6e8ec] focus:border-[#0f2f63] rounded-xl px-4 py-3 pr-10 text-base sm:text-sm text-[#0a0a0a] placeholder:text-[#9ea3ae] font-normal transition-all outline-hidden focus:ring-2 focus:ring-[#0f2f63]/10"
                                     />
                                     <button
                                         type="button"

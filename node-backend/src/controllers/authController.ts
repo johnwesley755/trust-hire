@@ -307,6 +307,7 @@ export const syncUser = async (c: Context) => {
       const workerPayload: any = {
         updated_at: new Date()
       };
+      if (updatePayload.profile_image_url) workerPayload.profile_image_url = updatePayload.profile_image_url;
       if (updatePayload.first_name || updatePayload.last_name) {
         workerPayload.full_name = `${updatePayload.first_name || updated.first_name || ''} ${updatePayload.last_name || updated.last_name || ''}`.trim();
       }
@@ -324,6 +325,7 @@ export const syncUser = async (c: Context) => {
         create: {
           user_id: c.get('user').sub,
           full_name: workerPayload.full_name || `${updated.first_name || 'Worker'} ${updated.last_name || ''}`.trim(),
+          profile_image_url: updatePayload.profile_image_url || null,
           skills: workerPayload.skills || '',
           location: workerPayload.location || '',
           city: workerPayload.city || 'Mumbai',
@@ -334,6 +336,14 @@ export const syncUser = async (c: Context) => {
           updated_at: new Date()
         }
       }).catch((e: any) => console.warn("Worker profile sync notice:", e.message));
+
+      // Also ensure worker_search_index is updated with latest profile image
+      if (updatePayload.profile_image_url) {
+        await prisma.worker_search_index.updateMany({
+          where: { user_id: c.get('user').sub },
+          data: { profile_image_url: updatePayload.profile_image_url, last_updated_at: new Date() }
+        }).catch(() => {});
+      }
     }
 
     return c.json(ApiResponse.ok("User synced", updated));
@@ -454,6 +464,7 @@ export const oauthSync = async (c: Context) => {
           data: {
             user_id: newId,
             full_name: `${firstName || 'Worker'} ${lastName || ''}`.trim(),
+            profile_image_url: profileImageUrl || null,
             level: 'L1',
             level_number: 1,
             level_score: 100,
@@ -473,6 +484,13 @@ export const oauthSync = async (c: Context) => {
           updated_at: new Date(),
         }
       });
+
+      if (profileImageUrl) {
+        await prisma.worker_profiles.updateMany({
+          where: { user_id: user.id },
+          data: { profile_image_url: profileImageUrl, updated_at: new Date() }
+        }).catch(() => {});
+      }
     }
 
     const token = jwt.sign(
