@@ -1,0 +1,11 @@
+# Robots.txt for TrustHyre
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /tracker
+Disallow: /settings
+Disallow: /verify-identity
+Disallow: /onboarding
+Disallow: /api/
+
+Sitemap: https://trusthire.in/sitemap.xml

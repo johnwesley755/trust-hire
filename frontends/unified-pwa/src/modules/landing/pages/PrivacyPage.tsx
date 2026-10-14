@@ -1,76 +1,375 @@
-import React from 'react';
-import { AuthHeader } from '../../auth/components/AuthHeader';
-import { AuthFooter } from '../../auth/components/AuthFooter';
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { 
+  ShieldCheck, 
+  Lock, 
+  Eye, 
+  Server, 
+  Database, 
+  UserCheck, 
+  FileCheck2, 
+  CheckCircle2, 
+  Printer, 
+  ArrowLeft,
+  HelpCircle,
+  KeyRound,
+  ShieldAlert
+} from 'lucide-react';
+import trustHyreLogo from '../../../assets/TrustHyre Skills and Opportunities Logo.png';
 
-const PrivacyPage = () => {
-    return (
-        <div className="bg-[#F8FAFC] text-[#0A1931] font-body min-h-screen flex flex-col antialiased">
-            <AuthHeader />
-            
-            <main className="flex-1 max-w-4xl mx-auto px-6 pt-32 pb-24">
-                <motion.div 
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
-                >
-                    <h1 className="text-4xl md:text-5xl font-headline font-black mb-8 tracking-tight">Privacy Policy</h1>
-                    <p className="text-sm font-bold text-[#0A1931]/60 uppercase tracking-widest mb-12">Last Updated: May 2, 2026</p>
-                    
-                    <div className="space-y-12 max-w-none">
-                        <section>
-                            <h2 className="text-2xl font-headline font-extrabold mb-4 text-[#0A1931]">1. Introduction</h2>
-                            <p className="leading-relaxed text-[#0A1931]/80 text-lg">
-                                Welcome to TrustHire. We respect your privacy and are committed to protecting your personal data. This privacy policy will inform you as to how we look after your personal data when you visit our website and tell you about your privacy rights and how the law protects you.
-                            </p>
-                        </section>
+export const PrivacyPage: React.FC = () => {
+  const [activeSection, setActiveSection] = useState('collection');
 
-                        <section>
-                            <h2 className="text-2xl font-headline font-extrabold mb-4 text-[#0A1931]">2. The Data We Collect</h2>
-                            <p className="leading-relaxed text-[#0A1931]/80 mb-6 text-lg">
-                                Personal data, or personal information, means any information about an individual from which that person can be identified. We may collect, use, store and transfer different kinds of personal data about you which we have grouped together as follows:
-                            </p>
-                            <ul className="list-disc pl-6 space-y-2 text-[#0A1931]/80">
-                                <li><strong>Identity Data</strong> includes first name, last name, username or similar identifier.</li>
-                                <li><strong>Contact Data</strong> includes email address and telephone numbers.</li>
-                                <li><strong>Technical Data</strong> includes IP network address, your login data, browser type and version, and operating system and platform.</li>
-                                <li><strong>Usage Data</strong> includes information about how you use our website and services.</li>
-                            </ul>
-                        </section>
+  const scrollToSection = (id: string) => {
+    setActiveSection(id);
+    const element = document.getElementById(id);
+    if (element) {
+      const yOffset = -90;
+      const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+      window.scrollTo({ top: y, behavior: 'smooth' });
+    }
+  };
 
-                        <section>
-                            <h2 className="text-2xl font-headline font-extrabold mb-4 text-[#0A1931]">3. How We Use Your Data</h2>
-                            <p className="leading-relaxed text-[#0A1931]/80 mb-6 text-lg">
-                                We will only use your personal data when the law allows us to. Most commonly, we will use your personal data in the following circumstances:
-                            </p>
-                            <ul className="list-disc pl-6 space-y-2 text-[#0A1931]/80">
-                                <li>To register you as a new user.</li>
-                                <li>To provide and manage our services.</li>
-                                <li>To manage our relationship with you.</li>
-                                <li>To improve our website, services, and user experience.</li>
-                            </ul>
-                        </section>
+  const sections = [
+    { id: 'collection', title: '1. Information We Collect', icon: Database },
+    { id: 'usage', title: '2. How We Use Your Data', icon: UserCheck },
+    { id: 'legal-basis', title: '3. Legal Basis for Processing', icon: FileCheck2 },
+    { id: 'sharing', title: '4. Third-Party Data Sharing', icon: Server },
+    { id: 'security', title: '5. Security Safeguards & Encryption', icon: Lock },
+    { id: 'retention', title: '6. Data Retention & Deletion', icon: KeyRound },
+    { id: 'rights', title: '7. Your Privacy Rights (DPDP Act)', icon: Eye },
+    { id: 'grievance', title: '8. Grievance Officer & Contact', icon: ShieldAlert },
+  ];
 
-                        <section>
-                            <h2 className="text-2xl font-headline font-extrabold mb-4 text-[#0A1931]">4. Data Security</h2>
-                            <p className="leading-relaxed text-[#0A1931]/80 text-lg">
-                                We have put in place appropriate security measures to prevent your personal data from being accidentally lost, used or accessed in an unauthorized way, altered or disclosed. In addition, we limit access to your personal data to those employees, agents, contractors and other third parties who have a business need to know.
-                            </p>
-                        </section>
+  return (
+    <div className="min-h-screen bg-[#F8FAFC] text-[#0A1931] font-sans antialiased selection:bg-[#0f2f63] selection:text-white flex flex-col justify-between">
+      {/* Sticky Navigation Header */}
+      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-xs">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-18 flex items-center justify-between gap-4">
+          <Link to="/" className="flex items-center group py-1" aria-label="TrustHyre Home">
+            <img 
+              src={trustHyreLogo} 
+              alt="TrustHyre" 
+              className="h-9 sm:h-11 md:h-12 w-auto object-contain block select-none mix-blend-multiply group-hover:opacity-90 transition-opacity" 
+            />
+          </Link>
 
-                        <section>
-                            <h2 className="text-2xl font-headline font-extrabold mb-4 text-[#0A1931]">5. Your Legal Rights</h2>
-                            <p className="leading-relaxed text-[#0A1931]/80 text-lg">
-                                Under certain circumstances, you have rights under data protection laws in relation to your personal data, including the right to request access to your personal data, request correction of your personal data, request erasure of your personal data, and the right to withdraw consent.
-                            </p>
-                        </section>
-                    </div>
-                </motion.div>
-            </main>
-            
-            <AuthFooter />
+          {/* Quick Tab Switcher */}
+          <div className="flex items-center p-1 bg-slate-100 rounded-full border border-slate-200/80 text-xs font-semibold">
+            <Link
+              to="/terms"
+              className="px-3.5 py-1.5 rounded-full text-slate-600 hover:text-[#0A1931] hover:bg-white/60 transition-colors"
+            >
+              Terms of Service
+            </Link>
+            <Link
+              to="/privacy"
+              className="px-3.5 py-1.5 rounded-full bg-[#0f2f63] text-white shadow-xs transition-colors"
+            >
+              Privacy Policy
+            </Link>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => window.print()}
+              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold text-slate-600 hover:text-[#0A1931] hover:bg-slate-100 border border-slate-200 transition-colors cursor-pointer"
+              title="Print document"
+            >
+              <Printer className="w-3.5 h-3.5" />
+              <span>Print</span>
+            </button>
+            <Link
+              to="/"
+              className="inline-flex items-center gap-1 text-xs font-semibold text-slate-600 hover:text-[#0f2f63] py-1.5 px-3 rounded-full hover:bg-slate-100 transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span className="hidden sm:inline">Back</span>
+            </Link>
+          </div>
         </div>
-    );
+      </header>
+
+      {/* Hero Header */}
+      <section className="bg-gradient-to-b from-white to-[#F8FAFC] border-b border-slate-200/80 py-10 sm:py-14 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="max-w-3xl space-y-4">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-100 text-emerald-800 text-xs font-bold uppercase tracking-wider">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Data Protection & Privacy Standard</span>
+            </div>
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#0A1931] tracking-tight">
+              Privacy Policy
+            </h1>
+            <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
+              We believe privacy is a fundamental right. This policy outlines how TrustHyre collects, encrypts, processes, and protects your personal data in accordance with the Digital Personal Data Protection (DPDP) Act, 2023.
+            </p>
+            <div className="flex flex-wrap items-center gap-4 text-xs font-semibold text-slate-500 pt-2">
+              <span className="bg-white px-3 py-1 rounded-md border border-slate-200 shadow-2xs">
+                Last Revised: October 14, 2026
+              </span>
+              <span className="bg-white px-3 py-1 rounded-md border border-slate-200 shadow-2xs">
+                Applies to: Candidates, Recruiters & Enterprise
+              </span>
+              <span className="bg-emerald-50 text-emerald-700 px-3 py-1 rounded-md border border-emerald-200 shadow-2xs inline-flex items-center gap-1">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                DPDP Act Compliant
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Main Content Layout with Sticky Sidebar */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 flex-1 w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+          
+          {/* Left: Sticky Table of Contents (Desktop) */}
+          <aside className="lg:col-span-4 sticky top-24 space-y-6">
+            <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs">
+              <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 px-2">
+                Table of Contents
+              </h2>
+              <nav className="space-y-1">
+                {sections.map((sec) => {
+                  const Icon = sec.icon;
+                  const isActive = activeSection === sec.id;
+                  return (
+                    <button
+                      key={sec.id}
+                      type="button"
+                      onClick={() => scrollToSection(sec.id)}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-semibold transition-all cursor-pointer ${
+                        isActive
+                          ? 'bg-[#0f2f63] text-white shadow-xs'
+                          : 'text-slate-600 hover:text-[#0A1931] hover:bg-slate-100/80'
+                      }`}
+                    >
+                      <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-slate-400'}`} />
+                      <span className="truncate">{sec.title}</span>
+                    </button>
+                  );
+                })}
+              </nav>
+            </div>
+
+            {/* Privacy Promise Callout */}
+            <div className="bg-emerald-50/70 rounded-2xl border border-emerald-100 p-5 space-y-3">
+              <div className="flex items-center gap-2 text-emerald-800 font-bold text-xs uppercase tracking-wider">
+                <Lock className="w-4 h-4 text-emerald-600" />
+                <span>Our Privacy Promise</span>
+              </div>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                We never monetize your personal dossiers by selling data to third-party advertisers. Your information is used strictly for authenticated job matching, verified hiring, and escrow security.
+              </p>
+              <a
+                href="mailto:privacy@trusthire.in"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 hover:text-emerald-950 underline underline-offset-2"
+              >
+                Inquire With Privacy Officer &rarr;
+              </a>
+            </div>
+          </aside>
+
+          {/* Right: Detailed Privacy Policy Sections */}
+          <div className="lg:col-span-8 space-y-8">
+            
+            {/* Quick Core Commitments Card */}
+            <div className="bg-white rounded-2xl border-2 border-emerald-100 p-6 shadow-xs space-y-3">
+              <div className="flex items-center gap-2 text-emerald-800 font-black text-sm">
+                <ShieldCheck className="w-5 h-5 text-emerald-600" />
+                <span>TrustHyre Privacy & Data Principles</span>
+              </div>
+              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1 text-xs text-slate-700 font-medium">
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <span><strong>Zero Third-Party Data Selling:</strong> We never sell personal contact numbers or resumes.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <span><strong>Masked Aadhaar Verification:</strong> Original 12-digit Aadhaar numbers are never stored in clear text.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <span><strong>End-to-End Encryption:</strong> All transit communications use TLS 1.3 with AES-256 database encryption.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <span><strong>Right to Erasure:</strong> Request permanent profile removal anytime with 30-day compliance.</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* Section 1 */}
+            <section id="collection" className="bg-white rounded-2xl border border-slate-200/80 p-6 sm:p-8 shadow-xs space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-[#0f2f63]">
+                  <Database className="w-5 h-5" />
+                </div>
+                <h2 className="text-xl font-bold text-[#0A1931]">1. Information We Collect</h2>
+              </div>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                TrustHyre collects specific data categories to facilitate verified blue-collar and skilled workforce matching:
+              </p>
+              <ul className="list-disc pl-5 space-y-2 text-sm text-slate-600">
+                <li><strong>Identity Information:</strong> Full legal name, gender, date of birth, profile photograph, and government ID verification status.</li>
+                <li><strong>Contact Data:</strong> Primary phone number, email address, physical location, and pincode for hyperlocal job matching.</li>
+                <li><strong>Professional Dossier:</strong> Trade specializations (electrician, carpentry, cooking, logistics), years of verified experience, salary expectations, and uploaded portfolio images.</li>
+                <li><strong>Technical Telemetry:</strong> Device browser, IP address, login timestamps, and essential authentication cookies.</li>
+              </ul>
+            </section>
+
+            {/* Section 2 */}
+            <section id="usage" className="bg-white rounded-2xl border border-slate-200/80 p-6 sm:p-8 shadow-xs space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-[#0f2f63]">
+                  <UserCheck className="w-5 h-5" />
+                </div>
+                <h2 className="text-xl font-bold text-[#0A1931]">2. How We Use Your Data</h2>
+              </div>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                Your personal and occupational information is processed strictly for:
+              </p>
+              <ul className="list-disc pl-5 space-y-2 text-sm text-slate-600">
+                <li>Connecting qualified workers with employers with matching hiring requirements.</li>
+                <li>Conducting automated Aadhaar and document authenticity checks via certified UIDAI verification partners.</li>
+                <li>Securing escrow wage reserves and validating timesheet milestone releases.</li>
+                <li>Preventing impersonation, duplicate applications, and fraudulent employer solicitations.</li>
+              </ul>
+            </section>
+
+            {/* Section 3 */}
+            <section id="legal-basis" className="bg-white rounded-2xl border border-slate-200/80 p-6 sm:p-8 shadow-xs space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-[#0f2f63]">
+                  <FileCheck2 className="w-5 h-5" />
+                </div>
+                <h2 className="text-xl font-bold text-[#0A1931]">3. Legal Basis for Processing</h2>
+              </div>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                We process your personal data in accordance with the Digital Personal Data Protection Act, 2023 under the following lawful bases:
+              </p>
+              <ul className="list-disc pl-5 space-y-2 text-sm text-slate-600">
+                <li><strong>Explicit Consent:</strong> Provided by you during registration, phone OTP verification, and document upload.</li>
+                <li><strong>Contractual Necessity:</strong> To fulfill job applications, candidate dispatch offers, and escrow payout obligations.</li>
+                <li><strong>Legal Compliance:</strong> To satisfy statutory taxation, wage accounting, and fraud prevention obligations.</li>
+              </ul>
+            </section>
+
+            {/* Section 4 */}
+            <section id="sharing" className="bg-white rounded-2xl border border-slate-200/80 p-6 sm:p-8 shadow-xs space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-[#0f2f63]">
+                  <Server className="w-5 h-5" />
+                </div>
+                <h2 className="text-xl font-bold text-[#0A1931]">4. Third-Party Data Sharing & Processors</h2>
+              </div>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                We only share minimal, necessary information with vetted platform sub-processors:
+              </p>
+              <ul className="list-disc pl-5 space-y-2 text-sm text-slate-600">
+                <li><strong>Cloud Infrastructure:</strong> Cloudflare (Workers, CDN, and DDoS protection) and Neon PostgreSQL (database storage).</li>
+                <li><strong>Media & Document Storage:</strong> Cloudinary (secure encrypted CDN for portfolio and profile pictures).</li>
+                <li><strong>Communications & OTP:</strong> Brevo / Twilio (transactional SMS notifications and password resets).</li>
+                <li><strong>Verification Partners:</strong> Authorized KYC gateways conducting one-time Aadhaar OTP verification.</li>
+              </ul>
+            </section>
+
+            {/* Section 5 */}
+            <section id="security" className="bg-white rounded-2xl border border-slate-200/80 p-6 sm:p-8 shadow-xs space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-[#0f2f63]">
+                  <Lock className="w-5 h-5" />
+                </div>
+                <h2 className="text-xl font-bold text-[#0A1931]">5. Security Safeguards & Encryption</h2>
+              </div>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                TrustHyre maintains institutional-grade security controls:
+              </p>
+              <ul className="list-disc pl-5 space-y-2 text-sm text-slate-600">
+                <li>Strict Transport Security (HSTS) with TLS 1.3 encryption across all network communications.</li>
+                <li>Role-Based Access Control (RBAC) ensuring workers, employers, and administrators access only authorized datasets.</li>
+                <li>Bcrypt cryptographic password hashing and automated JWT session expiration.</li>
+                <li>Daily encrypted database backups with point-in-time recovery capabilities.</li>
+              </ul>
+            </section>
+
+            {/* Section 6 */}
+            <section id="retention" className="bg-white rounded-2xl border border-slate-200/80 p-6 sm:p-8 shadow-xs space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-[#0f2f63]">
+                  <KeyRound className="w-5 h-5" />
+                </div>
+                <h2 className="text-xl font-bold text-[#0A1931]">6. Data Retention & Deletion Policy</h2>
+              </div>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                We retain your account information only for as long as your profile remains active. Upon requesting account deletion via Settings or legal contact:
+              </p>
+              <ul className="list-disc pl-5 space-y-2 text-sm text-slate-600">
+                <li>Your public profile is immediately removed from search listings within 24 hours.</li>
+                <li>All media files, resumes, and identification images are purged from cloud storage within 30 days.</li>
+                <li>Financial escrow records are retained only as required by statutory financial audit laws (typically 7 years).</li>
+              </ul>
+            </section>
+
+            {/* Section 7 */}
+            <section id="rights" className="bg-white rounded-2xl border border-slate-200/80 p-6 sm:p-8 shadow-xs space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-[#0f2f63]">
+                  <Eye className="w-5 h-5" />
+                </div>
+                <h2 className="text-xl font-bold text-[#0A1931]">7. Your Privacy Rights</h2>
+              </div>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                Under applicable Indian data privacy regulations, you possess the right to:
+              </p>
+              <ul className="list-disc pl-5 space-y-2 text-sm text-slate-600">
+                <li><strong>Access:</strong> Request a comprehensive export of all personal data held about you.</li>
+                <li><strong>Rectification:</strong> Correct outdated contact, skill, or trade certification details at any time.</li>
+                <li><strong>Erasure:</strong> Request the irrevocable deletion of your profile dossier and credentials.</li>
+                <li><strong>Consent Withdrawal:</strong> Revoke consent for non-essential communications or marketing notifications.</li>
+              </ul>
+            </section>
+
+            {/* Section 8 */}
+            <section id="grievance" className="bg-white rounded-2xl border border-slate-200/80 p-6 sm:p-8 shadow-xs space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-[#0f2f63]">
+                  <ShieldAlert className="w-5 h-5" />
+                </div>
+                <h2 className="text-xl font-bold text-[#0A1931]">8. Grievance Officer & Contact Information</h2>
+              </div>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                In compliance with the Information Technology Act and DPDP Rules, the details of our designated Grievance Officer are as follows:
+              </p>
+              <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-700 space-y-1.5">
+                <p><strong>Grievance Redressal Officer:</strong> Compliance & Legal Team</p>
+                <p><strong>Entity:</strong> TrustHyre Technologies Private Limited</p>
+                <p><strong>Address:</strong> HSR Layout, Sector 4, Bengaluru, Karnataka 560102, India</p>
+                <p><strong>Email:</strong> <a href="mailto:grievance@trusthire.in" className="text-[#0f2f63] font-bold hover:underline">grievance@trusthire.in</a> / <a href="mailto:privacy@trusthire.in" className="text-[#0f2f63] font-bold hover:underline">privacy@trusthire.in</a></p>
+                <p><strong>Resolution SLA:</strong> All formal privacy complaints are acknowledged within 24 hours and resolved within 15 business days.</p>
+              </div>
+            </section>
+
+          </div>
+        </div>
+      </main>
+
+      {/* Footer */}
+      <footer className="w-full bg-white border-t border-slate-200 py-8 px-4 sm:px-6 lg:px-8 mt-12">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+          <p>&copy; {new Date().getFullYear()} TrustHyre Technologies Pvt. Ltd. All rights reserved.</p>
+          <div className="flex items-center gap-6 font-semibold">
+            <Link to="/terms" className="hover:text-[#0f2f63] transition-colors">Terms of Service</Link>
+            <Link to="/privacy" className="text-[#0f2f63] font-bold">Privacy Policy</Link>
+            <a href="mailto:support@trusthire.in" className="hover:text-[#0f2f63] transition-colors">Help & Support</a>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
 };
 
 export default PrivacyPage;

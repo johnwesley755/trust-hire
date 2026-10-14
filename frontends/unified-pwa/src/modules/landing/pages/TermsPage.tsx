@@ -1,70 +1,367 @@
-import React from 'react';
-import { AuthHeader } from '../../auth/components/AuthHeader';
-import { AuthFooter } from '../../auth/components/AuthFooter';
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { 
+  ShieldCheck, 
+  FileText, 
+  Scale, 
+  CreditCard, 
+  AlertCircle, 
+  CheckCircle2, 
+  Printer, 
+  ArrowLeft,
+  Lock,
+  Building2,
+  Users,
+  HelpCircle
+} from 'lucide-react';
+import trustHyreLogo from '../../../assets/TrustHyre Skills and Opportunities Logo.png';
 
-const TermsPage = () => {
-    return (
-        <div className="bg-[#F8FAFC] text-[#0A1931] font-body min-h-screen flex flex-col antialiased">
-            <AuthHeader />
-            
-            <main className="flex-1 max-w-4xl mx-auto px-6 pt-32 pb-24">
-                <motion.div 
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
-                >
-                    <h1 className="text-4xl md:text-5xl font-headline font-black mb-8 tracking-tight">Terms of Service</h1>
-                    <p className="text-sm font-bold text-[#0A1931]/60 uppercase tracking-widest mb-12">Last Updated: May 2, 2026</p>
-                    
-                    <div className="space-y-12 max-w-none">
-                        <section>
-                            <h2 className="text-2xl font-headline font-extrabold mb-4 text-[#0A1931]">1. Agreement to Terms</h2>
-                            <p className="leading-relaxed text-[#0A1931]/80 text-lg">
-                                By accessing or using TrustHire, you agree to be bound by these Terms of Service. If you disagree with any part of the terms, you may not access the service. These terms apply to all visitors, users, and others who access or use the service.
-                            </p>
-                        </section>
+export const TermsPage: React.FC = () => {
+  const [activeSection, setActiveSection] = useState('agreement');
 
-                        <section>
-                            <h2 className="text-2xl font-headline font-extrabold mb-4 text-[#0A1931]">2. Use License</h2>
-                            <p className="leading-relaxed text-[#0A1931]/80 mb-6 text-lg">
-                                Permission is granted to temporarily download one copy of the materials (information or software) on TrustHire's website for personal, non-commercial transitory viewing only. This is the grant of a license, not a transfer of title, and under this license you may not:
-                            </p>
-                            <ul className="list-disc pl-6 space-y-2 text-[#0A1931]/80">
-                                <li>Modify or copy the materials.</li>
-                                <li>Use the materials for any commercial purpose, or for any public display.</li>
-                                <li>Attempt to decompile or reverse engineer any software contained on TrustHire's website.</li>
-                                <li>Remove any copyright or other proprietary notations from the materials.</li>
-                            </ul>
-                        </section>
+  const scrollToSection = (id: string) => {
+    setActiveSection(id);
+    const element = document.getElementById(id);
+    if (element) {
+      const yOffset = -90;
+      const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+      window.scrollTo({ top: y, behavior: 'smooth' });
+    }
+  };
 
-                        <section>
-                            <h2 className="text-2xl font-headline font-extrabold mb-4 text-[#0A1931]">3. Disclaimer</h2>
-                            <p className="leading-relaxed text-[#0A1931]/80 text-lg">
-                                The materials on TrustHire's website are provided on an 'as is' basis. TrustHire makes no warranties, expressed or implied, and hereby disclaims and negates all other warranties including, without limitation, implied warranties or conditions of merchantability, fitness for a particular purpose, or non-infringement of intellectual property or other violation of rights.
-                            </p>
-                        </section>
+  const sections = [
+    { id: 'agreement', title: '1. Agreement & Acceptance', icon: Scale },
+    { id: 'accounts', title: '2. User Accounts & Verification', icon: Users },
+    { id: 'employers', title: '3. Employer Obligations', icon: Building2 },
+    { id: 'workers', title: '4. Worker Rights & Protection', icon: ShieldCheck },
+    { id: 'escrow', title: '5. Escrow & Payment Terms', icon: CreditCard },
+    { id: 'prohibited', title: '6. Prohibited Activities', icon: AlertCircle },
+    { id: 'liability', title: '7. Limitation of Liability', icon: Lock },
+    { id: 'governing', title: '8. Governing Law & Dispute Resolution', icon: Scale },
+  ];
 
-                        <section>
-                            <h2 className="text-2xl font-headline font-extrabold mb-4 text-[#0A1931]">4. Limitations</h2>
-                            <p className="leading-relaxed text-[#0A1931]/80 text-lg">
-                                In no event shall TrustHire or its suppliers be liable for any damages (including, without limitation, damages for loss of data or profit, or due to business interruption) arising out of the use or inability to use the materials on TrustHire's website, even if TrustHire or a TrustHire authorized representative has been notified orally or in writing of the possibility of such damage.
-                            </p>
-                        </section>
+  return (
+    <div className="min-h-screen bg-[#F8FAFC] text-[#0A1931] font-sans antialiased selection:bg-[#0f2f63] selection:text-white flex flex-col justify-between">
+      {/* Sticky Navigation Header */}
+      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-xs">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-18 flex items-center justify-between gap-4">
+          <Link to="/" className="flex items-center group py-1" aria-label="TrustHyre Home">
+            <img 
+              src={trustHyreLogo} 
+              alt="TrustHyre" 
+              className="h-9 sm:h-11 md:h-12 w-auto object-contain block select-none mix-blend-multiply group-hover:opacity-90 transition-opacity" 
+            />
+          </Link>
 
-                        <section>
-                            <h2 className="text-2xl font-headline font-extrabold mb-4 text-[#0A1931]">5. Governing Law</h2>
-                            <p className="leading-relaxed text-[#0A1931]/80 text-lg">
-                                These terms and conditions are governed by and construed in accordance with the laws of India and you irrevocably submit to the exclusive jurisdiction of the courts in that location.
-                            </p>
-                        </section>
-                    </div>
-                </motion.div>
-            </main>
-            
-            <AuthFooter />
+          {/* Quick Tab Switcher */}
+          <div className="flex items-center p-1 bg-slate-100 rounded-full border border-slate-200/80 text-xs font-semibold">
+            <Link
+              to="/terms"
+              className="px-3.5 py-1.5 rounded-full bg-[#0f2f63] text-white shadow-xs transition-colors"
+            >
+              Terms of Service
+            </Link>
+            <Link
+              to="/privacy"
+              className="px-3.5 py-1.5 rounded-full text-slate-600 hover:text-[#0A1931] hover:bg-white/60 transition-colors"
+            >
+              Privacy Policy
+            </Link>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => window.print()}
+              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold text-slate-600 hover:text-[#0A1931] hover:bg-slate-100 border border-slate-200 transition-colors cursor-pointer"
+              title="Print document"
+            >
+              <Printer className="w-3.5 h-3.5" />
+              <span>Print</span>
+            </button>
+            <Link
+              to="/"
+              className="inline-flex items-center gap-1 text-xs font-semibold text-slate-600 hover:text-[#0f2f63] py-1.5 px-3 rounded-full hover:bg-slate-100 transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span className="hidden sm:inline">Back</span>
+            </Link>
+          </div>
         </div>
-    );
+      </header>
+
+      {/* Hero Header */}
+      <section className="bg-gradient-to-b from-white to-[#F8FAFC] border-b border-slate-200/80 py-10 sm:py-14 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="max-w-3xl space-y-4">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-100 text-[#0f2f63] text-xs font-bold uppercase tracking-wider">
+              <FileText className="w-3.5 h-3.5" />
+              <span>Legal & Platform Agreement</span>
+            </div>
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#0A1931] tracking-tight">
+              Terms of Service
+            </h1>
+            <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
+              These terms govern your access to and use of TrustHyre&apos;s verified workforce platform, smart escrow payment guarantee, and digital candidate network.
+            </p>
+            <div className="flex flex-wrap items-center gap-4 text-xs font-semibold text-slate-500 pt-2">
+              <span className="bg-white px-3 py-1 rounded-md border border-slate-200 shadow-2xs">
+                Effective: October 14, 2026
+              </span>
+              <span className="bg-white px-3 py-1 rounded-md border border-slate-200 shadow-2xs">
+                Version 2.4 (National & Enterprise)
+              </span>
+              <span className="bg-emerald-50 text-emerald-700 px-3 py-1 rounded-md border border-emerald-200 shadow-2xs inline-flex items-center gap-1">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                Legally Compliant
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Main Content Layout with Sticky Sidebar */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 flex-1 w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+          
+          {/* Left: Sticky Table of Contents (Desktop) */}
+          <aside className="lg:col-span-4 sticky top-24 space-y-6">
+            <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs">
+              <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 px-2">
+                Table of Contents
+              </h2>
+              <nav className="space-y-1">
+                {sections.map((sec) => {
+                  const Icon = sec.icon;
+                  const isActive = activeSection === sec.id;
+                  return (
+                    <button
+                      key={sec.id}
+                      type="button"
+                      onClick={() => scrollToSection(sec.id)}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-xs font-semibold transition-all cursor-pointer ${
+                        isActive
+                          ? 'bg-[#0f2f63] text-white shadow-xs'
+                          : 'text-slate-600 hover:text-[#0A1931] hover:bg-slate-100/80'
+                      }`}
+                    >
+                      <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-slate-400'}`} />
+                      <span className="truncate">{sec.title}</span>
+                    </button>
+                  );
+                })}
+              </nav>
+            </div>
+
+            {/* Support Callout */}
+            <div className="bg-blue-50/70 rounded-2xl border border-blue-100 p-5 space-y-3">
+              <div className="flex items-center gap-2 text-[#0f2f63] font-bold text-xs uppercase tracking-wider">
+                <HelpCircle className="w-4 h-4" />
+                <span>Need Clarification?</span>
+              </div>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Have questions regarding contractual obligations, enterprise SLAs, or payment escrow guarantees?
+              </p>
+              <a
+                href="mailto:legal@trusthire.in"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-[#0f2f63] hover:text-[#2563c9] underline underline-offset-2"
+              >
+                Contact Legal Counsel &rarr;
+              </a>
+            </div>
+          </aside>
+
+          {/* Right: Detailed Terms Sections */}
+          <div className="lg:col-span-8 space-y-8">
+            
+            {/* Quick Executive Summary Card */}
+            <div className="bg-white rounded-2xl border-2 border-blue-100 p-6 shadow-xs space-y-3">
+              <div className="flex items-center gap-2 text-[#0f2f63] font-black text-sm">
+                <ShieldCheck className="w-5 h-5 text-[#0066FF]" />
+                <span>Executive Summary of User Commitments</span>
+              </div>
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                TrustHyre connects verified skilled workers with verified employers. By using the platform, you agree to:
+              </p>
+              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1 text-xs text-slate-700 font-medium">
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <span>Provide truthful personal or company credentials.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <span>Abide by TrustHyre Escrow Smart-Hold protection.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <span>Zero tolerance for abusive conduct or wage theft.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <span>Resolve disputes through platform arbitration.</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* Section 1 */}
+            <section id="agreement" className="bg-white rounded-2xl border border-slate-200/80 p-6 sm:p-8 shadow-xs space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-[#0f2f63]">
+                  <Scale className="w-5 h-5" />
+                </div>
+                <h2 className="text-xl font-bold text-[#0A1931]">1. Agreement & Acceptance</h2>
+              </div>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                By creating an account, browsing job listings, searching worker dossiers, or using any feature on TrustHyre (operated by TrustHyre Technologies Pvt. Ltd., &ldquo;TrustHyre&rdquo;, &ldquo;we&rdquo;, &ldquo;us&rdquo;), you confirm that you have read, understood, and agree to be bound by these Terms of Service. If you do not agree with these terms, you must not access or utilize the platform.
+              </p>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                These terms apply universally to individual candidates seeking employment (&ldquo;Workers&rdquo;), corporate recruiters, business managers, household employers (&ldquo;Employers&rdquo;), and general visitors.
+              </p>
+            </section>
+
+            {/* Section 2 */}
+            <section id="accounts" className="bg-white rounded-2xl border border-slate-200/80 p-6 sm:p-8 shadow-xs space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-[#0f2f63]">
+                  <Users className="w-5 h-5" />
+                </div>
+                <h2 className="text-xl font-bold text-[#0A1931]">2. User Accounts & Identity Verification</h2>
+              </div>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                To access specialized capabilities including job application tracking, salary disbursements, and worker recruitment, you must register for an account. You agree to:
+              </p>
+              <ul className="list-disc pl-5 space-y-2 text-sm text-slate-600">
+                <li>Provide accurate, current, and complete registration data during onboarding.</li>
+                <li>Maintain the strict confidentiality of your account credentials and one-time passcodes (OTP).</li>
+                <li>Promptly notify TrustHyre Support of any unauthorized security breach or compromise.</li>
+                <li>Submit authentic government-issued identity documentation (e.g. Aadhaar, PAN, Corporate GSTIN) when undergoing verification tier assessment.</li>
+              </ul>
+              <div className="p-4 bg-amber-50 rounded-xl border border-amber-200/80 text-xs text-amber-900 leading-relaxed">
+                <strong>Identity Integrity Guarantee:</strong> Accounts submitting forged documents, synthetic profiles, or impersonating other individuals will be immediately terminated, and documented incidents will be escalated to statutory authorities.
+              </div>
+            </section>
+
+            {/* Section 3 */}
+            <section id="employers" className="bg-white rounded-2xl border border-slate-200/80 p-6 sm:p-8 shadow-xs space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-[#0f2f63]">
+                  <Building2 className="w-5 h-5" />
+                </div>
+                <h2 className="text-xl font-bold text-[#0A1931]">3. Employer Obligations & Fair Hiring</h2>
+              </div>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                Employers posting job openings or engaging workers through TrustHyre represent and warrant that:
+              </p>
+              <ul className="list-disc pl-5 space-y-2 text-sm text-slate-600">
+                <li>All posted compensation, job site locations, working hours, and physical requirements are genuine and accurate.</li>
+                <li>Workplaces comply with prevailing labor laws, occupational safety codes, and hygiene standards.</li>
+                <li>No candidate shall be subject to discrimination based on caste, religion, gender, or geographic origin.</li>
+                <li>Employers shall never demand cash security deposits, recruitment fees, or physical possession of original government documents from candidates.</li>
+              </ul>
+            </section>
+
+            {/* Section 4 */}
+            <section id="workers" className="bg-white rounded-2xl border border-slate-200/80 p-6 sm:p-8 shadow-xs space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-[#0f2f63]">
+                  <ShieldCheck className="w-5 h-5" />
+                </div>
+                <h2 className="text-xl font-bold text-[#0A1931]">4. Worker Rights, Commitments & Escrow Protections</h2>
+              </div>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                Workers registered on TrustHyre are guaranteed fair assessment, verified compensation schedules, and prompt dispute review. In return, workers agree to:
+              </p>
+              <ul className="list-disc pl-5 space-y-2 text-sm text-slate-600">
+                <li>Perform agreed-upon duties in a diligent, professional, and reliable manner.</li>
+                <li>Refrain from unannounced abandonment of active work shifts without reasonable notification.</li>
+                <li>Accurately declare trade certifications, experience levels, and past project references.</li>
+              </ul>
+            </section>
+
+            {/* Section 5 */}
+            <section id="escrow" className="bg-white rounded-2xl border border-slate-200/80 p-6 sm:p-8 shadow-xs space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-[#0f2f63]">
+                  <CreditCard className="w-5 h-5" />
+                </div>
+                <h2 className="text-xl font-bold text-[#0A1931]">5. Escrow & Payment Terms</h2>
+              </div>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                TrustHyre utilizes an escrow smart-hold system to eliminate payment delays and default risks:
+              </p>
+              <ul className="list-disc pl-5 space-y-2 text-sm text-slate-600">
+                <li>When hiring, employers deposit compensation funds into the designated platform escrow account.</li>
+                <li>Funds are automatically released to the worker upon verified completion of milestone deliverables or weekly check-ins.</li>
+                <li>In the event of a dispute, funds remain secured in neutral escrow pending resolution by the TrustHyre Arbitration Committee.</li>
+              </ul>
+            </section>
+
+            {/* Section 6 */}
+            <section id="prohibited" className="bg-white rounded-2xl border border-slate-200/80 p-6 sm:p-8 shadow-xs space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-[#0f2f63]">
+                  <AlertCircle className="w-5 h-5" />
+                </div>
+                <h2 className="text-xl font-bold text-[#0A1931]">6. Prohibited Activities</h2>
+              </div>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                Users are strictly prohibited from engaging in any of the following activities:
+              </p>
+              <ul className="list-disc pl-5 space-y-2 text-sm text-slate-600">
+                <li>Scraping, harvesting, or reverse-engineering candidate dossiers or employer job data.</li>
+                <li>Posting fraudulent, unlawful, misleading, or deceptive job offers or resumes.</li>
+                <li>Soliciting offline direct payments to intentionally circumvent platform protections and escrow audits.</li>
+                <li>Deploying malicious automation, bot attacks, denial-of-service scripts, or vulnerability probing.</li>
+              </ul>
+            </section>
+
+            {/* Section 7 */}
+            <section id="liability" className="bg-white rounded-2xl border border-slate-200/80 p-6 sm:p-8 shadow-xs space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-[#0f2f63]">
+                  <Lock className="w-5 h-5" />
+                </div>
+                <h2 className="text-xl font-bold text-[#0A1931]">7. Limitation of Liability & Warranty Disclaimer</h2>
+              </div>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                TrustHyre provides an intelligent facilitation platform and identity credentialing network. While we conduct rigorous biometric, identity, and trade verification, we do not guarantee the direct outcome or individual performance of independent workers or employers.
+              </p>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                To the maximum extent permitted by applicable law, TrustHyre shall not be liable for indirect, incidental, special, punitive, or consequential damages resulting from user conduct or off-platform interactions.
+              </p>
+            </section>
+
+            {/* Section 8 */}
+            <section id="governing" className="bg-white rounded-2xl border border-slate-200/80 p-6 sm:p-8 shadow-xs space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-[#0f2f63]">
+                  <Scale className="w-5 h-5" />
+                </div>
+                <h2 className="text-xl font-bold text-[#0A1931]">8. Governing Law & Dispute Resolution</h2>
+              </div>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                These Terms of Service are governed by and construed in accordance with the laws of India, including the Information Technology Act, 2000 and Digital Personal Data Protection Act, 2023. Any dispute arising out of or related to these terms shall be submitted to the exclusive jurisdiction of the competent courts in Bengaluru, Karnataka, India.
+              </p>
+            </section>
+
+          </div>
+        </div>
+      </main>
+
+      {/* Footer */}
+      <footer className="w-full bg-white border-t border-slate-200 py-8 px-4 sm:px-6 lg:px-8 mt-12">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+          <p>&copy; {new Date().getFullYear()} TrustHyre Technologies Pvt. Ltd. All rights reserved.</p>
+          <div className="flex items-center gap-6 font-semibold">
+            <Link to="/terms" className="text-[#0f2f63] font-bold">Terms of Service</Link>
+            <Link to="/privacy" className="hover:text-[#0f2f63] transition-colors">Privacy Policy</Link>
+            <a href="mailto:support@trusthire.in" className="hover:text-[#0f2f63] transition-colors">Help & Support</a>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
 };
 
 export default TermsPage;

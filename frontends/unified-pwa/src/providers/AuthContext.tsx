@@ -74,6 +74,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     };
   };
 
+  const login = (token: string, userData: any) => {
+    const mappedUser = mapUserFields(userData);
+    localStorage.setItem('token', token);
+    localStorage.setItem('user', JSON.stringify(mappedUser));
+    setUser(mappedUser);
+  };
+
   useEffect(() => {
     const initAuth = () => {
       // 1. Check local session
@@ -173,13 +180,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     });
   };
 
-  const login = (token: string, userData: any) => {
-    const mappedUser = mapUserFields(userData);
-    localStorage.setItem('token', token);
-    localStorage.setItem('user', JSON.stringify(mappedUser));
-    setUser(mappedUser);
-  };
-
   const logout = async () => {
     try {
       await firebaseSignOut(auth);
@@ -204,7 +204,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           clearInterval(checkToken);
           const storedUser = localStorage.getItem('user');
           let parsed: any = null;
-          try { parsed = storedUser ? JSON.parse(storedUser) : null; } catch {}
+          try { 
+            parsed = storedUser ? JSON.parse(storedUser) : null; 
+          } catch {
+            /* ignore parse error */
+          }
           if (!parsed?.phoneNumber && !parsed?.phone_number && parsed?.role !== 'EMPLOYER') {
             window.location.href = '/onboarding';
           } else {

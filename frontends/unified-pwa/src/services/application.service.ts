@@ -13,7 +13,7 @@ const mapApp = (app: any): JobApplication => ({
 
 export const applicationService = {
   applyForJob: async (jobIdOrPayload: string | { jobId: string; coverLetter?: string }, coverLetter?: string): Promise<JobApplication> => {
-    let payload = typeof jobIdOrPayload === 'string'
+    const payload = typeof jobIdOrPayload === 'string'
       ? { jobId: jobIdOrPayload, coverLetter }
       : jobIdOrPayload;
     const res = await apiClient.post<any>('/api/jobs/applications', payload);

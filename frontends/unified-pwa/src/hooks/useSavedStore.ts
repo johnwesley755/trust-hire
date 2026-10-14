@@ -256,7 +256,7 @@ export const useSavedStore = (options?: UseSavedStoreOptions) => {
     if (!Array.isArray(workers) || workers.length === 0) return;
     const current = loadSavedWorkers();
     let changed = false;
-    let updated = [...current];
+    const updated = [...current];
 
     workers.forEach((w) => {
       const wid = w.userId || w.id;

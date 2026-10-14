@@ -52,4 +52,19 @@ export default defineConfig({
   define: {
     global: 'window',
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          'vendor-pdf': ['@react-pdf/renderer', 'jspdf', 'html2canvas'],
+          'vendor-maps': ['leaflet', 'react-leaflet'],
+          'vendor-motion': ['framer-motion', 'gsap'],
+          'vendor-firebase': ['firebase/app', 'firebase/auth'],
+          'vendor-icons': ['lucide-react'],
+        },
+      },
+    },
+    chunkSizeWarningLimit: 1000,
+  },
 })

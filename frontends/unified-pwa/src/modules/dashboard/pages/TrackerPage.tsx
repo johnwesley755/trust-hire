@@ -55,7 +55,7 @@ export default function TrackerPage() {
 
   // Combined and filtered activity items
   const filteredItems = useMemo(() => {
-    let list: any[] = [];
+    const list: any[] = [];
 
     // Map applications to timeline items
     myApplications.forEach((app: any) => {

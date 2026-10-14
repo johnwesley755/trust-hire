@@ -113,7 +113,9 @@ app.onError((err, c) => {
   const origin = c.req.header('Origin') || '*';
   c.header('Access-Control-Allow-Origin', origin);
   c.header('Access-Control-Allow-Credentials', 'true');
-  return c.json({ success: false, message: err?.message || 'Internal Server Error' }, 500);
+  const isProd = process.env.NODE_ENV === 'production';
+  const safeMessage = isProd ? 'An unexpected error occurred. Please try again later.' : (err?.message || 'Internal Server Error');
+  return c.json({ success: false, message: safeMessage }, 500);
 });
 
 export default app;
