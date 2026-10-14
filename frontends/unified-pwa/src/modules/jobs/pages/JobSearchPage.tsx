@@ -1,20 +1,16 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { searchService } from '../../../services/search.service';
-import { jobService } from '../../../services/job.service';
 import { applicationService } from '../../../services/application.service';
 import { profileService } from '../../../services/profile.service';
 import { queryKeys } from '../../../lib/queryKeys';
 import { 
   Briefcase, 
   UploadCloud, 
-  ArrowUpDown, 
-  AlertCircle, 
   RotateCcw,
-  Sparkles,
   ChevronDown
 } from 'lucide-react';
-import { useNavigate, useSearchParams, Link } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import { JobSearchHero } from '../components/JobSearchHero';
 import { JobFilterSidebar, type FilterCounts } from '../components/JobFilterSidebar';
 import { JobSearchResultCard, type JobCardData } from '../components/JobSearchResultCard';
@@ -23,7 +19,6 @@ import { AppLoader } from '../../../components/common/AppLoader';
 import { detectCurrentCity } from '../../../utils/geolocation';
 
 export default function JobSearchPage() {
-  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -108,7 +103,7 @@ export default function JobSearchPage() {
   });
 
   // Fetch user profile and applications to compute status badges
-  const { data: profile } = useQuery({
+  useQuery({
     queryKey: queryKeys.workers.detail('me'),
     queryFn: profileService.getProfile,
   });
@@ -236,70 +231,50 @@ export default function JobSearchPage() {
   }, [jobs, appliedJobIdsMap]);
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] pb-24 font-sans text-[#0A1931]">
-      
-      {/* 1. Header Hero Banner with Dual Search */}
-      <JobSearchHero
-        title="Find your dream job"
-        subtitle="Explore thousands of verified openings with guaranteed on-time pay and vetted employers."
-        initialQuery={query}
-        initialCity={city}
-        onSearch={handleSearch}
-        onLocateMe={handleLocateMe}
-        isLocating={isLocating}
-      />
-
-      {/* 2. Main Content Layout */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+    <div className="w-full min-h-screen p-2 sm:p-3 bg-white font-['Onest',system-ui,sans-serif] text-[#0a0a0a]">
+      <div className="max-w-7xl mx-auto space-y-6">
         
-        {/* Mobile Quick Filter Action Row (Visible on Mobile Only) */}
-        <div className="lg:hidden mb-5 space-y-3">
+        {/* 1. Header Hero Banner Replicating Landing Page Navy Editorial Aesthetic */}
+        <JobSearchHero
+          initialQuery={query}
+          initialCity={city}
+          totalJobs={formattedJobs.length}
+          selectedTrade={trade}
+          onTradeSelect={(t) => {
+            setTrade(t);
+            updateUrlParams({ trade: t });
+          }}
+          onSearch={handleSearch}
+          onLocateMe={handleLocateMe}
+          isLocating={isLocating}
+        />
+
+        {/* 2. Mobile Quick Filter Action Row (Visible on Mobile Only) */}
+        <div className="lg:hidden px-1">
           <div className="flex items-center justify-between gap-3">
-            <span className="text-xs font-bold text-slate-500 font-['Outfit',sans-serif]">
-              <strong className="text-slate-900 font-extrabold">{formattedJobs.length}</strong> openings found
+            <span className="text-xs font-medium text-[#717784]">
+              <strong className="text-[#0a0a0a] font-bold">{formattedJobs.length}</strong> verified openings
             </span>
             <button
               onClick={() => setIsMobileFilterOpen(true)}
-              className="flex items-center gap-2 px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-[#0A1931] shadow-xs active:scale-95 transition-all cursor-pointer font-['Outfit',sans-serif]"
+              className="flex items-center gap-2 px-4 py-2 bg-[#f4f4f4] hover:bg-[#e6e8ec] border border-[#e6e8ec] rounded-full text-xs font-medium uppercase text-[#0a0a0a] shadow-xs active:scale-95 transition-all cursor-pointer"
             >
-              <Briefcase className="w-3.5 h-3.5 text-[#0066FF]" />
-              <span>Filter Jobs</span>
+              <Briefcase className="w-3.5 h-3.5 text-[#0f2f63]" />
+              <span>Filters</span>
               {activeFilterCount > 0 && (
-                <span className="w-5 h-5 rounded-full bg-[#0066FF] text-white text-[10px] font-extrabold flex items-center justify-center">
+                <span className="w-4 h-4 rounded-full bg-[#0f2f63] text-white text-[10px] font-bold flex items-center justify-center">
                   {activeFilterCount}
                 </span>
               )}
             </button>
           </div>
-
-          {/* Quick Trade Horizontal Pill Bar */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-            {TRADE_CATEGORIES.map((cat) => {
-              const isSelected = trade === cat;
-              return (
-                <button
-                  key={cat}
-                  onClick={() => {
-                    setTrade(cat);
-                    updateUrlParams({ trade: cat });
-                  }}
-                  className={`px-3 py-1.5 rounded-full text-xs font-bold shrink-0 transition-all cursor-pointer ${
-                    isSelected
-                      ? 'bg-[#0066FF] text-white shadow-xs'
-                      : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
-                  }`}
-                >
-                  {cat}
-                </button>
-              );
-            })}
-          </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        {/* 3. Main 3-Column Content Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-start">
           
           {/* DESKTOP LEFT COLUMN: Filters Sidebar (Hidden on mobile) */}
-          <div className="hidden lg:block lg:col-span-3 bg-white rounded-2xl p-5 border border-slate-200/90 shadow-xs sticky top-4">
+          <div className="hidden lg:block lg:col-span-3 bg-[#f4f4f4] rounded-[1.75rem] p-5 sm:p-6 border border-[#e6e8ec] lg:sticky lg:top-4 lg:self-start lg:max-h-[calc(100vh-2rem)] lg:overflow-y-auto">
             <JobFilterSidebar
               selectedJobType={jobType}
               onSelectJobType={(t) => {
@@ -336,23 +311,23 @@ export default function JobSearchPage() {
           <div className="col-span-1 lg:col-span-6 space-y-5">
             
             {/* Top Promo Banner: Upload Resume */}
-            <div className="bg-white rounded-2xl p-4 sm:p-5 border border-blue-200/90 shadow-xs flex items-center justify-between gap-4 bg-linear-to-r from-blue-50/70 to-white">
+            <div className="bg-[#f4f4f4] rounded-[1.5rem] p-4 sm:p-5 border border-[#e6e8ec] flex items-center justify-between gap-4">
               <div className="flex items-center gap-3.5 min-w-0">
-                <div className="w-10 h-10 rounded-xl bg-blue-100 text-[#0066FF] flex items-center justify-center shrink-0 border border-blue-200">
+                <div className="w-10 h-10 rounded-full bg-white text-[#0f2f63] flex items-center justify-center shrink-0 border border-[#e6e8ec] shadow-2xs">
                   <UploadCloud className="w-5 h-5" />
                 </div>
                 <div className="min-w-0">
-                  <h4 className="text-sm font-bold text-[#0A1931] font-['Outfit',sans-serif]">
+                  <h4 className="text-sm font-bold text-[#0a0a0a]">
                     Upload your resume
                   </h4>
-                  <p className="text-xs text-slate-500 font-medium truncate">
-                    We'll match you with the best jobs. Right job, Right away!
+                  <p className="text-xs text-[#717784] font-medium truncate">
+                    AI-powered smart matching with verified employers and escrow-backed payouts.
                   </p>
                 </div>
               </div>
               <Link
                 to="/profile"
-                className="px-3.5 py-1.5 bg-[#0066FF] hover:bg-[#0052CC] text-white rounded-lg font-bold text-xs shrink-0 transition-all shadow-2xs font-['Outfit',sans-serif]"
+                className="px-4 py-2 bg-[#0f2f63] hover:bg-[#1a4487] text-white rounded-full font-medium text-xs shrink-0 transition-all shadow-xs cursor-pointer active:scale-95 uppercase"
               >
                 Upload
               </Link>
@@ -360,22 +335,25 @@ export default function JobSearchPage() {
 
             {/* Results Count & Sort Row */}
             <div className="flex items-center justify-between px-1">
-              <span className="text-xs font-bold text-slate-500 font-['Outfit',sans-serif]">
-                <strong className="text-slate-900 font-extrabold">{formattedJobs.length}</strong> results found
+              <span className="text-xs font-medium text-[#717784]">
+                Showing <strong className="text-[#0a0a0a] font-bold">{formattedJobs.length}</strong> verified job postings
               </span>
 
               {/* Sort Dropdown */}
               <div className="flex items-center gap-2">
-                <span className="text-xs text-slate-400 font-medium">Sort By:</span>
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value as any)}
-                  className="bg-white border border-slate-200 rounded-lg px-2.5 py-1 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#0066FF] cursor-pointer"
-                >
-                  <option value="date_desc">Date Posted</option>
-                  <option value="salary_desc">Highest Pay</option>
-                  <option value="salary_asc">Lowest Pay</option>
-                </select>
+                <span className="text-xs text-[#717784] font-medium">Sort by:</span>
+                <div className="relative inline-block">
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value as any)}
+                    className="appearance-none bg-[#f4f4f4] hover:bg-[#e6e8ec] border border-[#e6e8ec] rounded-full pl-3.5 pr-8 py-1.5 text-xs font-medium text-[#0a0a0a] focus:outline-none focus:border-[#0f2f63] cursor-pointer transition-colors"
+                  >
+                    <option value="date_desc">Newest First</option>
+                    <option value="salary_desc">Highest Pay</option>
+                    <option value="salary_asc">Lowest Pay</option>
+                  </select>
+                  <ChevronDown className="w-3.5 h-3.5 text-[#717784] pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2" />
+                </div>
               </div>
             </div>
 
@@ -395,22 +373,22 @@ export default function JobSearchPage() {
               </div>
             ) : (
               /* Empty State */
-              <div className="bg-white rounded-2xl p-10 border border-slate-200 text-center space-y-4">
-                <div className="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto text-slate-400">
-                  <Briefcase className="w-7 h-7" />
+              <div className="bg-[#f4f4f4] rounded-[1.75rem] p-10 border border-[#e6e8ec] text-center space-y-4">
+                <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center mx-auto text-[#717784] border border-[#e6e8ec] shadow-2xs">
+                  <Briefcase className="w-7 h-7 text-[#0f2f63]" />
                 </div>
                 <div className="space-y-1">
-                  <h3 className="text-base font-extrabold text-slate-900 font-['Outfit',sans-serif]">
+                  <h3 className="text-base font-bold text-[#0a0a0a]">
                     No matching jobs found
                   </h3>
-                  <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                    Try adjusting your filters, searching for a different title, or clearing active filters to see all available openings.
+                  <p className="text-xs text-[#717784] max-w-sm mx-auto">
+                    Try adjusting your filters, searching for a different trade or city, or resetting active filters to view all available verified positions.
                   </p>
                 </div>
                 {hasActiveFilters && (
                   <button
                     onClick={handleClearAll}
-                    className="px-4 py-2 bg-[#0066FF] text-white rounded-xl font-bold text-xs hover:bg-[#0052CC] transition-all cursor-pointer inline-flex items-center gap-1.5"
+                    className="px-4 py-2 bg-[#0f2f63] hover:bg-[#1a4487] text-white rounded-full font-medium text-xs transition-all cursor-pointer inline-flex items-center gap-1.5 shadow-xs active:scale-95 uppercase"
                   >
                     <RotateCcw className="w-3.5 h-3.5" />
                     Reset All Filters
@@ -422,7 +400,7 @@ export default function JobSearchPage() {
           </div>
 
           {/* DESKTOP RIGHT COLUMN: Contextual Widgets Sidebar (Hidden on mobile) */}
-          <div className="hidden lg:block lg:col-span-3 space-y-6 sticky top-4">
+          <div className="hidden lg:block lg:col-span-3 space-y-6 lg:sticky lg:top-4 lg:self-start">
             <JobSearchRightSidebar
               currentCity={city}
               onSelectCompany={(comp) => {
@@ -435,16 +413,16 @@ export default function JobSearchPage() {
         </div>
       </div>
 
-      {/* 3. Mobile Filter Bottom-Sheet / Drawer Modal */}
+      {/* 4. Mobile Filter Bottom-Sheet / Drawer Modal */}
       {isMobileFilterOpen && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-xs p-0 sm:p-4">
-          <div className="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl max-h-[88vh] flex flex-col shadow-2xl animate-in slide-in-from-bottom duration-200">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-xs p-0 sm:p-4">
+          <div className="bg-white w-full max-w-lg rounded-t-[2rem] sm:rounded-[2rem] max-h-[88vh] flex flex-col shadow-2xl border border-[#e6e8ec] overflow-hidden animate-in slide-in-from-bottom duration-200">
             
             {/* Modal Header */}
-            <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between shrink-0">
+            <div className="px-6 py-4 border-b border-[#e6e8ec] flex items-center justify-between shrink-0 bg-[#fbfbfb]">
               <div className="flex items-center gap-2">
-                <Briefcase className="w-4 h-4 text-[#0066FF]" />
-                <h3 className="text-base font-extrabold text-slate-900 font-['Outfit',sans-serif]">
+                <Briefcase className="w-4 h-4 text-[#0f2f63]" />
+                <h3 className="text-base font-bold text-[#0a0a0a]">
                   Filter Job Openings
                 </h3>
               </div>
@@ -452,7 +430,7 @@ export default function JobSearchPage() {
                 {hasActiveFilters && (
                   <button
                     onClick={handleClearAll}
-                    className="text-xs font-bold text-slate-500 hover:text-[#0066FF] flex items-center gap-1 cursor-pointer"
+                    className="text-xs font-medium text-[#717784] hover:text-[#0f2f63] flex items-center gap-1 cursor-pointer transition-colors"
                   >
                     <RotateCcw className="w-3.5 h-3.5" />
                     Reset
@@ -460,10 +438,9 @@ export default function JobSearchPage() {
                 )}
                 <button
                   onClick={() => setIsMobileFilterOpen(false)}
-                  className="p-1.5 text-slate-400 hover:text-slate-700 rounded-full hover:bg-slate-100 transition-colors cursor-pointer"
+                  className="p-1.5 text-[#717784] hover:text-[#0a0a0a] rounded-full hover:bg-[#e6e8ec] transition-colors cursor-pointer"
                 >
-                  <RotateCcw className="hidden" />
-                  <span className="text-base font-bold">✕</span>
+                  <span className="text-base font-bold leading-none">✕</span>
                 </button>
               </div>
             </div>
@@ -473,7 +450,7 @@ export default function JobSearchPage() {
               
               {/* Job Type Filter */}
               <div className="space-y-2.5">
-                <label className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">
+                <label className="text-[11px] font-bold uppercase text-[#717784]">
                   Job Type
                 </label>
                 <div className="flex flex-wrap gap-2">
@@ -486,10 +463,10 @@ export default function JobSearchPage() {
                           setJobType(t);
                           updateUrlParams({ type: t });
                         }}
-                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                        className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
                           isSelected
-                            ? 'bg-[#0066FF] text-white shadow-xs'
-                            : 'bg-slate-50 border border-slate-200 text-slate-600 hover:bg-slate-100'
+                            ? 'bg-[#0f2f63] text-white shadow-xs'
+                            : 'bg-[#f4f4f4] hover:bg-[#e6e8ec] border border-[#e6e8ec] text-[#0a0a0a]'
                         }`}
                       >
                         {t}
@@ -501,7 +478,7 @@ export default function JobSearchPage() {
 
               {/* Category Filter */}
               <div className="space-y-2.5">
-                <label className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">
+                <label className="text-[11px] font-bold uppercase text-[#717784]">
                   Industry Category
                 </label>
                 <div className="flex flex-wrap gap-2">
@@ -514,10 +491,10 @@ export default function JobSearchPage() {
                           setTrade(cat);
                           updateUrlParams({ trade: cat });
                         }}
-                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                        className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
                           isSelected
-                            ? 'bg-[#0066FF] text-white shadow-xs'
-                            : 'bg-slate-50 border border-slate-200 text-slate-600 hover:bg-slate-100'
+                            ? 'bg-[#0f2f63] text-white shadow-xs'
+                            : 'bg-[#f4f4f4] hover:bg-[#e6e8ec] border border-[#e6e8ec] text-[#0a0a0a]'
                         }`}
                       >
                         {cat}
@@ -529,7 +506,7 @@ export default function JobSearchPage() {
 
               {/* Pay Range Filter */}
               <div className="space-y-2.5">
-                <label className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">
+                <label className="text-[11px] font-bold uppercase text-[#717784]">
                   Pay / Daily Budget
                 </label>
                 <div className="grid grid-cols-1 gap-2">
@@ -548,14 +525,14 @@ export default function JobSearchPage() {
                           setBudgetRange(b.value);
                           updateUrlParams({ budget: b.value });
                         }}
-                        className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all text-left cursor-pointer ${
+                        className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all text-left cursor-pointer ${
                           isSelected
-                            ? 'bg-blue-50 text-[#0066FF] border border-[#0066FF]/30'
-                            : 'bg-slate-50 border border-slate-200/80 text-slate-700 hover:bg-slate-100'
+                            ? 'bg-[#0f2f63] text-white'
+                            : 'bg-[#f4f4f4] hover:bg-[#e6e8ec] border border-[#e6e8ec] text-[#0a0a0a]'
                         }`}
                       >
                         <span>{b.label}</span>
-                        {isSelected && <span className="text-[#0066FF] font-black">✓</span>}
+                        {isSelected && <span className="text-white font-bold">✓</span>}
                       </button>
                     );
                   })}
@@ -564,7 +541,7 @@ export default function JobSearchPage() {
 
               {/* Experience Required Filter */}
               <div className="space-y-2.5">
-                <label className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">
+                <label className="text-[11px] font-bold uppercase text-[#717784]">
                   Experience Level
                 </label>
                 <div className="grid grid-cols-1 gap-2">
@@ -583,14 +560,14 @@ export default function JobSearchPage() {
                           setExperience(exp.value);
                           updateUrlParams({ exp: exp.value });
                         }}
-                        className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all text-left cursor-pointer ${
+                        className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all text-left cursor-pointer ${
                           isSelected
-                            ? 'bg-blue-50 text-[#0066FF] border border-[#0066FF]/30'
-                            : 'bg-slate-50 border border-slate-200/80 text-slate-700 hover:bg-slate-100'
+                            ? 'bg-[#0f2f63] text-white'
+                            : 'bg-[#f4f4f4] hover:bg-[#e6e8ec] border border-[#e6e8ec] text-[#0a0a0a]'
                         }`}
                       >
                         <span>{exp.label}</span>
-                        {isSelected && <span className="text-[#0066FF] font-black">✓</span>}
+                        {isSelected && <span className="text-white font-bold">✓</span>}
                       </button>
                     );
                   })}
@@ -600,10 +577,10 @@ export default function JobSearchPage() {
             </div>
 
             {/* Modal Footer: Sticky Action Button */}
-            <div className="p-4 border-t border-slate-100 bg-slate-50/80 shrink-0">
+            <div className="p-4 border-t border-[#e6e8ec] bg-[#fbfbfb] shrink-0">
               <button
                 onClick={() => setIsMobileFilterOpen(false)}
-                className="w-full py-3 bg-[#0066FF] hover:bg-[#0052CC] text-white rounded-2xl text-xs font-extrabold shadow-md shadow-[#0066FF]/25 transition-all cursor-pointer font-['Outfit',sans-serif]"
+                className="w-full py-3 bg-[#0f2f63] hover:bg-[#1a4487] text-white rounded-full text-xs font-bold shadow-md shadow-[#0f2f63]/20 transition-all cursor-pointer uppercase active:scale-95"
               >
                 Show {formattedJobs.length} Jobs
               </button>
@@ -616,3 +593,4 @@ export default function JobSearchPage() {
     </div>
   );
 }
+

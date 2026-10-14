@@ -175,8 +175,8 @@ export const getSavedWorkers = async (c: Context) => {
       return {
         userId: wid,
         name,
-        profileImageUrl: idx?.profile_image_url || meta?.profile_image_url || prof?.profile_photo,
-        profilePhoto: idx?.profile_image_url || meta?.profile_image_url || prof?.profile_photo,
+        profileImageUrl: idx?.profile_image_url || prof?.profile_image_url || meta?.profile_image_url || prof?.profile_photo || '',
+        profilePhoto: idx?.profile_image_url || prof?.profile_image_url || meta?.profile_image_url || prof?.profile_photo || '',
         skills,
         city: idx?.city || prof?.city || 'Local Area',
         location: idx?.location || prof?.location || 'Local Area',

@@ -31,6 +31,7 @@ export interface SearchParams {
 }
 
 export interface WorkerSearch {
+  id?: string;
   userId: string;
   name: string;
   bio: string;
@@ -40,9 +41,13 @@ export interface WorkerSearch {
   level: string;
   isVerified: boolean;
   profileImageUrl: string;
+  profilePhoto?: string;
+  profile_image_url?: string;
   status: string;
   trustScore: number;
   isOfferSent?: boolean;
+  offerStatus?: string | null;
+  isSaved?: boolean;
 }
 
 export const searchWorkers = async (

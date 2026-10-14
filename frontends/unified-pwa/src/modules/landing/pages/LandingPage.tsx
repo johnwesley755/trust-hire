@@ -13,9 +13,6 @@ import {
   X,
   ArrowRight,
   ChevronRight,
-  PhoneCall,
-  MapPin,
-  Mail,
   Clock,
   Sparkles
 } from "lucide-react";
@@ -103,22 +100,47 @@ const WORKFORCE_TRACKS = [
   },
 ];
 
-// Testimonials Data
+// Hero Dual-Role & Common Showcase Modes
+const HERO_MODES = [
+  {
+    role: "COMMON",
+    modeLabel: "Platform Overview",
+    titleWords: ["CONNECT", "&", "WORK"],
+    tagline: ["ZERO BROKERS,", "DIRECT JOBS."],
+    badge: "Open Workforce Application",
+  },
+  {
+    role: "WORKER",
+    modeLabel: "For Candidates",
+    titleWords: ["FIND", "LOCAL", "JOBS"],
+    tagline: ["SHOW UP,", "GET PAID."],
+    badge: "Candidate: Verified Daily Escrow Payouts",
+  },
+  {
+    role: "EMPLOYER",
+    modeLabel: "For Employers",
+    titleWords: ["HIRE", "SKILLED", "TALENT"],
+    tagline: ["VERIFIED,", "ON DEMAND."],
+    badge: "Employer: Direct Hiring & Zero Brokerage",
+  },
+];
+
+// Testimonials & Project Personas Data
 const TESTIMONIALS = [
   {
-    quote: "We staffed an entire 40-person fulfillment shift in under two hours. Every single worker arrived on time, face-verified, and ready.",
-    author: "Priya Anand",
-    role: "Regional Logistics Director, Apex Supply",
+    quote: "Finding verified electrical maintenance jobs nearby without losing 20% to brokers changed everything. My wages are secured in escrow before I even reach the site.",
+    author: "Rahul S.",
+    role: "Licensed Electrician · Candidate Persona",
   },
   {
-    quote: "The digital escrow structure gives us complete confidence. Wages are released instantly when the shift concludes with zero paperwork friction.",
-    author: "Lukas Brenner",
-    role: "Project Head, Urban Infra Works",
+    quote: "When we need kitchen staff for weekend rushes, I can review verified candidate profiles and know attendance is face-matched live at check-in.",
+    author: "Kavitha R.",
+    role: "Cafe & Cloud Kitchen Operator · Employer Persona",
   },
   {
-    quote: "As an electrician, I get steady shifts with honest wages deposited directly to my UPI every evening. It transformed my earnings.",
-    author: "Dana Okafor",
-    role: "Senior Wireman & Crew Lead",
+    quote: "TrustHyre was built to solve payment disputes and unreliable check-ins through biometric geofencing and automated escrow smart-holds.",
+    author: "TrustHyre Architecture",
+    role: "Open Workforce System Showcase",
   },
 ];
 
@@ -130,10 +152,16 @@ export default function LandingPage() {
 
   // Overlays
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalSubmitting, setModalSubmitting] = useState(false);
-  const [modalSubmitted, setModalSubmitted] = useState(false);
-  const [modalForm, setModalForm] = useState({ name: "", email: "", requirement: "" });
+
+  // Hero Mode Switcher (Rotates every 5.5s or via role pills)
+  const [heroModeIdx, setHeroModeIdx] = useState(0);
+
+  useEffect(() => {
+    const modeTimer = setInterval(() => {
+      setHeroModeIdx((prev) => (prev + 1) % HERO_MODES.length);
+    }, 5500);
+    return () => clearInterval(modeTimer);
+  }, []);
 
   // Carousels State
   const [activeTrustSlide, setActiveTrustSlide] = useState(0);
@@ -258,12 +286,11 @@ export default function LandingPage() {
   }, [ready]);
 
   // --------------------------------------------------------------------------
-  // 4. Scroll Lock for Modals / Fullscreen Menu
+  // 4. Scroll Lock for Fullscreen Menu
   // --------------------------------------------------------------------------
   useEffect(() => {
-    const isLocked = isMenuOpen || isModalOpen;
     if (lenisRef.current) {
-      if (isLocked) {
+      if (isMenuOpen) {
         lenisRef.current.stop();
         document.documentElement.style.overflow = "hidden";
       } else if (ready) {
@@ -271,14 +298,13 @@ export default function LandingPage() {
         document.documentElement.style.removeProperty("overflow");
       }
     }
-  }, [isMenuOpen, isModalOpen, ready]);
+  }, [isMenuOpen, ready]);
 
-  // Handle ESC key for modal/menu
+  // Handle ESC key for fullscreen menu
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         setIsMenuOpen(false);
-        setIsModalOpen(false);
       }
     };
     window.addEventListener("keydown", handleKeyDown);
@@ -297,25 +323,6 @@ export default function LandingPage() {
   const handleTrustDot = (idx: number) => {
     setActiveTrustSlide(idx);
     setTrustGhostKey((k) => k + 1);
-  };
-
-  // Form Submit Stub
-  const handleModalSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!modalForm.name || !modalForm.email) return;
-    setModalSubmitting(true);
-    setTimeout(() => {
-      setModalSubmitting(false);
-      setModalSubmitted(true);
-    }, 700);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setTimeout(() => {
-      setModalSubmitted(false);
-      setModalForm({ name: "", email: "", requirement: "" });
-    }, 350);
   };
 
   const currentSlide = TRUST_SLIDES[activeTrustSlide];
@@ -405,17 +412,14 @@ export default function LandingPage() {
 
             {/* Bottom Row */}
             <div className="border-t border-white/15 pt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <button
-                type="button"
-                onClick={() => {
-                  setIsMenuOpen(false);
-                  setIsModalOpen(true);
-                }}
+              <Link
+                to="/find-workers"
+                onClick={() => setIsMenuOpen(false)}
                 className="px-7 py-3.5 rounded-full bg-white text-[#0f2f63] font-medium text-sm tracking-wide uppercase hover:bg-[#5790e6] hover:text-white transition-all cursor-pointer flex items-center gap-2"
               >
-                <span>Book a Consultation</span>
+                <span>Explore Candidates</span>
                 <ArrowRight className="w-4 h-4" />
-              </button>
+              </Link>
 
               <div className="flex items-center gap-6 text-sm text-white/70">
                 <Link to="/sign-in?role=worker" className="hover:text-white transition-colors">Candidate Login</Link>
@@ -429,119 +433,6 @@ export default function LandingPage() {
       )}
 
       {/* ===================================================================== */}
-      {/* CONTACT / VISIT MODAL */}
-      {/* ===================================================================== */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-[140] flex items-end sm:items-center justify-center p-3 sm:p-6 pointer-events-auto">
-          {/* Backdrop Blur */}
-          <div 
-            onClick={handleCloseModal}
-            className="absolute inset-0 bg-[#0f2f63]/60 backdrop-blur-md transition-opacity duration-300"
-          />
-
-          {/* Modal Panel */}
-          <div 
-            role="dialog"
-            aria-modal="true"
-            className="relative w-full max-w-lg bg-white rounded-[2rem] p-6 sm:p-8 shadow-2xl text-[#0a0a0a] max-h-[90svh] overflow-y-auto animate-[modalSpring_400ms_cubic-bezier(0.16,1,0.3,1)_forwards]"
-          >
-            {/* Header */}
-            <div className="flex items-start justify-between">
-              <div>
-                <div className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.22em] text-[#717784] mb-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#2563c9]" />
-                  <span>Workforce Consultation</span>
-                </div>
-                <h3 className="text-3xl sm:text-4xl font-medium tracking-tight text-[#0a0a0a] leading-[1.05]">
-                  Deploy Verified <br /> Crews Directly
-                </h3>
-              </div>
-
-              <button
-                type="button"
-                onClick={handleCloseModal}
-                className="w-10 h-10 rounded-full bg-[#f4f4f4] hover:bg-[#e6e8ec] flex items-center justify-center transition-transform hover:rotate-90 cursor-pointer"
-                aria-label="Close"
-              >
-                <X className="w-5 h-5 text-[#0a0a0a]" />
-              </button>
-            </div>
-
-            {modalSubmitted ? (
-              <div className="mt-8 p-6 rounded-2xl bg-[#f4f4f4] text-center space-y-3">
-                <div className="w-12 h-12 rounded-full bg-[#2563c9] text-white flex items-center justify-center mx-auto">
-                  <Check className="w-6 h-6" />
-                </div>
-                <h4 className="text-xl font-medium text-[#0a0a0a]">Request Received</h4>
-                <p className="text-sm text-[#717784] leading-relaxed">
-                  Thanks, <span className="font-medium text-[#0a0a0a]">{modalForm.name.split(" ")[0] || "there"}</span> — our field team will be in touch within 15 minutes to confirm shift requirements.
-                </p>
-                <button
-                  type="button"
-                  onClick={handleCloseModal}
-                  className="w-full mt-4 py-3.5 rounded-full bg-[#0a0a0a] hover:bg-[#0f2f63] text-white font-medium text-sm tracking-wide uppercase transition-colors cursor-pointer"
-                >
-                  Done
-                </button>
-              </div>
-            ) : (
-              <form onSubmit={handleModalSubmit} className="mt-6 flex flex-col gap-4">
-                <div>
-                  <label className="block text-xs font-medium uppercase tracking-[0.18em] text-[#717784] mb-1.5">
-                    Full Name *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="Alex Rivera"
-                    value={modalForm.name}
-                    onChange={(e) => setModalForm({ ...modalForm, name: e.target.value })}
-                    className="w-full rounded-xl border border-[#e6e8ec] bg-white px-4 py-3 text-sm focus:border-[#5790e6] focus:outline-hidden transition-colors"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-medium uppercase tracking-[0.18em] text-[#717784] mb-1.5">
-                    Work Email *
-                  </label>
-                  <input
-                    type="email"
-                    required
-                    placeholder="you@company.com"
-                    value={modalForm.email}
-                    onChange={(e) => setModalForm({ ...modalForm, email: e.target.value })}
-                    className="w-full rounded-xl border border-[#e6e8ec] bg-white px-4 py-3 text-sm focus:border-[#5790e6] focus:outline-hidden transition-colors"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-medium uppercase tracking-[0.18em] text-[#717784] mb-1.5">
-                    What workers or shifts do you need?
-                  </label>
-                  <textarea
-                    rows={3}
-                    placeholder="We need 15 warehouse logistics workers for weekend night shifts..."
-                    value={modalForm.requirement}
-                    onChange={(e) => setModalForm({ ...modalForm, requirement: e.target.value })}
-                    className="w-full rounded-xl border border-[#e6e8ec] bg-white px-4 py-3 text-sm focus:border-[#5790e6] focus:outline-hidden transition-colors resize-none"
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={modalSubmitting}
-                  className="w-full mt-2 py-4 rounded-full bg-[#0a0a0a] hover:bg-[#0f2f63] text-white font-medium text-sm tracking-wide uppercase transition-colors cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
-                >
-                  {modalSubmitting ? "Sending..." : "Request Workforce Dispatch"}
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-              </form>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* ===================================================================== */}
       {/* MAIN CONTENT WRAPPER WITH INSET PAGE FRAME (p-2 sm:p-3) */}
       {/* ===================================================================== */}
       <main className="w-full p-2 sm:p-3 overflow-x-clip bg-white">
@@ -549,7 +440,7 @@ export default function LandingPage() {
         {/* =================================================================== */}
         {/* 1. HERO SECTION */}
         {/* =================================================================== */}
-        <section className="relative isolate overflow-hidden rounded-[2rem] bg-[#0f2f63] text-white min-h-[38rem] h-[calc(100svh-1.5rem)] flex flex-col justify-between">
+        <section className="relative isolate overflow-hidden rounded-2xl sm:rounded-[2rem] bg-[#0f2f63] text-white min-h-[38rem] h-auto lg:h-[calc(100svh-1.5rem)] flex flex-col justify-between">
           
           {/* Parallax Background Plate with Multi-Sector Crossfade Transitions */}
           <div 
@@ -627,7 +518,7 @@ export default function LandingPage() {
                         to="/search"
                         className="px-3.5 py-2 rounded-full text-xs font-medium text-white/90 hover:text-white transition-colors"
                       >
-                        Find Shifts
+                        Find Jobs
                       </Link>
                       <Link
                         to="/applied-jobs"
@@ -652,13 +543,12 @@ export default function LandingPage() {
                   >
                     Employer Login
                   </Link>
-                  <button
-                    type="button"
-                    onClick={() => setIsModalOpen(true)}
-                    className="hidden sm:inline-flex uppercase tracking-wider text-xs hover:underline underline-offset-4 text-white font-medium cursor-pointer"
+                  <Link
+                    to="/find-workers"
+                    className="hidden sm:inline-flex px-3.5 py-1.5 rounded-full bg-white/15 hover:bg-white/25 border border-white/20 text-white text-xs font-medium transition-colors cursor-pointer"
                   >
-                    Book a Visit
-                  </button>
+                    Explore Workers
+                  </Link>
                 </>
               )}
 
@@ -675,41 +565,58 @@ export default function LandingPage() {
             </div>
           </header>
 
-          {/* GIANT TITLE BLOCK WITH CLIP-MASK WORD REVEAL */}
+          {/* DYNAMIC TITLE BLOCK FOR BOTH CANDIDATES & EMPLOYERS */}
           <div className="px-6 sm:px-10 pt-4 sm:pt-6">
-            <h1 className="text-[12.2vw] font-medium uppercase leading-[0.85] tracking-[-0.025em] text-white whitespace-nowrap overflow-hidden">
-              {["OWN", "THE", "SHIFT"].map((word, wIdx) => (
+            <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-[6.8rem] font-medium uppercase leading-[0.92] tracking-tight text-white max-w-5xl">
+              {HERO_MODES[heroModeIdx].titleWords.map((word, wIdx) => (
                 <span 
-                  key={word} 
+                  key={`${heroModeIdx}-${word}`} 
                   className="inline-block overflow-hidden pb-[0.08em] mr-[0.25em] last:mr-0 align-bottom"
                 >
                   <span 
-                    className={`inline-block transition-all duration-[1100ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                    className={`inline-block transition-all duration-[800ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${
                       ready ? "translate-y-0 opacity-100" : "translate-y-[115%] opacity-0"
                     }`}
-                    style={{ transitionDelay: `${wIdx * 140}ms` }}
+                    style={{ transitionDelay: `${wIdx * 120}ms` }}
                   >
                     {word}
                   </span>
                 </span>
               ))}
             </h1>
+
+            {/* Direct Dual Call To Action Row (No Sales Consultation) */}
+            <div className="flex flex-wrap items-center gap-3 pt-4">
+              <Link
+                to="/search"
+                className="px-5 py-2.5 rounded-full bg-white text-[#0f2f63] font-medium text-xs uppercase hover:bg-[#5790e6] hover:text-white transition-colors flex items-center gap-1.5 shadow-md cursor-pointer"
+              >
+                <span>Find Jobs</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+              <Link
+                to="/find-workers"
+                className="px-5 py-2.5 rounded-full bg-white/15 backdrop-blur-md border border-white/25 text-white font-medium text-xs uppercase hover:bg-white/25 transition-colors flex items-center gap-1.5 cursor-pointer"
+              >
+                <span>Hire Talent</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
           </div>
 
           {/* BOTTOM ROW (Tagline + Floating Cluster) */}
-          {/* Bottom Row inside Hero: Stacked Tagline + Active Sector Pill + Sliders */}
           <div className="mt-auto px-6 pb-8 sm:px-10 sm:pb-10 flex flex-col sm:flex-row items-start sm:items-end justify-between gap-6">
             
             {/* Tagline Stacked Lines + Active Sector Indicator */}
             <div className="space-y-3">
               <div className="space-y-1">
-                {["SHOW UP,", "GET PAID."].map((line, lIdx) => (
-                  <div key={line} className="overflow-hidden pb-[0.14em]">
+                {HERO_MODES[heroModeIdx].tagline.map((line, lIdx) => (
+                  <div key={`${heroModeIdx}-${line}`} className="overflow-hidden pb-[0.14em]">
                     <p 
-                      className={`text-3xl sm:text-[2.4rem] font-medium uppercase leading-[0.95] tracking-tight text-white/85 transition-all duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                      className={`text-3xl sm:text-[2.4rem] font-medium uppercase leading-[0.95] tracking-tight text-white/85 transition-all duration-[700ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${
                         ready ? "translate-y-0 opacity-100" : "translate-y-[115%] opacity-0"
                       }`}
-                      style={{ transitionDelay: `${350 + lIdx * 110}ms` }}
+                      style={{ transitionDelay: `${250 + lIdx * 100}ms` }}
                     >
                       {line}
                     </p>
@@ -724,7 +631,9 @@ export default function LandingPage() {
                 }`}
               >
                 <span className="w-1.5 h-1.5 rounded-full bg-[#5790e6] animate-pulse" />
-                <span className="font-medium uppercase tracking-wider">{LANDING_IMAGES.heroBackgrounds[activeHeroBgIdx].label}</span>
+                <span className="font-medium uppercase tracking-wider">{HERO_MODES[heroModeIdx].badge}</span>
+                <span className="text-white/40">•</span>
+                <span className="text-white/70">{LANDING_IMAGES.heroBackgrounds[activeHeroBgIdx].label}</span>
                 <div className="flex items-center gap-1 ml-1">
                   {LANDING_IMAGES.heroBackgrounds.map((_, dotIdx) => (
                     <span 
@@ -787,39 +696,6 @@ export default function LandingPage() {
                 </div>
               </div>
 
-              {/* Membership / Verified Workers Card */}
-              <article 
-                className={`w-full max-w-xs sm:w-60 rounded-[1.5rem] border border-white/15 bg-white/10 backdrop-blur-md p-3 shadow-xl flex items-stretch gap-3 transition-all duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)] delay-[780ms] ${
-                  ready ? "translate-y-0 opacity-100" : "translate-y-7 opacity-0"
-                }`}
-              >
-                <div className="flex flex-col justify-between text-left py-0.5">
-                  <span className="text-3xl font-medium leading-none text-white tracking-tight">
-                    14K+
-                  </span>
-                  {/* Avatar circles row */}
-                  <div className="flex items-center -space-x-2 my-2">
-                    {["#5790e6", "#c2e029", "#0b6e97", "#ffffff"].map((color, cIdx) => (
-                      <span 
-                        key={cIdx}
-                        className="w-5 h-5 rounded-full border border-[#0f2f63]/40 block shrink-0"
-                        style={{ backgroundColor: color }}
-                      />
-                    ))}
-                  </div>
-                  <span className="text-[0.65rem] text-white/80 uppercase tracking-wide">
-                    Verified on platform
-                  </span>
-                </div>
-
-                <div className="w-16 aspect-[3/4] rounded-xl overflow-hidden shrink-0 ml-auto">
-                  <img 
-                    src={LANDING_IMAGES.memberBadge.src}
-                    alt={LANDING_IMAGES.memberBadge.alt}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              </article>
 
             </div>
           </div>
@@ -850,18 +726,18 @@ export default function LandingPage() {
                   #01
                 </span>
                 <h3 className="text-base sm:text-lg font-medium text-[#0a0a0a] tracking-tight">
-                  Enterprise Workforce Infrastructure
+                  Direct Workforce Platform
                 </h3>
               </div>
               <p className="text-xs text-[#717784] leading-relaxed">
-                Trusted by hotels, restaurants, industrial plants, and supply chain hubs nationwide. Biometric attendance and automated escrow payouts keep daily operations running seamlessly.
+                Designed to serve culinary kitchens, electrical maintenance, logistics, and skilled trades. Biometric attendance and automated digital escrow keep daily work transparent and fraud-free.
               </p>
             </article>
           </div>
 
           {/* OVERSIZED GHOST HEADINGS (2 ROWS OF 2 WORDS) */}
           <div className="relative max-w-6xl mx-auto my-1 pointer-events-none select-none z-0">
-            <h2 key={trustGhostKey} className="text-[7.4vw] font-medium uppercase leading-[0.98] tracking-tight text-center">
+            <h2 key={trustGhostKey} className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-medium uppercase leading-[0.98] tracking-tight text-center">
               
               {/* Row 1: Word 1 & Word 2 */}
               <div 
@@ -900,8 +776,8 @@ export default function LandingPage() {
             </h2>
           </div>
 
-          {/* CENTER SPECIALIST CARD - Nested with negative margin to eliminate whitespace and overlap editorial poster */}
-          <div className="relative z-10 mx-auto -mt-16 sm:-mt-24 md:-mt-32 w-48 sm:w-56 pointer-events-auto">
+          {/* CENTER SPECIALIST CARD - Overlapping editorial poster */}
+          <div className="relative z-10 mx-auto -mt-8 sm:-mt-12 md:-mt-18 w-48 sm:w-56 pointer-events-auto">
             <figure className="relative aspect-[3/4] rounded-[1.5rem] bg-[#2563c9] overflow-hidden rotate-6 shadow-2xl transition-transform duration-500 hover:rotate-3">
               <img 
                 key={currentSlide.image}
@@ -968,7 +844,7 @@ export default function LandingPage() {
                 <span className="w-1.5 h-1.5 rounded-full bg-[#2563c9]" />
                 <span>Enterprise Sectors</span>
               </div>
-              <h2 className="text-3xl sm:text-4xl font-medium tracking-tight text-[#0a0a0a] leading-[0.98]">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-medium tracking-tight text-[#0a0a0a] leading-[0.96]">
                 Every industry <br /> on demand
               </h2>
             </div>
@@ -1025,12 +901,12 @@ export default function LandingPage() {
                 />
               </div>
 
-              <h2 className="text-3xl sm:text-4xl font-medium tracking-tight text-[#0a0a0a] leading-[0.98]">
-                Enterprise-Grade <br /> Verification Tech
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-medium tracking-tight text-[#0a0a0a] leading-[0.96]">
+                Biometric & Escrow <br /> Verification Tech
               </h2>
 
               <p className="text-xs sm:text-sm text-[#717784] mt-4 leading-relaxed max-w-sm">
-                Every technician is identity-checked, face-matched on site via geofenced attendance, and compensated through automated escrow so your shifts run reliably.
+                Every technician is identity-checked and face-matched on site via geofenced attendance coordinates, with wages guaranteed through automated escrow security.
               </p>
             </div>
 
@@ -1085,7 +961,7 @@ export default function LandingPage() {
                 <span className="w-1.5 h-1.5 rounded-full bg-[#5790e6]" />
                 <span>Enterprise Scale</span>
               </div>
-              <h2 className="text-3xl sm:text-4xl font-medium tracking-tight text-white leading-[0.98]">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-medium tracking-tight text-white leading-[0.96]">
                 A platform that <br /> keeps score
               </h2>
             </div>
@@ -1093,19 +969,22 @@ export default function LandingPage() {
             {/* 4-Up Metrics Grid */}
             <dl className="mt-8 sm:mt-10 grid grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-8">
               {[
-                { value: "24", label: "Regional Operating Hubs" },
-                { value: "14K+", label: "Verified Technicians" },
-                { value: "100%", label: "Escrow Backed Settlements" },
-                { value: "15m", label: "Average Shift Fill Speed" },
+                { value: "100%", label: "Escrow Wage Protection", desc: "Automated funds lock on booking, released on verified completion" },
+                { value: "GPS + Face", label: "Geofenced Check-In", desc: "Real-time biometric attendance verified within site radius" },
+                { value: "0%", label: "Agency Brokerage", desc: "Direct worker-to-employer connection with honest transparent wages" },
+                { value: "Instant", label: "UPI Payout Settlement", desc: "Direct UPI wage transfer without payroll paperwork friction" },
               ].map((stat, idx) => (
                 <div key={idx} className="border-t border-white/20 pt-4 text-left">
                   <dt className="sr-only">{stat.label}</dt>
                   <dd>
-                    <div className="text-4xl sm:text-5xl font-medium tracking-tight text-white leading-none">
+                    <div className="text-3xl sm:text-4xl font-medium tracking-tight text-white leading-none">
                       {stat.value}
                     </div>
-                    <div className="text-xs sm:text-sm text-white/65 mt-2 leading-snug">
+                    <div className="text-xs sm:text-sm font-medium text-white/90 mt-2 leading-snug">
                       {stat.label}
+                    </div>
+                    <div className="text-[11px] text-white/60 mt-1 leading-snug">
+                      {stat.desc}
                     </div>
                   </dd>
                 </div>
@@ -1125,7 +1004,7 @@ export default function LandingPage() {
                 <span className="w-1.5 h-1.5 rounded-full bg-[#2563c9]" />
                 <span>Enterprise Feedback</span>
               </div>
-              <h2 className="text-3xl sm:text-4xl font-medium tracking-tight text-[#0a0a0a] leading-[0.98]">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-medium tracking-tight text-[#0a0a0a] leading-[0.96]">
                 Loved by operations <br /> teams & managers
               </h2>
             </div>
@@ -1163,29 +1042,27 @@ export default function LandingPage() {
               <div>
                 <div className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.22em] text-white/70 mb-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#5790e6]" />
-                  <span>Corporate Onboarding</span>
                 </div>
                 <h3 className="text-4xl sm:text-5xl font-medium tracking-tight text-white leading-[0.94]">
-                  Deploy enterprise <br /> talent today
+                  Explore the TrustHyre <br /> application
                 </h3>
               </div>
 
               <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
                 <Link
-                  to="/sign-up?role=employer"
-                  className="w-full sm:w-auto px-6 py-3 rounded-full bg-white text-[#0f2f63] font-medium text-xs tracking-wide uppercase hover:bg-[#5790e6] hover:text-white transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-lg"
+                  to="/search"
+                  className="w-full sm:w-auto px-6 py-3 rounded-full bg-white text-[#0f2f63] font-medium text-xs uppercase hover:bg-[#5790e6] hover:text-white transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-lg"
                 >
-                  <span>Post Urgent Shift</span>
+                  <span>Browse Jobs</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </Link>
 
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(true)}
-                  className="w-full sm:w-auto px-6 py-3 rounded-full border border-white/30 text-white font-medium text-xs tracking-wide uppercase hover:bg-white/10 transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                <Link
+                  to="/find-workers"
+                  className="w-full sm:w-auto px-6 py-3 rounded-full border border-white/30 text-white font-medium text-xs uppercase hover:bg-white/10 transition-colors flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  <span>Corporate Consultation</span>
-                </button>
+                  <span>Explore Candidates</span>
+                </Link>
               </div>
             </div>
 
@@ -1202,63 +1079,53 @@ export default function LandingPage() {
                 </div>
 
                 <p className="text-xs text-white/70 leading-relaxed">
-                  Enterprise on-demand workforce infrastructure company. Verified skilled trades, commercial culinary, logistics crews, and automated escrow settlements.
+                  Decentralized on-demand workforce web application. Built to connect skilled workers with businesses through biometric geofenced attendance, PWA accessibility, and automated escrow wage settlements.
                 </p>
 
-                <address className="not-italic text-xs text-white/80 space-y-1.5 pt-2">
-                  <div className="flex items-center gap-2">
-                    <Mail className="w-3.5 h-3.5 text-white/50" />
-                    <a href="mailto:enterprise@trusthyre.com" className="hover:underline">enterprise@trusthyre.com</a>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <PhoneCall className="w-3.5 h-3.5 text-white/50" />
-                    <a href="tel:18004198973" className="hover:underline">1800-419-8973 (Toll Free)</a>
-                  </div>
+                <div className="text-xs text-white/80 space-y-1.5 pt-2">
                   <div className="flex items-center gap-2 text-white/60">
-                    <MapPin className="w-3.5 h-3.5" />
-                    <span>Corporate HQ: TrustHyre Tower, Tech Corridor, Bangalore</span>
+                    <Sparkles className="w-3.5 h-3.5 text-[#5790e6]" />
+                    <span>Stack: React + Node.js + Lakebase Postgres</span>
                   </div>
-                </address>
+                </div>
               </div>
 
               {/* Column: For Employers */}
               <div>
                 <h4 className="text-xs font-medium uppercase tracking-[0.2em] text-white/50 mb-3">
-                  Enterprise Sectors
+                  For Employers
                 </h4>
                 <ul className="space-y-2.5 text-xs text-white/80">
-                  <li><Link to="/sign-up?role=employer" className="hover:text-white transition-colors">Commercial Culinary & Chefs</Link></li>
-                  <li><Link to="/sign-up?role=employer" className="hover:text-white transition-colors">Certified Electrical Trades</Link></li>
-                  <li><Link to="/sign-up?role=employer" className="hover:text-white transition-colors">Warehouse & Logistics Fleet</Link></li>
-                  <li><Link to="/sign-up?role=employer" className="hover:text-white transition-colors">Plumbing & Facility Maintenance</Link></li>
-                  <li><Link to="/terms" className="hover:text-white transition-colors">Enterprise Escrow Vault</Link></li>
+                  <li><Link to="/find-workers" className="hover:text-white transition-colors">Browse Verified Candidates</Link></li>
+                  <li><Link to="/sign-up?role=employer" className="hover:text-white transition-colors">Post a New Job</Link></li>
+                  <li><Link to="/sign-in?role=employer" className="hover:text-white transition-colors">Employer Portal Login</Link></li>
+                  <li><Link to="/terms" className="hover:text-white transition-colors">Escrow Protection Terms</Link></li>
                 </ul>
               </div>
 
               {/* Column: For Workers */}
               <div>
                 <h4 className="text-xs font-medium uppercase tracking-[0.2em] text-white/50 mb-3">
-                  Workforce Network
+                  For Candidates
                 </h4>
                 <ul className="space-y-2.5 text-xs text-white/80">
-                  <li><Link to="/sign-up?role=worker" className="hover:text-white transition-colors">Culinary & Kitchen Shifts</Link></li>
-                  <li><Link to="/sign-up?role=worker" className="hover:text-white transition-colors">Electrician & Trade Shifts</Link></li>
-                  <li><Link to="/sign-up?role=worker" className="hover:text-white transition-colors">Daily UPI Settlements</Link></li>
-                  <li><Link to="/sign-up?role=worker" className="hover:text-white transition-colors">Biometric Identity Verification</Link></li>
-                  <li><Link to="/terms" className="hover:text-white transition-colors">On-Site Safety Standards</Link></li>
+                  <li><Link to="/search" className="hover:text-white transition-colors">Search Available Jobs</Link></li>
+                  <li><Link to="/sign-up?role=worker" className="hover:text-white transition-colors">Register Candidate Profile</Link></li>
+                  <li><Link to="/sign-in?role=worker" className="hover:text-white transition-colors">Candidate Portal Login</Link></li>
+                  <li><Link to="/privacy" className="hover:text-white transition-colors">Privacy & Data Security</Link></li>
                 </ul>
               </div>
 
-              {/* Column: Company & Governance */}
+              {/* Column: Platform & Governance */}
               <div>
                 <h4 className="text-xs font-medium uppercase tracking-[0.2em] text-white/50 mb-3">
-                  Corporate Governance
+                  Platform
                 </h4>
                 <ul className="space-y-2.5 text-xs text-white/80">
-                  <li><a href="#technology" className="hover:text-white transition-colors">Verification Infrastructure</a></li>
-                  <li><a href="#metrics" className="hover:text-white transition-colors">Platform Reliability & Scale</a></li>
-                  <li><Link to="/privacy" className="hover:text-white transition-colors">Privacy & Data Governance</Link></li>
-                  <li><Link to="/terms" className="hover:text-white transition-colors">Terms of Enterprise Service</Link></li>
+                  <li><a href="#categories" className="hover:text-white transition-colors">Supported Job Categories</a></li>
+                  <li><a href="#technology" className="hover:text-white transition-colors">Biometric & Escrow Tech</a></li>
+                  <li><Link to="/admin/login" className="hover:text-white transition-colors">Admin Gateway</Link></li>
+                  <li><Link to="/terms" className="hover:text-white transition-colors">Terms of Service</Link></li>
                 </ul>
               </div>
 
@@ -1266,12 +1133,12 @@ export default function LandingPage() {
 
             {/* Bottom Bar */}
             <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
-             
-              {/* <p>© 2026 TrustHyre Technologies Inc. Registered Corporate Enterprise. Bonded & Verified Daily Operations.</p> */}
+              <p>© 2026 TrustHyre · Personal Portfolio & Workforce Architecture Project.</p>
               
               <div className="flex items-center gap-6">
                 <Link to="/privacy" className="hover:text-white transition-colors">Privacy</Link>
                 <Link to="/terms" className="hover:text-white transition-colors">Terms</Link>
+                <Link to="/admin/login" className="hover:text-white transition-colors">Admin Portal</Link>
               </div>
             </div>
 

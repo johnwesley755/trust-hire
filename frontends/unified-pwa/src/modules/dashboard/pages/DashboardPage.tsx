@@ -13,266 +13,429 @@ import {
   ArrowRight, 
   Zap, 
   TrendingUp, 
-  Award,
   Sparkles,
-  MapPin
+  Bookmark,
+  History,
+  CheckCircle2,
+  ChevronRight,
+  Send,
+  Building2
 } from "lucide-react";
 import { AppLoader } from '../../../components/common/AppLoader';
 
 export default function DashboardPage() {
-    const navigate = useNavigate();
-    const { user } = useUser();
+  const navigate = useNavigate();
+  const { user } = useUser();
 
-    // Single unified API endpoint call for all dashboard metrics
-    const { data: summary, isLoading } = useQuery({ 
-        queryKey: ['dashboardSummary'], 
-        queryFn: dashboardService.getDashboardSummary,
-        staleTime: 1000 * 60 * 2,
-    });
+  // Single unified API endpoint call for all dashboard metrics
+  const { data: summary, isLoading } = useQuery({ 
+    queryKey: ['dashboardSummary'], 
+    queryFn: dashboardService.getDashboardSummary,
+    staleTime: 1000 * 60 * 2,
+  });
 
-    if (isLoading) {
-        return <AppLoader variant="page" message="Loading Dashboard Metrics..." />;
-    }
+  if (isLoading) {
+    return <AppLoader variant="page" message="Loading Dashboard Metrics..." />;
+  }
 
-    const isEmployer = user?.role === 'EMPLOYER' || summary?.role === 'EMPLOYER';
-    const displayName = user?.firstName || summary?.companyName || 'Partner';
+  const isEmployer = user?.role === 'EMPLOYER' || summary?.role === 'EMPLOYER';
+  const displayName = user?.firstName || summary?.companyName || 'Partner';
 
-    const activeJobs = summary?.activeJobs ?? 0;
-    const totalApplicants = summary?.totalApplicants ?? 0;
-    const interviewingCount = summary?.interviewingCount ?? 0;
-    const totalHired = summary?.totalHired ?? 0;
-    const fillRate = summary?.fillRatePercentage ?? 94;
-    const radarNearbyCount = summary?.radarNearbyWorkersCount ?? 48;
+  const activeJobs = summary?.activeJobs ?? 0;
+  const totalApplicants = summary?.totalApplicants ?? 0;
+  const interviewingCount = summary?.interviewingCount ?? 0;
+  const totalHired = summary?.totalHired ?? 0;
+  const fillRate = summary?.fillRatePercentage ?? 94;
+  const radarNearbyCount = summary?.radarNearbyWorkersCount ?? 48;
 
-    return (
-        <div className="min-h-screen bg-[#F8FAFC] pb-24 font-sans text-[#0A1931]">
-            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-8">
-                
-                {/* 1. Header Banner */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 sm:p-8 rounded-3xl border border-slate-200/90 shadow-xs">
-                    <div className="space-y-1">
-                        <div className="flex items-center gap-2 text-[#0066FF] font-extrabold uppercase tracking-wider text-[11px]">
-                            <Sparkles className="w-4 h-4" />
-                            <span>Employer Dashboard</span>
-                        </div>
-                        <h1 className="text-2xl sm:text-3xl font-extrabold text-[#0A1931] tracking-tight font-['Outfit',sans-serif]">
-                            Welcome back, {displayName}
-                        </h1>
-                        <p className="text-xs sm:text-sm text-slate-500 font-medium">
-                            Here is your verified talent operations and hiring performance snapshot.
-                        </p>
-                    </div>
+  return (
+    <div className="w-full min-h-screen p-2 sm:p-3 bg-white font-['Onest',system-ui,sans-serif] text-[#0a0a0a]">
+      <div className="max-w-7xl mx-auto space-y-6 pb-20">
+        
+        {/* 1. Hallmark Hero Header Banner */}
+        <div className="rounded-[2rem] border border-[#e6e8ec] bg-[#f4f4f4] p-6 sm:p-8 shadow-xs relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-[#0f2f63]/5 to-transparent rounded-full blur-3xl pointer-events-none" />
+          
+          <div className="relative z-10 space-y-4">
+            {/* 4-Point Hallmark Trust Ribbon */}
+            <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs font-medium text-[#717784] border-b border-[#e6e8ec] pb-4">
+              <span className="flex items-center gap-1.5 text-[#0a0a0a]">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                Corporate Verified Hub
+              </span>
+              <span className="text-[#e6e8ec]">•</span>
+              <span className="flex items-center gap-1.5 text-[#0a0a0a]">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                Escrow Wage Lock
+              </span>
+              <span className="text-[#e6e8ec]">•</span>
+              <span className="flex items-center gap-1.5 text-[#0a0a0a]">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                Zero Ghosting Policy
+              </span>
+              <span className="text-[#e6e8ec]">•</span>
+              <span className="flex items-center gap-1.5 text-[#0a0a0a]">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                Instant Dispatch Engine
+              </span>
+            </div>
 
-                    <div className="flex items-center gap-3">
-                        <Link
-                            to="/post-job"
-                            className="px-5 py-2.5 bg-[#0066FF] hover:bg-[#0052CC] active:scale-98 text-white rounded-xl font-bold text-xs sm:text-sm flex items-center gap-2 shadow-md shadow-[#0066FF]/25 transition-all font-['Outfit',sans-serif]"
-                        >
-                            <PlusCircle className="w-4 h-4" />
-                            <span>Post New Job</span>
-                        </Link>
-                        <Link
-                            to="/find-workers"
-                            className="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-2 transition-all font-['Outfit',sans-serif]"
-                        >
-                            <Users className="w-4 h-4 text-slate-600" />
-                            <span>Search Talent</span>
-                        </Link>
-                    </div>
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pt-2">
+              <div className="space-y-2 max-w-2xl">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0f2f63]/10 text-[#0f2f63] text-xs font-semibold">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>EMPLOYER COMMAND CENTER</span>
                 </div>
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#0a0a0a] tracking-tight">
+                  Welcome back, {displayName} 👋
+                </h1>
+                <p className="text-[#717784] text-sm leading-relaxed">
+                  Real-time talent operations, candidate application pipeline, and escrow wage security overview.
+                </p>
+              </div>
 
-                {/* 2. Primary 4 KPI Metrics Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                    
-                    {/* Active Openings */}
-                    <div 
-                        onClick={() => navigate('/jobs')}
-                        className="bg-white rounded-2xl p-6 border border-slate-200/90 shadow-xs hover:border-[#0066FF]/60 hover:shadow-md transition-all cursor-pointer group space-y-4"
-                    >
-                        <div className="flex items-center justify-between">
-                            <div className="w-12 h-12 rounded-xl bg-blue-50 text-[#0066FF] flex items-center justify-center border border-blue-100 group-hover:scale-105 transition-transform">
-                                <Briefcase className="w-6 h-6" />
-                            </div>
-                            <span className="px-2.5 py-0.5 rounded-full bg-blue-50 text-[#0066FF] text-[10px] font-extrabold uppercase tracking-wider">
-                                Live Now
-                            </span>
-                        </div>
-                        <div>
-                            <div className="text-3xl font-black text-[#0A1931] font-['Outfit',sans-serif]">
-                                {activeJobs}
-                            </div>
-                            <p className="text-xs font-bold uppercase tracking-wider text-slate-400 mt-1">
-                                Active Job Postings
-                            </p>
-                        </div>
-                        <div className="flex items-center gap-1 text-xs font-bold text-[#0066FF] group-hover:underline pt-1">
-                            <span>Manage listings</span>
-                            <ArrowRight className="w-3.5 h-3.5" />
-                        </div>
-                    </div>
-
-                    {/* Total Applicants Received */}
-                    <div 
-                        onClick={() => navigate('/jobs')}
-                        className="bg-white rounded-2xl p-6 border border-slate-200/90 shadow-xs hover:border-[#0066FF]/60 hover:shadow-md transition-all cursor-pointer group space-y-4"
-                    >
-                        <div className="flex items-center justify-between">
-                            <div className="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100 group-hover:scale-105 transition-transform">
-                                <Users className="w-6 h-6" />
-                            </div>
-                            <span className="px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-600 text-[10px] font-extrabold uppercase tracking-wider">
-                                Total Received
-                            </span>
-                        </div>
-                        <div>
-                            <div className="text-3xl font-black text-[#0A1931] font-['Outfit',sans-serif]">
-                                {totalApplicants}
-                            </div>
-                            <p className="text-xs font-bold uppercase tracking-wider text-slate-400 mt-1">
-                                Total Applicants
-                            </p>
-                        </div>
-                        <div className="flex items-center gap-1 text-xs font-bold text-indigo-600 group-hover:underline pt-1">
-                            <span>View candidate queue</span>
-                            <ArrowRight className="w-3.5 h-3.5" />
-                        </div>
-                    </div>
-
-                    {/* Pending / Under Review */}
-                    <div 
-                        onClick={() => navigate('/jobs')}
-                        className="bg-white rounded-2xl p-6 border border-slate-200/90 shadow-xs hover:border-amber-400 hover:shadow-md transition-all cursor-pointer group space-y-4"
-                    >
-                        <div className="flex items-center justify-between">
-                            <div className="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-100 group-hover:scale-105 transition-transform">
-                                <Clock className="w-6 h-6" />
-                            </div>
-                            <span className="px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 text-[10px] font-extrabold uppercase tracking-wider">
-                                Action Needed
-                            </span>
-                        </div>
-                        <div>
-                            <div className="text-3xl font-black text-[#0A1931] font-['Outfit',sans-serif]">
-                                {interviewingCount}
-                            </div>
-                            <p className="text-xs font-bold uppercase tracking-wider text-slate-400 mt-1">
-                                Under Review & Offers
-                            </p>
-                        </div>
-                        <div className="flex items-center gap-1 text-xs font-bold text-amber-600 group-hover:underline pt-1">
-                            <span>Review pending</span>
-                            <ArrowRight className="w-3.5 h-3.5" />
-                        </div>
-                    </div>
-
-                    {/* Dispatched / Hired */}
-                    <div 
-                        onClick={() => navigate('/jobs')}
-                        className="bg-white rounded-2xl p-6 border border-slate-200/90 shadow-xs hover:border-emerald-400 hover:shadow-md transition-all cursor-pointer group space-y-4"
-                    >
-                        <div className="flex items-center justify-between">
-                            <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100 group-hover:scale-105 transition-transform">
-                                <UserCheck className="w-6 h-6" />
-                            </div>
-                            <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-extrabold uppercase tracking-wider">
-                                Confirmed
-                            </span>
-                        </div>
-                        <div>
-                            <div className="text-3xl font-black text-[#0A1931] font-['Outfit',sans-serif]">
-                                {totalHired}
-                            </div>
-                            <p className="text-xs font-bold uppercase tracking-wider text-slate-400 mt-1">
-                                Hired & Active
-                            </p>
-                        </div>
-                        <div className="flex items-center gap-1 text-xs font-bold text-emerald-600 group-hover:underline pt-1">
-                            <span>View active team</span>
-                            <ArrowRight className="w-3.5 h-3.5" />
-                        </div>
-                    </div>
-
-                </div>
-
-                {/* 3. Secondary Operational Stats & Efficiency Performance Cards */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    
-                    {/* Fill Rate KPI */}
-                    <div className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/90 shadow-xs space-y-4">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2.5">
-                                <div className="w-9 h-9 rounded-xl bg-blue-50 text-[#0066FF] flex items-center justify-center">
-                                    <TrendingUp className="w-5 h-5" />
-                                </div>
-                                <h3 className="text-base font-extrabold text-[#0A1931] font-['Outfit',sans-serif]">
-                                    Hiring Fill Rate
-                                </h3>
-                            </div>
-                            <span className="text-xl font-black text-emerald-600 font-['Outfit',sans-serif]">
-                                {fillRate}%
-                            </span>
-                        </div>
-                        <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
-                            <div 
-                                className="bg-linear-to-r from-[#0066FF] to-emerald-500 h-full rounded-full transition-all duration-500" 
-                                style={{ width: `${fillRate}%` }}
-                            />
-                        </div>
-                        <p className="text-xs text-slate-500 font-medium leading-relaxed">
-                            Your job fulfillment rate is performing in the top 5% of verified enterprise hubs.
-                        </p>
-                    </div>
-
-                    {/* Talent Radar Active */}
-                    <div className="bg-linear-to-br from-[#0A1931] via-[#0A1931] to-[#0066FF] text-white rounded-3xl p-6 sm:p-7 shadow-lg space-y-4">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                                <Zap className="w-5 h-5 text-amber-400" />
-                                <h3 className="text-base font-extrabold font-['Outfit',sans-serif]">
-                                    Talent Radar Active
-                                </h3>
-                            </div>
-                            <span className="px-2 py-0.5 rounded-md bg-amber-400 text-[#0A1931] text-[9px] font-black uppercase tracking-wider">
-                                Live
-                            </span>
-                        </div>
-                        <div className="text-2xl font-black font-['Outfit',sans-serif]">
-                            {radarNearbyCount}+ Verified Technicians
-                        </div>
-                        <p className="text-xs text-slate-300 font-medium leading-relaxed">
-                            Pre-vetted electricians, logistics specialists, and site operators are active within 5km of your projects.
-                        </p>
-                    </div>
-
-                    {/* Security & Escrow Guarantee */}
-                    <div className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/90 shadow-xs space-y-4">
-                        <div className="flex items-center gap-2.5">
-                            <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                                <ShieldCheck className="w-5 h-5" />
-                            </div>
-                            <h3 className="text-base font-extrabold text-[#0A1931] font-['Outfit',sans-serif]">
-                                TrustHyre Guarantee
-                            </h3>
-                        </div>
-                        <ul className="text-xs text-slate-600 space-y-2.5 font-medium">
-                            <li className="flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
-                                <span>100% Aadhaar & biometric background verified</span>
-                            </li>
-                            <li className="flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
-                                <span>Guaranteed escrow payment protection</span>
-                            </li>
-                            <li className="flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
-                                <span>Zero-notice candidate replacement warranty</span>
-                            </li>
-                        </ul>
-                    </div>
-
-                </div>
-
-            </main>
+              {/* Action Buttons */}
+              <div className="flex flex-wrap items-center gap-3">
+                <Link
+                  to="/post-job"
+                  className="rounded-full bg-[#0f2f63] hover:bg-[#2563c9] text-white text-xs sm:text-sm font-medium uppercase px-5 py-3 transition-all flex items-center gap-2 shadow-sm active:scale-95 cursor-pointer"
+                >
+                  <PlusCircle className="w-4 h-4" />
+                  <span>Post New Job</span>
+                </Link>
+                <Link
+                  to="/find-workers"
+                  className="rounded-full bg-white hover:bg-slate-100 text-[#0a0a0a] border border-[#e6e8ec] text-xs sm:text-sm font-medium uppercase px-5 py-3 transition-all flex items-center gap-2 shadow-xs active:scale-95 cursor-pointer"
+                >
+                  <Users className="w-4 h-4 text-[#717784]" />
+                  <span>Search Talent</span>
+                </Link>
+              </div>
+            </div>
+          </div>
         </div>
-    );
+
+        {/* 2. Primary 4 KPI Metrics Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+          
+          {/* Active Openings */}
+          <div 
+            onClick={() => navigate('/jobs')}
+            className="rounded-[2rem] border border-[#e6e8ec] bg-[#f4f4f4] p-5 sm:p-6 shadow-xs hover:border-[#0f2f63]/40 transition-all cursor-pointer group space-y-4"
+          >
+            <div className="flex items-center justify-between">
+              <div className="w-12 h-12 rounded-2xl bg-white border border-[#e6e8ec] text-[#0f2f63] flex items-center justify-center group-hover:scale-105 transition-transform">
+                <Briefcase className="w-6 h-6" />
+              </div>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-[#0f2f63] text-xs font-semibold">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#0f2f63] animate-pulse" />
+                Live Now
+              </span>
+            </div>
+            <div>
+              <div className="text-3xl font-extrabold text-[#0a0a0a]">
+                {activeJobs}
+              </div>
+              <p className="text-xs font-bold uppercase text-[#717784] mt-1">
+                Active Job Openings
+              </p>
+            </div>
+            <div className="flex items-center gap-1 text-xs font-semibold text-[#0f2f63] group-hover:underline pt-1">
+              <span>Manage listings</span>
+              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+            </div>
+          </div>
+
+          {/* Total Applicants Received */}
+          <div 
+            onClick={() => navigate('/jobs')}
+            className="rounded-[2rem] border border-[#e6e8ec] bg-[#f4f4f4] p-5 sm:p-6 shadow-xs hover:border-[#0f2f63]/40 transition-all cursor-pointer group space-y-4"
+          >
+            <div className="flex items-center justify-between">
+              <div className="w-12 h-12 rounded-2xl bg-white border border-[#e6e8ec] text-indigo-600 flex items-center justify-center group-hover:scale-105 transition-transform">
+                <Users className="w-6 h-6" />
+              </div>
+              <span className="px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 text-xs font-semibold">
+                Total Pool
+              </span>
+            </div>
+            <div>
+              <div className="text-3xl font-extrabold text-[#0a0a0a]">
+                {totalApplicants}
+              </div>
+              <p className="text-xs font-bold uppercase text-[#717784] mt-1">
+                Applicants Received
+              </p>
+            </div>
+            <div className="flex items-center gap-1 text-xs font-semibold text-indigo-600 group-hover:underline pt-1">
+              <span>View candidate queue</span>
+              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+            </div>
+          </div>
+
+          {/* Under Review & Direct Offers */}
+          <div 
+            onClick={() => navigate('/jobs')}
+            className="rounded-[2rem] border border-[#e6e8ec] bg-[#f4f4f4] p-5 sm:p-6 shadow-xs hover:border-amber-400/60 transition-all cursor-pointer group space-y-4"
+          >
+            <div className="flex items-center justify-between">
+              <div className="w-12 h-12 rounded-2xl bg-white border border-[#e6e8ec] text-amber-600 flex items-center justify-center group-hover:scale-105 transition-transform">
+                <Clock className="w-6 h-6" />
+              </div>
+              <span className="px-3 py-1 rounded-full bg-amber-50 text-amber-800 text-xs font-semibold">
+                Action Needed
+              </span>
+            </div>
+            <div>
+              <div className="text-3xl font-extrabold text-[#0a0a0a]">
+                {interviewingCount}
+              </div>
+              <p className="text-xs font-bold uppercase text-[#717784] mt-1">
+                Under Review & Offers
+              </p>
+            </div>
+            <div className="flex items-center gap-1 text-xs font-semibold text-amber-600 group-hover:underline pt-1">
+              <span>Review pending</span>
+              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+            </div>
+          </div>
+
+          {/* Confirmed & Dispatched Team */}
+          <div 
+            onClick={() => navigate('/jobs')}
+            className="rounded-[2rem] border border-[#e6e8ec] bg-[#f4f4f4] p-5 sm:p-6 shadow-xs hover:border-emerald-400/60 transition-all cursor-pointer group space-y-4"
+          >
+            <div className="flex items-center justify-between">
+              <div className="w-12 h-12 rounded-2xl bg-white border border-[#e6e8ec] text-emerald-600 flex items-center justify-center group-hover:scale-105 transition-transform">
+                <UserCheck className="w-6 h-6" />
+              </div>
+              <span className="px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 text-xs font-semibold">
+                Active Shifts
+              </span>
+            </div>
+            <div>
+              <div className="text-3xl font-extrabold text-[#0a0a0a]">
+                {totalHired}
+              </div>
+              <p className="text-xs font-bold uppercase text-[#717784] mt-1">
+                Hired & Dispatched
+              </p>
+            </div>
+            <div className="flex items-center gap-1 text-xs font-semibold text-emerald-600 group-hover:underline pt-1">
+              <span>View active team</span>
+              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+            </div>
+          </div>
+
+        </div>
+
+        {/* 3. Operational Grid (2 Columns: Operations Radar + Trust & Quick Actions) */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          
+          {/* Left 2 Columns: Talent Radar & Performance */}
+          <div className="lg:col-span-2 space-y-6">
+            
+            {/* Talent Radar Card */}
+            <div className="rounded-[2rem] border border-[#e6e8ec] bg-[#f4f4f4] p-6 sm:p-8 shadow-xs space-y-5">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-white border border-[#e6e8ec] text-amber-500 flex items-center justify-center">
+                    <Zap className="w-5 h-5 fill-current" />
+                  </div>
+                  <div>
+                    <h3 className="text-base sm:text-lg font-extrabold text-[#0a0a0a]">
+                      Hyperlocal Talent Radar Active
+                    </h3>
+                    <p className="text-xs text-[#717784]">
+                      Verified blue-collar & trade technicians within immediate dispatch radius
+                    </p>
+                  </div>
+                </div>
+
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold self-start sm:self-auto border border-emerald-100">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  Live Radar Feed
+                </span>
+              </div>
+
+              <div className="p-4 sm:p-5 rounded-[1.5rem] bg-white border border-[#e6e8ec] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div>
+                  <div className="text-2xl sm:text-3xl font-extrabold text-[#0a0a0a]">
+                    {radarNearbyCount}+ Verified Candidates
+                  </div>
+                  <p className="text-xs text-[#717784] mt-1">
+                    Pre-vetted electricians, welders, plumbers, and equipment operators within 5km.
+                  </p>
+                </div>
+                <Link
+                  to="/find-workers"
+                  className="rounded-full bg-[#0f2f63] hover:bg-[#2563c9] text-white text-xs font-medium uppercase px-4 py-2.5 transition-all flex items-center gap-1.5 shadow-sm active:scale-95 cursor-pointer shrink-0"
+                >
+                  <span>Explore Candidates</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+
+              {/* Fast Category Filter Chips */}
+              <div className="space-y-2">
+                <span className="text-xs font-semibold text-[#717784]">
+                  Instant Search Shortcuts:
+                </span>
+                <div className="flex flex-wrap gap-2">
+                  {['Electrician', 'Plumber', 'Welder', 'Driver', 'Carpenter', 'Mechanic'].map((trade) => (
+                    <button
+                      key={trade}
+                      type="button"
+                      onClick={() => navigate(`/find-workers?trade=${encodeURIComponent(trade)}`)}
+                      className="px-3.5 py-1.5 rounded-full bg-white hover:bg-slate-100 border border-[#e6e8ec] text-[#0a0a0a] text-xs font-medium transition-all cursor-pointer shadow-xs active:scale-95"
+                    >
+                      {trade}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Hiring Fill Rate & Operations Health */}
+            <div className="rounded-[2rem] border border-[#e6e8ec] bg-[#f4f4f4] p-6 sm:p-8 shadow-xs space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-white border border-[#e6e8ec] text-[#0f2f63] flex items-center justify-center">
+                    <TrendingUp className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-base sm:text-lg font-extrabold text-[#0a0a0a]">
+                      Hiring Fill Rate & SLA
+                    </h3>
+                    <p className="text-xs text-[#717784]">
+                      Your candidate acceptance and position fulfillment metric
+                    </p>
+                  </div>
+                </div>
+                <span className="text-2xl font-black text-emerald-600">
+                  {fillRate}%
+                </span>
+              </div>
+
+              <div className="w-full bg-white h-3 rounded-full border border-[#e6e8ec] overflow-hidden p-0.5">
+                <div 
+                  className="bg-[#0f2f63] h-full rounded-full transition-all duration-700" 
+                  style={{ width: `${fillRate}%` }}
+                />
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between text-xs text-[#717784] pt-1 gap-2">
+                <span className="flex items-center gap-1.5 text-[#0a0a0a] font-medium">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                  <span>Top 5% fulfillment speed across platform employers</span>
+                </span>
+                <span>Average match time: ~42 mins</span>
+              </div>
+            </div>
+
+          </div>
+
+          {/* Right 1 Column: Quick Actions & Trust Hyre Guarantee */}
+          <div className="space-y-6">
+            
+            {/* Direct Shortcuts Card */}
+            <div className="rounded-[2rem] border border-[#e6e8ec] bg-[#f4f4f4] p-6 sm:p-7 shadow-xs space-y-4">
+              <h3 className="text-sm font-extrabold uppercase text-[#0a0a0a]">
+                Quick Operations
+              </h3>
+
+              <div className="space-y-2">
+                <Link
+                  to="/post-job"
+                  className="flex items-center justify-between p-3.5 bg-white hover:bg-slate-100 rounded-[1.25rem] border border-[#e6e8ec] transition-all group"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-[#0f2f63]/10 text-[#0f2f63] flex items-center justify-center">
+                      <PlusCircle className="w-4 h-4" />
+                    </div>
+                    <span className="text-xs font-semibold text-[#0a0a0a]">Post New Job</span>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-[#717784] group-hover:translate-x-0.5 transition-transform" />
+                </Link>
+
+                <Link
+                  to="/jobs"
+                  className="flex items-center justify-between p-3.5 bg-white hover:bg-slate-100 rounded-[1.25rem] border border-[#e6e8ec] transition-all group"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                      <Briefcase className="w-4 h-4" />
+                    </div>
+                    <span className="text-xs font-semibold text-[#0a0a0a]">Active Openings</span>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-[#717784] group-hover:translate-x-0.5 transition-transform" />
+                </Link>
+
+                <Link
+                  to="/saved-profiles"
+                  className="flex items-center justify-between p-3.5 bg-white hover:bg-slate-100 rounded-[1.25rem] border border-[#e6e8ec] transition-all group"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center">
+                      <Bookmark className="w-4 h-4" />
+                    </div>
+                    <span className="text-xs font-semibold text-[#0a0a0a]">Shortlisted Talent</span>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-[#717784] group-hover:translate-x-0.5 transition-transform" />
+                </Link>
+
+                <Link
+                  to="/tracker"
+                  className="flex items-center justify-between p-3.5 bg-white hover:bg-slate-100 rounded-[1.25rem] border border-[#e6e8ec] transition-all group"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                      <History className="w-4 h-4" />
+                    </div>
+                    <span className="text-xs font-semibold text-[#0a0a0a]">Activity History</span>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-[#717784] group-hover:translate-x-0.5 transition-transform" />
+                </Link>
+              </div>
+            </div>
+
+            {/* TrustHyre Guarantee Card */}
+            <div className="rounded-[2rem] border border-[#e6e8ec] bg-[#f4f4f4] p-6 sm:p-7 shadow-xs space-y-4">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100">
+                  <ShieldCheck className="w-4 h-4" />
+                </div>
+                <h3 className="text-sm font-extrabold text-[#0a0a0a]">
+                  TrustHyre Protection
+                </h3>
+              </div>
+              <ul className="text-xs text-[#0a0a0a] space-y-3 font-medium">
+                <li className="flex items-start gap-2.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0 mt-1.5" />
+                  <span className="text-[#717784]">
+                    <strong className="text-[#0a0a0a]">100% Background Check:</strong> Aadhaar & physical skill verification before candidate dispatch.
+                  </span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0 mt-1.5" />
+                  <span className="text-[#717784]">
+                    <strong className="text-[#0a0a0a]">Escrow Wage Lock:</strong> Payouts are protected in trust until shift milestone sign-off.
+                  </span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0 mt-1.5" />
+                  <span className="text-[#717784]">
+                    <strong className="text-[#0a0a0a]">Zero Ghosting SLA:</strong> Automatic immediate replacement warranty if a specialist cancels.
+                  </span>
+                </li>
+              </ul>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  );
 }

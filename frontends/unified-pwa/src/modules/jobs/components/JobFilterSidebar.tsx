@@ -83,39 +83,39 @@ export const JobFilterSidebar: React.FC<JobFilterSidebarProps> = ({
   hasActiveFilters,
 }) => {
   return (
-    <aside className="w-full space-y-6 font-sans">
+    <aside className="w-full space-y-6 font-['Onest',system-ui,sans-serif]">
       
       {/* Filters Title Header */}
-      <div className="flex items-center justify-between pb-3 border-b border-slate-200">
+      <div className="flex items-center justify-between pb-3 border-b border-[#e6e8ec]">
         <div className="flex items-center gap-2">
-          <SlidersHorizontal className="w-4 h-4 text-[#0066FF]" />
-          <h2 className="text-base font-extrabold text-[#0A1931] font-['Outfit',sans-serif]">
-            Filters
+          <SlidersHorizontal className="w-4 h-4 text-[#0f2f63]" />
+          <h2 className="text-sm font-medium uppercase text-[#0a0a0a]">
+            Job Filters
           </h2>
         </div>
         {hasActiveFilters && (
           <button
             onClick={onClearAll}
-            className="text-xs font-bold text-[#0066FF] hover:underline flex items-center gap-1 cursor-pointer"
+            className="text-xs font-medium text-[#2563c9] hover:underline flex items-center gap-1 cursor-pointer"
           >
             <RotateCcw className="w-3 h-3" />
-            Clear All
+            <span>Clear All</span>
           </button>
         )}
       </div>
 
       {/* 1. JOB TYPE SECTION */}
-      <div className="space-y-2.5">
+      <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">
-            JOB TYPE
+          <span className="text-[10px] font-medium uppercase text-[#717784]">
+            Job Type
           </span>
           {selectedJobType !== 'All' && (
             <button
               onClick={() => onSelectJobType('All')}
-              className="text-[11px] font-semibold text-slate-400 hover:text-slate-700 cursor-pointer"
+              className="text-[10px] font-medium text-[#2563c9] hover:underline cursor-pointer"
             >
-              Clear
+              Reset
             </button>
           )}
         </div>
@@ -128,18 +128,21 @@ export const JobFilterSidebar: React.FC<JobFilterSidebarProps> = ({
               <button
                 key={type}
                 onClick={() => onSelectJobType(type)}
-                className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all text-left cursor-pointer ${
+                className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all text-left cursor-pointer ${
                   isSelected
-                    ? 'text-[#0066FF] font-bold bg-blue-50/80'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/60'
+                    ? 'bg-[#0f2f63] text-white shadow-xs'
+                    : 'bg-white/80 hover:bg-white text-[#0a0a0a] border border-[#e6e8ec]/80 hover:border-[#0f2f63]/30'
                 }`}
               >
                 <span>{type}</span>
-                {count !== undefined && (
-                  <span className={`text-[11px] font-medium ${isSelected ? 'text-[#0066FF] font-bold' : 'text-slate-400'}`}>
-                    ({count})
-                  </span>
-                )}
+                <div className="flex items-center gap-1.5">
+                  {count !== undefined && (
+                    <span className={`text-[11px] ${isSelected ? 'text-white/80' : 'text-[#717784]'}`}>
+                      ({count})
+                    </span>
+                  )}
+                  {isSelected && <Check className="w-3.5 h-3.5 text-white" />}
+                </div>
               </button>
             );
           })}
@@ -147,35 +150,38 @@ export const JobFilterSidebar: React.FC<JobFilterSidebarProps> = ({
       </div>
 
       {/* 2. LOCATION SECTION */}
-      <div className="space-y-2.5 pt-4 border-t border-slate-100">
+      <div className="space-y-2 pt-4 border-t border-[#e6e8ec]">
         <div className="flex items-center justify-between">
-          <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">
-            LOCATION
+          <span className="text-[10px] font-medium uppercase text-[#717784]">
+            Location
           </span>
           {selectedLocation && (
             <button
               onClick={() => onSelectLocation('')}
-              className="text-[11px] font-semibold text-slate-400 hover:text-slate-700 cursor-pointer"
+              className="text-[10px] font-medium text-[#2563c9] hover:underline cursor-pointer"
             >
-              Clear
+              Reset
             </button>
           )}
         </div>
         <div className="space-y-1">
           <button
             onClick={() => onSelectLocation('')}
-            className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all text-left cursor-pointer ${
+            className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all text-left cursor-pointer ${
               !selectedLocation
-                ? 'text-[#0066FF] font-bold bg-blue-50/80'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/60'
+                ? 'bg-[#0f2f63] text-white shadow-xs'
+                : 'bg-white/80 hover:bg-white text-[#0a0a0a] border border-[#e6e8ec]/80 hover:border-[#0f2f63]/30'
             }`}
           >
             <span>All Locations</span>
-            {counts?.total !== undefined && (
-              <span className={`text-[11px] font-medium ${!selectedLocation ? 'text-[#0066FF] font-bold' : 'text-slate-400'}`}>
-                ({counts.total})
-              </span>
-            )}
+            <div className="flex items-center gap-1.5">
+              {counts?.total !== undefined && (
+                <span className={`text-[11px] ${!selectedLocation ? 'text-white/80' : 'text-[#717784]'}`}>
+                  ({counts.total})
+                </span>
+              )}
+              {!selectedLocation && <Check className="w-3.5 h-3.5 text-white" />}
+            </div>
           </button>
           {counts?.locations && Object.entries(counts.locations).slice(0, 5).map(([city, count]) => {
             const isSelected = selectedLocation.toLowerCase() === city.toLowerCase();
@@ -183,16 +189,19 @@ export const JobFilterSidebar: React.FC<JobFilterSidebarProps> = ({
               <button
                 key={city}
                 onClick={() => onSelectLocation(city)}
-                className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all text-left cursor-pointer ${
+                className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all text-left cursor-pointer ${
                   isSelected
-                    ? 'text-[#0066FF] font-bold bg-blue-50/80'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/60'
+                    ? 'bg-[#0f2f63] text-white shadow-xs'
+                    : 'bg-white/80 hover:bg-white text-[#0a0a0a] border border-[#e6e8ec]/80 hover:border-[#0f2f63]/30'
                 }`}
               >
                 <span>{city}</span>
-                <span className={`text-[11px] font-medium ${isSelected ? 'text-[#0066FF] font-bold' : 'text-slate-400'}`}>
-                  ({count})
-                </span>
+                <div className="flex items-center gap-1.5">
+                  <span className={`text-[11px] ${isSelected ? 'text-white/80' : 'text-[#717784]'}`}>
+                    ({count})
+                  </span>
+                  {isSelected && <Check className="w-3.5 h-3.5 text-white" />}
+                </div>
               </button>
             );
           })}
@@ -200,17 +209,17 @@ export const JobFilterSidebar: React.FC<JobFilterSidebarProps> = ({
       </div>
 
       {/* 3. EXPERIENCE SECTION */}
-      <div className="space-y-2.5 pt-4 border-t border-slate-100">
+      <div className="space-y-2 pt-4 border-t border-[#e6e8ec]">
         <div className="flex items-center justify-between">
-          <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">
-            EXPERIENCE
+          <span className="text-[10px] font-medium uppercase text-[#717784]">
+            Experience
           </span>
           {selectedExperience !== 'all' && (
             <button
               onClick={() => onSelectExperience('all')}
-              className="text-[11px] font-semibold text-slate-400 hover:text-slate-700 cursor-pointer"
+              className="text-[10px] font-medium text-[#2563c9] hover:underline cursor-pointer"
             >
-              Clear
+              Reset
             </button>
           )}
         </div>
@@ -221,13 +230,14 @@ export const JobFilterSidebar: React.FC<JobFilterSidebarProps> = ({
               <button
                 key={opt.value}
                 onClick={() => onSelectExperience(opt.value)}
-                className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all text-left cursor-pointer ${
+                className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all text-left cursor-pointer ${
                   isSelected
-                    ? 'text-[#0066FF] font-bold bg-blue-50/80'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/60'
+                    ? 'bg-[#0f2f63] text-white shadow-xs'
+                    : 'bg-white/80 hover:bg-white text-[#0a0a0a] border border-[#e6e8ec]/80 hover:border-[#0f2f63]/30'
                 }`}
               >
                 <span>{opt.label}</span>
+                {isSelected && <Check className="w-3.5 h-3.5 text-white" />}
               </button>
             );
           })}
@@ -235,17 +245,17 @@ export const JobFilterSidebar: React.FC<JobFilterSidebarProps> = ({
       </div>
 
       {/* 4. PAY / SALARY SECTION */}
-      <div className="space-y-2.5 pt-4 border-t border-slate-100">
+      <div className="space-y-2 pt-4 border-t border-[#e6e8ec]">
         <div className="flex items-center justify-between">
-          <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">
-            SALARY / PAY
+          <span className="text-[10px] font-medium uppercase text-[#717784]">
+            Salary / Pay
           </span>
           {selectedBudget !== 'all' && (
             <button
               onClick={() => onSelectBudget('all')}
-              className="text-[11px] font-semibold text-slate-400 hover:text-slate-700 cursor-pointer"
+              className="text-[10px] font-medium text-[#2563c9] hover:underline cursor-pointer"
             >
-              Clear
+              Reset
             </button>
           )}
         </div>
@@ -256,31 +266,32 @@ export const JobFilterSidebar: React.FC<JobFilterSidebarProps> = ({
               <button
                 key={opt.value}
                 onClick={() => onSelectBudget(opt.value)}
-                className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all text-left cursor-pointer ${
+                className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all text-left cursor-pointer ${
                   isSelected
-                    ? 'text-[#0066FF] font-bold bg-blue-50/80'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/60'
+                    ? 'bg-[#0f2f63] text-white shadow-xs'
+                    : 'bg-white/80 hover:bg-white text-[#0a0a0a] border border-[#e6e8ec]/80 hover:border-[#0f2f63]/30'
                 }`}
               >
                 <span>{opt.label}</span>
+                {isSelected && <Check className="w-3.5 h-3.5 text-white" />}
               </button>
             );
           })}
         </div>
       </div>
 
-      {/* 5. INDUSTRY SECTION */}
-      <div className="space-y-2.5 pt-4 border-t border-slate-100">
+      {/* 5. INDUSTRY & CATEGORY SECTION */}
+      <div className="space-y-2 pt-4 border-t border-[#e6e8ec]">
         <div className="flex items-center justify-between">
-          <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">
-            INDUSTRY & CATEGORY
+          <span className="text-[10px] font-medium uppercase text-[#717784]">
+            Industry & Category
           </span>
           {selectedTrade !== 'All' && (
             <button
               onClick={() => onSelectTrade('All')}
-              className="text-[11px] font-semibold text-slate-400 hover:text-slate-700 cursor-pointer"
+              className="text-[10px] font-medium text-[#2563c9] hover:underline cursor-pointer"
             >
-              Clear
+              Reset
             </button>
           )}
         </div>
@@ -291,13 +302,14 @@ export const JobFilterSidebar: React.FC<JobFilterSidebarProps> = ({
               <button
                 key={trade}
                 onClick={() => onSelectTrade(trade)}
-                className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all text-left cursor-pointer ${
+                className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all text-left cursor-pointer ${
                   isSelected
-                    ? 'text-[#0066FF] font-bold bg-blue-50/80'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/60'
+                    ? 'bg-[#0f2f63] text-white shadow-xs'
+                    : 'bg-white/80 hover:bg-white text-[#0a0a0a] border border-[#e6e8ec]/80 hover:border-[#0f2f63]/30'
                 }`}
               >
                 <span>{trade}</span>
+                {isSelected && <Check className="w-3.5 h-3.5 text-white" />}
               </button>
             );
           })}

@@ -24,6 +24,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useMemo } from 'react';
+import { AppLoader } from '../../../components/common/AppLoader';
 
 export function ActiveJobsPage() {
     const navigate = useNavigate();
@@ -105,9 +106,8 @@ export function ActiveJobsPage() {
 
 
     if (isLoading) return (
-        <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-            <Loader2 className="w-12 h-12 text-[#0A1931] animate-spin" />
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#0A1931]/40">Gathering Intelligence...</p>
+        <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-4">
+            <AppLoader variant="page" message="Loading active openings..." />
         </div>
     );
 

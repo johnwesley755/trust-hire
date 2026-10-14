@@ -39,7 +39,11 @@ const SYNC_EVENT_NAME = 'trusthire_saved_sync_event';
 
 const serverSyncMap = new Map<string, boolean>();
 
-export const useSavedStore = () => {
+interface UseSavedStoreOptions {
+  lazy?: boolean;
+}
+
+export const useSavedStore = (options?: UseSavedStoreOptions) => {
   const { user } = useUser();
   const userId = user?.id || 'guest';
   const isLoggedIn = !!user?.id;
@@ -69,8 +73,9 @@ export const useSavedStore = () => {
   const [savedWorkers, setSavedWorkers] = useState<SavedWorker[]>(loadSavedWorkers);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Sync from DB once per session when user is logged in
+  // Sync from DB once per session when user is logged in (skipped in lazy mode)
   useEffect(() => {
+    if (options?.lazy) return;
     let isMounted = true;
 
     const fetchServerData = async () => {
@@ -247,6 +252,47 @@ export const useSavedStore = () => {
     }
   }, [userId, isLoggedIn]);
 
+  const syncSavedStatusFromList = useCallback((workers: any[]) => {
+    if (!Array.isArray(workers) || workers.length === 0) return;
+    const current = loadSavedWorkers();
+    let changed = false;
+    let updated = [...current];
+
+    workers.forEach((w) => {
+      const wid = w.userId || w.id;
+      if (!wid) return;
+      const existsIndex = updated.findIndex((sw) => sw.userId === wid || (sw as any).id === wid);
+
+      if (w.isSaved && existsIndex === -1) {
+        updated.push({
+          userId: wid,
+          name: w.name || 'Specialist',
+          profilePhoto: w.profileImageUrl || w.profilePhoto || '',
+          profileImageUrl: w.profileImageUrl || w.profilePhoto || '',
+          skills: Array.isArray(w.skills) ? w.skills : (typeof w.skills === 'string' ? w.skills.split(',').map((s: string) => s.trim()).filter(Boolean) : []),
+          city: w.city || w.location || 'Local Area',
+          location: w.location || w.city || 'Local Area',
+          experience: w.experienceYears || w.experience || 0,
+          trustScore: w.trustScore ? `${w.trustScore}%` : '98%',
+          isVerified: w.isVerified ?? true,
+          bio: w.bio,
+          savedAt: new Date().toISOString(),
+        });
+        changed = true;
+      }
+    });
+
+    if (changed) {
+      try {
+        localStorage.setItem(getWorkersStorageKey(), JSON.stringify(updated));
+        setSavedWorkers(updated);
+        notifyChange();
+      } catch (e) {
+        console.error('Failed to sync saved workers to local storage', e);
+      }
+    }
+  }, [userId, loadSavedWorkers]);
+
   return {
     savedJobs,
     savedWorkers,
@@ -257,5 +303,6 @@ export const useSavedStore = () => {
     isWorkerSaved,
     toggleSaveWorker,
     removeSavedWorker,
+    syncSavedStatusFromList,
   };
 };

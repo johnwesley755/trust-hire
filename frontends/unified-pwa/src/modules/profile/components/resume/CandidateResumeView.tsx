@@ -221,7 +221,7 @@ export const CandidateResumeView: React.FC<CandidateResumeViewProps> = ({
               <div className="flex items-center gap-1.5 text-xs text-slate-600 mt-2 font-medium">
                 <MapPin className="w-3.5 h-3.5 text-rose-500 shrink-0" />
                 <span>
-                  {data.area ? `${data.area}, ` : ''}{data.city || data.location || 'Chennai, India'}
+                  {data.area ? `${data.area}, ` : ''}{data.city || data.location || 'Location on request'}
                 </span>
               </div>
             </div>
@@ -388,7 +388,7 @@ export const CandidateResumeView: React.FC<CandidateResumeViewProps> = ({
                 <div>
                   <span className="text-[11px] text-slate-400 block font-medium">Primary Area</span>
                   <span className="font-bold text-slate-800">
-                    {data.area ? `${data.area}, ` : ''}{data.city || 'Chennai, India'}
+                    {data.area ? `${data.area}, ` : ''}{data.city || data.location || 'Location on request'}
                   </span>
                 </div>
 

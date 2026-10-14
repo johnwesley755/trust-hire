@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { adminService, type AdminUserItem } from '../../../services/admin.service';
 import { Users, Search, ShieldCheck, Mail, Phone, Calendar, Loader2, UserPlus, X, Lock, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { AppLoader } from '../../../components/common/AppLoader';
 
 export const AdminUsersPage: React.FC = () => {
   const queryClient = useQueryClient();
@@ -106,9 +107,7 @@ export const AdminUsersPage: React.FC = () => {
 
       {/* Users Table */}
       {isLoading ? (
-        <div className="flex justify-center py-20">
-          <Loader2 className="w-8 h-8 text-[#0066FF] animate-spin" />
-        </div>
+        <AppLoader variant="page" message="Loading user directory..." />
       ) : users.length === 0 ? (
         <div className="text-center py-20 bg-white rounded-3xl border border-slate-200/80 shadow-xs">
           <Users className="w-10 h-10 text-slate-400 mx-auto mb-3" />

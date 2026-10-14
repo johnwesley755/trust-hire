@@ -1,157 +1,189 @@
 import React, { useState, useEffect } from 'react';
-import { Search, MapPin, LocateFixed, Loader2 } from 'lucide-react';
+import { MapPin, LocateFixed, Loader2, AlertCircle, X } from 'lucide-react';
 import { detectCurrentCity } from '../../../utils/geolocation';
+import { useUser } from '../../../providers/AuthContext';
 
 interface JobSearchHeroProps {
   title?: string;
   subtitle?: string;
   initialQuery?: string;
   initialCity?: string;
+  totalJobs?: number;
+  selectedTrade?: string;
+  onTradeSelect?: (trade: string) => void;
   onSearch: (query: string, city: string) => void;
   onLocateMe?: (detectedCity?: string) => void;
   isLocating?: boolean;
 }
 
+const FEATURED_TRADES = [
+  "All",
+  "Construction",
+  "Facility Management",
+  "Logistics",
+  "Manufacturing",
+  "Hospitality",
+  "Security",
+  "Retail",
+  "Agriculture"
+];
+
 export const JobSearchHero: React.FC<JobSearchHeroProps> = ({
-  title = "Find your dream job",
-  subtitle = "Discover verified jobs, high-paying roles, and trusted employers in your area.",
+  title,
+  subtitle,
   initialQuery = '',
   initialCity = '',
+  totalJobs = 0,
+  selectedTrade = 'All',
+  onTradeSelect,
   onSearch,
   onLocateMe,
   isLocating = false,
 }) => {
-  const [query, setQuery] = useState(initialQuery);
-  const [city, setCity] = useState(initialCity);
+  const { user } = useUser();
+  const displayName = user?.firstName || 'Candidate';
+  const resolvedTitle = title || (user ? `Welcome back, ${displayName}! 👋` : "Verified Job Openings");
+  const resolvedSubtitle = subtitle || (user 
+    ? "Explore newly posted roles matching your verified trade skills with guaranteed escrow payouts."
+    : "Discover verified roles, escrow-protected wage payouts, and background-checked employers.");
   const [internalLocating, setInternalLocating] = useState(false);
-
-  useEffect(() => {
-    setQuery(initialQuery);
-  }, [initialQuery]);
-
-  useEffect(() => {
-    setCity(initialCity);
-  }, [initialCity]);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSearch(query.trim(), city.trim());
-  };
+  const [locationNotice, setLocationNotice] = useState<string | null>(null);
 
   const handleLocateClick = async () => {
     if (internalLocating || isLocating) return;
     setInternalLocating(true);
+    setLocationNotice(null);
     try {
       const loc = await detectCurrentCity();
       if (loc.city) {
-        setCity(loc.city);
-        onSearch(query.trim(), loc.city);
+        onSearch(initialQuery, loc.city);
         if (onLocateMe) {
           onLocateMe(loc.city);
         }
       }
     } catch (err: any) {
       console.error('Location detection error:', err);
-      alert(err.message || 'Could not detect location. Please enter your city manually.');
+      setLocationNotice(err.message || 'Location unavailable. Enter city in the search bar above.');
     } finally {
       setInternalLocating(false);
     }
   };
 
+  const handleClearCity = () => {
+    onSearch(initialQuery, '');
+  };
+
   const isDetecting = internalLocating || isLocating;
 
   return (
-    <div className="w-full bg-[#0A1931] text-white pt-10 pb-14 px-4 sm:px-6 lg:px-8 relative overflow-hidden font-sans">
-      {/* Ambient background glows */}
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#0066FF]/20 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-[#38BDF8]/15 rounded-full blur-3xl pointer-events-none" />
-
-      <div className="max-w-4xl mx-auto text-center space-y-6 relative z-10">
+    <div className="bg-[#f4f4f4] rounded-[1.75rem] border border-[#e6e8ec] p-5 sm:p-6 mb-6 shadow-xs font-['Onest',system-ui,sans-serif] space-y-4">
+      
+      {/* Top Row: Section Title, Counter & Location Detector */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         
-        {/* Main Title */}
-        <div>
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-white">
-            {title}
-          </h1>
-          {subtitle && (
-            <p className="text-slate-400 text-xs sm:text-sm font-medium mt-2 max-w-xl mx-auto">
-              {subtitle}
-            </p>
-          )}
-        </div>
-
-        {/* Dual Search Input Box */}
-        <form 
-          onSubmit={handleSubmit}
-          className="bg-white p-2 sm:p-2.5 rounded-2xl shadow-xl shadow-black/20 flex flex-col md:flex-row items-center gap-2 border border-slate-100"
-        >
-          {/* Keyword / Title Input */}
-          <div className="relative flex-1 w-full flex items-center px-3 py-1.5">
-            <Search className="w-5 h-5 text-slate-400 shrink-0 mr-3" />
-            <div className="flex flex-col flex-1 text-left">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                Search job title, keywords or company
-              </span>
-              <input
-                type="text"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="e.g. Electrician, Designer, Delivery..."
-                className="w-full bg-transparent text-slate-900 text-sm font-semibold placeholder:text-slate-400 placeholder:font-normal focus:outline-none"
-              />
-            </div>
+        {/* Title & Subtitle */}
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#0f2f63] animate-pulse" />
+            <span className="text-[10px] font-medium uppercase text-[#0f2f63]">
+              Verified Job Directory
+            </span>
           </div>
 
-          <div className="hidden md:block w-px h-10 bg-slate-200 shrink-0" />
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-medium uppercase leading-tight text-[#0a0a0a]">
+            {resolvedTitle}
+          </h1>
+          
+          <p className="text-xs text-[#717784] font-normal leading-relaxed max-w-xl">
+            {resolvedSubtitle}
+          </p>
+        </div>
 
-          {/* Location Input with Auto-Locate Button */}
-          <div className="relative flex-1 w-full flex items-center px-3 py-1.5">
-            <MapPin className="w-5 h-5 text-slate-400 shrink-0 mr-3" />
-            <div className="flex flex-col flex-1 text-left min-w-0 pr-2">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                Location
-              </span>
-              <input
-                type="text"
-                value={city}
-                onChange={(e) => setCity(e.target.value)}
-                placeholder="City, State or Area..."
-                className="w-full bg-transparent text-slate-900 text-sm font-semibold placeholder:text-slate-400 placeholder:font-normal focus:outline-none truncate"
-              />
+        {/* Right Badges: Live Count & Location Detector Chip */}
+        <div className="flex flex-wrap items-center gap-2.5 shrink-0 self-start md:self-auto">
+          
+          {/* Active Total Openings Badge */}
+          {totalJobs > 0 && (
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-[#e6e8ec] text-xs font-medium text-[#0a0a0a] shadow-xs">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span><strong className="font-semibold text-[#0a0a0a]">{totalJobs}</strong> Openings Available</span>
             </div>
+          )}
 
-            {/* Detect Location Button */}
+          {/* Quick Location Chip / Detector */}
+          {initialCity ? (
+            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#0f2f63] text-white text-xs font-medium shadow-xs">
+              <MapPin className="w-3.5 h-3.5 text-white" />
+              <span>{initialCity}</span>
+              <button
+                type="button"
+                onClick={handleClearCity}
+                className="p-0.5 hover:bg-white/20 rounded-full transition-colors cursor-pointer ml-1"
+                title="Clear city filter"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </div>
+          ) : (
             <button
               type="button"
               onClick={handleLocateClick}
-              title="Detect current location"
               disabled={isDetecting}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-[#0066FF] border border-blue-200/80 rounded-xl transition-all cursor-pointer shrink-0 text-xs font-bold disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white hover:bg-white/80 border border-[#e6e8ec] text-xs font-medium text-[#0a0a0a] shadow-xs transition-all active:scale-95 cursor-pointer disabled:opacity-60"
             >
               {isDetecting ? (
-                <>
-                  <Loader2 className="w-3.5 h-3.5 animate-spin text-[#0066FF]" />
-                  <span className="hidden sm:inline text-[11px]">Detecting...</span>
-                </>
+                <Loader2 className="w-3.5 h-3.5 text-[#0f2f63] animate-spin" />
               ) : (
-                <>
-                  <LocateFixed className="w-3.5 h-3.5 text-[#0066FF]" />
-                  <span className="hidden sm:inline text-[11px]">Detect Location</span>
-                </>
+                <LocateFixed className="w-3.5 h-3.5 text-[#2563c9]" />
               )}
+              <span>{isDetecting ? 'Detecting City...' : 'Detect Near Me'}</span>
             </button>
-          </div>
+          )}
 
-          {/* Primary Search Button */}
-          <button
-            type="submit"
-            className="w-full md:w-auto px-8 py-3.5 bg-[#0066FF] hover:bg-[#0052CC] active:scale-98 text-white rounded-xl font-bold text-sm tracking-wide shadow-md shadow-[#0066FF]/25 hover:shadow-lg transition-all cursor-pointer shrink-0"
-          >
-            Search
-          </button>
-        </form>
+        </div>
 
       </div>
+
+      {/* Optional Inline Location Notice (No Alert Boxes) */}
+      {locationNotice && (
+        <div className="flex items-center gap-2 px-3 py-2 bg-amber-50 border border-amber-200/80 rounded-xl text-xs text-amber-800">
+          <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
+          <span>{locationNotice}</span>
+          <button
+            type="button"
+            onClick={() => setLocationNotice(null)}
+            className="ml-auto text-amber-600 hover:text-amber-800 text-xs font-medium cursor-pointer"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
+
+      {/* Horizontal Trade Filter Pills */}
+      {onTradeSelect && (
+        <div className="pt-2 border-t border-[#e6e8ec]/80 flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+          <span className="text-[10px] font-medium uppercase text-[#717784] shrink-0 mr-1 hidden sm:inline-block">
+            Categories:
+          </span>
+          {FEATURED_TRADES.map((trade) => {
+            const isSelected = selectedTrade === trade;
+            return (
+              <button
+                key={trade}
+                onClick={() => onTradeSelect(trade)}
+                className={`px-3.5 py-1.5 rounded-full text-xs font-medium shrink-0 transition-all cursor-pointer ${
+                  isSelected
+                    ? 'bg-[#0f2f63] text-white shadow-xs'
+                    : 'bg-white border border-[#e6e8ec] text-[#0a0a0a] hover:border-[#0f2f63]/40'
+                }`}
+              >
+                {trade}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
     </div>
   );
 };

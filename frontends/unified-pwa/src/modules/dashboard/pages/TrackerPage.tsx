@@ -1,351 +1,337 @@
 import { useQuery } from '@tanstack/react-query';
 import { profileService } from '../../../services/profile.service';
-import { jobService } from '../../../services/job.service'; 
 import { applicationService } from '../../../services/application.service';
-import { dashboardService } from '../../../services/dashboard.service';
-import { recommendationService, type RecommendedJob } from '../../../services/recommendation.service';
 import { queryKeys } from '../../../lib/queryKeys';
-import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { useState, useMemo } from 'react';
 import { useUser } from '../../../providers/AuthContext';
-
-// Modular Components
-import { StatsSection } from '../components/StatsSection';
-import { ProgressSidePanel } from '../components/ProgressSidePanel';
-import { PreferencesModal, type WorkerPreferences } from '../../profile/components/PreferencesModal';
-import { Zap, Sparkles, SlidersHorizontal, MapPin, Briefcase, ChevronRight, CheckCircle2, ShieldCheck } from 'lucide-react';
-import { AppLoader } from '../../../components/common/AppLoader';
+import { 
+  Briefcase, 
+  ChevronRight, 
+  CheckCircle2, 
+  ShieldCheck, 
+  Clock, 
+  MapPin, 
+  DollarSign, 
+  AlertCircle, 
+  FileText,
+  Filter,
+  Activity,
+  ArrowRight
+} from 'lucide-react';
 import apiClient from '../../../api/apiClient';
 
 export default function TrackerPage() {
   const navigate = useNavigate();
   const { user } = useUser();
-  const [isPreferencesOpen, setIsPreferencesOpen] = useState(false);
+  const [filterType, setFilterType] = useState<'all' | 'applications' | 'shifts' | 'escrow'>('all');
 
   const { data: profile } = useQuery({
     queryKey: queryKeys.workers.detail('me'),
     queryFn: profileService.getProfile,
   });
 
-  const { data: stats } = useQuery({
-    queryKey: ['workerStats'],
-    queryFn: dashboardService.getWorkerStats,
-  });
-
-  const { data: allJobs = [] } = useQuery({
-    queryKey: queryKeys.jobs.all,
-    queryFn: jobService.getAllJobs,
-  });
-
-  const { data: myApplications = [] } = useQuery({
+  const { data: myApplications = [], isLoading: isAppsLoading } = useQuery({
     queryKey: queryKeys.jobs.myApplications,
     queryFn: applicationService.getMyApplications,
   });
 
-  const { data: recommendedJobs = [], isLoading: recLoading, refetch: refetchRecommendations } = useQuery({
-    queryKey: ['recommendedJobs'],
-    queryFn: () => recommendationService.getRecommendedJobs(),
-  });
-
   const { data: activities = [], isLoading: activitiesLoading } = useQuery({
-    queryKey: queryKeys.activities.recent(5),
+    queryKey: queryKeys.activities.recent(20),
     queryFn: async () => {
-        const res = await apiClient.get('/api/activities/recent?limit=5');
+      try {
+        const res = await apiClient.get('/api/activities/recent?limit=20');
         return Array.isArray(res.data) ? res.data : [];
+      } catch {
+        return [];
+      }
     }
   });
 
-  const handlePreferencesSaved = (_newPrefs: WorkerPreferences) => {
-    refetchRecommendations();
-  };
+  // Calculate quick metrics
+  const completedApps = myApplications.filter((a: any) => a.status === 'COMPLETED' || a.status === 'ACCEPTED' || a.status === 'APPROVED');
+  const pendingApps = myApplications.filter((a: any) => a.status === 'PENDING' || a.status === 'APPLIED' || a.status === 'REVIEWING');
+  const offersReceived = myApplications.filter((a: any) => a.status === 'OFFER_SENT');
 
-  const isProfileComplete = Boolean(profile?.bio && profile?.skills && profile?.location);
+  // Combined and filtered activity items
+  const filteredItems = useMemo(() => {
+    let list: any[] = [];
 
-  const appliedJobIds = new Set(myApplications.map((app: any) => app.jobId));
-  const unappliedRecommendedJobs = recommendedJobs.filter((job: RecommendedJob) => !appliedJobIds.has(job.id));
+    // Map applications to timeline items
+    myApplications.forEach((app: any) => {
+      list.push({
+        id: `app-${app.id}`,
+        type: 'application',
+        title: app.job?.title || 'Job Application',
+        company: app.job?.employerProfile?.companyName || app.job?.employerName || 'Verified Employer',
+        location: app.job?.location || app.job?.city || 'Local Zone',
+        date: app.appliedAt || app.createdAt,
+        status: app.status,
+        wage: app.job?.budget ? `₹${Number(app.job.budget).toLocaleString('en-IN')}` : undefined,
+        jobId: app.jobId
+      });
+    });
+
+    // Map system activities to timeline items
+    activities.forEach((act: any, idx: number) => {
+      list.push({
+        id: `act-${act.id || idx}`,
+        type: act.type?.toLowerCase().includes('escrow') ? 'escrow' : 'activity',
+        title: act.description || act.title || 'System Milestone',
+        company: 'TrustHire Protocol',
+        location: 'Verified Chain',
+        date: act.createdAt || new Date().toISOString(),
+        status: act.type || 'EVENT',
+        wage: act.amount ? `₹${Number(act.amount).toLocaleString('en-IN')}` : undefined
+      });
+    });
+
+    // Sort descending by date
+    list.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+    if (filterType === 'applications') {
+      return list.filter(item => item.type === 'application');
+    }
+    if (filterType === 'shifts') {
+      return list.filter(item => item.status === 'ACCEPTED' || item.status === 'COMPLETED' || item.status === 'APPROVED');
+    }
+    if (filterType === 'escrow') {
+      return list.filter(item => item.type === 'escrow' || item.status?.includes('ESCROW'));
+    }
+    return list;
+  }, [myApplications, activities, filterType]);
 
   return (
-    <div className="p-4 md:p-6 max-w-7xl mx-auto w-full space-y-6">
-      
-      {/* Top Header & Profile Status */}
-      <section className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
-        <div>
-          <div className="flex items-center gap-2.5">
-            <h1 className="text-xl md:text-2xl font-extrabold text-[#0A1931] tracking-tight">
-              Welcome back, {profile?.fullName?.split(' ')[0] || user?.firstName || 'Partner'}! 👋
-            </h1>
-            <span className="text-[10px] font-black uppercase text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200 flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              Verified Partner
+    <div className="w-full min-h-screen p-2 sm:p-3 bg-white font-['Onest',system-ui,sans-serif] text-[#0a0a0a]">
+      <main className="max-w-7xl mx-auto space-y-6 pb-20">
+        
+        {/* 1. Header Card - Pure Activity History Focus */}
+        <div className="bg-[#f4f4f4] rounded-[2rem] p-6 sm:p-8 border border-[#e6e8ec]">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#0f2f63] animate-pulse" />
+                <span className="text-[10px] font-semibold uppercase text-[#0f2f63]">
+                  Candidate Audit Trail
+                </span>
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-[#0a0a0a]">
+                Activity & Application History
+              </h1>
+              <p className="text-xs text-[#717784] font-medium leading-relaxed max-w-xl">
+                Comprehensive log of your verified job applications, shift confirmations, and automated escrow payout releases.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2.5">
+              <Link
+                to="/search"
+                className="inline-flex items-center gap-1.5 px-5 py-2.5 bg-[#0f2f63] hover:bg-[#2563c9] text-white rounded-full font-medium text-xs uppercase shadow-xs transition-all active:scale-95"
+              >
+                <span>Find New Jobs</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        {/* 2. Quick Metrics Row */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+          <div className="bg-[#f4f4f4] p-4 rounded-2xl border border-[#e6e8ec] text-center space-y-1">
+            <p className="text-[10px] font-bold uppercase text-[#717784]">Total Submitted</p>
+            <p className="text-xl font-bold text-[#0a0a0a]">{myApplications.length}</p>
+            <p className="text-[10px] text-[#717784]">applications</p>
+          </div>
+          <div className="bg-[#f4f4f4] p-4 rounded-2xl border border-[#e6e8ec] text-center space-y-1">
+            <p className="text-[10px] font-bold uppercase text-[#717784]">Under Review</p>
+            <p className="text-xl font-bold text-blue-700">{pendingApps.length}</p>
+            <p className="text-[10px] text-[#717784]">active pipeline</p>
+          </div>
+          <div className="bg-[#f4f4f4] p-4 rounded-2xl border border-[#e6e8ec] text-center space-y-1">
+            <p className="text-[10px] font-bold uppercase text-[#717784]">Offers Received</p>
+            <p className="text-xl font-bold text-amber-600">{offersReceived.length}</p>
+            <p className="text-[10px] text-[#717784]">action required</p>
+          </div>
+          <div className="bg-[#f4f4f4] p-4 rounded-2xl border border-[#e6e8ec] text-center space-y-1">
+            <p className="text-[10px] font-bold uppercase text-[#717784]">Confirmed / Hired</p>
+            <p className="text-xl font-bold text-emerald-600">{completedApps.length}</p>
+            <p className="text-[10px] text-[#717784]">successful shifts</p>
+          </div>
+        </div>
+
+        {/* 3. Filter Pill Control Bar */}
+        <div className="flex flex-wrap items-center justify-between gap-3 bg-[#fbfbfb] p-3 rounded-2xl border border-[#e6e8ec]">
+          <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none">
+            <button
+              onClick={() => setFilterType('all')}
+              className={`px-4 py-2 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+                filterType === 'all'
+                  ? 'bg-[#0f2f63] text-white shadow-xs'
+                  : 'bg-white text-[#717784] hover:text-[#0a0a0a] border border-[#e6e8ec]'
+              }`}
+            >
+              All Activity ({filteredItems.length})
+            </button>
+            <button
+              onClick={() => setFilterType('applications')}
+              className={`px-4 py-2 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+                filterType === 'applications'
+                  ? 'bg-[#0f2f63] text-white shadow-xs'
+                  : 'bg-white text-[#717784] hover:text-[#0a0a0a] border border-[#e6e8ec]'
+              }`}
+            >
+              Applications ({myApplications.length})
+            </button>
+            <button
+              onClick={() => setFilterType('shifts')}
+              className={`px-4 py-2 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+                filterType === 'shifts'
+                  ? 'bg-[#0f2f63] text-white shadow-xs'
+                  : 'bg-white text-[#717784] hover:text-[#0a0a0a] border border-[#e6e8ec]'
+              }`}
+            >
+              Confirmed Shifts ({completedApps.length})
+            </button>
+            <button
+              onClick={() => setFilterType('escrow')}
+              className={`px-4 py-2 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+                filterType === 'escrow'
+                  ? 'bg-[#0f2f63] text-white shadow-xs'
+                  : 'bg-white text-[#717784] hover:text-[#0a0a0a] border border-[#e6e8ec]'
+              }`}
+            >
+              Escrow Payouts
+            </button>
+          </div>
+
+          <Link
+            to="/applied-jobs"
+            className="text-xs font-semibold text-[#0f2f63] hover:underline flex items-center gap-1 px-2"
+          >
+            <span>Manage Applications Pipeline</span>
+            <ChevronRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+
+        {/* 4. Activity Timeline List */}
+        <div className="bg-[#f4f4f4] rounded-[1.75rem] p-6 sm:p-8 border border-[#e6e8ec] space-y-4">
+          <div className="flex items-center justify-between border-b border-[#e6e8ec] pb-3">
+            <h3 className="text-xs font-bold uppercase text-[#717784]">
+              Chronological Audit Log
+            </h3>
+            <span className="text-[11px] text-[#717784]">
+              Showing {filteredItems.length} records
             </span>
           </div>
-          <p className="text-xs text-slate-500 font-medium mt-1">
-            Hyperlocal partner hub • Real-time job matching active
-          </p>
-        </div>
 
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setIsPreferencesOpen(true)}
-            className="px-3.5 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-xl text-xs font-bold border border-slate-200 transition-all flex items-center gap-1.5 active:scale-98 cursor-pointer"
-          >
-            <SlidersHorizontal className="w-3.5 h-3.5 text-[#0066FF]" />
-            Job Preferences
-          </button>
-          <button
-            onClick={() => navigate('/search')}
-            className="px-4 py-2 bg-[#0066FF] hover:bg-blue-700 text-white rounded-xl text-xs font-bold uppercase tracking-wider shadow-sm active:scale-98 transition-all flex items-center gap-1.5 cursor-pointer"
-          >
-            <Zap className="w-3.5 h-3.5 text-amber-300 fill-amber-300" />
-            Browse Jobs
-          </button>
-        </div>
-      </section>
-
-      {/* Smart Match AI Banner */}
-      <div className="bg-gradient-to-r from-[#0066FF] to-[#0A1931] rounded-2xl p-5 text-white flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-md shadow-blue-900/10 relative overflow-hidden">
-        <div className="flex items-center gap-3.5 relative z-10">
-          <div className="w-11 h-11 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center shrink-0 text-amber-300">
-            <Sparkles className="w-5 h-5" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h3 className="text-sm sm:text-base font-extrabold text-white">Smart Match Recommendations Active</h3>
-              <span className="bg-amber-400 text-slate-900 text-[9px] font-black uppercase px-2 py-0.5 rounded-sm">
-                Live AI
-              </span>
+          {filteredItems.length === 0 ? (
+            <div className="bg-white rounded-2xl p-10 border border-[#e6e8ec] text-center space-y-3">
+              <div className="w-12 h-12 bg-[#f4f4f4] rounded-full flex items-center justify-center mx-auto text-[#717784]">
+                <Activity className="w-6 h-6" />
+              </div>
+              <h4 className="text-sm font-bold text-[#0a0a0a]">No Activity Logged Yet</h4>
+              <p className="text-xs text-[#717784] max-w-sm mx-auto">
+                Once you apply to jobs or complete shift milestones, your tamper-proof verification history will appear here.
+              </p>
+              <Link
+                to="/search"
+                className="inline-flex items-center gap-1.5 px-5 py-2.5 bg-[#0f2f63] text-white rounded-full text-xs font-semibold uppercase active:scale-95 transition-all"
+              >
+                Browse Job Openings
+              </Link>
             </div>
-            <p className="text-blue-100/80 text-xs mt-0.5 max-w-xl">
-              Jobs are dynamically ranked by your skills, salary rate, and radius. Guaranteed escrow payout upon completion.
-            </p>
-          </div>
-        </div>
+          ) : (
+            <div className="space-y-3">
+              {filteredItems.map((item) => {
+                const isOffer = item.status === 'OFFER_SENT';
+                const isAccepted = item.status === 'ACCEPTED' || item.status === 'APPROVED' || item.status === 'COMPLETED';
+                const isRejected = item.status === 'REJECTED' || item.status === 'DECLINED';
+                
+                return (
+                  <div
+                    key={item.id}
+                    onClick={() => item.jobId && navigate(`/job/${item.jobId}`)}
+                    className="bg-white rounded-2xl p-4 sm:p-5 border border-[#e6e8ec] hover:border-[#0f2f63]/40 transition-all flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 cursor-pointer group"
+                  >
+                    <div className="flex items-start gap-3.5 flex-1">
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${
+                        isAccepted 
+                          ? 'bg-emerald-50 text-emerald-600 border-emerald-200' 
+                          : isOffer 
+                          ? 'bg-amber-50 text-amber-600 border-amber-200' 
+                          : isRejected 
+                          ? 'bg-rose-50 text-rose-600 border-rose-200' 
+                          : 'bg-[#e6eefc] text-[#0f2f63] border-blue-200'
+                      }`}>
+                        {item.type === 'escrow' ? (
+                          <DollarSign className="w-5 h-5" />
+                        ) : isAccepted ? (
+                          <CheckCircle2 className="w-5 h-5" />
+                        ) : isOffer ? (
+                          <AlertCircle className="w-5 h-5" />
+                        ) : (
+                          <Briefcase className="w-5 h-5" />
+                        )}
+                      </div>
 
-        <div className="flex items-center gap-2 shrink-0 z-10">
-          <button
-            onClick={() => setIsPreferencesOpen(true)}
-            className="bg-amber-400 hover:bg-amber-300 text-slate-900 px-4 py-2 rounded-xl font-bold text-xs uppercase tracking-wider transition-all shadow-xs cursor-pointer"
-          >
-            Set Match Radius
-          </button>
-          {!isProfileComplete && (
-            <button
-              onClick={() => navigate('/profile')}
-              className="bg-white/10 hover:bg-white/20 text-white px-3.5 py-2 rounded-xl font-bold text-xs border border-white/20 transition-all cursor-pointer"
-            >
-              Complete Profile
-            </button>
+                      <div className="space-y-1 min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <h4 className="text-sm font-bold text-[#0a0a0a] group-hover:text-[#0f2f63] transition-colors truncate">
+                            {item.title}
+                          </h4>
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                            isAccepted 
+                              ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' 
+                              : isOffer 
+                              ? 'bg-amber-50 text-amber-800 border border-amber-200 animate-pulse' 
+                              : isRejected 
+                              ? 'bg-rose-50 text-rose-800 border border-rose-200' 
+                              : 'bg-blue-50 text-blue-800 border border-blue-200'
+                          }`}>
+                            {item.status}
+                          </span>
+                        </div>
+
+                        <div className="flex flex-wrap items-center gap-2.5 text-xs text-[#717784]">
+                          <span className="font-semibold text-[#0a0a0a]">{item.company}</span>
+                          <span>•</span>
+                          <span className="flex items-center gap-1">
+                            <MapPin className="w-3 h-3 text-[#0f2f63]" />
+                            <span>{item.location}</span>
+                          </span>
+                          {item.wage && (
+                            <>
+                              <span>•</span>
+                              <span className="font-semibold text-emerald-700">{item.wage}</span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end pt-2 sm:pt-0 border-t sm:border-t-0 border-[#e6e8ec]">
+                      <div className="text-left sm:text-right text-[11px] text-[#717784]">
+                        <p className="flex items-center gap-1">
+                          <Clock className="w-3 h-3 text-[#717784]" />
+                          <span>{item.date ? new Date(item.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Recent'}</span>
+                        </p>
+                      </div>
+
+                      {item.jobId && (
+                        <span className="text-xs font-semibold text-[#0f2f63] flex items-center gap-0.5 group-hover:translate-x-0.5 transition-transform">
+                          <span>Details</span>
+                          <ChevronRight className="w-3.5 h-3.5" />
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           )}
         </div>
-      </div>
 
-      {/* Stats Row */}
-      {(() => {
-        const completedApps = myApplications.filter(a => a.status === 'COMPLETED' || a.status === 'ACCEPTED' || a.status === 'APPROVED');
-        const completedEarnings = completedApps.reduce((acc, app) => acc + (Number(app.job?.budget) || 0), 0);
-        const earningsDisplay = completedEarnings > 0 ? `₹${completedEarnings.toLocaleString()}` : "₹0";
-
-        return (
-          <StatsSection 
-            nearbyJobs={allJobs.length || unappliedRecommendedJobs.length} 
-            earnings={earningsDisplay} 
-            completedJobs={completedApps.length}
-          />
-        );
-      })()}
-
-      {/* Main Grid: Recommended Jobs & Progress/Activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        
-        {/* Left Column: Recommended Jobs */}
-        <div className="lg:col-span-8 space-y-4">
-          <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs">
-            <div className="flex justify-between items-center mb-4">
-              <div>
-                <h2 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
-                  <span className="w-1.5 h-4 bg-[#0066FF] rounded-full"></span>
-                  Top Recommended Jobs for You
-                </h2>
-                <p className="text-xs text-slate-400 font-medium">Ranked by proximity and your verified skill profile</p>
-              </div>
-              <button
-                onClick={() => navigate('/search')}
-                className="text-xs font-bold text-[#0066FF] hover:underline flex items-center gap-1 cursor-pointer"
-              >
-                View all ({allJobs.length})
-                <ChevronRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
-
-            {recLoading ? (
-              <AppLoader variant="page" message="Loading recommendations..." />
-            ) : unappliedRecommendedJobs.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {unappliedRecommendedJobs.slice(0, 4).map((job: RecommendedJob) => (
-                  <div
-                    key={job.id}
-                    onClick={() => navigate(`/job/${job.id}`)}
-                    className="p-4 rounded-xl border border-slate-200 hover:border-blue-300 hover:shadow-md transition-all cursor-pointer bg-white flex flex-col justify-between group"
-                  >
-                    <div>
-                      <div className="flex justify-between items-start gap-2 mb-2">
-                        <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200">
-                          {job.matchPercentage}% Match
-                        </span>
-                        <span className="text-xs font-black text-slate-900 bg-slate-100 px-2 py-0.5 rounded-md">
-                          ₹{job.budget?.toLocaleString() || 'Negotiable'}
-                        </span>
-                      </div>
-
-                      <h3 className="text-sm font-bold text-slate-900 group-hover:text-[#0066FF] transition-colors leading-tight line-clamp-1">
-                        {job.title}
-                      </h3>
-                      <p className="text-xs text-slate-500 font-medium mt-0.5 flex items-center gap-1">
-                        <ShieldCheck className="w-3 h-3 text-[#0066FF]" />
-                        {job.employerName || 'Verified Enterprise Partner'}
-                      </p>
-
-                      <div className="flex items-center gap-2 text-xs text-slate-400 mt-2 font-medium">
-                        <span className="flex items-center gap-0.5 text-slate-600">
-                          <MapPin className="w-3 h-3 text-[#0066FF]" />
-                          {job.city || 'Local area'}
-                        </span>
-                        <span>•</span>
-                        <span className="flex items-center gap-0.5">
-                          <Briefcase className="w-3 h-3" />
-                          {job.industry || 'General'}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-                      <span className="text-[10px] text-emerald-600 font-semibold truncate max-w-[180px]">
-                        {job.matchReasons[0] || 'Top Skill Fit'}
-                      </span>
-                      <span className="text-[#0066FF] font-bold text-xs flex items-center group-hover:translate-x-0.5 transition-transform">
-                        Apply Now
-                        <ChevronRight className="w-3.5 h-3.5 ml-0.5" />
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : recommendedJobs.length > 0 ? (
-              <div className="text-center py-8 bg-emerald-50/60 rounded-xl border border-emerald-200">
-                <CheckCircle2 className="w-8 h-8 text-emerald-600 mx-auto mb-1.5" />
-                <p className="text-xs font-bold text-slate-800">You've applied to all top recommended jobs!</p>
-                <p className="text-[11px] text-slate-500 mt-0.5">Track your application pipeline & escrow milestones in real-time.</p>
-                <button
-                  onClick={() => navigate('/applied-jobs')}
-                  className="mt-3 inline-flex items-center gap-1.5 px-4 py-2 bg-[#0066FF] hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-xs cursor-pointer"
-                >
-                  View Applied Jobs ({myApplications.length})
-                  <ChevronRight className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            ) : (
-              <div className="text-center py-8 bg-slate-50 rounded-xl border border-dashed border-slate-200">
-                <Briefcase className="w-8 h-8 text-slate-400 mx-auto mb-1" />
-                <p className="text-xs font-bold text-slate-600">No matching jobs currently</p>
-                <button
-                  onClick={() => setIsPreferencesOpen(true)}
-                  className="mt-2 text-xs font-bold text-[#0066FF] underline hover:text-blue-700"
-                >
-                  Adjust your search preferences
-                </button>
-              </div>
-            )}
-          </div>
-
-          {/* Recent Activity / Applications Card */}
-          <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-sm font-extrabold text-slate-900 flex items-center gap-2">
-                <span className="w-1.5 h-4 bg-[#0066FF] rounded-full"></span>
-                Recent Job Applications
-              </h2>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                {myApplications.length} active applications
-              </span>
-            </div>
-
-            <div className="space-y-2">
-              {myApplications.length > 0 ? (
-                myApplications.slice(0, 3).map((app: any) => {
-                  const isOffer = app.status === 'ACCEPTED' || app.status === 'APPROVED' || app.status === 'COMPLETED';
-                  const isDeclined = app.status === 'REJECTED' || app.status === 'DECLINED';
-                  return (
-                    <div 
-                      key={app.id} 
-                      onClick={() => navigate(`/job/${app.jobId}`)}
-                      className="flex items-center justify-between p-3 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:border-blue-200 transition-all cursor-pointer group"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs ${
-                          isOffer ? 'bg-emerald-50 text-emerald-600' : isDeclined ? 'bg-rose-50 text-rose-600' : 'bg-blue-50 text-[#0066FF]'
-                        }`}>
-                          <Briefcase className="w-4 h-4" />
-                        </div>
-                        <div>
-                          <p className="text-xs font-bold text-slate-800 leading-tight group-hover:text-[#0066FF] transition-colors">
-                            {app.job?.title || 'Applied Job'}
-                          </p>
-                          <p className="text-[10px] text-slate-400">
-                            Applied {new Date(app.appliedAt).toLocaleDateString()}
-                          </p>
-                        </div>
-                      </div>
-                      <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-md ${
-                        isOffer 
-                          ? 'bg-emerald-100 text-emerald-800' 
-                          : isDeclined 
-                            ? 'bg-rose-100 text-rose-800' 
-                            : 'bg-blue-100 text-blue-800'
-                      }`}>
-                        {isOffer ? 'Approved & Hired' : isDeclined ? 'Declined' : 'Under Review'}
-                      </span>
-                    </div>
-                  );
-                })
-              ) : activities.length > 0 ? (
-                activities.map((activity: any, i: number) => (
-                  <div key={i} className="flex items-center justify-between p-3 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-white transition-colors">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-blue-50 text-[#0066FF] flex items-center justify-center font-bold text-xs">
-                        <CheckCircle2 className="w-4 h-4" />
-                      </div>
-                      <div>
-                        <p className="text-xs font-bold text-slate-800 leading-tight">{activity.description}</p>
-                        <p className="text-[10px] text-slate-400">{new Date(activity.createdAt).toLocaleDateString()}</p>
-                      </div>
-                    </div>
-                    <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-md bg-slate-200 text-slate-700">
-                      {activity.type.replace(/_/g, ' ')}
-                    </span>
-                  </div>
-                ))
-              ) : (
-                <div className="text-center py-6 text-xs font-medium text-slate-400">
-                  No active applications yet. Apply to jobs to track your pipeline.
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Right Column: Progress & Level Panel */}
-        <div className="lg:col-span-4 space-y-4">
-          <ProgressSidePanel level={profile?.level} progress={75} />
-        </div>
-      </div>
-
-      {/* Preferences Modal Dialog */}
-      <PreferencesModal
-        isOpen={isPreferencesOpen}
-        onClose={() => setIsPreferencesOpen(false)}
-        onSave={handlePreferencesSaved}
-      />
+      </main>
     </div>
   );
 }
-

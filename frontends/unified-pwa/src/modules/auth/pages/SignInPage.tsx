@@ -27,7 +27,7 @@ export const SignInPage = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
     
-    const { user, isSignedIn, login, signInWithGoogle } = useAuth();
+    const { user, isSignedIn, login, signInWithGoogle, authError, clearAuthError } = useAuth();
     const navigate = useNavigate();
 
     // Auto redirect when user becomes signed in
@@ -37,6 +37,38 @@ export const SignInPage = () => {
             navigate(target, { replace: true });
         }
     }, [isSignedIn, user, navigate]);
+
+    // Sync auth errors into in-line page alert toast (no native browser alert popups)
+    React.useEffect(() => {
+        if (authError) {
+            setError(authError);
+        }
+    }, [authError]);
+
+    React.useEffect(() => {
+        const handleAuthErrorEvent = (e: any) => {
+            if (e.detail) {
+                setError(e.detail);
+            }
+        };
+        window.addEventListener('auth:error', handleAuthErrorEvent);
+        return () => window.removeEventListener('auth:error', handleAuthErrorEvent);
+    }, []);
+
+    const handleGoogleSignIn = async () => {
+        setError('');
+        clearAuthError();
+        try {
+            await signInWithGoogle(activeRole);
+        } catch (err: any) {
+            if (
+                err?.code !== 'auth/popup-closed-by-user' &&
+                err?.code !== 'auth/cancelled-popup-request'
+            ) {
+                setError(err?.response?.data?.message || err?.message || 'Google Sign-In failed.');
+            }
+        }
+    };
 
     // Keep activeRole synced if query param changes
     React.useEffect(() => {
@@ -76,7 +108,7 @@ export const SignInPage = () => {
         <div className="w-full min-h-screen p-2 sm:p-3 bg-white font-['Onest',system-ui,sans-serif] selection:bg-[#2563c9] selection:text-white flex flex-col">
             
             {/* Framed Full-Screen Canvas matching Landing Page Architecture */}
-            <div className="relative w-full flex-1 min-h-[calc(100svh-1rem)] sm:min-h-[calc(100svh-1.5rem)] lg:h-[calc(100svh-1.5rem)] rounded-[2rem] overflow-hidden border border-[#e6e8ec] bg-white shadow-xl grid grid-cols-1 lg:grid-cols-12 transition-all">
+            <div className="relative w-full flex-1 min-h-[calc(100svh-1rem)] sm:min-h-[calc(100svh-1.5rem)] lg:h-[calc(100svh-1.5rem)] rounded-2xl sm:rounded-[2rem] overflow-hidden border border-[#e6e8ec] bg-white shadow-xl grid grid-cols-1 lg:grid-cols-12 transition-all">
                 
                 {/* Left Side: Full-Bleed Brand Visual Hero */}
                 <div className="lg:col-span-5 xl:col-span-5 hidden lg:block h-full">
@@ -84,10 +116,10 @@ export const SignInPage = () => {
                 </div>
 
                 {/* Right Side: Clean Modern Form with Independent Smooth Scroll */}
-                <div className="lg:col-span-7 xl:col-span-7 p-6 sm:p-10 lg:p-12 flex flex-col justify-between relative bg-white h-full overflow-y-auto">
+                <div className="lg:col-span-7 xl:col-span-7 p-4 sm:p-8 lg:p-12 flex flex-col justify-between relative bg-white h-full overflow-y-auto">
                     
                     {/* Top Navigation Row: Back Link + Role Segmented Switcher */}
-                    <div className="flex items-center justify-between gap-3 mb-6 sm:mb-8">
+                    <div className="flex flex-wrap items-center justify-between gap-3 mb-6 sm:mb-8">
                         {/* Mobile Brand Logo / Desktop Back Link */}
                         <div className="flex items-center gap-2">
                             <Link 
@@ -179,7 +211,7 @@ export const SignInPage = () => {
                                     onChange={(e) => setEmail(e.target.value)}
                                     placeholder={isCandidate ? 'name@example.com' : 'hr@company.com'}
                                     required
-                                    className="w-full bg-[#f4f4f4]/60 hover:bg-[#f4f4f4] focus:bg-white border border-[#e6e8ec] focus:border-[#0f2f63] rounded-xl px-4 py-3 text-sm text-[#0a0a0a] placeholder:text-[#9ea3ae] font-normal transition-all outline-hidden focus:ring-2 focus:ring-[#0f2f63]/10"
+                                    className="w-full bg-[#f4f4f4]/60 hover:bg-[#f4f4f4] focus:bg-white border border-[#e6e8ec] focus:border-[#0f2f63] rounded-xl px-4 py-3 text-base sm:text-sm text-[#0a0a0a] placeholder:text-[#9ea3ae] font-normal transition-all outline-hidden focus:ring-2 focus:ring-[#0f2f63]/10"
                                 />
                             </div>
 
@@ -187,7 +219,7 @@ export const SignInPage = () => {
                             <div className="space-y-1.5">
                                 <div className="flex items-center justify-between">
                                     <label className="block text-xs font-medium uppercase text-[#0a0a0a]">
-                                        Password
+                                         Password
                                     </label>
                                     <Link 
                                         to={`/forgot-password?role=${activeRole.toLowerCase()}`}
@@ -203,7 +235,7 @@ export const SignInPage = () => {
                                         onChange={(e) => setPassword(e.target.value)}
                                         placeholder="••••••••••••"
                                         required
-                                        className="w-full bg-[#f4f4f4]/60 hover:bg-[#f4f4f4] focus:bg-white border border-[#e6e8ec] focus:border-[#0f2f63] rounded-xl px-4 py-3 pr-10 text-sm text-[#0a0a0a] placeholder:text-[#9ea3ae] font-normal transition-all outline-hidden focus:ring-2 focus:ring-[#0f2f63]/10"
+                                        className="w-full bg-[#f4f4f4]/60 hover:bg-[#f4f4f4] focus:bg-white border border-[#e6e8ec] focus:border-[#0f2f63] rounded-xl px-4 py-3 pr-10 text-base sm:text-sm text-[#0a0a0a] placeholder:text-[#9ea3ae] font-normal transition-all outline-hidden focus:ring-2 focus:ring-[#0f2f63]/10"
                                     />
                                     <button
                                         type="button"
@@ -248,19 +280,17 @@ export const SignInPage = () => {
                             </p>
                         </div>
 
-                        {/* OR Divider */}
-                        <div className="flex items-center gap-3 my-5">
-                            <div className="flex-1 h-px bg-[#e6e8ec]"></div>
-                            <span className="text-[10px] font-medium uppercase text-[#9ea3ae]">or continue with</span>
-                            <div className="flex-1 h-px bg-[#e6e8ec]"></div>
-                        </div>
-
-                        {/* Social Sign In */}
+                        {/* Social Sign In (Google OAuth for both Candidate & Employer) */}
                         <div>
-                            {/* Google Sign In */}
+                            <div className="flex items-center gap-3 my-5">
+                                <div className="flex-1 h-px bg-[#e6e8ec]"></div>
+                                <span className="text-[10px] font-medium uppercase text-[#9ea3ae]">or continue with</span>
+                                <div className="flex-1 h-px bg-[#e6e8ec]"></div>
+                            </div>
+
                             <button
                                 type="button"
-                                onClick={() => signInWithGoogle(activeRole)}
+                                onClick={handleGoogleSignIn}
                                 className="w-full bg-white hover:bg-[#f4f4f4] border border-[#e6e8ec] text-[#0a0a0a] py-3 px-4 rounded-full font-medium text-xs sm:text-sm uppercase flex items-center justify-center gap-3 transition-all cursor-pointer shadow-xs"
                             >
                                 <svg className="w-4 h-4" viewBox="0 0 24 24">

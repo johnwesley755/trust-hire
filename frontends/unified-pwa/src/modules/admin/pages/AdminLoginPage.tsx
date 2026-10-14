@@ -4,6 +4,7 @@ import { useAuth } from '../../../providers/AuthContext';
 import apiClient from '../../../api/apiClient';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShieldCheck, Lock, Mail, Eye, EyeOff, Loader2, AlertCircle } from 'lucide-react';
+import trustHyreLogo from '../../../assets/TrustHyre Skills and Opportunities Logo.png';
 
 export const AdminLoginPage = () => {
   const [email, setEmail] = useState('');
@@ -57,21 +58,13 @@ export const AdminLoginPage = () => {
 
         {/* Brand Header */}
         <div className="text-center mb-6 relative">
-          <Link to="/" className="inline-flex items-center gap-2.5 mb-3 group">
-            <div className="w-12 h-12 rounded-2xl bg-blue-50/90 border border-blue-100 p-1.5 flex items-center justify-center group-hover:scale-105 transition-transform shadow-xs">
-              <img 
-                src="/logo.png" 
-                alt="TrustHyre" 
-                className="w-full h-full object-contain" 
-              />
-            </div>
+          <Link to="/" className="inline-flex items-center justify-center mb-3 group" aria-label="TrustHyre Home">
+            <img 
+              src={trustHyreLogo} 
+              alt="TrustHyre" 
+              className="h-12 sm:h-14 w-auto object-contain block select-none mix-blend-multiply group-hover:opacity-90 transition-opacity" 
+            />
           </Link>
-          
-          <div className="flex items-center justify-center">
-            <span className="text-2xl font-black tracking-tight text-[#0A1931] font-['Outfit',sans-serif]">
-              Trust<span className="text-[#0066FF]">Hyre</span>
-            </span>
-          </div>
           <h1 className="text-base font-bold text-slate-700 mt-1">Administrator Command Center</h1>
           <p className="text-xs text-slate-400 mt-0.5">Secure authentication portal for platform administrators</p>
         </div>

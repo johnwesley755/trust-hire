@@ -254,20 +254,34 @@ export const searchWorkers = async (c: Context) => {
     const verificationByUser = new Map(verifications.map(v => [v.user_id, v]));
 
     let employerOffersMap = new Map<string, string>();
+    let savedWorkerIds = new Set<string>();
+
     if (employerId) {
       const employerProfile = await prisma.employer_profiles.findFirst({
         where: { user_id: employerId }
       });
+      const employerOwnerIds = [employerId, employerProfile?.id].filter(Boolean) as string[];
 
-      const employerJobs = await prisma.jobs.findMany({
-        where: {
-          OR: [
-            { employer_id: employerId },
-            ...(employerProfile ? [{ employer_id: employerProfile.id }] : [])
-          ]
-        },
-        select: { id: true }
+      const [employerJobs, savedRecords] = await Promise.all([
+        prisma.jobs.findMany({
+          where: {
+            OR: [
+              { employer_id: employerId },
+              ...(employerProfile ? [{ employer_id: employerProfile.id }] : [])
+            ]
+          },
+          select: { id: true }
+        }),
+        (prisma as any).saved_workers.findMany({
+          where: { employer_id: { in: employerOwnerIds } },
+          select: { worker_id: true }
+        })
+      ]);
+
+      savedRecords.forEach((s: any) => {
+        if (s.worker_id) savedWorkerIds.add(s.worker_id);
       });
+
       const jobIds = employerJobs.map(j => j.id);
       if (jobIds.length > 0) {
         const offers = await prisma.job_applications.findMany({
@@ -289,6 +303,8 @@ export const searchWorkers = async (c: Context) => {
       const vRecord = verificationByUser.get(w.user_id);
       const isVerified = vRecord?.status === 'VERIFIED' || vRecord?.status === 'APPROVED' || Boolean(meta?.email_verified);
       const offerStatus = employerOffersMap.get(w.id) || (w.user_id ? employerOffersMap.get(w.user_id) : null) || null;
+      const isSaved = savedWorkerIds.has(w.id) || (w.user_id ? savedWorkerIds.has(w.user_id) : false);
+      const resolvedImage = (w as any).profile_image_url || meta?.profile_image_url || (w as any).profilePhoto || '';
 
       return {
         id: w.id,
@@ -303,13 +319,14 @@ export const searchWorkers = async (c: Context) => {
         experienceYears: w.experience_years || 0,
         hourlyRate: w.hourly_rate ? Number(w.hourly_rate) : null,
         isVerified,
-        profileImageUrl: (w as any).profile_image_url || meta?.profile_image_url || '',
-        profilePhoto: (w as any).profile_image_url || meta?.profile_image_url || '',
-        profile_image_url: (w as any).profile_image_url || meta?.profile_image_url || '',
+        profileImageUrl: resolvedImage,
+        profilePhoto: resolvedImage,
+        profile_image_url: resolvedImage,
         status: w.is_available ? 'AVAILABLE' : 'OFFLINE',
         trustScore: w.trust_score || 70,
         offerStatus,
-        isOfferSent: Boolean(offerStatus)
+        isOfferSent: Boolean(offerStatus),
+        isSaved: Boolean(isSaved)
       };
     });
 

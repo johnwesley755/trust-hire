@@ -39,6 +39,7 @@ import {
   Filter
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { AppLoader } from '../../../components/common/AppLoader';
 
 export const AdminLeadsPage: React.FC = () => {
   const queryClient = useQueryClient();
@@ -522,9 +523,7 @@ export const AdminLeadsPage: React.FC = () => {
 
       {/* Leads Directory Table */}
       {isLoading ? (
-        <div className="flex justify-center py-20">
-          <Loader2 className="w-8 h-8 text-[#0066FF] animate-spin" />
-        </div>
+        <AppLoader variant="page" message="Loading business lead directory..." />
       ) : leads.length === 0 ? (
         <div className="text-center py-20 bg-white rounded-3xl border border-slate-200/80 shadow-xs">
           <Building2 className="w-10 h-10 text-slate-400 mx-auto mb-3" />

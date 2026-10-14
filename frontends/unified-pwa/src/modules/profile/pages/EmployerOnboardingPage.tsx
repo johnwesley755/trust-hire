@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import apiClient from "../../../api/apiClient";
+import trustHyreLogo from "../../../assets/TrustHyre Skills and Opportunities Logo.png";
 import { useAuth } from "../../../providers/AuthContext";
 import { motion, AnimatePresence } from 'framer-motion';
 import { LocationPicker } from "../../jobs/components/LocationPicker";
@@ -139,16 +140,12 @@ export default function OnboardingPage() {
       {/* Top Navigation / Progress Header */}
       <header className="fixed top-0 left-0 w-full z-50 flex flex-col bg-white/95 backdrop-blur-md border-b border-slate-200">
         <div className="flex justify-between items-center px-4 sm:px-6 lg:px-8 h-16 max-w-7xl mx-auto w-full">
-            <Link to="/" className="flex items-center gap-2.5 group">
-              <div className="w-9 h-9 flex items-center justify-center group-hover:scale-105 transition-transform">
-                <img src="/logo.png" alt="TrustHyre Logo" className="w-full h-full object-contain" />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-xl font-extrabold tracking-tight text-[#0A1931] leading-none">
-                  Trust<span className="text-[#0066FF]">Hyre</span>
-                </span>
-                <span className="text-[9px] font-bold text-slate-400 tracking-wider mt-0.5">EMPLOYER ONBOARDING</span>
-              </div>
+            <Link to="/" className="flex items-center group py-1" aria-label="TrustHyre Home">
+              <img 
+                src={trustHyreLogo} 
+                alt="TrustHyre" 
+                className="h-10 sm:h-12 w-auto object-contain block select-none mix-blend-multiply group-hover:opacity-90 transition-opacity" 
+              />
             </Link>
             <div className="flex items-center gap-4">
                 <div className="hidden md:flex flex-col items-end gap-0.5">
@@ -180,25 +177,25 @@ export default function OnboardingPage() {
                     className="w-full flex flex-col lg:flex-row min-h-[calc(100vh-80px)]"
                 >
                     {/* Left Section: Form */}
-                    <section className="w-full lg:w-1/2 flex items-center justify-center p-8 lg:p-16">
+                    <section className="w-full lg:w-1/2 flex items-center justify-center p-4 sm:p-8 lg:p-16">
                         <div className="max-w-md w-full">
-                            <div className="mb-10">
-                                <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4 leading-tight">
+                            <div className="mb-8 sm:mb-10">
+                                <h1 className="text-2xl sm:text-4xl md:text-5xl font-extrabold tracking-tight mb-3 sm:mb-4 leading-tight">
                                     Welcome to TrustHire.
                                 </h1>
-                                <p className="text-lg text-[#0A1931]/70 leading-relaxed font-medium">
+                                <p className="text-base sm:text-lg text-[#0A1931]/70 leading-relaxed font-medium">
                                     Let's start by getting to know your business. This helps us tailor the hiring experience for your specific needs.
                                 </p>
                             </div>
 
-                            <form className="space-y-8" onSubmit={(e) => { e.preventDefault(); nextStep(); }}>
+                            <form className="space-y-6 sm:space-y-8" onSubmit={(e) => { e.preventDefault(); nextStep(); }}>
                                 <div className="group">
-                                    <label className="block text-xs font-bold uppercase tracking-widest text-[#0A1931] mb-3">
+                                    <label className="block text-xs font-bold uppercase text-[#0A1931] mb-3">
                                         Company Name *
                                     </label>
                                     <div className="relative">
                                         <input 
-                                            className="w-full bg-[#E9E8E3] border-none rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-[#0066FF] text-[#0A1931] font-medium transition-all placeholder:text-[#0A1931]/30" 
+                                            className="w-full bg-[#E9E8E3] border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#0066FF] text-[#0A1931] font-medium transition-all placeholder:text-[#0A1931]/30 text-base sm:text-sm" 
                                             placeholder="e.g., Reliance Logistics" 
                                             type="text"
                                             value={formData.companyName}
@@ -213,7 +210,7 @@ export default function OnboardingPage() {
 
                                 <div className="group">
                                     <div className="flex justify-between items-center mb-3">
-                                        <label className="block text-xs font-bold uppercase tracking-widest text-[#0A1931]">
+                                        <label className="block text-xs font-bold uppercase text-[#0A1931]">
                                             Business Phone Number *
                                         </label>
                                         <span className="text-[10px] text-slate-400 font-medium">10-Digit Mobile</span>
@@ -224,7 +221,7 @@ export default function OnboardingPage() {
                                             <span>+91</span>
                                         </div>
                                         <input 
-                                            className="w-full bg-[#E9E8E3] border-none rounded-xl pl-16 pr-4 py-2.5 focus:ring-2 focus:ring-[#0066FF] text-[#0A1931] font-medium transition-all placeholder:text-[#0A1931]/30 outline-none" 
+                                            className="w-full bg-[#E9E8E3] border-none rounded-xl pl-16 pr-4 py-3 focus:ring-2 focus:ring-[#0066FF] text-[#0A1931] font-medium transition-all placeholder:text-[#0A1931]/30 outline-none text-base sm:text-sm" 
                                             placeholder="9876543210" 
                                             type="tel"
                                             maxLength={10}
@@ -237,14 +234,14 @@ export default function OnboardingPage() {
 
                                 <div className="group">
                                     <div className="flex justify-between items-center mb-3">
-                                        <label className="block text-xs font-bold uppercase tracking-widest text-[#0A1931]">
+                                        <label className="block text-xs font-bold uppercase text-[#0A1931]">
                                             Website
                                         </label>
                                         <span className="text-[10px] font-bold text-[#0A1931]/40 uppercase tracking-tighter">Optional</span>
                                     </div>
                                     <div className="relative">
                                         <input 
-                                            className="w-full bg-[#E9E8E3] border-none rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-[#0066FF] text-[#0A1931] font-medium transition-all placeholder:text-[#0A1931]/30" 
+                                            className="w-full bg-[#E9E8E3] border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#0066FF] text-[#0A1931] font-medium transition-all placeholder:text-[#0A1931]/30 text-base sm:text-sm" 
                                             placeholder="https://company.com" 
                                             type="url"
                                             value={formData.companyWebsite}
@@ -260,7 +257,7 @@ export default function OnboardingPage() {
                                     <button 
                                         type="submit"
                                         disabled={!formData.companyName}
-                                        className="w-full bg-[#0066FF] text-white py-3 rounded-[12px] font-extrabold uppercase tracking-widest shadow-[0_4px_0_0_#0047b3] active:translate-y-[2px] active:shadow-none transition-all flex items-center justify-center gap-3 group disabled:opacity-50 disabled:shadow-none disabled:translate-y-0"
+                                        className="w-full h-12 bg-[#0066FF] text-white py-3 rounded-[12px] font-bold uppercase shadow-[0_4px_0_0_#0047b3] active:translate-y-[2px] active:shadow-none transition-all flex items-center justify-center gap-3 group disabled:opacity-50 disabled:shadow-none disabled:translate-y-0"
                                     >
                                         NEXT STEP
                                         <span className="material-symbols-outlined transition-transform group-hover:translate-x-1">
@@ -323,36 +320,36 @@ export default function OnboardingPage() {
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: 20 }}
-                    className="w-full flex-grow flex flex-col lg:flex-row max-w-7xl mx-auto pt-12 pb-12 px-6 lg:px-12 gap-12"
+                    className="w-full flex-grow flex flex-col lg:flex-row max-w-7xl mx-auto pt-6 sm:pt-10 pb-8 px-4 sm:px-6 lg:px-12 gap-8 lg:gap-12"
                 >
-                    <section className="flex-1 space-y-10 order-2 lg:order-1">
+                    <section className="flex-1 space-y-8 sm:space-y-10 order-2 lg:order-1">
                         <header>
-                            <h1 className="text-4xl lg:text-5xl font-extrabold leading-tight tracking-tight text-[#0A1931]">
+                            <h1 className="text-2xl sm:text-4xl lg:text-5xl font-extrabold leading-tight tracking-tight text-[#0A1931]">
                                 Define your <span className="relative">workforce<span className="absolute bottom-1 left-0 w-full h-3 bg-[#0066FF]/30 -z-10"></span></span> niche.
                             </h1>
-                            <p className="mt-4 text-lg text-[#0A1931]/70 leading-relaxed max-w-lg font-medium">
+                            <p className="mt-3 sm:mt-4 text-base sm:text-lg text-[#0A1931]/70 leading-relaxed max-w-lg font-medium">
                                 Select the industry sector you operate in and tell us about your company's mission. This helps us match you with specialized talent.
                             </p>
                         </header>
 
                         <div className="space-y-4">
-                            <label className="text-[11px] font-bold uppercase tracking-widest text-[#0A1931]/50">Select Industry Sector</label>
+                            <label className="text-[11px] font-bold uppercase text-[#0A1931]/60">Select Industry Sector</label>
                             <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
                                 {INDUSTRY_OPTIONS.map(opt => (
                                     <button 
                                         key={opt.id}
                                         onClick={() => setFormData({...formData, industry: opt.id})}
-                                        className={`flex items-center gap-3 p-4 rounded-xl border-2 transition-all group shadow-sm active:scale-95 ${
+                                        className={`flex items-center gap-3 p-3.5 sm:p-4 rounded-xl border-2 transition-all group shadow-sm active:scale-95 text-left cursor-pointer ${
                                             formData.industry === opt.id 
-                                            ? 'bg-[#0066FF] text-white border-[#0066FF] scale-105 shadow-lg' 
+                                            ? 'bg-[#0066FF] text-white border-[#0066FF] scale-102 shadow-lg' 
                                             : 'bg-white border-transparent hover:border-[#0066FF]'
                                         }`}
                                     >
-                                        <span className={`material-symbols-outlined ${formData.industry === opt.id ? '' : 'text-[#0066FF] group-hover:scale-110'} transition-transform`}
+                                        <span className={`material-symbols-outlined text-lg sm:text-xl ${formData.industry === opt.id ? '' : 'text-[#0066FF] group-hover:scale-110'} transition-transform`}
                                               style={{ fontVariationSettings: formData.industry === opt.id ? "'FILL' 1" : "'FILL' 0" }}>
                                             {opt.icon}
                                         </span>
-                                        <span className="text-sm font-bold">{opt.label}</span>
+                                        <span className="text-xs sm:text-sm font-bold truncate">{opt.label}</span>
                                     </button>
                                 ))}
                             </div>
@@ -360,14 +357,14 @@ export default function OnboardingPage() {
 
                         <div className="space-y-4">
                             <div className="flex justify-between items-end">
-                                <label className="text-[11px] font-bold uppercase tracking-widest text-[#0A1931]/50">Company Bio</label>
+                                <label className="text-[11px] font-bold uppercase text-[#0A1931]/60">Company Bio</label>
                                 <span className={`text-[10px] font-medium ${formData.profileBio.length < 100 ? 'text-red-400' : 'text-[#0A1931]/40'}`}>
                                     {formData.profileBio.length} / 500 (Min 100)
                                 </span>
                             </div>
                             <div className="relative group">
                                 <textarea 
-                                    className="w-full bg-[#E9E8E3] border-none rounded-2xl p-6 text-[#0A1931] placeholder:text-[#0A1931]/30 focus:ring-2 focus:ring-[#0066FF] transition-all resize-none font-medium h-40" 
+                                    className="w-full bg-[#E9E8E3] border-none rounded-2xl p-4 sm:p-6 text-[#0A1931] placeholder:text-[#0A1931]/30 focus:ring-2 focus:ring-[#0066FF] transition-all resize-none font-medium h-36 sm:h-40 text-base sm:text-sm" 
                                     placeholder="Share your story, values, and why people love working with you..."
                                     value={formData.profileBio}
                                     onChange={(e) => setFormData({...formData, profileBio: e.target.value.slice(0, 500)})}
@@ -375,18 +372,18 @@ export default function OnboardingPage() {
                             </div>
                         </div>
 
-                        <div className="pt-6 flex items-center gap-6">
+                        <div className="pt-4 sm:pt-6 flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
                             <button 
                                 onClick={nextStep}
                                 disabled={!formData.industry || formData.profileBio.length < 100}
-                                className="group relative flex-1 lg:flex-none lg:min-w-[240px] bg-[#0066FF] text-white font-extrabold text-sm py-3 px-8 rounded-[12px] shadow-lg hover:shadow-xl hover:-translate-y-1 active:translate-y-0 active:shadow-inner transition-all uppercase tracking-widest flex items-center justify-center gap-3 disabled:opacity-50 disabled:translate-y-0 disabled:shadow-none"
+                                className="group relative w-full sm:w-auto h-12 lg:min-w-[240px] bg-[#0066FF] text-white font-bold text-sm py-3 px-8 rounded-[12px] shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 transition-all uppercase flex items-center justify-center gap-3 disabled:opacity-50 disabled:translate-y-0 disabled:shadow-none cursor-pointer"
                             >
                                 Next Step
                                 <span className="material-symbols-outlined text-xl group-hover:translate-x-1 transition-transform">arrow_forward</span>
                             </button>
                             <button 
                                 onClick={nextStep}
-                                className="text-[#0A1931]/40 hover:text-[#0A1931] font-bold text-[11px] uppercase tracking-widest transition-colors"
+                                className="text-[#0A1931]/60 hover:text-[#0A1931] font-bold text-xs uppercase transition-colors cursor-pointer py-2"
                             >
                                 Skip for now
                             </button>
@@ -436,23 +433,23 @@ export default function OnboardingPage() {
                     exit={{ opacity: 0, x: 20 }}
                     className="w-full flex-grow flex flex-col lg:flex-row min-h-[calc(100vh-80px)]"
                 >
-                    <section className="flex-1 px-8 lg:px-20 py-12 flex flex-col justify-center max-w-3xl">
-                        <div className="space-y-2 mb-10">
-                            <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-[#0A1931] leading-[1.1]">Where are you located?</h1>
-                            <p className="text-lg text-[#0A1931]/70 max-w-md font-medium">Setting your base helps us connect you with local opportunities and verified talent in your neighborhood.</p>
+                    <section className="flex-1 px-4 sm:px-8 lg:px-20 py-8 sm:py-12 flex flex-col justify-center max-w-3xl">
+                        <div className="space-y-2 mb-8 sm:mb-10">
+                            <h1 className="text-2xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-[#0A1931] leading-[1.1]">Where are you located?</h1>
+                            <p className="text-base sm:text-lg text-[#0A1931]/70 max-w-md font-medium">Setting your base helps us connect you with local opportunities and verified talent in your neighborhood.</p>
                         </div>
-                        <div className="space-y-8">
+                        <div className="space-y-6 sm:space-y-8">
                             <button 
                                 onClick={detectLocation}
-                                className="w-full group relative flex items-center justify-between p-6 bg-white rounded-xl shadow-[0_20px_40px_-10px_rgba(31,63,52,0.05)] hover:shadow-[0_20px_40px_-10px_rgba(31,63,52,0.1)] transition-all duration-300 border border-transparent hover:border-[#0066FF]/30 active:scale-[0.98]"
+                                className="w-full group relative flex items-center justify-between p-4 sm:p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 border border-slate-200 hover:border-[#0066FF]/30 active:scale-[0.98] cursor-pointer"
                             >
-                                <div className="flex items-center gap-5">
-                                    <div className="w-14 h-14 bg-[#0066FF] rounded-full flex items-center justify-center text-white shadow-md">
-                                        <span className="material-symbols-outlined text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>my_location</span>
+                                <div className="flex items-center gap-4 sm:gap-5">
+                                    <div className="w-12 h-12 sm:w-14 sm:h-14 bg-[#0066FF] rounded-full flex items-center justify-center text-white shadow-md shrink-0">
+                                        <span className="material-symbols-outlined text-2xl sm:text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>my_location</span>
                                     </div>
                                     <div className="text-left">
-                                        <span className="block text-xl font-bold text-[#0A1931]">Use Current Location</span>
-                                        <span className="block text-sm text-[#0A1931]/60 font-medium">Fastest way to get started</span>
+                                        <span className="block text-lg sm:text-xl font-bold text-[#0A1931]">Use Current Location</span>
+                                        <span className="block text-xs sm:text-sm text-[#0A1931]/60 font-medium">Fastest way to get started</span>
                                     </div>
                                 </div>
                                 <span className="material-symbols-outlined text-[#0A1931]/30 group-hover:translate-x-1 transition-transform">arrow_forward_ios</span>
@@ -460,15 +457,15 @@ export default function OnboardingPage() {
 
                             <div className="flex items-center gap-4">
                                 <div className="flex-grow h-px bg-[#0A1931]/10"></div>
-                                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#0A1931]/40">Or Enter Manually</span>
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-[#0A1931]/40">Or Enter Manually</span>
                                 <div className="flex-grow h-px bg-[#0A1931]/10"></div>
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-[12px] font-bold uppercase tracking-widest text-[#0A1931] ml-1">Business Address</label>
+                                <label className="text-xs font-bold uppercase text-[#0A1931] ml-1">Business Address</label>
                                 <div className="relative">
                                     <textarea 
-                                        className="w-full bg-[#E9E8E3] border-none rounded-xl p-5 text-[#0A1931] focus:ring-2 focus:ring-[#0066FF] transition-all placeholder:text-[#0A1931]/30 font-medium h-32" 
+                                        className="w-full bg-[#E9E8E3] border-none rounded-xl p-4 sm:p-5 text-[#0A1931] focus:ring-2 focus:ring-[#0066FF] transition-all placeholder:text-[#0A1931]/30 font-medium h-32 text-base sm:text-sm" 
                                         placeholder="Street, Building name, Area, City..."
                                         value={formData.businessAddress}
                                         onChange={(e) => setFormData({...formData, businessAddress: e.target.value})}
@@ -480,11 +477,11 @@ export default function OnboardingPage() {
                                 {locationError && <p className="text-red-500 text-xs font-bold px-1">{locationError}</p>}
                             </div>
                         </div>
-                        <div className="mt-12 flex flex-col sm:flex-row items-center gap-6">
+                        <div className="mt-8 sm:mt-12 flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
                             <button 
                                 onClick={handleSubmit}
                                 disabled={isSubmitting || !formData.businessAddress}
-                                className="w-full sm:w-auto px-10 py-3 bg-[#0066FF] text-white font-black text-sm uppercase tracking-wider rounded-[12px] shadow-[0_4px_0_0_#0047b3] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:translate-y-0 disabled:shadow-none"
+                                className="w-full sm:w-auto h-12 px-8 py-3 bg-[#0066FF] text-white font-bold text-sm uppercase rounded-[12px] shadow-lg active:translate-y-0.5 transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
                             >
                                 {isSubmitting ? <span className="material-symbols-outlined animate-spin">progress_activity</span> : (
                                     <>
@@ -495,7 +492,7 @@ export default function OnboardingPage() {
                             </button>
                             <button 
                                 onClick={prevStep}
-                                className="text-[#0A1931]/60 font-bold text-xs uppercase tracking-widest hover:text-[#0A1931] transition-colors"
+                                className="text-[#0A1931]/60 font-bold text-xs uppercase hover:text-[#0A1931] transition-colors py-2 cursor-pointer"
                             >
                                 Back to previous
                             </button>

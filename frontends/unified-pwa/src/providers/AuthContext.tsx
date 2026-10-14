@@ -21,6 +21,8 @@ interface AuthContextType {
   signInWithGoogle: (targetRole?: UserRole) => Promise<void>;
   sendEmployerOtp: (email: string) => Promise<void>;
   verifyEmployerOtp: (email: string, otp: string) => Promise<User>;
+  authError: string | null;
+  clearAuthError: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -50,6 +52,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [user, setUser] = useState<User | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [sessionExpired, setSessionExpired] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
+
+  const clearAuthError = () => setAuthError(null);
 
   const mapUserFields = (data: any): User => {
     return {
@@ -114,12 +119,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             });
             const payload = syncRes.data?.data || syncRes.data;
             if (payload?.token && payload?.user) {
+              setAuthError(null);
               login(payload.token, payload.user);
             }
           } catch (syncErr: any) {
             console.error("Backend oauth sync failed:", syncErr);
             const errorMessage = syncErr?.response?.data?.message || syncErr?.message || "Authentication failed.";
-            alert(`Sign in failed: ${errorMessage}`);
+            setAuthError(errorMessage);
+            window.dispatchEvent(new CustomEvent('auth:error', { detail: errorMessage }));
             await firebaseSignOut(auth);
             localStorage.removeItem('token');
             localStorage.removeItem('user');
@@ -185,8 +192,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     window.location.href = '/';
   };
 
-  const signInWithGoogle = async () => {
-    localStorage.setItem('target_role', 'WORKER');
+  const signInWithGoogle = async (targetRole: UserRole = 'WORKER') => {
+    setAuthError(null);
+    localStorage.setItem('target_role', targetRole);
     try {
       await signInWithPopup(auth, googleProvider);
       // Wait for onAuthStateChanged to handle the sync
@@ -197,7 +205,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           const storedUser = localStorage.getItem('user');
           let parsed: any = null;
           try { parsed = storedUser ? JSON.parse(storedUser) : null; } catch {}
-          if (!parsed?.phoneNumber && !parsed?.phone_number) {
+          if (!parsed?.phoneNumber && !parsed?.phone_number && parsed?.role !== 'EMPLOYER') {
             window.location.href = '/onboarding';
           } else {
             const dest = parsed?.role === 'ADMIN' ? '/admin/dashboard' : parsed?.role === 'EMPLOYER' ? '/find-workers' : '/search';
@@ -205,19 +213,22 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           }
         } else if (retries > 40) { // 20 seconds timeout
           clearInterval(checkToken);
-          // If no token after 20s, it means sync failed or was rejected. 
-          // onAuthStateChanged catch block handles the error alert.
         }
         retries++;
       }, 500);
       
     } catch (error: any) {
-      console.warn("Firebase Google Auth error:", error.message);
-      if (error?.response?.status === 403) {
-        alert(error.response?.data?.message || "Employer accounts cannot sign in with Google.");
-      } else if (error.code !== 'auth/popup-closed-by-user') {
-        alert(`Google Sign-In failed: ${error.message}`);
+      console.warn("Firebase Google Auth error:", error.code, error.message);
+      // Suppress benign popup closure / cancellation
+      if (
+        error.code === 'auth/popup-closed-by-user' ||
+        error.code === 'auth/cancelled-popup-request'
+      ) {
+        return;
       }
+      const errorMsg = error?.response?.data?.message || error.message || "Google Sign-In failed.";
+      setAuthError(errorMsg);
+      window.dispatchEvent(new CustomEvent('auth:error', { detail: errorMsg }));
     }
   };
 
@@ -256,6 +267,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         signInWithGoogle,
         sendEmployerOtp,
         verifyEmployerOtp,
+        authError,
+        clearAuthError,
       }}
     >
       {children}

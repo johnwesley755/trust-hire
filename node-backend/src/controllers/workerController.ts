@@ -187,44 +187,80 @@ export const updateProfile = async (c: Context) => {
       }
     });
 
+    // Sync to worker_search_index so talent search is immediately fresh
+    await prisma.worker_search_index.upsert({
+      where: { user_id: userId },
+      update: {
+        name: profile.full_name || 'Worker',
+        bio: profile.bio,
+        skills: profile.skills,
+        location: profile.location,
+        city: profile.city,
+        latitude: profile.latitude,
+        longitude: profile.longitude,
+        level: profile.level,
+        profile_image_url: profile.profile_image_url,
+        trust_score: profile.trust_score,
+        last_updated_at: new Date()
+      },
+      create: {
+        user_id: userId,
+        name: profile.full_name || 'Worker',
+        bio: profile.bio,
+        skills: profile.skills,
+        location: profile.location,
+        city: profile.city,
+        latitude: profile.latitude,
+        longitude: profile.longitude,
+        level: profile.level,
+        profile_image_url: profile.profile_image_url,
+        trust_score: profile.trust_score,
+        indexed_at: new Date(),
+        last_updated_at: new Date()
+      }
+    }).catch((e: any) => console.warn("worker_search_index sync notice:", e.message));
+
     let updatedUserMeta: any = null;
-    if (data.phoneNumber) {
-      const cleanPhone = String(data.phoneNumber).trim().replace(/\D/g, '').slice(-10);
-      if (cleanPhone.length !== 10) {
-        return c.json(ApiResponse.error("Please provide a valid 10-digit phone number."), 400 as any);
+    const userMetaExists = await prisma.user_metadata.findUnique({ where: { id: userId } });
+    if (userMetaExists) {
+      if (data.phoneNumber) {
+        const cleanPhone = String(data.phoneNumber).trim().replace(/\D/g, '').slice(-10);
+        if (cleanPhone.length !== 10) {
+          return c.json(ApiResponse.error("Please provide a valid 10-digit phone number."), 400 as any);
+        }
+
+        const existingPhoneUser = await prisma.user_metadata.findFirst({
+          where: {
+            phone_number: cleanPhone,
+            id: { not: userId }
+          }
+        });
+
+        if (existingPhoneUser) {
+          return c.json(ApiResponse.error("This phone number is already registered to another account. Duplicate accounts are not permitted."), 400 as any);
+        }
+
+        updatedUserMeta = await prisma.user_metadata.update({
+          where: { id: userId },
+          data: { 
+            phone_number: cleanPhone,
+            profile_image_url: profileImageUrl !== undefined ? profileImageUrl : undefined,
+            onboarded: true,
+            first_name: data.fullName ? data.fullName.split(' ')[0] : undefined,
+            last_name: data.fullName ? data.fullName.split(' ').slice(1).join(' ') : undefined,
+          }
+        });
+      } else {
+        updatedUserMeta = await prisma.user_metadata.update({
+          where: { id: userId },
+          data: { 
+            profile_image_url: profileImageUrl !== undefined ? profileImageUrl : undefined,
+            onboarded: true,
+            first_name: data.fullName ? data.fullName.split(' ')[0] : undefined,
+            last_name: data.fullName ? data.fullName.split(' ').slice(1).join(' ') : undefined,
+          }
+        });
       }
-
-      const existingPhoneUser = await prisma.user_metadata.findFirst({
-        where: {
-          phone_number: cleanPhone,
-          id: { not: userId }
-        }
-      });
-
-      if (existingPhoneUser) {
-        return c.json(ApiResponse.error("This phone number is already registered to another account. Duplicate accounts are not permitted."), 400 as any);
-      }
-
-      updatedUserMeta = await prisma.user_metadata.update({
-        where: { id: userId },
-        data: { 
-          phone_number: cleanPhone,
-          profile_image_url: profileImageUrl,
-          onboarded: true,
-          first_name: data.fullName ? data.fullName.split(' ')[0] : undefined,
-          last_name: data.fullName ? data.fullName.split(' ').slice(1).join(' ') : undefined,
-        }
-      });
-    } else {
-      updatedUserMeta = await prisma.user_metadata.update({
-        where: { id: userId },
-        data: { 
-          profile_image_url: profileImageUrl,
-          onboarded: true,
-          first_name: data.fullName ? data.fullName.split(' ')[0] : undefined,
-          last_name: data.fullName ? data.fullName.split(' ').slice(1).join(' ') : undefined,
-        }
-      });
     }
 
     return c.json(ApiResponse.ok("Profile updated", formatWorkerProfile(profile, updatedUserMeta)));

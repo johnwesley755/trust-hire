@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../../providers/AuthContext";
-import logo from "../../../assets/logo.png";
+import trustHyreLogo from "../../../assets/TrustHyre Skills and Opportunities Logo.png";
 import { 
   MapPin, 
   ChevronDown, 
@@ -26,14 +26,12 @@ export function LandingNavbar() {
         
         {/* Brand & Hyperlocal Location */}
         <div className="flex items-center gap-6">
-          <Link to="/" className="flex items-center gap-2.5 group">
-            <div className="w-10 h-10 bg-blue-50/90 rounded-xl shadow-xs flex items-center justify-center p-1 group-hover:scale-105 transition-transform duration-300 border border-blue-100">
-              <img src={logo} alt="TrustHyre" className="w-full h-full object-contain" />
-            </div>
-            <div>
-              <span className="text-xl font-black text-[#0A1931] tracking-tight leading-none block">TrustHyre</span>
-              <span className="text-[9px] font-bold uppercase tracking-widest text-[#0066FF]">Trusted Talent • Better Hiring</span>
-            </div>
+          <Link to="/" className="flex items-center group py-1" aria-label="TrustHyre Home">
+            <img 
+              src={trustHyreLogo} 
+              alt="TrustHyre" 
+              className="h-10 sm:h-12 md:h-14 w-auto object-contain block select-none mix-blend-multiply group-hover:opacity-90 transition-opacity" 
+            />
           </Link>
 
           {/* Location pill */}
