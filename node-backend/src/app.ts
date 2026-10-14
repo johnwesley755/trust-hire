@@ -67,6 +67,7 @@ app.use('*', secureHeaders({
   xXssProtection: '1; mode=block',
   referrerPolicy: 'strict-origin-when-cross-origin',
   strictTransportSecurity: 'max-age=31536000; includeSubDomains',
+  crossOriginResourcePolicy: 'cross-origin',
 }));
 
 app.use('*', cors({
@@ -77,7 +78,7 @@ app.use('*', cors({
     }
     return '';
   },
-  allowHeaders: ['Content-Type', 'Authorization', 'x-internal-secret'],
+  allowHeaders: ['Content-Type', 'Authorization', 'x-internal-secret', 'dnt', 'x-requested-with', 'accept', 'origin'],
   allowMethods: ['POST', 'GET', 'OPTIONS', 'PUT', 'DELETE', 'PATCH'],
   credentials: true
 }));
