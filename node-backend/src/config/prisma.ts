@@ -2,15 +2,25 @@ import { PrismaClient } from '@prisma/client';
 import { Pool, neonConfig } from '@neondatabase/serverless';
 import { PrismaNeon } from '@prisma/adapter-neon';
 import ws from 'ws';
+import { AsyncLocalStorage } from 'node:async_hooks';
 
 // Ensure WebSocket constructor is set in Node.js environments (Workers provide global WebSocket)
 if (typeof WebSocket === 'undefined') {
   neonConfig.webSocketConstructor = ws;
 }
 
+export interface RequestScope {
+  prisma?: PrismaClient;
+  pool?: Pool;
+  env?: any;
+  ctx?: any;
+}
+
+export const requestContextStorage = new AsyncLocalStorage<RequestScope>();
+
 const globalForPrisma = globalThis as unknown as { prisma: PrismaClient | undefined };
 
-let cachedPrisma: PrismaClient | null = globalForPrisma.prisma || null;
+let cachedLocalPrisma: PrismaClient | null = globalForPrisma.prisma || null;
 
 const attachRetryExtension = (client: PrismaClient): PrismaClient => {
   return (client as any).$extends({
@@ -54,24 +64,61 @@ const attachRetryExtension = (client: PrismaClient): PrismaClient => {
 };
 
 const createPrismaClient = (): PrismaClient => {
-  if (cachedPrisma) {
-    return cachedPrisma;
+  const store = requestContextStorage.getStore();
+
+  // 1. If running within a Cloudflare Workers request context
+  if (store) {
+    if (store.prisma) {
+      return store.prisma;
+    }
+
+    const rawUrl = store.env?.DATABASE_URL || process.env.DATABASE_URL || (globalThis as any).DATABASE_URL;
+    if (!rawUrl) {
+      return new PrismaClient();
+    }
+
+    let dbUrl = rawUrl;
+    if (dbUrl.includes('neon.tech')) {
+      if (!dbUrl.includes('connect_timeout=')) {
+        dbUrl += dbUrl.includes('?') ? '&connect_timeout=15' : '?connect_timeout=15';
+      }
+
+      // Create a fresh Neon Pool bound to THIS specific request's execution context
+      const pool = new Pool({
+        connectionString: dbUrl,
+        connectionTimeoutMillis: 15000,
+        idleTimeoutMillis: 30000,
+      });
+
+      store.pool = pool;
+
+      const adapter = new PrismaNeon(pool);
+      const baseClient = new PrismaClient({
+        adapter,
+        log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
+      });
+
+      const clientWithRetry = attachRetryExtension(baseClient);
+      store.prisma = clientWithRetry;
+      return clientWithRetry;
+    }
+  }
+
+  // 2. Fallback for non-request environments (e.g. Node.js local dev server, seeds, migrations)
+  if (cachedLocalPrisma) {
+    return cachedLocalPrisma;
   }
 
   const rawUrl = process.env.DATABASE_URL || (globalThis as any).process?.env?.DATABASE_URL || (globalThis as any).DATABASE_URL;
   if (!rawUrl) {
-    // Return standard client or fallback if DATABASE_URL is not yet populated during bundle build/eval
     return new PrismaClient();
   }
 
   let dbUrl = rawUrl;
-  
-  // Use Neon WebSocket adapter only if connecting to Neon Cloud
   if (dbUrl.includes('neon.tech')) {
     if (!dbUrl.includes('connect_timeout=')) {
       dbUrl += dbUrl.includes('?') ? '&connect_timeout=15' : '?connect_timeout=15';
     }
-
     const pool = new Pool({
       connectionString: dbUrl,
       connectionTimeoutMillis: 15000,
@@ -82,9 +129,10 @@ const createPrismaClient = (): PrismaClient => {
       adapter,
       log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
     });
-    cachedPrisma = attachRetryExtension(baseClient);
+    cachedLocalPrisma = attachRetryExtension(baseClient);
+    return cachedLocalPrisma;
   } else {
-    // Standard Local / Direct PostgreSQL Connection with connection pooling
+    // Standard Local PostgreSQL Connection with connection pooling
     let finalUrl = dbUrl;
     if (!finalUrl.includes('connection_limit')) {
       finalUrl += finalUrl.includes('?') ? '&connection_limit=10' : '?connection_limit=10';
@@ -101,14 +149,10 @@ const createPrismaClient = (): PrismaClient => {
       },
       log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
     });
-    cachedPrisma = attachRetryExtension(baseClient);
+    cachedLocalPrisma = attachRetryExtension(baseClient);
+    globalForPrisma.prisma = cachedLocalPrisma;
+    return cachedLocalPrisma;
   }
-
-  if (process.env.NODE_ENV !== 'production') {
-    globalForPrisma.prisma = cachedPrisma;
-  }
-
-  return cachedPrisma;
 };
 
 // Use Proxy for lazy evaluation so module import at deploy time doesn't throw if env is not yet bound

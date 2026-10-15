@@ -27,6 +27,7 @@ import verificationRoutes from './routes/verificationRoutes';
 import savedRoutes from './routes/savedRoutes';
 import adminRoutes from './routes/adminRoutes';
 import { leadRouter } from './routes/leadRoutes';
+import { requestContextStorage, RequestScope } from './config/prisma';
 
 export type AppContext = {
   Bindings: {
@@ -43,7 +44,30 @@ app.use('*', async (c, next) => {
   } else {
     Object.assign(process.env, c.env || {});
   }
-  await next();
+
+  const existingStore = requestContextStorage.getStore();
+  if (existingStore) {
+    await next();
+    return;
+  }
+
+  let executionCtx: any = null;
+  try {
+    executionCtx = c.executionCtx;
+  } catch {
+    // no executionCtx
+  }
+
+  const store: RequestScope = { env: c.env, ctx: executionCtx };
+  return requestContextStorage.run(store, async () => {
+    try {
+      await next();
+    } finally {
+      if (store.pool) {
+        executionCtx?.waitUntil?.(store.pool.end());
+      }
+    }
+  });
 });
 
 import { secureHeaders } from 'hono/secure-headers';
