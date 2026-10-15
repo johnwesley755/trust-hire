@@ -57,6 +57,7 @@ const ALLOWED_ORIGINS = [
   'https://trusthire.in',
   'https://www.trusthire.in',
   'https://app.trusthire.in',
+  'https://trust-hire-one.vercel.app',
   'https://trust-hire-6edba.web.app',
   'https://trust-hire-6edba.firebaseapp.com'
 ];
@@ -73,7 +74,13 @@ app.use('*', secureHeaders({
 app.use('*', cors({
   origin: (origin) => {
     if (!origin) return ALLOWED_ORIGINS[0];
-    if (ALLOWED_ORIGINS.includes(origin) || origin.endsWith('.trusthire.in')) {
+    if (
+      ALLOWED_ORIGINS.includes(origin) ||
+      origin.endsWith('.trusthire.in') ||
+      origin.endsWith('.vercel.app') ||
+      origin.endsWith('.web.app') ||
+      origin.endsWith('.firebaseapp.com')
+    ) {
       return origin;
     }
     return '';
@@ -82,7 +89,6 @@ app.use('*', cors({
   allowMethods: ['POST', 'GET', 'OPTIONS', 'PUT', 'DELETE', 'PATCH'],
   credentials: true
 }));
-app.options('*', (c) => c.body(null, 204));
 
 app.route('/api/auth', authRoutes);
 app.route('/api/worker', workerRoutes);
