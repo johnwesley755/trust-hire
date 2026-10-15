@@ -11,6 +11,7 @@ router.post('/send-otp', otpLimiter, authController.sendOtp);
 router.post('/verify-otp', loginLimiter, authController.verifyEmployerOtp);
 router.post('/verify-employer-otp', loginLimiter, authController.verifyEmployerOtp);
 router.post('/forgot-password', authActionLimiter, authController.forgotPassword);
+router.post('/verify-reset-code', authActionLimiter, authController.verifyResetCode);
 router.post('/reset-password', authActionLimiter, authController.resetPassword);
 
 router.get('/me', authenticateJWT, authController.getCurrentUser);

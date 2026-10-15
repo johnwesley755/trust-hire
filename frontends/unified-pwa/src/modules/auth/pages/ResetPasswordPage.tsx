@@ -1,31 +1,111 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { authService } from '../../../services/auth.service';
 import { resetPasswordSchema } from '../../../validations/zodSchema';
 import { AuthVisualHero } from '../components/AuthVisualHero';
 import { motion, AnimatePresence } from 'framer-motion';
-import { AlertCircle, Loader2, ArrowLeft, CheckCircle2, Eye, EyeOff, KeyRound, ArrowRight } from 'lucide-react';
+import { 
+    AlertCircle, 
+    Loader2, 
+    ArrowLeft, 
+    CheckCircle2, 
+    Eye, 
+    EyeOff, 
+    KeyRound, 
+    ArrowRight, 
+    ShieldCheck, 
+    HelpCircle 
+} from 'lucide-react';
+
+type Stage = 'VERIFYING_URL' | 'CODE' | 'NEW_PASSWORD' | 'SUCCESS';
 
 export default function ResetPasswordPage() {
     const [searchParams] = useSearchParams();
-    const [tokenFromUrl] = useState(searchParams.get('token') || '');
+    const tokenFromUrl = (searchParams.get('token') || '').trim();
+    const emailFromUrl = (searchParams.get('email') || '').trim();
+
+    const [stage, setStage] = useState<Stage>(tokenFromUrl ? 'VERIFYING_URL' : 'CODE');
     const [token, setToken] = useState(tokenFromUrl);
+    const [email, setEmail] = useState(emailFromUrl);
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [isSuccess, setIsSuccess] = useState(false);
     const navigate = useNavigate();
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    // Auto-verify token if arriving via email CTA deep-link
+    useEffect(() => {
+        if (!tokenFromUrl) return;
+
+        let isMounted = true;
+        const autoVerify = async () => {
+            setIsLoading(true);
+            setError(null);
+            try {
+                const res = await authService.verifyResetCode(tokenFromUrl, emailFromUrl || undefined);
+                if (isMounted) {
+                    if (res?.data?.email) {
+                        setEmail(res.data.email);
+                    }
+                    setStage('NEW_PASSWORD');
+                }
+            } catch (err: any) {
+                if (isMounted) {
+                    setError('The reset link code has expired or is invalid. Please enter your 6-digit code or request a new one.');
+                    setStage('CODE');
+                }
+            } finally {
+                if (isMounted) {
+                    setIsLoading(false);
+                }
+            }
+        };
+
+        autoVerify();
+        return () => { isMounted = false; };
+    }, [tokenFromUrl, emailFromUrl]);
+
+    // Auto-redirect to sign-in on success
+    useEffect(() => {
+        if (stage === 'SUCCESS') {
+            const timeout = setTimeout(() => {
+                navigate('/sign-in');
+            }, 3500);
+            return () => clearTimeout(timeout);
+        }
+    }, [stage, navigate]);
+
+    // Handle manual code verification
+    const handleVerifyCode = async (e: React.FormEvent) => {
         e.preventDefault();
-        
-        if (!token || token.length < 6) {
-            setError('Please enter the 6-digit reset code sent to your email.');
+        const trimmed = token.trim();
+        if (!trimmed || trimmed.length < 6) {
+            setError('Please enter a valid 6-digit verification code.');
             return;
         }
 
+        setIsLoading(true);
+        setError(null);
+
+        try {
+            const res = await authService.verifyResetCode(trimmed, email || undefined);
+            if (res?.data?.email) {
+                setEmail(res.data.email);
+            }
+            setStage('NEW_PASSWORD');
+        } catch (err: any) {
+            setError(err.response?.data?.message || err.message || 'Invalid or expired verification code. Please check your email or request a new code.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // Handle password update
+    const handleResetPassword = async (e: React.FormEvent) => {
+        e.preventDefault();
+        
         const validationResult = resetPasswordSchema.safeParse({ password, confirmPassword });
         if (!validationResult.success) {
             setError(validationResult.error.issues[0].message);
@@ -36,10 +116,10 @@ export default function ResetPasswordPage() {
         setError(null);
 
         try {
-            await authService.resetPassword({ token, password });
-            setIsSuccess(true);
+            await authService.resetPassword({ token: token.trim(), password });
+            setStage('SUCCESS');
         } catch (err: any) {
-            setError(err.message || err.response?.data?.message || 'Failed to reset password. The code may be invalid or expired.');
+            setError(err.response?.data?.message || err.message || 'Failed to update password. The code may have expired.');
         } finally {
             setIsLoading(false);
         }
@@ -77,59 +157,59 @@ export default function ResetPasswordPage() {
 
                     {/* Centered Area */}
                     <div className="max-w-md w-full mx-auto my-auto py-2">
-                        {isSuccess ? (
-                            <motion.div 
-                                initial={{ opacity: 0, scale: 0.96 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                className="text-center space-y-4"
-                            >
-                                <div className="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto shadow-xs border border-emerald-100">
-                                    <CheckCircle2 className="w-8 h-8 text-emerald-500" />
-                                </div>
-                                <h1 className="text-3xl font-medium text-[#0a0a0a]">
-                                    Password Reset Complete
-                                </h1>
-                                <p className="text-xs sm:text-sm text-[#717784] leading-relaxed">
-                                    Your password has been successfully updated. You can now securely log in with your new credentials.
-                                </p>
-                                <button
-                                    onClick={() => navigate('/sign-in')}
-                                    className="w-full mt-4 bg-[#0f2f63] hover:bg-[#2563c9] text-white py-3.5 px-5 rounded-full font-medium text-xs sm:text-sm uppercase transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer"
+
+                        {/* Error Alert Banner */}
+                        <AnimatePresence>
+                            {error && (
+                                <motion.div 
+                                    initial={{ opacity: 0, y: -8 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -8 }}
+                                    className="mb-5 p-3.5 bg-rose-50 border border-rose-200 text-rose-800 text-xs font-medium rounded-xl flex items-center gap-2.5 shadow-2xs"
                                 >
-                                    <span>Log In Now</span>
-                                    <ArrowRight className="w-4 h-4" />
-                                </button>
+                                    <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
+                                    <span>{error}</span>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+
+                        {/* STAGE: VERIFYING_URL (Deep link auto-verification loader) */}
+                        {stage === 'VERIFYING_URL' && (
+                            <motion.div 
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                className="text-center py-12 space-y-4"
+                            >
+                                <Loader2 className="w-8 h-8 animate-spin text-[#0f2f63] mx-auto" />
+                                <h2 className="text-xl font-medium text-[#0a0a0a]">
+                                    Verifying Security Code...
+                                </h2>
+                                <p className="text-xs text-[#717784]">
+                                    Validating your one-time authorization token.
+                                </p>
                             </motion.div>
-                        ) : (
-                            <div>
+                        )}
+
+                        {/* STAGE: CODE (Enter 6-Digit Code if no token or token expired) */}
+                        {stage === 'CODE' && (
+                            <motion.div
+                                initial={{ opacity: 0, x: -12 }}
+                                animate={{ opacity: 1, x: 0 }}
+                            >
                                 <div className="mb-6">
                                     <div className="inline-flex items-center gap-2 text-xs font-medium uppercase text-[#717784] mb-2">
                                         <span className="w-1.5 h-1.5 rounded-full bg-[#2563c9]" />
-                                        <span>Security Verification</span>
+                                        <span>Security Check • Code Entry</span>
                                     </div>
                                     <h1 className="text-3xl sm:text-4xl font-medium text-[#0a0a0a] leading-[1.05]">
-                                        Create new password
+                                        Enter reset code
                                     </h1>
                                     <p className="text-xs sm:text-sm text-[#717784] mt-2 leading-relaxed">
-                                        Enter your 6-digit verification code and set a strong new password.
+                                        Enter the 6-digit authorization code dispatched to your registered email address.
                                     </p>
                                 </div>
 
-                                <AnimatePresence>
-                                    {error && (
-                                        <motion.div 
-                                            initial={{ opacity: 0, y: -8 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            exit={{ opacity: 0, y: -8 }}
-                                            className="mb-5 p-3.5 bg-rose-50 border border-rose-200 text-rose-800 text-xs font-medium rounded-xl flex items-center gap-2.5 shadow-2xs"
-                                        >
-                                            <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
-                                            <span>{error}</span>
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
-
-                                <form onSubmit={handleSubmit} className="space-y-4">
+                                <form onSubmit={handleVerifyCode} className="space-y-4">
                                     <div className="space-y-1.5">
                                         <label className="block text-xs font-medium uppercase text-[#0a0a0a]">
                                             6-Digit Reset Code
@@ -137,16 +217,72 @@ export default function ResetPasswordPage() {
                                         <div className="relative">
                                             <input
                                                 type="text"
+                                                inputMode="numeric"
+                                                pattern="[0-9]*"
+                                                maxLength={6}
+                                                autoFocus
+                                                autoComplete="one-time-code"
                                                 value={token}
-                                                onChange={(e) => setToken(e.target.value.trim())}
-                                                placeholder="e.g. 123456"
+                                                onChange={(e) => {
+                                                    const val = e.target.value.replace(/\D/g, '').slice(0, 6);
+                                                    setToken(val);
+                                                }}
+                                                placeholder="123456"
                                                 required
-                                                className="w-full bg-[#f4f4f4]/60 hover:bg-[#f4f4f4] focus:bg-white border border-[#e6e8ec] focus:border-[#0f2f63] rounded-xl px-4 py-3 pl-10 text-sm text-[#0a0a0a] placeholder:text-[#9ea3ae] font-mono transition-all outline-hidden focus:ring-2 focus:ring-[#0f2f63]/10"
+                                                className="w-full tracking-[8px] text-center font-mono text-xl sm:text-2xl font-bold bg-[#f4f4f4]/60 hover:bg-[#f4f4f4] focus:bg-white border border-[#e6e8ec] focus:border-[#0f2f63] rounded-xl px-4 py-3.5 text-[#0a0a0a] placeholder:text-[#cbd5e1] placeholder:tracking-normal transition-all outline-hidden focus:ring-2 focus:ring-[#0f2f63]/10"
                                             />
                                             <KeyRound className="w-4 h-4 text-[#9ea3ae] absolute left-3.5 top-1/2 -translate-y-1/2" />
                                         </div>
                                     </div>
 
+                                    <button
+                                        type="submit"
+                                        disabled={isLoading || token.length < 6}
+                                        className="w-full mt-2 bg-[#0f2f63] hover:bg-[#2563c9] active:scale-[0.99] disabled:opacity-50 text-white py-3.5 px-5 rounded-full font-medium text-xs sm:text-sm uppercase transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer"
+                                    >
+                                        {isLoading ? (
+                                            <>
+                                                <Loader2 className="w-4 h-4 animate-spin" />
+                                                <span>Verifying Code...</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <span>Verify Code & Continue</span>
+                                                <ArrowRight className="w-4 h-4" />
+                                            </>
+                                        )}
+                                    </button>
+
+                                    <div className="pt-2 text-center text-xs text-[#717784]">
+                                        Don't have a code?{' '}
+                                        <Link to="/forgot-password" className="text-[#2563c9] hover:underline font-semibold">
+                                            Request a new code
+                                        </Link>
+                                    </div>
+                                </form>
+                            </motion.div>
+                        )}
+
+                        {/* STAGE: NEW_PASSWORD (Set New Password once code is verified) */}
+                        {stage === 'NEW_PASSWORD' && (
+                            <motion.div
+                                initial={{ opacity: 0, x: 12 }}
+                                animate={{ opacity: 1, x: 0 }}
+                            >
+                                <div className="mb-6">
+                                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-semibold uppercase mb-2">
+                                        <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                                        <span>Code {token} Verified</span>
+                                    </div>
+                                    <h1 className="text-3xl sm:text-4xl font-medium text-[#0a0a0a] leading-[1.05]">
+                                        Create new password
+                                    </h1>
+                                    <p className="text-xs sm:text-sm text-[#717784] mt-2 leading-relaxed">
+                                        Choose a secure password with a minimum of 8 characters.
+                                    </p>
+                                </div>
+
+                                <form onSubmit={handleResetPassword} className="space-y-4">
                                     <div className="space-y-1.5">
                                         <label className="block text-xs font-medium uppercase text-[#0a0a0a]">
                                             New Password
@@ -159,6 +295,7 @@ export default function ResetPasswordPage() {
                                                 placeholder="At least 8 characters"
                                                 required
                                                 minLength={8}
+                                                autoFocus
                                                 className="w-full bg-[#f4f4f4]/60 hover:bg-[#f4f4f4] focus:bg-white border border-[#e6e8ec] focus:border-[#0f2f63] rounded-xl px-4 py-3 pr-10 text-sm text-[#0a0a0a] placeholder:text-[#9ea3ae] font-normal transition-all outline-hidden focus:ring-2 focus:ring-[#0f2f63]/10"
                                             />
                                             <button
@@ -187,7 +324,7 @@ export default function ResetPasswordPage() {
 
                                     <button
                                         type="submit"
-                                        disabled={isLoading || !token || !password || !confirmPassword}
+                                        disabled={isLoading || !password || !confirmPassword}
                                         className="w-full mt-2 bg-[#0f2f63] hover:bg-[#2563c9] active:scale-[0.99] disabled:opacity-50 text-white py-3.5 px-5 rounded-full font-medium text-xs sm:text-sm uppercase transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer"
                                     >
                                         {isLoading ? (
@@ -203,8 +340,35 @@ export default function ResetPasswordPage() {
                                         )}
                                     </button>
                                 </form>
-                            </div>
+                            </motion.div>
                         )}
+
+                        {/* STAGE: SUCCESS */}
+                        {stage === 'SUCCESS' && (
+                            <motion.div 
+                                initial={{ opacity: 0, scale: 0.96 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                className="text-center space-y-4 py-4"
+                            >
+                                <div className="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto shadow-xs border border-emerald-100">
+                                    <CheckCircle2 className="w-8 h-8 text-emerald-500" />
+                                </div>
+                                <h1 className="text-3xl font-medium text-[#0a0a0a]">
+                                    Password Reset Complete
+                                </h1>
+                                <p className="text-xs sm:text-sm text-[#717784] leading-relaxed">
+                                    Your password has been successfully updated. Redirecting you to sign in...
+                                </p>
+                                <button
+                                    onClick={() => navigate('/sign-in')}
+                                    className="w-full mt-4 bg-[#0f2f63] hover:bg-[#2563c9] text-white py-3.5 px-5 rounded-full font-medium text-xs sm:text-sm uppercase transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer"
+                                >
+                                    <span>Log In Now</span>
+                                    <ArrowRight className="w-4 h-4" />
+                                </button>
+                            </motion.div>
+                        )}
+
                     </div>
 
                     {/* Bottom Help */}

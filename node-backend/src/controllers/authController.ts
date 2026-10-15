@@ -149,7 +149,7 @@ export const sendOtp = async (c: Context) => {
       });
     }
 
-    await sendEmail(email, "Your Verification OTP - TrustHyre", getOtpTemplate(otp));
+    await sendEmail(email, `${otp} is your TrustHyre verification code`, getOtpTemplate(otp, email));
     return c.json(ApiResponse.ok(`OTP sent to ${email}`, "sent"));
   } catch (err: any) {
     console.error("sendOtp error:", err);
@@ -217,11 +217,35 @@ export const forgotPassword = async (c: Context) => {
         where: { email },
         data: { reset_token: token, reset_token_expiry: new Date(Date.now() + 15 * 60 * 1000) }
       });
-      await sendEmail(email, "Reset Password - TrustHyre", getResetPasswordTemplate(token));
+      await sendEmail(email, `${token} is your TrustHyre password reset code`, getResetPasswordTemplate(token, email));
     }
     return c.json(ApiResponse.ok("Reset email sent successfully", "sent"));
   } catch (err: any) {
     console.error("forgotPassword error:", err);
+    return c.json(ApiResponse.error(err.message), 500 as any);
+  }
+};
+
+export const verifyResetCode = async (c: Context) => {
+  try {
+    const { token, email } = (await c.req.json());
+    if (!token || token.length < 6) {
+      return c.json(ApiResponse.error("A valid 6-digit verification code is required"), 400 as any);
+    }
+    const whereClause: any = {
+      reset_token: token,
+      reset_token_expiry: { gt: new Date() }
+    };
+    if (email) {
+      whereClause.email = email;
+    }
+    const user = await prisma.user_metadata.findFirst({ where: whereClause });
+    if (!user) {
+      return c.json(ApiResponse.error("Invalid or expired verification code"), 400 as any);
+    }
+    return c.json(ApiResponse.ok("Code verified successfully", { valid: true, email: user.email }));
+  } catch (err: any) {
+    console.error("verifyResetCode error:", err);
     return c.json(ApiResponse.error(err.message), 500 as any);
   }
 };

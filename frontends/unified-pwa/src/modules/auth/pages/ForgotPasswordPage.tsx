@@ -1,29 +1,71 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { authService } from '../../../services/auth.service';
-import { forgotPasswordSchema } from '../../../validations/zodSchema';
+import { forgotPasswordSchema, resetPasswordSchema } from '../../../validations/zodSchema';
 import { AuthVisualHero } from '../components/AuthVisualHero';
 import { motion, AnimatePresence } from 'framer-motion';
-import { AlertCircle, Loader2, ArrowLeft, MailCheck, ArrowRight } from 'lucide-react';
+import { 
+    AlertCircle, 
+    Loader2, 
+    ArrowLeft, 
+    ArrowRight, 
+    KeyRound, 
+    Eye, 
+    EyeOff, 
+    CheckCircle2, 
+    RefreshCw, 
+    ShieldCheck,
+    Mail 
+} from 'lucide-react';
+
+type Stage = 'EMAIL' | 'CODE' | 'NEW_PASSWORD' | 'SUCCESS';
 
 export default function ForgotPasswordPage() {
     const [searchParams, setSearchParams] = useSearchParams();
     const queryRole = searchParams.get('role')?.toUpperCase();
     const [activeRole, setActiveRole] = useState<'WORKER' | 'EMPLOYER'>(queryRole === 'EMPLOYER' ? 'EMPLOYER' : 'WORKER');
 
+    const [stage, setStage] = useState<Stage>('EMAIL');
     const [email, setEmail] = useState('');
+    const [code, setCode] = useState('');
+    const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
+
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [isSuccess, setIsSuccess] = useState(false);
+    const [resendCooldown, setResendCooldown] = useState(0);
+
     const navigate = useNavigate();
 
+    // Cooldown timer for code resend
+    useEffect(() => {
+        let timer: any;
+        if (resendCooldown > 0) {
+            timer = setTimeout(() => setResendCooldown(resendCooldown - 1), 1000);
+        }
+        return () => clearTimeout(timer);
+    }, [resendCooldown]);
+
+    // Auto-redirect to sign-in on success
+    useEffect(() => {
+        if (stage === 'SUCCESS') {
+            const timeout = setTimeout(() => {
+                navigate(`/sign-in?role=${activeRole.toLowerCase()}`);
+            }, 3500);
+            return () => clearTimeout(timeout);
+        }
+    }, [stage, activeRole, navigate]);
+
     const handleRoleToggle = (newRole: 'WORKER' | 'EMPLOYER') => {
+        if (stage !== 'EMAIL') return; // Lock role while in verification stages
         setActiveRole(newRole);
         setSearchParams({ role: newRole.toLowerCase() });
         setError(null);
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    // Stage 1: Request Code
+    const handleSendCode = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
         setError(null);
@@ -37,9 +79,69 @@ export default function ForgotPasswordPage() {
 
         try {
             await authService.forgotPassword(email, activeRole);
-            setIsSuccess(true);
+            setStage('CODE');
+            setResendCooldown(30);
         } catch (err: any) {
-            setError(err.response?.data?.message || err.response?.data?.error || 'Failed to send reset email. Please check the email address.');
+            setError(err.response?.data?.message || err.response?.data?.error || 'Failed to dispatch recovery code. Please check the email address.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // Resend Code handler
+    const handleResendCode = async () => {
+        if (resendCooldown > 0 || isLoading) return;
+        setIsLoading(true);
+        setError(null);
+        try {
+            await authService.forgotPassword(email, activeRole);
+            setResendCooldown(30);
+        } catch (err: any) {
+            setError(err.response?.data?.message || 'Failed to resend code. Please try again shortly.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // Stage 2: Verify Code
+    const handleVerifyCode = async (e: React.FormEvent) => {
+        e.preventDefault();
+        const trimmedCode = code.trim();
+        if (!trimmedCode || trimmedCode.length < 6) {
+            setError('Please enter the complete 6-digit verification code.');
+            return;
+        }
+
+        setIsLoading(true);
+        setError(null);
+
+        try {
+            await authService.verifyResetCode(trimmedCode, email);
+            setStage('NEW_PASSWORD');
+        } catch (err: any) {
+            setError(err.response?.data?.message || err.message || 'Invalid or expired verification code. Please check your email or resend.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // Stage 3: Set New Password
+    const handleResetPassword = async (e: React.FormEvent) => {
+        e.preventDefault();
+        const validationResult = resetPasswordSchema.safeParse({ password, confirmPassword });
+        if (!validationResult.success) {
+            setError(validationResult.error.issues[0].message);
+            return;
+        }
+
+        setIsLoading(true);
+        setError(null);
+
+        try {
+            await authService.resetPassword({ token: code.trim(), password });
+            setStage('SUCCESS');
+        } catch (err: any) {
+            setError(err.response?.data?.message || err.message || 'Failed to update password. Your session may have timed out.');
         } finally {
             setIsLoading(false);
         }
@@ -72,7 +174,7 @@ export default function ForgotPasswordPage() {
                         </Link>
 
                         {/* Segmented Pill Role Switcher */}
-                        <div className="inline-flex p-1 rounded-full bg-[#f4f4f4] border border-[#e6e8ec]">
+                        <div className={`inline-flex p-1 rounded-full bg-[#f4f4f4] border border-[#e6e8ec] ${stage !== 'EMAIL' ? 'opacity-60 pointer-events-none' : ''}`}>
                             <button
                                 type="button"
                                 onClick={() => handleRoleToggle('WORKER')}
@@ -104,36 +206,34 @@ export default function ForgotPasswordPage() {
                     </div>
 
                     {/* Centered Area */}
-                    <div className="max-w-md w-full mx-auto my-auto py-4">
-                        {isSuccess ? (
-                            <motion.div 
-                                initial={{ opacity: 0, scale: 0.96 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                className="text-center space-y-4"
-                            >
-                                <div className="w-16 h-16 bg-blue-50 text-[#0f2f63] rounded-2xl flex items-center justify-center mx-auto shadow-xs border border-[#e6e8ec]">
-                                    <MailCheck className="w-8 h-8 text-[#2563c9]" />
-                                </div>
-                                <h1 className="text-3xl font-medium text-[#0a0a0a]">
-                                    Check your email
-                                </h1>
-                                <p className="text-xs sm:text-sm text-[#717784] leading-relaxed">
-                                    We sent a recovery code to <strong className="text-[#0a0a0a] font-medium">{email}</strong>. Please check your inbox and spam folder.
-                                </p>
-                                <button
-                                    onClick={() => navigate('/reset-password')}
-                                    className="w-full mt-4 bg-[#0f2f63] hover:bg-[#2563c9] text-white py-3.5 px-5 rounded-full font-medium text-xs sm:text-sm uppercase transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer"
+                    <div className="max-w-md w-full mx-auto my-auto py-2">
+
+                        {/* Global Error Banner */}
+                        <AnimatePresence>
+                            {error && (
+                                <motion.div 
+                                    initial={{ opacity: 0, y: -8 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -8 }}
+                                    className="mb-5 p-3.5 bg-rose-50 border border-rose-200 text-rose-800 text-xs font-medium rounded-xl flex items-center gap-2.5 shadow-2xs"
                                 >
-                                    <span>Enter 6-Digit Reset Code</span>
-                                    <ArrowRight className="w-4 h-4" />
-                                </button>
-                            </motion.div>
-                        ) : (
-                            <div>
+                                    <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
+                                    <span>{error}</span>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+
+                        {/* STAGE 1: Request Code (Email Entry) */}
+                        {stage === 'EMAIL' && (
+                            <motion.div
+                                initial={{ opacity: 0, x: -12 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: 12 }}
+                            >
                                 <div className="mb-6">
                                     <div className="inline-flex items-center gap-2 text-xs font-medium uppercase text-[#717784] mb-2">
                                         <span className="w-1.5 h-1.5 rounded-full bg-[#2563c9]" />
-                                        <span>Account Recovery</span>
+                                        <span>Step 1 of 3 • Account Recovery</span>
                                     </div>
                                     <h1 className="text-3xl sm:text-4xl font-medium text-[#0a0a0a] leading-[1.05]">
                                         Reset your password
@@ -143,33 +243,22 @@ export default function ForgotPasswordPage() {
                                     </p>
                                 </div>
 
-                                <AnimatePresence>
-                                    {error && (
-                                        <motion.div 
-                                            initial={{ opacity: 0, y: -8 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            exit={{ opacity: 0, y: -8 }}
-                                            className="mb-5 p-3.5 bg-rose-50 border border-rose-200 text-rose-800 text-xs font-medium rounded-xl flex items-center gap-2.5 shadow-2xs"
-                                        >
-                                            <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
-                                            <span>{error}</span>
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
-
-                                <form onSubmit={handleSubmit} className="space-y-4">
+                                <form onSubmit={handleSendCode} className="space-y-4">
                                     <div className="space-y-1.5">
                                         <label className="block text-xs font-medium uppercase text-[#0a0a0a]">
                                             {isCandidate ? 'Candidate Email Address' : 'Official Work Email'}
                                         </label>
-                                        <input
-                                            type="email"
-                                            value={email}
-                                            onChange={(e) => setEmail(e.target.value)}
-                                            placeholder={isCandidate ? 'name@example.com' : 'contact@company.com'}
-                                            required
-                                            className="w-full bg-[#f4f4f4]/60 hover:bg-[#f4f4f4] focus:bg-white border border-[#e6e8ec] focus:border-[#0f2f63] rounded-xl px-4 py-3 text-sm text-[#0a0a0a] placeholder:text-[#9ea3ae] font-normal transition-all outline-hidden focus:ring-2 focus:ring-[#0f2f63]/10"
-                                        />
+                                        <div className="relative">
+                                            <input
+                                                type="email"
+                                                value={email}
+                                                onChange={(e) => setEmail(e.target.value)}
+                                                placeholder={isCandidate ? 'name@example.com' : 'contact@company.com'}
+                                                required
+                                                className="w-full bg-[#f4f4f4]/60 hover:bg-[#f4f4f4] focus:bg-white border border-[#e6e8ec] focus:border-[#0f2f63] rounded-xl px-4 py-3 pl-10 text-sm text-[#0a0a0a] placeholder:text-[#9ea3ae] font-normal transition-all outline-hidden focus:ring-2 focus:ring-[#0f2f63]/10"
+                                            />
+                                            <Mail className="w-4 h-4 text-[#9ea3ae] absolute left-3.5 top-1/2 -translate-y-1/2" />
+                                        </div>
                                     </div>
 
                                     <button
@@ -180,7 +269,7 @@ export default function ForgotPasswordPage() {
                                         {isLoading ? (
                                             <>
                                                 <Loader2 className="w-4 h-4 animate-spin" />
-                                                <span>Sending Code...</span>
+                                                <span>Sending Verification Code...</span>
                                             </>
                                         ) : (
                                             <>
@@ -190,8 +279,215 @@ export default function ForgotPasswordPage() {
                                         )}
                                     </button>
                                 </form>
-                            </div>
+                            </motion.div>
                         )}
+
+                        {/* STAGE 2: Enter & Verify 6-Digit Code */}
+                        {stage === 'CODE' && (
+                            <motion.div
+                                initial={{ opacity: 0, x: 12 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: -12 }}
+                            >
+                                <div className="mb-6">
+                                    <div className="inline-flex items-center gap-2 text-xs font-medium uppercase text-[#717784] mb-2">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-[#2563c9]" />
+                                        <span>Step 2 of 3 • Code Verification</span>
+                                    </div>
+                                    <h1 className="text-3xl sm:text-4xl font-medium text-[#0a0a0a] leading-[1.05]">
+                                        Enter 6-digit code
+                                    </h1>
+                                    <p className="text-xs sm:text-sm text-[#717784] mt-2 leading-relaxed">
+                                        We sent an authorization code to <strong className="text-[#0a0a0a] font-medium">{email}</strong>. Please check your inbox or spam folder.
+                                    </p>
+                                </div>
+
+                                <form onSubmit={handleVerifyCode} className="space-y-4">
+                                    <div className="space-y-1.5">
+                                        <div className="flex items-center justify-between">
+                                            <label className="block text-xs font-medium uppercase text-[#0a0a0a]">
+                                                6-Digit Security Code
+                                            </label>
+                                            <button
+                                                type="button"
+                                                onClick={() => { setStage('EMAIL'); setError(null); }}
+                                                className="text-xs text-[#2563c9] hover:underline cursor-pointer"
+                                            >
+                                                Change email
+                                            </button>
+                                        </div>
+                                        <div className="relative">
+                                            <input
+                                                type="text"
+                                                inputMode="numeric"
+                                                pattern="[0-9]*"
+                                                maxLength={6}
+                                                autoFocus
+                                                autoComplete="one-time-code"
+                                                value={code}
+                                                onChange={(e) => {
+                                                    const val = e.target.value.replace(/\D/g, '').slice(0, 6);
+                                                    setCode(val);
+                                                }}
+                                                placeholder="123456"
+                                                required
+                                                className="w-full tracking-[8px] text-center font-mono text-xl sm:text-2xl font-bold bg-[#f4f4f4]/60 hover:bg-[#f4f4f4] focus:bg-white border border-[#e6e8ec] focus:border-[#0f2f63] rounded-xl px-4 py-3.5 text-[#0a0a0a] placeholder:text-[#cbd5e1] placeholder:tracking-normal transition-all outline-hidden focus:ring-2 focus:ring-[#0f2f63]/10"
+                                            />
+                                            <KeyRound className="w-4 h-4 text-[#9ea3ae] absolute left-3.5 top-1/2 -translate-y-1/2" />
+                                        </div>
+                                        <p className="text-[11px] text-[#717784] text-center">
+                                            Tip: You can paste the full 6-digit code directly
+                                        </p>
+                                    </div>
+
+                                    <button
+                                        type="submit"
+                                        disabled={isLoading || code.length < 6}
+                                        className="w-full mt-2 bg-[#0f2f63] hover:bg-[#2563c9] active:scale-[0.99] disabled:opacity-50 text-white py-3.5 px-5 rounded-full font-medium text-xs sm:text-sm uppercase transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer"
+                                    >
+                                        {isLoading ? (
+                                            <>
+                                                <Loader2 className="w-4 h-4 animate-spin" />
+                                                <span>Verifying Code...</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <span>Verify Code</span>
+                                                <ArrowRight className="w-4 h-4" />
+                                            </>
+                                        )}
+                                    </button>
+
+                                    {/* Resend Code Row */}
+                                    <div className="pt-2 flex items-center justify-center gap-2 text-xs text-[#717784]">
+                                        <span>Didn't receive the email?</span>
+                                        {resendCooldown > 0 ? (
+                                            <span className="font-semibold text-[#0f2f63]">
+                                                Resend in {resendCooldown}s
+                                            </span>
+                                        ) : (
+                                            <button
+                                                type="button"
+                                                onClick={handleResendCode}
+                                                disabled={isLoading}
+                                                className="inline-flex items-center gap-1 font-semibold text-[#2563c9] hover:underline cursor-pointer"
+                                            >
+                                                <RefreshCw className="w-3 h-3" />
+                                                <span>Resend code</span>
+                                            </button>
+                                        )}
+                                    </div>
+                                </form>
+                            </motion.div>
+                        )}
+
+                        {/* STAGE 3: Set New Password */}
+                        {stage === 'NEW_PASSWORD' && (
+                            <motion.div
+                                initial={{ opacity: 0, x: 12 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: -12 }}
+                            >
+                                <div className="mb-6">
+                                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-semibold uppercase mb-2">
+                                        <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                                        <span>Code {code} Verified • Step 3 of 3</span>
+                                    </div>
+                                    <h1 className="text-3xl sm:text-4xl font-medium text-[#0a0a0a] leading-[1.05]">
+                                        Create new password
+                                    </h1>
+                                    <p className="text-xs sm:text-sm text-[#717784] mt-2 leading-relaxed">
+                                        Identity confirmed for <strong className="text-[#0a0a0a] font-medium">{email}</strong>. Set a strong password with at least 8 characters.
+                                    </p>
+                                </div>
+
+                                <form onSubmit={handleResetPassword} className="space-y-4">
+                                    <div className="space-y-1.5">
+                                        <label className="block text-xs font-medium uppercase text-[#0a0a0a]">
+                                            New Password
+                                        </label>
+                                        <div className="relative">
+                                            <input
+                                                type={showPassword ? 'text' : 'password'}
+                                                value={password}
+                                                onChange={(e) => setPassword(e.target.value)}
+                                                placeholder="At least 8 characters"
+                                                required
+                                                minLength={8}
+                                                autoFocus
+                                                className="w-full bg-[#f4f4f4]/60 hover:bg-[#f4f4f4] focus:bg-white border border-[#e6e8ec] focus:border-[#0f2f63] rounded-xl px-4 py-3 pr-10 text-sm text-[#0a0a0a] placeholder:text-[#9ea3ae] font-normal transition-all outline-hidden focus:ring-2 focus:ring-[#0f2f63]/10"
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowPassword(!showPassword)}
+                                                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#9ea3ae] hover:text-[#0a0a0a] transition-colors cursor-pointer"
+                                            >
+                                                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-1.5">
+                                        <label className="block text-xs font-medium uppercase text-[#0a0a0a]">
+                                            Confirm New Password
+                                        </label>
+                                        <input
+                                            type={showPassword ? 'text' : 'password'}
+                                            value={confirmPassword}
+                                            onChange={(e) => setConfirmPassword(e.target.value)}
+                                            placeholder="Re-enter your password"
+                                            required
+                                            className="w-full bg-[#f4f4f4]/60 hover:bg-[#f4f4f4] focus:bg-white border border-[#e6e8ec] focus:border-[#0f2f63] rounded-xl px-4 py-3 text-sm text-[#0a0a0a] placeholder:text-[#9ea3ae] font-normal transition-all outline-hidden focus:ring-2 focus:ring-[#0f2f63]/10"
+                                        />
+                                    </div>
+
+                                    <button
+                                        type="submit"
+                                        disabled={isLoading || !password || !confirmPassword}
+                                        className="w-full mt-2 bg-[#0f2f63] hover:bg-[#2563c9] active:scale-[0.99] disabled:opacity-50 text-white py-3.5 px-5 rounded-full font-medium text-xs sm:text-sm uppercase transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer"
+                                    >
+                                        {isLoading ? (
+                                            <>
+                                                <Loader2 className="w-4 h-4 animate-spin" />
+                                                <span>Updating Password...</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <span>Save New Password</span>
+                                                <ArrowRight className="w-4 h-4" />
+                                            </>
+                                        )}
+                                    </button>
+                                </form>
+                            </motion.div>
+                        )}
+
+                        {/* STAGE 4: Success Completion */}
+                        {stage === 'SUCCESS' && (
+                            <motion.div 
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                className="text-center space-y-4 py-4"
+                            >
+                                <div className="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto shadow-xs border border-emerald-100">
+                                    <CheckCircle2 className="w-8 h-8 text-emerald-500" />
+                                </div>
+                                <h1 className="text-3xl font-medium text-[#0a0a0a]">
+                                    Password Reset Complete
+                                </h1>
+                                <p className="text-xs sm:text-sm text-[#717784] leading-relaxed">
+                                    Your password has been successfully updated. Redirecting you to sign in...
+                                </p>
+                                <button
+                                    onClick={() => navigate(`/sign-in?role=${activeRole.toLowerCase()}`)}
+                                    className="w-full mt-4 bg-[#0f2f63] hover:bg-[#2563c9] text-white py-3.5 px-5 rounded-full font-medium text-xs sm:text-sm uppercase transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer"
+                                >
+                                    <span>Log In Now</span>
+                                    <ArrowRight className="w-4 h-4" />
+                                </button>
+                            </motion.div>
+                        )}
+
                     </div>
 
                     {/* Bottom Footer Note */}
