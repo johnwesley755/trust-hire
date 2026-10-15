@@ -46,7 +46,18 @@ apiClient.interceptors.response.use(
     }
     return response;
   },
-  (error) => {
+  async (error) => {
+    const config = error.config;
+    // Auto-retry once for idempotent GET requests on 500/cold-start error or network glitch
+    if (config && config.method?.toLowerCase() === 'get' && !config._isRetry) {
+      const status = error.response?.status;
+      if (!status || status >= 500) {
+        config._isRetry = true;
+        await new Promise((resolve) => setTimeout(resolve, 800));
+        return apiClient(config);
+      }
+    }
+
     const isAuthEndpoint = error.config?.url && (
       error.config.url.includes('/api/auth/login') ||
       error.config.url.includes('/api/auth/register') ||
