@@ -214,28 +214,28 @@ export const AdminLeadsPage: React.FC = () => {
       value: stats?.totalLeads || 0,
       sub: `${stats?.totalRequirements || 0} Open Worker Openings`,
       icon: Building2,
-      color: 'bg-blue-50 text-[#0066FF] border border-blue-100',
+      color: 'bg-blue-50 text-[#0f2f63] border border-blue-100',
     },
     {
       title: 'Ready to Contact',
       value: stats?.completeLeads || 0,
       sub: 'Verified Phone & Email on file',
       icon: ShieldCheck,
-      color: 'bg-emerald-50 text-emerald-600 border border-emerald-100',
+      color: 'bg-emerald-50 text-emerald-800 border border-emerald-200',
     },
     {
       title: 'In Outreach Pipeline',
       value: stats?.contactedLeads || 0,
       sub: 'Contacted • Follow-up • Interested',
       icon: TrendingUp,
-      color: 'bg-amber-50 text-amber-600 border border-amber-100',
+      color: 'bg-amber-50 text-amber-800 border border-amber-200',
     },
     {
-      title: 'Joined TrustHire',
+      title: 'Joined TrustHyre',
       value: stats?.convertedLeads || 0,
-      sub: 'Active TrustHire Employers',
+      sub: 'Active TrustHyre Employers',
       icon: UserCheck,
-      color: 'bg-purple-50 text-purple-600 border border-purple-100',
+      color: 'bg-purple-50 text-purple-800 border border-purple-200',
     },
   ];
 
@@ -273,18 +273,22 @@ export const AdminLeadsPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 font-['Onest',system-ui,sans-serif]">
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
+          <div className="inline-flex items-center gap-2 text-xs font-medium uppercase text-[#717784] mb-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#2563c9]" />
+            <span>Opportunity Acquisition</span>
+          </div>
           <div className="flex items-center gap-2.5">
-            <h1 className="text-2xl font-black text-[#0A1931] tracking-tight">Hiring Company Discovery</h1>
-            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-blue-50 text-[#0066FF] border border-blue-200">
+            <h1 className="text-2xl sm:text-3xl font-medium text-[#0a0a0a] tracking-tight">Hiring Company Discovery</h1>
+            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider bg-blue-50 text-[#0f2f63] border border-blue-200">
               Live Opportunity Finder
             </span>
           </div>
-          <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-3xl">
-            Find external businesses that currently need workers, view their verified phone and email, and invite them to hire verified workers on TrustHire.
+          <p className="text-xs sm:text-sm text-[#717784] mt-1 max-w-3xl leading-relaxed">
+            Find external businesses that currently need workers, view their verified phone and email, and invite them to hire verified workers on TrustHyre.
           </p>
         </div>
 
@@ -293,10 +297,10 @@ export const AdminLeadsPage: React.FC = () => {
           {/* Interactive Guide / How It Works Button */}
           <button
             onClick={() => setIsGuideModalOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 shadow-xs transition-all cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-medium uppercase tracking-wider bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 shadow-xs transition-all cursor-pointer"
           >
-            <Lightbulb className="w-4 h-4 text-amber-600" />
-            <span>How This Works & Preview</span>
+            <Lightbulb className="w-3.5 h-3.5 text-amber-600" />
+            <span>How This Works</span>
           </button>
 
           {/* Quick URL Crawl Button */}
@@ -306,9 +310,9 @@ export const AdminLeadsPage: React.FC = () => {
               setCrawlUrlInput('');
               setIsCrawlModalOpen(true);
             }}
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 shadow-xs transition-all cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-medium uppercase tracking-wider bg-white hover:bg-[#f4f4f4] text-[#0a0a0a] border border-[#e6e8ec] shadow-xs transition-all cursor-pointer"
           >
-            <Link2 className="w-4 h-4 text-[#0066FF]" />
+            <Link2 className="w-3.5 h-3.5 text-[#2563c9]" />
             <span>Quick Scrape URL</span>
           </button>
 
@@ -316,13 +320,13 @@ export const AdminLeadsPage: React.FC = () => {
           <button
             onClick={() => autoDiscoveryMutation.mutate()}
             disabled={autoDiscoveryMutation.isPending}
-            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs shadow-emerald-500/20 transition-all cursor-pointer disabled:opacity-60"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-medium uppercase tracking-wider bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs transition-all cursor-pointer disabled:opacity-60"
             title="Scan active career feeds and schema.org postings"
           >
             {autoDiscoveryMutation.isPending ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
             ) : (
-              <Radar className="w-4 h-4" />
+              <Radar className="w-3.5 h-3.5" />
             )}
             <span>{autoDiscoveryMutation.isPending ? 'Searching Feeds...' : 'Run Auto-Discovery Scan'}</span>
           </button>
@@ -330,9 +334,9 @@ export const AdminLeadsPage: React.FC = () => {
           {/* Ingest Manual Lead */}
           <button
             onClick={() => setIsAddModalOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-[#0066FF] hover:bg-blue-600 text-white shadow-xs shadow-blue-500/20 transition-all cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-medium uppercase tracking-wider bg-[#0f2f63] hover:bg-[#2563c9] text-white shadow-xs transition-all cursor-pointer"
           >
-            <PlusCircle className="w-4 h-4" />
+            <PlusCircle className="w-3.5 h-3.5" />
             <span>Add Company</span>
           </button>
         </div>
@@ -388,10 +392,10 @@ export const AdminLeadsPage: React.FC = () => {
       </div>
 
       {/* Comprehensive Filter & Search Bar */}
-      <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-3.5">
+      <div className="bg-white p-4 sm:p-5 rounded-2xl border border-[#e6e8ec] shadow-xs space-y-3.5">
         {/* Top Row: Status Tabs */}
-        <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-100">
-          <div className="flex flex-wrap gap-1.5">
+        <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-[#e6e8ec]">
+          <div className="inline-flex p-1 rounded-full bg-[#f4f4f4] border border-[#e6e8ec] overflow-x-auto max-w-full">
             {statusTabs.map((tab) => (
               <button
                 key={tab.value}
@@ -399,10 +403,10 @@ export const AdminLeadsPage: React.FC = () => {
                   setStatusFilter(tab.value);
                   setPage(1);
                 }}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                className={`px-3.5 py-1.5 rounded-full text-xs font-medium uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap ${
                   statusFilter === tab.value
-                    ? 'bg-[#0066FF] text-white shadow-xs shadow-blue-500/20'
-                    : 'bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-900 border border-slate-200/60'
+                    ? 'bg-[#0f2f63] text-white shadow-xs'
+                    : 'text-[#717784] hover:text-[#0a0a0a]'
                 }`}
               >
                 {tab.label}
@@ -413,7 +417,7 @@ export const AdminLeadsPage: React.FC = () => {
           {hasActiveFilters && (
             <button
               onClick={resetAllFilters}
-              className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 rounded-lg transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium uppercase tracking-wider text-rose-700 bg-rose-50 hover:bg-rose-100 rounded-full border border-rose-200 transition-colors cursor-pointer"
             >
               <RotateCcw className="w-3 h-3" />
               <span>Reset Filters</span>
