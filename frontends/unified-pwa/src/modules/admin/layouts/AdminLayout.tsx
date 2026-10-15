@@ -54,7 +54,7 @@ export const AdminLayout: React.FC = () => {
                     key={item.path}
                     to={item.path}
                     className={({ isActive }) =>
-                      `inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-medium uppercase tracking-wider transition-all cursor-pointer ${
+                      `inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
                         isActive
                           ? 'bg-[#0f2f63] text-white shadow-xs'
                           : 'text-[#717784] hover:text-[#0a0a0a] hover:bg-white/60'
