@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../../providers/AuthContext';
 import apiClient from '../../../api/apiClient';
+import { AuthVisualHero } from '../../auth/components/AuthVisualHero';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShieldCheck, Lock, Mail, Eye, EyeOff, Loader2, AlertCircle } from 'lucide-react';
+import { ShieldCheck, Lock, Mail, Eye, EyeOff, Loader2, AlertCircle, ArrowLeft, ArrowRight } from 'lucide-react';
 import trustHyreLogo from '../../../assets/TrustHyre Skills and Opportunities Logo.png';
 
 export const AdminLoginPage = () => {
@@ -50,96 +51,142 @@ export const AdminLoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50/70 flex items-center justify-center p-4 sm:p-6 font-sans text-slate-900 select-none">
-      <div className="w-full max-w-md bg-white border border-slate-200/80 rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden">
-        {/* Glow / Accent effects */}
-        <div className="absolute -top-24 -left-24 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-24 -right-24 w-48 h-48 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
-
-        {/* Brand Header */}
-        <div className="text-center mb-6 relative">
-          <Link to="/" className="inline-flex items-center justify-center mb-3 group" aria-label="TrustHyre Home">
-            <img 
-              src={trustHyreLogo} 
-              alt="TrustHyre" 
-              className="h-12 sm:h-14 w-auto object-contain block select-none mix-blend-multiply group-hover:opacity-90 transition-opacity" 
-            />
-          </Link>
-          <h1 className="text-base font-bold text-slate-700 mt-1">Administrator Command Center</h1>
-          <p className="text-xs text-slate-400 mt-0.5">Secure authentication portal for platform administrators</p>
+    <div className="w-full min-h-screen p-2 sm:p-3 bg-white font-['Onest',system-ui,sans-serif] selection:bg-[#2563c9] selection:text-white flex flex-col">
+      {/* Framed Full-Screen Canvas matching Landing Page Architecture */}
+      <div className="relative w-full flex-1 min-h-[calc(100svh-1rem)] sm:min-h-[calc(100svh-1.5rem)] lg:h-[calc(100svh-1.5rem)] rounded-[2rem] overflow-hidden border border-[#e6e8ec] bg-white shadow-xl grid grid-cols-1 lg:grid-cols-12 transition-all">
+        
+        {/* Left Side: Full-Bleed Brand Visual Hero */}
+        <div className="lg:col-span-5 xl:col-span-5 hidden lg:block h-full">
+          <AuthVisualHero role="EMPLOYER" />
         </div>
 
-        {/* Error Alert */}
-        <AnimatePresence>
-          {error && (
-            <motion.div
-              initial={{ opacity: 0, y: -6 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }}
-              className="mb-4 p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs font-bold text-rose-700 flex items-center gap-2"
+        {/* Right Side: Clean Modern Form with Independent Smooth Scroll */}
+        <div className="lg:col-span-7 xl:col-span-7 p-6 sm:p-10 lg:p-12 flex flex-col justify-between relative bg-white h-full overflow-y-auto">
+          
+          {/* Top Navigation Row: Back Link & Security Badge */}
+          <div className="flex items-center justify-between gap-3 mb-6 sm:mb-8">
+            <Link 
+              to="/" 
+              className="inline-flex items-center gap-2 text-xs font-medium uppercase text-[#717784] hover:text-[#0a0a0a] transition-colors"
             >
-              <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
-              <span>{error}</span>
-            </motion.div>
-          )}
-        </AnimatePresence>
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Back to Home</span>
+            </Link>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-1.5">
-            <label className="block text-xs font-bold text-slate-700">Admin Email</label>
-            <div className="relative">
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@trusthyre.com"
-                required
-                className="w-full bg-slate-50/70 border border-slate-200 focus:border-[#0066FF] focus:bg-white rounded-xl px-4 py-3 pl-10 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 font-medium transition-all outline-none focus:ring-2 focus:ring-blue-100"
-              />
-              <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-[#0f2f63] text-[11px] font-semibold uppercase tracking-wider">
+              <ShieldCheck className="w-3.5 h-3.5 text-[#2563c9]" />
+              <span>Restricted Gateway</span>
             </div>
           </div>
 
-          <div className="space-y-1.5">
-            <label className="block text-xs font-bold text-slate-700">Master Password</label>
-            <div className="relative">
-              <input
-                type={showPassword ? 'text' : 'password'}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••••••"
-                required
-                className="w-full bg-slate-50/70 border border-slate-200 focus:border-[#0066FF] focus:bg-white rounded-xl px-4 py-3 pl-10 pr-10 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 font-medium transition-all outline-none focus:ring-2 focus:ring-blue-100"
-              />
-              <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          {/* Mobile Only: Ambient Hero Banner */}
+          <div className="block lg:hidden mb-6">
+            <AuthVisualHero role="EMPLOYER" isMobileBanner={true} />
+          </div>
+
+          {/* Centered Area */}
+          <div className="max-w-md w-full mx-auto my-auto py-2">
+            
+            {/* Header info */}
+            <div className="mb-6">
+              <div className="inline-flex items-center gap-2 text-xs font-medium uppercase text-[#717784] mb-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#2563c9]" />
+                <span>Super Administrator Portal</span>
+              </div>
+              <h1 className="text-3xl sm:text-4xl font-medium text-[#0a0a0a] leading-[1.05]">
+                Command Center
+              </h1>
+              <p className="text-xs sm:text-sm text-[#717784] mt-2 leading-relaxed">
+                Authenticate with superuser credentials to access platform telemetry, moderation, and workforce verification.
+              </p>
+            </div>
+
+            {/* Error Alert Banner */}
+            <AnimatePresence>
+              {error && (
+                <motion.div
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  className="mb-5 p-3.5 bg-rose-50 border border-rose-200 text-rose-800 text-xs font-medium rounded-xl flex items-center gap-2.5 shadow-2xs"
+                >
+                  <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
+                  <span>{error}</span>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Form */}
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="block text-xs font-medium uppercase text-[#0a0a0a]">
+                  Administrator Email
+                </label>
+                <div className="relative">
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="admin@trusthyre.com"
+                    required
+                    className="w-full bg-[#f4f4f4]/60 hover:bg-[#f4f4f4] focus:bg-white border border-[#e6e8ec] focus:border-[#0f2f63] rounded-xl px-4 py-3 pl-10 text-sm text-[#0a0a0a] placeholder:text-[#9ea3ae] font-normal transition-all outline-hidden focus:ring-2 focus:ring-[#0f2f63]/10"
+                  />
+                  <Mail className="w-4 h-4 text-[#9ea3ae] absolute left-3.5 top-1/2 -translate-y-1/2" />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="block text-xs font-medium uppercase text-[#0a0a0a]">
+                  Master Security Password
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••••••"
+                    required
+                    className="w-full bg-[#f4f4f4]/60 hover:bg-[#f4f4f4] focus:bg-white border border-[#e6e8ec] focus:border-[#0f2f63] rounded-xl px-4 py-3 pl-10 pr-10 text-sm text-[#0a0a0a] placeholder:text-[#9ea3ae] font-normal transition-all outline-hidden focus:ring-2 focus:ring-[#0f2f63]/10"
+                  />
+                  <Lock className="w-4 h-4 text-[#9ea3ae] absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#9ea3ae] hover:text-[#0a0a0a] transition-colors cursor-pointer"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
               <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
+                type="submit"
+                disabled={isLoading || !email || !password}
+                className="w-full mt-2 bg-[#0f2f63] hover:bg-[#2563c9] active:scale-[0.99] disabled:opacity-50 text-white py-3.5 px-5 rounded-full font-medium text-xs sm:text-sm uppercase transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer"
               >
-                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                {isLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Authenticating Admin...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Enter Command Center</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </>
+                )}
               </button>
-            </div>
+            </form>
+
           </div>
 
-          <button
-            type="submit"
-            disabled={isLoading || !email || !password}
-            className="w-full mt-2 bg-[#0066FF] hover:bg-blue-600 text-white py-3 px-4 rounded-xl font-bold text-xs sm:text-sm tracking-wide shadow-lg shadow-blue-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Authenticating Admin...</span>
-              </>
-            ) : (
-              <span>Sign In to Admin Console</span>
-            )}
-          </button>
-        </form>
+          {/* Bottom Security Notice */}
+          <div className="pt-4 text-center text-xs text-[#717784]">
+            Authorized personnel only. All access attempts are cryptographically audited.
+          </div>
+        </div>
+
       </div>
     </div>
   );
 };
-

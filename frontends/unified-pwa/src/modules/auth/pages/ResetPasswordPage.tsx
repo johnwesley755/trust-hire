@@ -272,7 +272,7 @@ export default function ResetPasswordPage() {
                                 <div className="mb-6">
                                     <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-semibold uppercase mb-2">
                                         <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                                        <span>Code {token} Verified</span>
+                                        <span>Identity Verified</span>
                                     </div>
                                     <h1 className="text-3xl sm:text-4xl font-medium text-[#0a0a0a] leading-[1.05]">
                                         Create new password
