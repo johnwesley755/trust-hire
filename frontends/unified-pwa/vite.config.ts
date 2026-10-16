@@ -22,17 +22,22 @@ export default defineConfig({
     },
   },
   plugins: [react(), tailwindcss(), VitePWA({
-    registerType: 'autoUpdate',
+    registerType: 'prompt',
     includeAssets: ['logo.png', 'vite.svg'],
     workbox: {
+      cleanupOutdatedCaches: true,
+      clientsClaim: true,
+      skipWaiting: false,
       maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
+      navigateFallback: '/index.html',
+      navigateFallbackDenylist: [/^\/api/],
     },
     manifest: {
-      name: 'TrustHire | Unified Enterprise Portal',
-      short_name: 'TrustHire',
-      description: 'India’s #1 Verified Blue-Collar Talent & Employer Network',
-      theme_color: '#1F3F34',
-      background_color: '#F5F4EF',
+      name: 'TrustHyre | Trusted Talent. Better Hiring.',
+      short_name: 'TrustHyre',
+      description: 'India’s #1 Verified Workforce & Employer Network',
+      theme_color: '#0f2f63',
+      background_color: '#ffffff',
       display: 'standalone',
       icons: [
         {
@@ -51,6 +56,7 @@ export default defineConfig({
   })],
   define: {
     global: 'window',
+    __APP_BUILD_TIME__: JSON.stringify(new Date().toISOString()),
   },
   build: {
     rollupOptions: {
