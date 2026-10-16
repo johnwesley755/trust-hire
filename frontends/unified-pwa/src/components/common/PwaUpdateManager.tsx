@@ -1,66 +1,51 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useLocation } from 'react-router-dom';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useRegisterSW } from 'virtual:pwa-register/react';
 import { RefreshCw, Sparkles, X, AlertTriangle, Loader2 } from 'lucide-react';
 import { checkIsUserBusy } from '../../hooks/useUserActivityGuard';
 
-const PWA_DISMISS_KEY = 'trusthyre_pwa_update_dismissed';
-
 export const PwaUpdateManager: React.FC = () => {
-  const location = useLocation();
-  const [isDismissed, setIsDismissed] = useState<boolean>(() => {
-    return typeof window !== 'undefined' && sessionStorage.getItem(PWA_DISMISS_KEY) === 'true';
-  });
+  const [hasUpdate, setHasUpdate] = useState(false);
+  const [availableVersion, setAvailableVersion] = useState<string | null>(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const registrationRef = useRef<ServiceWorkerRegistration | null>(null);
 
-  // In development mode, auto-clean old SW registrations on localhost and do not show PWA update popups
-  useEffect(() => {
-    if (import.meta.env.DEV && 'serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistrations().then((registrations) => {
-        registrations.forEach((reg) => {
-          // Keep firebase-messaging-sw if active, but unregister any old workbox dev workers
-          if (!reg.active?.scriptURL.includes('firebase-messaging-sw.js')) {
-            reg.unregister().catch(() => {});
-          }
-        });
+  // Check version.json on server and compare with __APP_VERSION__
+  const checkVersionJson = useCallback(async () => {
+    try {
+      const res = await fetch(`/version.json?t=${Date.now()}`, {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          Pragma: 'no-cache',
+        },
       });
+
+      if (!res.ok) return;
+
+      const data = await res.json();
+      const remoteVersion = data?.version;
+
+      if (remoteVersion && typeof __APP_VERSION__ !== 'undefined' && remoteVersion !== __APP_VERSION__) {
+        const isDismissed = sessionStorage.getItem(`trusthyre_dismissed_version_${remoteVersion}`) === 'true';
+        if (!isDismissed) {
+          setAvailableVersion(remoteVersion);
+          setHasUpdate(true);
+        }
+      }
+    } catch {
+      // Network failure or offline - ignore silently
     }
   }, []);
 
+  // Hook into Vite PWA Service Worker updates
   const {
-    needRefresh: [needRefresh, setNeedRefresh],
+    needRefresh: [swNeedRefresh],
     updateServiceWorker,
   } = useRegisterSW({
     onRegistered(r) {
-      if (r && !import.meta.env.DEV) {
+      if (r) {
         registrationRef.current = r;
-
-        // Periodic background update check (every 30 minutes in production)
-        const intervalId = setInterval(() => {
-          const dismissed = sessionStorage.getItem(PWA_DISMISS_KEY) === 'true';
-          if (!dismissed) {
-            r.update().catch((err) => console.debug('Periodic SW update check notice:', err));
-          }
-        }, 30 * 60 * 1000);
-
-        // Check for updates when tab regains focus (only if not dismissed in session)
-        const handleVisibilityChange = () => {
-          if (document.visibilityState === 'visible') {
-            const dismissed = sessionStorage.getItem(PWA_DISMISS_KEY) === 'true';
-            if (!dismissed) {
-              r.update().catch((err) => console.debug('Visibility SW update check notice:', err));
-            }
-          }
-        };
-
-        document.addEventListener('visibilitychange', handleVisibilityChange);
-
-        return () => {
-          clearInterval(intervalId);
-          document.removeEventListener('visibilitychange', handleVisibilityChange);
-        };
       }
     },
     onRegisterError(error) {
@@ -68,15 +53,56 @@ export const PwaUpdateManager: React.FC = () => {
     },
   });
 
-  // Never display PWA update banners in development mode (Vite HMR handles local updates)
-  if (import.meta.env.DEV) {
-    return null;
-  }
+  // Check for updates on mount, visibility change, and periodic intervals
+  useEffect(() => {
+    // 1. Initial check after a brief delay
+    const initialTimer = setTimeout(() => {
+      checkVersionJson();
+    }, 2000);
 
-  // Handle user choosing "Later" or closing the banner
+    // 2. Periodic polling every 3 minutes
+    const intervalId = setInterval(() => {
+      checkVersionJson();
+      if (registrationRef.current) {
+        registrationRef.current.update().catch(() => {});
+      }
+    }, 3 * 60 * 1000);
+
+    // 3. Check when tab becomes visible
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        checkVersionJson();
+        if (registrationRef.current) {
+          registrationRef.current.update().catch(() => {});
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      clearTimeout(initialTimer);
+      clearInterval(intervalId);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [checkVersionJson]);
+
+  // If Service Worker detects an update and version hasn't been dismissed, display banner
+  useEffect(() => {
+    if (swNeedRefresh) {
+      const versionKey = availableVersion || 'sw_update';
+      const isDismissed = sessionStorage.getItem(`trusthyre_dismissed_version_${versionKey}`) === 'true';
+      if (!isDismissed) {
+        setHasUpdate(true);
+      }
+    }
+  }, [swNeedRefresh, availableVersion]);
+
+  // Handle user clicking "Later" - persist in sessionStorage for this version
   const handleDismiss = () => {
-    setIsDismissed(true);
-    sessionStorage.setItem(PWA_DISMISS_KEY, 'true');
+    const versionKey = availableVersion || 'sw_update';
+    sessionStorage.setItem(`trusthyre_dismissed_version_${versionKey}`, 'true');
+    setHasUpdate(false);
   };
 
   const handleUpdateClick = () => {
@@ -88,41 +114,63 @@ export const PwaUpdateManager: React.FC = () => {
     }
   };
 
-  // Perform complete, guaranteed hard refresh and cache cleanup
+  // Perform 100% no-cache complete hard refresh (mimics Ctrl+Shift+R)
   const executeReload = async () => {
     setIsUpdating(true);
     setShowConfirmModal(false);
 
     try {
-      // Clear session dismissal key so fresh version starts clean
-      sessionStorage.removeItem(PWA_DISMISS_KEY);
+      // 1. Clean up session dismissal keys so new version starts clean
+      Object.keys(sessionStorage).forEach((key) => {
+        if (key.startsWith('trusthyre_dismissed_version_') || key.includes('update_dismissed')) {
+          sessionStorage.removeItem(key);
+        }
+      });
 
-      // 1. Tell waiting service worker to skip waiting and activate
+      // 2. Skip waiting on active SW registration if available
       if (typeof updateServiceWorker === 'function') {
-        await updateServiceWorker(true);
+        try {
+          await updateServiceWorker(true);
+        } catch {
+          // ignore
+        }
       }
 
-      // 2. Clear outdated precaches from CacheStorage to ensure 100% fresh assets
+      // 3. Clear ALL browser CacheStorage (workbox, precache, runtime, assets)
       if ('caches' in window) {
         const cacheKeys = await caches.keys();
+        await Promise.all(cacheKeys.map((name) => caches.delete(name)));
+      }
+
+      // 4. Unregister all service workers so next visit loads fresh code from server
+      if ('serviceWorker' in navigator) {
+        const registrations = await navigator.serviceWorker.getRegistrations();
         await Promise.all(
-          cacheKeys
-            .filter((key) => key.includes('workbox') || key.includes('precache') || key.includes('trusthyre'))
-            .map((key) => caches.delete(key))
+          registrations.map(async (reg) => {
+            if (reg.waiting) {
+              reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+            }
+            return reg.unregister();
+          })
         );
       }
     } catch (err) {
-      console.warn('PWA update execution notice:', err);
+      console.warn('Cache clearing during update notice:', err);
     }
 
-    // 3. Guaranteed complete hard reload
+    // 5. Cache-busting complete hard reload
     setTimeout(() => {
-      window.location.href = window.location.pathname + window.location.search;
-      window.location.reload();
-    }, 250);
+      const url = new URL(window.location.href);
+      url.searchParams.set('_v', Date.now().toString());
+      window.location.replace(url.toString());
+
+      setTimeout(() => {
+        window.location.reload();
+      }, 100);
+    }, 200);
   };
 
-  if (!needRefresh || isDismissed) {
+  if (!hasUpdate) {
     return null;
   }
 
@@ -143,14 +191,14 @@ export const PwaUpdateManager: React.FC = () => {
             <div className="flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
               <p className="text-xs font-semibold uppercase tracking-wider text-[#0f2f63]">
-                Update Ready
+                {availableVersion ? `Update Ready (v${availableVersion})` : 'Update Ready'}
               </p>
             </div>
             <h4 className="text-sm font-bold text-[#0a0a0a] mt-0.5 leading-snug">
-              A new version of TrustHyre is ready
+              A new version of TrustHyre is available
             </h4>
             <p className="text-xs text-[#717784] mt-1 leading-relaxed">
-              Refresh now to get the latest features and security updates.
+              Refresh now to load the latest features, security updates, and bug fixes without cached files.
             </p>
 
             <div className="flex items-center gap-2.5 mt-3.5">

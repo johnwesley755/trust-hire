@@ -15,13 +15,68 @@ try {
   // fallback
 }
 
+const pkg = JSON.parse(fs.readFileSync(path.resolve(__dirname, 'package.json'), 'utf-8'));
+
+function versionSyncPlugin() {
+  const syncVersion = () => {
+    try {
+      const p = JSON.parse(fs.readFileSync(path.resolve(__dirname, 'package.json'), 'utf-8'));
+      const publicDir = path.resolve(__dirname, 'public');
+      if (!fs.existsSync(publicDir)) {
+        fs.mkdirSync(publicDir, { recursive: true });
+      }
+      const data = {
+        version: p.version || '1.0.0',
+        buildTime: new Date().toISOString(),
+      };
+      fs.writeFileSync(path.resolve(publicDir, 'version.json'), JSON.stringify(data, null, 2) + '\n');
+    } catch {
+      // fallback
+    }
+  };
+
+  return {
+    name: 'version-json-sync',
+    buildStart() {
+      syncVersion();
+    },
+    configureServer(server: any) {
+      syncVersion();
+      const pkgFile = path.resolve(__dirname, 'package.json');
+      server.watcher.add(pkgFile);
+      server.watcher.on('change', (file: string) => {
+        if (path.resolve(file) === pkgFile) {
+          syncVersion();
+        }
+      });
+      server.middlewares.use((req: any, res: any, next: any) => {
+        if (req.url && (req.url === '/version.json' || req.url.startsWith('/version.json?'))) {
+          res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+          res.setHeader('Content-Type', 'application/json');
+          try {
+            const currentPkg = JSON.parse(fs.readFileSync(pkgFile, 'utf-8'));
+            res.end(JSON.stringify({
+              version: currentPkg.version || '1.0.0',
+              buildTime: new Date().toISOString()
+            }, null, 2));
+            return;
+          } catch {
+            // fallback
+          }
+        }
+        next();
+      });
+    },
+  };
+}
+
 export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
     },
   },
-  plugins: [react(), tailwindcss(), VitePWA({
+  plugins: [react(), tailwindcss(), versionSyncPlugin(), VitePWA({
     registerType: 'prompt',
     includeAssets: ['logo.png', 'vite.svg'],
     workbox: {
@@ -56,6 +111,7 @@ export default defineConfig({
   })],
   define: {
     global: 'window',
+    __APP_VERSION__: JSON.stringify(pkg.version || '1.0.0'),
     __APP_BUILD_TIME__: JSON.stringify(new Date().toISOString()),
   },
   build: {
