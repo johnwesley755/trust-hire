@@ -2,6 +2,7 @@ import { Context } from 'hono';
 import prisma from '../config/prisma';
 import { ApiResponse } from '../utils/ApiResponse';
 import { v4 as uuidv4 } from 'uuid';
+import { NotificationDispatcher } from '../services/notificationDispatcher';
 
 export const getAdminStats = async (c: Context) => {
   try {
@@ -160,20 +161,16 @@ export const updateVerificationStatus = async (c: Context) => {
         }).catch(() => {});
       }
 
-      // Send In-App Notification
-      await prisma.notifications.create({
-        data: {
-          id: uuidv4(),
-          user_id: record.user_id,
-          title: isApproved ? "Identity Verification Approved!" : "Identity Verification Update",
-          message: isApproved 
-            ? "Your identity document has been verified. Your verified badge is now active on your profile."
-            : `Your verification submission was not approved: ${failureReason || 'Please resubmit a clear photo of your ID.'}`,
-          type: isApproved ? "VERIFICATION_SUCCESS" : "VERIFICATION_FAILED",
-          is_read: false,
-          created_at: new Date(),
-          updated_at: new Date()
-        }
+      // Dispatch Synchronized In-App & Push Notification
+      await NotificationDispatcher.dispatch({
+        userId: record.user_id,
+        title: isApproved ? "Identity Verification Approved! ✅" : "Identity Verification Update ⚠️",
+        message: isApproved 
+          ? "Your identity document has been verified. Your verified trust badge is now live on your profile."
+          : `Your verification submission was not approved: ${failureReason || 'Please resubmit a clear photo of your ID.'}`,
+        type: isApproved ? "KYC_VERIFIED" : "KYC_REJECTED",
+        link: "/profile",
+        data: { verificationId: String(record.id), status: String(record.status) }
       }).catch(() => {});
     }
 

@@ -8,7 +8,9 @@ import {
   Briefcase, 
   UploadCloud, 
   RotateCcw,
-  ChevronDown
+  ChevronDown,
+  Bell,
+  Check
 } from 'lucide-react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { JobSearchHero } from '../components/JobSearchHero';
@@ -17,6 +19,10 @@ import { JobSearchResultCard, type JobCardData } from '../components/JobSearchRe
 import { JobSearchRightSidebar } from '../components/JobSearchRightSidebar';
 import { AppLoader } from '../../../components/common/AppLoader';
 import { detectCurrentCity } from '../../../utils/geolocation';
+import { useAuth } from '../../../providers/AuthContext';
+import { fcmService } from '../../../services/fcm.service';
+import { searchAlertService } from '../../../services/searchAlert.service';
+import { ManageAlertsModal } from '../../dashboard/features/alerts/ManageAlertsModal';
 
 export default function JobSearchPage() {
   const queryClient = useQueryClient();
@@ -33,6 +39,38 @@ export default function JobSearchPage() {
   const [isLocating, setIsLocating] = useState(false);
 
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+  const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
+  const [isAlertSaved, setIsAlertSaved] = useState(false);
+
+  const { user } = useAuth();
+
+  const handleSaveSearchAlert = async () => {
+    if (!user) {
+      alert("Please sign in or create an account to save job search alerts.");
+      return;
+    }
+
+    // Prompt native browser push notification permission if not yet granted
+    if (fcmService.isPushSupported() && Notification.permission !== 'granted') {
+      await fcmService.requestPushPermissionAndRegister().catch(() => {});
+    }
+
+    try {
+      await searchAlertService.createAlert({
+        alertType: 'JOB_ALERT',
+        city: city || undefined,
+        category: trade !== 'All' ? trade : undefined,
+        query: query || undefined,
+        minSalary: minSalary || undefined,
+        frequency: 'INSTANT'
+      });
+      setIsAlertSaved(true);
+      setTimeout(() => setIsAlertSaved(false), 4000);
+      queryClient.invalidateQueries({ queryKey: ['searchAlerts'] });
+    } catch (e: any) {
+      console.warn("Save alert error:", e);
+    }
+  };
 
   // Sync state if URL changes externally
   useEffect(() => {
@@ -334,10 +372,33 @@ export default function JobSearchPage() {
             </div>
 
             {/* Results Count & Sort Row */}
-            <div className="flex items-center justify-between px-1">
-              <span className="text-xs font-medium text-[#717784]">
-                Showing <strong className="text-[#0a0a0a] font-bold">{formattedJobs.length}</strong> verified job postings
-              </span>
+            <div className="flex items-center justify-between px-1 flex-wrap gap-2">
+              <div className="flex items-center gap-3">
+                <span className="text-xs font-medium text-[#717784]">
+                  Showing <strong className="text-[#0a0a0a] font-bold">{formattedJobs.length}</strong> verified job postings
+                </span>
+                <button
+                  type="button"
+                  onClick={handleSaveSearchAlert}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold border transition-all cursor-pointer ${
+                    isAlertSaved
+                      ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
+                      : 'bg-white hover:bg-[#0f2f63] text-[#0f2f63] hover:text-white border-[#0f2f63]/30 shadow-2xs'
+                  }`}
+                >
+                  {isAlertSaved ? (
+                    <>
+                      <Check className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>Alert Saved!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Bell className="w-3.5 h-3.5 text-[#2563c9]" />
+                      <span>Alert Me on New Jobs</span>
+                    </>
+                  )}
+                </button>
+              </div>
 
               {/* Sort Dropdown */}
               <div className="flex items-center gap-2">
@@ -403,6 +464,9 @@ export default function JobSearchPage() {
           <div className="hidden lg:block lg:col-span-3 space-y-6 lg:sticky lg:top-4 lg:self-start">
             <JobSearchRightSidebar
               currentCity={city}
+              currentTrade={trade}
+              currentQuery={query}
+              minSalary={minSalary}
               onSelectCompany={(comp) => {
                 setQuery(comp);
                 updateUrlParams({ q: comp });
@@ -589,6 +653,13 @@ export default function JobSearchPage() {
           </div>
         </div>
       )}
+
+      {/* 5. Manage Alerts Modal */}
+      <ManageAlertsModal
+        isOpen={isAlertModalOpen}
+        onClose={() => setIsAlertModalOpen(false)}
+        alertType="JOB_ALERT"
+      />
 
     </div>
   );

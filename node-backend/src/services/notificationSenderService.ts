@@ -1,22 +1,13 @@
-import prisma from '../config/prisma';
-import { v4 as uuidv4 } from 'uuid';
+import { NotificationDispatcher, sendNotification as dispatchSendNotification } from './notificationDispatcher';
 
-export const sendNotification = async (userId: string, title: string, message: string, type: string) => {
-  try {
-    const notification = await prisma.notifications.create({
-      data: {
-        id: uuidv4(),
-        user_id: userId,
-        title,
-        message,
-        type,
-        is_read: false,
-        created_at: new Date(),
-        updated_at: new Date()
-      }
-    });
-    return notification;
-  } catch (error) {
-    console.error("Error sending notification", error);
-  }
+export const sendNotification = async (
+  userId: string,
+  title: string,
+  message: string,
+  type: string,
+  link?: string
+) => {
+  return dispatchSendNotification(userId, title, message, type, link);
 };
+
+export { NotificationDispatcher };

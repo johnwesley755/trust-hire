@@ -2,6 +2,7 @@ import { Context } from 'hono';
 import prisma from '../config/prisma';
 import { ApiResponse } from '../utils/ApiResponse';
 import { v4 as uuidv4 } from 'uuid';
+import { NotificationDispatcher } from '../services/notificationDispatcher';
 
 const formatApplication = (app: any) => {
   if (!app) return app;
@@ -66,32 +67,24 @@ export const applyForJob = async (c: Context) => {
       }
     });
 
-    // Create Notification for Employer
-    await prisma.notifications.create({
-      data: {
-        id: uuidv4(),
-        user_id: job.employer_id,
-        title: "New Application!",
-        message: "A worker has applied for your job: " + job.title,
-        type: "NEW_APPLICATION",
-        is_read: false,
-        created_at: new Date(),
-        updated_at: new Date()
-      }
+    // Dispatch Synchronized Notification for Employer (In-App + FCM Push)
+    await NotificationDispatcher.dispatch({
+      userId: job.employer_id,
+      title: "New Job Applicant! 📋",
+      message: `A verified worker has applied for your job: "${job.title}". Tap to review candidate.`,
+      type: "NEW_APPLICATION",
+      link: `/dashboard/employer/jobs/${jobId}/applicants`,
+      data: { jobId: String(jobId), workerId: String(workerId) }
     });
 
-    // Create Notification for Worker
-    await prisma.notifications.create({
-      data: {
-        id: uuidv4(),
-        user_id: workerId,
-        title: "Application Submitted",
-        message: "You have successfully applied for: " + job.title,
-        type: "APPLICATION_SUBMITTED",
-        is_read: false,
-        created_at: new Date(),
-        updated_at: new Date()
-      }
+    // Dispatch Synchronized Notification for Worker (In-App + FCM Push)
+    await NotificationDispatcher.dispatch({
+      userId: workerId,
+      title: "Application Submitted Successfully ✅",
+      message: `Your application for "${job.title}" has been submitted to the employer.`,
+      type: "APPLICATION_SUBMITTED",
+      link: "/applied-jobs",
+      data: { jobId: String(jobId) }
     });
 
     return c.json(ApiResponse.ok("Application submitted successfully", formatApplication(application)));
@@ -177,18 +170,14 @@ export const dispatchOffer = async (c: Context) => {
       }
     });
 
-    // Notify Worker
-    await prisma.notifications.create({
-      data: {
-        id: uuidv4(),
-        user_id: canonicalWorkerId,
-        title: "New Job Offer!",
-        message: "You have received a job offer for: " + job.title,
-        type: "NEW_OFFER",
-        is_read: false,
-        created_at: new Date(),
-        updated_at: new Date()
-      }
+    // Dispatch Synchronized Notification for Worker (Job Offer)
+    await NotificationDispatcher.dispatch({
+      userId: canonicalWorkerId,
+      title: "Congratulations! Job Offer Received 🎉",
+      message: `You have received a direct job offer for: "${job.title}". Tap to view offer and start details.`,
+      type: "APPLICATION_ACCEPTED",
+      link: "/applied-jobs",
+      data: { jobId: String(jobId) }
     });
 
     return c.json(ApiResponse.ok("Offer dispatched successfully", formatApplication(application)));
@@ -320,20 +309,59 @@ export const updateApplicationStatus = async (c: Context) => {
       data: { status: normalizedStatus }
     });
 
-    // Notify target party
+    // Dispatch Synchronized Notification for target party (In-App + FCM Push)
     const targetUserId = isEmployerOwner ? application.worker_id : application.jobs?.employer_id;
     if (targetUserId) {
-      await prisma.notifications.create({
-        data: {
-          id: uuidv4(),
-          user_id: targetUserId,
-          title: "Application Status Updated",
-          message: `Application for '${application.jobs?.title || 'Shift'}' is now ${status}`,
-          type: "APPLICATION_UPDATE",
-          is_read: false,
-          created_at: new Date(),
-          updated_at: new Date()
+      const statusUpper = normalizedStatus.toUpperCase();
+      const jobTitle = application.jobs?.title || 'Shift';
+      let title = "Application Status Updated";
+      let message = `Your application for "${jobTitle}" has been updated to ${statusUpper}.`;
+      let type = "APPLICATION_UPDATE";
+
+      if (isEmployerOwner) {
+        // Employer changed status -> Worker receives notification
+        if (statusUpper === 'ACCEPTED' || statusUpper === 'APPROVED' || statusUpper === 'HIRED') {
+          title = "Congratulations! You're Hired 🎉";
+          message = `You have been selected and hired for "${jobTitle}". Get ready for your shift!`;
+          type = "APPLICATION_ACCEPTED";
+        } else if (statusUpper === 'SHORTLISTED') {
+          title = "Application Shortlisted! 🌟";
+          message = `Great news! You have been shortlisted for "${jobTitle}". Keep your notifications on.`;
+          type = "APPLICATION_SHORTLISTED";
+        } else if (statusUpper === 'OFFER_SENT') {
+          title = "Direct Job Offer Received 📜";
+          message = `You received a direct job offer for "${jobTitle}". Tap to review and accept.`;
+          type = "APPLICATION_ACCEPTED";
+        } else if (statusUpper === 'REVIEWING') {
+          title = "Application Viewed 👁️";
+          message = `The employer is currently reviewing your application for "${jobTitle}".`;
+          type = "APPLICATION_UPDATE";
+        } else if (statusUpper === 'REJECTED') {
+          title = "Application Status Update";
+          message = `Your application status for "${jobTitle}" has been updated. Explore other open roles.`;
+          type = "APPLICATION_REJECTED";
         }
+      } else {
+        // Worker responded to offer -> Employer receives notification
+        if (statusUpper === 'ACCEPTED') {
+          title = "Job Offer Accepted! 🤝";
+          message = `A candidate has accepted your job offer for "${jobTitle}". You can now coordinate start details.`;
+          type = "APPLICATION_ACCEPTED";
+        } else if (statusUpper === 'DECLINED') {
+          title = "Job Offer Declined ❌";
+          message = `A candidate has declined your offer for "${jobTitle}".`;
+          type = "APPLICATION_UPDATE";
+        }
+      }
+
+      const targetLink = isEmployerOwner ? "/applied-jobs" : `/dashboard/employer/jobs/${application.job_id}/applicants`;
+      await NotificationDispatcher.dispatch({
+        userId: targetUserId,
+        title,
+        message,
+        type,
+        link: targetLink,
+        data: { applicationId: String(applicationId), status: statusUpper }
       });
     }
 

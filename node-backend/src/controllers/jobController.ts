@@ -2,6 +2,8 @@ import { Context } from 'hono';
 import prisma from '../config/prisma';
 import { ApiResponse } from '../utils/ApiResponse';
 import { v4 as uuidv4 } from 'uuid';
+import { NotificationDispatcher } from '../services/notificationDispatcher';
+import { SearchAlertService } from '../services/searchAlertService';
 
 const ALLOWED_JOB_STATUSES = ['OPEN', 'ACTIVE', 'IN_PROGRESS', 'COMPLETED', 'EXPIRED', 'CANCELLED', 'CLOSED'];
 
@@ -132,6 +134,32 @@ export const createJob = async (c: Context) => {
     } catch (e: any) {
       console.warn("Index update notice:", e.message);
     }
+
+    // 1. Dispatch confirmation to Employer
+    NotificationDispatcher.dispatch({
+      userId: employerId,
+      title: "Job Published Successfully 🚀",
+      message: `Your job posting "${job.title}" is now active and accepting verified applicants.`,
+      type: "JOB_POSTED",
+      link: "/dashboard/employer/jobs",
+      data: { jobId: String(job.id) }
+    }).catch(() => {});
+
+    // 2. Trigger Enterprise Reverse Search Match Alerts (Indeed / Naukri pattern)
+    // Dispatches alerts ONLY to candidates who have actively saved a matching search alert
+    SearchAlertService.matchNewJobAgainstAlerts({
+      id: job.id,
+      title: job.title,
+      description: job.description,
+      industry: job.industry,
+      city: job.city,
+      budget: job.budget ? Number(job.budget) : null,
+      employer_id: employerId,
+      required_skills: requiredSkillsStr,
+      experience_years_required: job.experience_years_required
+    }).catch((err: any) => {
+      console.warn('[SearchAlertService] Reverse match execution notice:', err.message);
+    });
 
     return c.json(ApiResponse.ok("Job created", formatJob({ ...job, required_skills: requiredSkillsStr })));
   } catch (err: any) {

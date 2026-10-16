@@ -2,6 +2,22 @@ import { Context } from 'hono';
 import prisma from '../config/prisma';
 import { ApiResponse } from '../utils/ApiResponse';
 
+const formatNotification = (n: any) => ({
+  id: n.id,
+  userId: n.user_id,
+  user_id: n.user_id,
+  title: n.title,
+  message: n.message,
+  link: n.link || null,
+  type: n.type,
+  isRead: Boolean(n.is_read),
+  is_read: Boolean(n.is_read),
+  createdAt: n.created_at,
+  created_at: n.created_at,
+  updatedAt: n.updated_at,
+  updated_at: n.updated_at
+});
+
 export const getMyNotifications = async (c: Context) => {
   try {
     const userId = c.get('user')?.sub;
@@ -9,9 +25,10 @@ export const getMyNotifications = async (c: Context) => {
 
     const notifications = await prisma.notifications.findMany({
       where: { user_id: userId },
-      orderBy: { created_at: 'desc' }
+      orderBy: { created_at: 'desc' },
+      take: 50
     });
-    return c.json(ApiResponse.ok("Notifications fetched", notifications));
+    return c.json(ApiResponse.ok("Notifications fetched", notifications.map(formatNotification)));
   } catch (err: any) {
     return c.json(ApiResponse.error(err.message), 500 as any);
   }
@@ -50,7 +67,7 @@ export const markAsRead = async (c: Context) => {
       return c.json(ApiResponse.error("Notification not found or access denied"), 404 as any);
     }
 
-    return c.json(ApiResponse.ok("Notification marked as read", { id, is_read: true }));
+    return c.json(ApiResponse.ok("Notification marked as read", { id, is_read: true, isRead: true }));
   } catch (err: any) {
     return c.json(ApiResponse.error(err.message), 500 as any);
   }
@@ -102,6 +119,84 @@ export const deleteAllNotifications = async (c: Context) => {
 
     await prisma.notifications.deleteMany({ where: { user_id: userId } });
     return c.json(ApiResponse.ok("All notifications deleted", null));
+  } catch (err: any) {
+    return c.json(ApiResponse.error(err.message), 500 as any);
+  }
+};
+
+/**
+ * Register / update Firebase Cloud Messaging (FCM) device token
+ */
+export const registerFcmToken = async (c: Context) => {
+  try {
+    const userId = c.get('user')?.sub;
+    if (!userId) return c.json(ApiResponse.error("Unauthorized"), 401 as any);
+
+    const body = await c.req.json().catch(() => ({}));
+    const { token, deviceType = 'web' } = body;
+
+    if (!token || typeof token !== 'string') {
+      return c.json(ApiResponse.error("Valid FCM token is required"), 400 as any);
+    }
+
+    try {
+      if ((prisma as any).user_fcm_tokens) {
+        await (prisma as any).user_fcm_tokens.upsert({
+          where: { token },
+          update: { user_id: userId, device_type: deviceType, updated_at: new Date() },
+          create: { user_id: userId, token, device_type: deviceType, created_at: new Date(), updated_at: new Date() }
+        });
+      } else {
+        await prisma.$executeRaw`
+          INSERT INTO user_fcm_tokens (user_id, token, device_type, created_at, updated_at)
+          VALUES (${userId}, ${token}, ${deviceType}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+          ON CONFLICT (token) DO UPDATE 
+          SET user_id = EXCLUDED.user_id, device_type = EXCLUDED.device_type, updated_at = CURRENT_TIMESTAMP;
+        `;
+      }
+    } catch {
+      await prisma.$executeRaw`
+        INSERT INTO user_fcm_tokens (user_id, token, device_type, created_at, updated_at)
+        VALUES (${userId}, ${token}, ${deviceType}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+        ON CONFLICT (token) DO UPDATE 
+        SET user_id = EXCLUDED.user_id, device_type = EXCLUDED.device_type, updated_at = CURRENT_TIMESTAMP;
+      `;
+    }
+
+    return c.json(ApiResponse.ok("FCM device token registered successfully", { token, deviceType }));
+  } catch (err: any) {
+    return c.json(ApiResponse.error(err.message), 500 as any);
+  }
+};
+
+/**
+ * Unregister Firebase Cloud Messaging (FCM) device token upon logout
+ */
+export const unregisterFcmToken = async (c: Context) => {
+  try {
+    const userId = c.get('user')?.sub;
+    if (!userId) return c.json(ApiResponse.error("Unauthorized"), 401 as any);
+
+    const body = await c.req.json().catch(() => ({}));
+    const token = body.token || c.req.query('token');
+
+    if (!token) {
+      return c.json(ApiResponse.error("Token is required to unregister"), 400 as any);
+    }
+
+    try {
+      if ((prisma as any).user_fcm_tokens) {
+        await (prisma as any).user_fcm_tokens.deleteMany({
+          where: { token, user_id: userId }
+        });
+      } else {
+        await prisma.$executeRaw`DELETE FROM user_fcm_tokens WHERE token = ${token} AND user_id = ${userId}`;
+      }
+    } catch {
+      await prisma.$executeRaw`DELETE FROM user_fcm_tokens WHERE token = ${token} AND user_id = ${userId}`;
+    }
+
+    return c.json(ApiResponse.ok("FCM device token unregistered successfully", null));
   } catch (err: any) {
     return c.json(ApiResponse.error(err.message), 500 as any);
   }

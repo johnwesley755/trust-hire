@@ -26,6 +26,7 @@ import skillTestRoutes from './routes/skillTestRoutes';
 import verificationRoutes from './routes/verificationRoutes';
 import savedRoutes from './routes/savedRoutes';
 import adminRoutes from './routes/adminRoutes';
+import searchAlertRoutes from './routes/searchAlertRoutes';
 import { leadRouter } from './routes/leadRoutes';
 import { requestContextStorage, RequestScope } from './config/prisma';
 
@@ -126,6 +127,7 @@ app.route('/api/jobs/applications', jobApplicationRoutes);
 app.route('/api/levels', levelRoutes);
 app.route('/api/notifications', notificationRoutes);
 app.route('/api/ratings', ratingRoutes);
+app.route('/api/search/alerts', searchAlertRoutes);
 app.route('/api/search', searchRoutes);
 app.route('/api/settings', settingsRoutes);
 app.route('/api/skill-tests', skillTestRoutes);

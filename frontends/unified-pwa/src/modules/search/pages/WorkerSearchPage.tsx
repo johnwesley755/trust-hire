@@ -14,13 +14,19 @@ import {
   X,
   Check,
   Bookmark,
-  ArrowRight
+  ArrowRight,
+  Bell
 } from 'lucide-react';
 import { UserAvatar } from '../../../components/common/UserAvatar';
 import { WorkerSearchHero } from '../components/WorkerSearchHero';
 import { AppLoader } from '../../../components/common/AppLoader';
 import { useSavedStore } from '../../../hooks/useSavedStore';
 import { DataTablePagination } from '../../../components/common/DataTablePagination';
+import { useAuth } from '../../../providers/AuthContext';
+import { useQueryClient } from '@tanstack/react-query';
+import { fcmService } from '../../../services/fcm.service';
+import { searchAlertService } from '../../../services/searchAlert.service';
+import { ManageAlertsModal } from '../../dashboard/features/alerts/ManageAlertsModal';
 
 const JOB_CATEGORIES = [
   "All",
@@ -52,6 +58,39 @@ export const WorkerSearchPage = () => {
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
+  const [isAlertSaved, setIsAlertSaved] = useState(false);
+
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+
+  const handleSaveCandidateAlert = async () => {
+    if (!user) {
+      alert("Please sign in or create an account to save candidate search alerts.");
+      return;
+    }
+
+    // Prompt native browser push notification permission if not yet granted
+    if (fcmService.isPushSupported() && Notification.permission !== 'granted') {
+      await fcmService.requestPushPermissionAndRegister().catch(() => {});
+    }
+
+    try {
+      await searchAlertService.createAlert({
+        alertType: 'CANDIDATE_ALERT',
+        city: city || undefined,
+        category: selectedTrade !== 'All' ? selectedTrade : undefined,
+        query: query || undefined,
+        experience: experience !== 'all' ? experience : undefined,
+        frequency: 'INSTANT'
+      });
+      setIsAlertSaved(true);
+      setTimeout(() => setIsAlertSaved(false), 4000);
+      queryClient.invalidateQueries({ queryKey: ['searchAlerts'] });
+    } catch (e: any) {
+      console.warn("Save candidate alert error:", e);
+    }
+  };
 
   const { isWorkerSaved, toggleSaveWorker, syncSavedStatusFromList } = useSavedStore({ lazy: true });
 
@@ -240,9 +279,32 @@ export const WorkerSearchPage = () => {
             
             {/* Header Result Count */}
             <div className="flex items-center justify-between px-1 gap-2 flex-wrap">
-              <span className="text-xs font-medium text-[#717784]">
-                <strong className="text-[#0a0a0a] font-bold">{results.length}</strong> verified specialists available
-              </span>
+              <div className="flex items-center gap-3">
+                <span className="text-xs font-medium text-[#717784]">
+                  <strong className="text-[#0a0a0a] font-bold">{results.length}</strong> verified specialists available
+                </span>
+                <button
+                  type="button"
+                  onClick={handleSaveCandidateAlert}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold border transition-all cursor-pointer ${
+                    isAlertSaved
+                      ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
+                      : 'bg-white hover:bg-[#0f2f63] text-[#0f2f63] hover:text-white border-[#0f2f63]/30 shadow-2xs'
+                  }`}
+                >
+                  {isAlertSaved ? (
+                    <>
+                      <Check className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>Talent Alert Saved!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Bell className="w-3.5 h-3.5 text-[#2563c9]" />
+                      <span>Alert Me on New Talent</span>
+                    </>
+                  )}
+                </button>
+              </div>
               {hasActiveFilters && (
                 <button
                   onClick={clearFilters}
@@ -621,6 +683,13 @@ export const WorkerSearchPage = () => {
           </div>
         </div>
       )}
+
+      {/* Manage Candidate Alerts Modal */}
+      <ManageAlertsModal
+        isOpen={isAlertModalOpen}
+        onClose={() => setIsAlertModalOpen(false)}
+        alertType="CANDIDATE_ALERT"
+      />
 
     </div>
   );

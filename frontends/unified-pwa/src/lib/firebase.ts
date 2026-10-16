@@ -23,4 +23,22 @@ googleProvider.setCustomParameters({
   prompt: 'select_account',
 });
 
+import { getMessaging, isSupported, type Messaging } from 'firebase/messaging';
+
+// Initialize Firebase Messaging safely
+let messagingPromise: Promise<Messaging | null> | null = null;
+
+export const getMessagingInstance = async (): Promise<Messaging | null> => {
+  if (typeof window === 'undefined') return null;
+  if (!messagingPromise) {
+    messagingPromise = isSupported().then((supported) => {
+      if (supported && 'Notification' in window) {
+        return getMessaging(app);
+      }
+      return null;
+    }).catch(() => null);
+  }
+  return messagingPromise;
+};
+
 export { signInWithPopup, signOut };
