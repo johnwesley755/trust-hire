@@ -23,6 +23,7 @@ import {
   Check
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { fcmService } from '../../../services/fcm.service';
 import { UserAvatar } from '../../../components/common/UserAvatar';
 import { AppLoader } from '../../../components/common/AppLoader';
 
@@ -69,8 +70,29 @@ export const SettingsPage = () => {
     }
   });
 
-  const handleToggle = (key: string, currentValue: boolean) => {
-    updateSettingsMutation.mutate({ [key]: !currentValue });
+  const handleToggle = async (key: string, currentValue: boolean) => {
+    const nextValue = !currentValue;
+
+    if (key === 'push_notifications' || key === 'pushNotifications') {
+      if (nextValue) {
+        // Request browser permission and obtain FCM token
+        const result = await fcmService.requestPushPermissionAndRegister();
+        if (result.status === 'denied') {
+          showFeedback('error', 'Push permission was denied in your browser settings.');
+          return;
+        } else if (result.status === 'unsupported') {
+          showFeedback('error', 'Push alerts are not supported on this browser.');
+          return;
+        }
+        showFeedback('success', 'Push alerts activated on this device.');
+      } else {
+        // Unregister FCM token
+        await fcmService.unregisterPushToken();
+        showFeedback('success', 'Push alerts deactivated on this device.');
+      }
+    }
+
+    updateSettingsMutation.mutate({ [key]: nextValue });
   };
 
   const showFeedback = (type: 'success' | 'error', text: string) => {

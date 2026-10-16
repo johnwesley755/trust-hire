@@ -1,37 +1,31 @@
-import { useEffect, useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { notificationService, type AppNotification } from '../../../../services/notification.service';
-import { Bell, BellOff, CheckCircle2, Info, AlertTriangle, Clock, RefreshCw, Trash2, CheckCheck } from 'lucide-react';
-import { useSocket } from '../../../../providers/SocketProvider';
+import { Bell, BellOff, CheckCircle2, Info, AlertTriangle, Clock, RefreshCw, Trash2, CheckCheck, Briefcase, Award, ShieldCheck } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { fcmService } from '../../../../services/fcm.service';
 
 export const NotificationCenter = () => {
     const [isOpen, setIsOpen] = useState(false);
     const queryClient = useQueryClient();
     const navigate = useNavigate();
-    const { subscribe, connected } = useSocket();
     const containerRef = useRef<HTMLDivElement>(null);
 
+    // Synchronized notification query with 30s background heartbeat polling fallback
     const { data: notifications = [], refetch, isRefetching } = useQuery<AppNotification[]>({
         queryKey: ['notifications'],
         queryFn: async () => {
             const data = await notificationService.getNotifications();
             return data;
         },
-        staleTime: 60 * 1000
+        staleTime: 15 * 1000,
+        refetchInterval: 30 * 1000,
+        refetchOnWindowFocus: true
     });
 
     const unreadCount = notifications.filter(n => !n.isRead && !(n as any).is_read).length;
-
-    useEffect(() => {
-        if (!connected) return;
-        const unsubscribe = subscribe('/user/queue/notifications', (newNotification: any) => {
-            queryClient.setQueryData<AppNotification[]>(['notifications'], (old = []) => [newNotification, ...old]);
-        });
-        return () => unsubscribe();
-    }, [connected, subscribe, queryClient]);
 
     // Close on outside click
     useEffect(() => {
@@ -75,29 +69,57 @@ export const NotificationCenter = () => {
         }
     });
 
+    const markReadMutation = useMutation({
+        mutationFn: (id: string) => notificationService.markAsRead(id),
+        onSuccess: (_, id) => {
+            queryClient.setQueryData<AppNotification[]>(['notifications'], (old = []) =>
+                old.map(n => n.id === id ? { ...n, isRead: true, is_read: true } : n)
+            );
+            queryClient.setQueryData<number>(['unreadCount'], (c = 0) => Math.max(0, (c || 0) - 1));
+        }
+    });
+
     const handleNotificationClick = (n: AppNotification) => {
         setIsOpen(false);
+        markReadMutation.mutate(n.id);
 
-        const t = n.type?.toUpperCase();
-        if (t === 'APPLICATION_SUBMITTED' || t === 'APPLICATION_UPDATE') {
-            navigate('/applied-jobs');
-        } else if (t === 'NEW_JOB' || t === 'JOB_MATCH') {
-            navigate('/search');
-        } else if (t === 'WELCOME') {
-            navigate('/profile');
+        // If target deep-link is provided, navigate directly to it
+        if (n.link) {
+            navigate(n.link);
+            return;
         }
 
-        setTimeout(() => {
-            deleteMutation.mutate(n.id);
-        }, 500);
+        const t = n.type?.toUpperCase();
+        if (t === 'APPLICATION_SUBMITTED' || t === 'APPLICATION_UPDATE' || t === 'APPLICATION_ACCEPTED' || t === 'APPLICATION_SHORTLISTED') {
+            navigate('/applied-jobs');
+        } else if (t === 'NEW_APPLICATION') {
+            navigate('/dashboard/employer/jobs');
+        } else if (t === 'NEW_JOB' || t === 'JOB_MATCH' || t === 'JOB_MATCH_ALERT' || t === 'APPLICATION_REJECTED') {
+            navigate('/search');
+        } else if (t === 'WELCOME' || t === 'KYC_VERIFIED' || t === 'KYC_REJECTED' || t === 'SKILL_BADGE_EARNED') {
+            navigate('/profile');
+        } else if (t === 'SECURITY_ALERT') {
+            navigate('/settings');
+        }
     };
 
     const getIcon = (type?: string) => {
         const t = type?.toUpperCase();
-        if (t === 'SUCCESS' || t === 'APPLICATION_ACCEPTED' || t === 'APPLICATION_SUBMITTED') {
+        if (t === 'SUCCESS' || t === 'APPLICATION_ACCEPTED' || t === 'APPLICATION_SUBMITTED' || t === 'NEW_APPLICATION') {
             return <CheckCircle2 className="w-4 h-4 text-emerald-600" />;
         }
-        if (t === 'WARNING') return <AlertTriangle className="w-4 h-4 text-amber-500" />;
+        if (t === 'JOB_MATCH_ALERT' || t === 'JOB_POSTED' || t === 'NEW_JOB') {
+            return <Briefcase className="w-4 h-4 text-blue-600" />;
+        }
+        if (t === 'SKILL_BADGE_EARNED') {
+            return <Award className="w-4 h-4 text-amber-500" />;
+        }
+        if (t === 'KYC_VERIFIED') {
+            return <ShieldCheck className="w-4 h-4 text-blue-600" />;
+        }
+        if (t === 'WARNING' || t === 'KYC_REJECTED') {
+            return <AlertTriangle className="w-4 h-4 text-amber-500" />;
+        }
         if (t === 'INFO' || t === 'APPLICATION_UPDATE' || t === 'WELCOME') {
             return <Info className="w-4 h-4 text-[#0f2f63]" />;
         }
@@ -105,7 +127,7 @@ export const NotificationCenter = () => {
     };
 
     return (
-        <div className="relative font-['Onest',system-ui,sans-serif]" ref={containerRef}>
+        <div className="relative font-sans" ref={containerRef}>
             {/* Bell Trigger Button */}
             <button 
                 onClick={() => setIsOpen(!isOpen)}
@@ -175,47 +197,71 @@ export const NotificationCenter = () => {
                                 )}
                             </div>
                         </div>
+
+                        {/* Push Permission Prompt if not yet granted */}
+                        {fcmService.isPushSupported() && Notification.permission !== 'granted' && (
+                            <div className="px-4 py-2 bg-[#0f2f63]/5 border-b border-[#0f2f63]/10 flex items-center justify-between gap-2">
+                                <div className="flex items-center gap-2 min-w-0">
+                                    <Bell className="w-3.5 h-3.5 text-[#0f2f63] shrink-0" />
+                                    <span className="text-[11px] text-[#0f2f63] font-medium truncate">
+                                        Push notifications are disabled
+                                    </span>
+                                </div>
+                                <button
+                                    onClick={async () => {
+                                        await fcmService.requestPushPermissionAndRegister();
+                                    }}
+                                    className="px-2.5 py-1 bg-[#0f2f63] text-white text-[10px] font-bold rounded-lg hover:bg-[#1a4487] transition-all cursor-pointer shrink-0"
+                                >
+                                    Enable
+                                </button>
+                            </div>
+                        )}
                         
                         {/* Notification List Body */}
                         <div className="max-h-84 overflow-y-auto divide-y divide-[#e6e8ec]">
                             {notifications.length > 0 ? (
-                                notifications.map((n) => (
-                                    <div 
-                                        key={n.id} 
-                                        onClick={() => handleNotificationClick(n)}
-                                        className={`p-3.5 transition-all hover:bg-[#f4f4f4] cursor-pointer flex gap-3 items-start group ${
-                                            n.isRead ? 'opacity-60 bg-white' : 'bg-[#e6eefc]/30'
-                                        }`}
-                                    >
-                                        <div className="mt-0.5 w-8 h-8 shrink-0 rounded-xl bg-white border border-[#e6e8ec] flex items-center justify-center shadow-2xs">
-                                            {getIcon(n.type)}
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <div className="flex justify-between items-start gap-2">
-                                                <p className="text-xs font-bold text-[#0a0a0a] leading-snug truncate">
-                                                    {n.title}
-                                                </p>
-                                                <button 
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        deleteMutation.mutate(n.id);
-                                                    }}
-                                                    className="opacity-0 group-hover:opacity-100 p-0.5 hover:text-rose-600 text-[#717784] transition-opacity"
-                                                    title="Dismiss"
-                                                >
-                                                    <Trash2 className="w-3 h-3" />
-                                                </button>
+                                notifications.map((n) => {
+                                    const isRead = Boolean(n.isRead || (n as any).is_read);
+                                    const createdAt = n.createdAt || (n as any).created_at;
+                                    return (
+                                        <div 
+                                            key={n.id} 
+                                            onClick={() => handleNotificationClick(n)}
+                                            className={`p-3.5 transition-all hover:bg-[#f4f4f4] cursor-pointer flex gap-3 items-start group ${
+                                                isRead ? 'opacity-60 bg-white' : 'bg-[#e6eefc]/30'
+                                            }`}
+                                        >
+                                            <div className="mt-0.5 w-8 h-8 shrink-0 rounded-xl bg-white border border-[#e6e8ec] flex items-center justify-center shadow-2xs">
+                                                {getIcon(n.type)}
                                             </div>
-                                            <p className="text-[11px] text-[#717784] font-medium line-clamp-2 mt-0.5">{n.message}</p>
-                                            <div className="flex items-center gap-1 mt-1 text-[10px] text-[#717784]">
-                                                <Clock className="w-2.5 h-2.5" />
-                                                <span>
-                                                    {n.createdAt ? formatDistanceToNow(new Date(n.createdAt), { addSuffix: true }) : 'just now'}
-                                                </span>
+                                            <div className="flex-1 min-w-0">
+                                                <div className="flex justify-between items-start gap-2">
+                                                    <p className="text-xs font-bold text-[#0a0a0a] leading-snug truncate">
+                                                        {n.title}
+                                                    </p>
+                                                    <button 
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            deleteMutation.mutate(n.id);
+                                                        }}
+                                                        className="opacity-0 group-hover:opacity-100 p-0.5 hover:text-rose-600 text-[#717784] transition-opacity"
+                                                        title="Dismiss"
+                                                    >
+                                                        <Trash2 className="w-3 h-3" />
+                                                    </button>
+                                                </div>
+                                                <p className="text-[11px] text-[#717784] font-medium line-clamp-2 mt-0.5">{n.message}</p>
+                                                <div className="flex items-center gap-1 mt-1 text-[10px] text-[#717784]">
+                                                    <Clock className="w-2.5 h-2.5" />
+                                                    <span>
+                                                        {createdAt ? formatDistanceToNow(new Date(createdAt), { addSuffix: true }) : 'just now'}
+                                                    </span>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                ))
+                                    );
+                                })
                             ) : (
                                 <div className="p-10 text-center space-y-2">
                                     <div className="w-10 h-10 bg-[#f4f4f4] rounded-full flex items-center justify-center mx-auto text-[#717784]">

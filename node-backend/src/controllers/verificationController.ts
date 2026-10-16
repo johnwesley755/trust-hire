@@ -3,6 +3,7 @@ import prisma from '../config/prisma';
 import { ApiResponse } from '../utils/ApiResponse';
 import { v4 as uuidv4 } from 'uuid';
 import { uploadMedia } from '../services/cloudinary';
+import { NotificationDispatcher } from '../services/notificationDispatcher';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ALLOWED_DOC_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
@@ -189,6 +190,16 @@ export const captureLive = async (c: Context) => {
       where: { id: userId },
       data: { email_verified: true }
     });
+
+    // Dispatch Synchronized In-App & Push Notification
+    await NotificationDispatcher.dispatch({
+      userId,
+      title: "Biometric Verification Completed! ✅",
+      message: "Your live face verification has been verified. Your Trust Score has been elevated.",
+      type: "KYC_VERIFIED",
+      link: "/profile",
+      data: { verificationId: String(record.id) }
+    }).catch(() => {});
 
     return c.json(ApiResponse.ok("Live capture verified", record));
   } catch (err: any) {

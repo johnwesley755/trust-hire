@@ -140,12 +140,16 @@ export interface SkillTestResult {
 
 export interface NotificationItem {
   id: string;
-  userId: string;
+  userId?: string;
+  user_id?: string;
   title: string;
   message: string;
-  type?: 'SYSTEM' | 'JOB' | 'APPLICATION' | 'VERIFICATION' | 'ALERT';
+  link?: string | null;
+  type?: string;
   isRead: boolean;
+  is_read?: boolean;
   createdAt: string;
+  created_at?: string;
 }
 
 export interface Rating {

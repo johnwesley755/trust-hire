@@ -2,6 +2,7 @@ import { Context } from 'hono';
 import prisma from '../config/prisma';
 import { ApiResponse } from '../utils/ApiResponse';
 import { v4 as uuidv4 } from 'uuid';
+import { NotificationDispatcher } from '../services/notificationDispatcher';
 
 export const getAvailableTests = async (c: Context) => {
   try {
@@ -107,6 +108,19 @@ export const submitResult = async (c: Context) => {
         }
       });
     }
+
+    // Dispatch Synchronized In-App & Push Notification
+    const testInfo = await prisma.skill_tests.findUnique({ where: { id: testId } }).catch(() => null);
+    await NotificationDispatcher.dispatch({
+      userId,
+      title: passed ? "Skill Badge Earned! 🏆" : "Skill Assessment Completed 📋",
+      message: passed
+        ? `Congratulations! You scored ${percentage}% and earned the verified badge for "${testInfo?.title || 'Skill Assessment'}".`
+        : `You scored ${percentage}% on "${testInfo?.title || 'Skill Assessment'}". You can retake the assessment to earn your verified badge.`,
+      type: passed ? "SKILL_BADGE_EARNED" : "SKILL_TEST_RESULT",
+      link: "/profile",
+      data: { testId: String(testId), score: String(percentage), passed: String(passed) }
+    }).catch(() => {});
 
     return c.json(ApiResponse.ok("Test submitted", result));
   } catch (err: any) {

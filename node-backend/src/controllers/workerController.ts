@@ -2,6 +2,7 @@ import { Context } from 'hono';
 import prisma from '../config/prisma';
 import { ApiResponse } from '../utils/ApiResponse';
 import { v4 as uuidv4 } from 'uuid';
+import { SearchAlertService } from '../services/searchAlertService';
 
 const maskPhoneNumber = (phone: string | null | undefined): string | null => {
   if (!phone) return null;
@@ -261,6 +262,18 @@ export const updateProfile = async (c: Context) => {
           }
         });
       }
+    }
+
+    // Trigger Enterprise Candidate Reverse Search Alert Matching (Naukri Resdex model)
+    if (profile.is_available !== false) {
+      SearchAlertService.matchNewCandidateAgainstAlerts({
+        user_id: userId,
+        full_name: profile.full_name,
+        skills: profile.skills,
+        city: profile.city,
+        experience_years: profile.experience_years,
+        is_available: profile.is_available
+      }).catch((e: any) => console.warn('[SearchAlertService] Candidate reverse match notice:', e.message));
     }
 
     return c.json(ApiResponse.ok("Profile updated", formatWorkerProfile(profile, updatedUserMeta)));
