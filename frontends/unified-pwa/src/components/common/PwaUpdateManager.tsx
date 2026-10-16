@@ -1,16 +1,28 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useRegisterSW } from 'virtual:pwa-register/react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { RefreshCw, Sparkles, X, AlertTriangle, Loader2 } from 'lucide-react';
 import { checkIsUserBusy } from '../../hooks/useUserActivityGuard';
+import { APP_VERSION } from '../../version';
 
 export const PwaUpdateManager: React.FC = () => {
   const [hasUpdate, setHasUpdate] = useState(false);
   const [availableVersion, setAvailableVersion] = useState<string | null>(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
-  const registrationRef = useRef<ServiceWorkerRegistration | null>(null);
 
-  // Check version.json on server and compare with __APP_VERSION__
+  // In development mode on localhost, unregister any stale workbox service workers
+  useEffect(() => {
+    if (import.meta.env.DEV && 'serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then((registrations) => {
+        registrations.forEach((reg) => {
+          if (!reg.active?.scriptURL.includes('firebase-messaging-sw.js')) {
+            reg.unregister().catch(() => {});
+          }
+        });
+      });
+    }
+  }, []);
+
+  // Check version.json on server and compare strictly with APP_VERSION
   const checkVersionJson = useCallback(async () => {
     try {
       const res = await fetch(`/version.json?t=${Date.now()}`, {
@@ -26,36 +38,28 @@ export const PwaUpdateManager: React.FC = () => {
       const data = await res.json();
       const remoteVersion = data?.version;
 
-      if (remoteVersion && typeof __APP_VERSION__ !== 'undefined' && remoteVersion !== __APP_VERSION__) {
-        const isDismissed = sessionStorage.getItem(`trusthyre_dismissed_version_${remoteVersion}`) === 'true';
+      // STRICT CHECK: Only trigger if remoteVersion exists and is DIFFERENT from APP_VERSION
+      if (remoteVersion && typeof APP_VERSION === 'string' && remoteVersion !== APP_VERSION) {
+        // Check if the user has already dismissed or updated this specific version in localStorage
+        const isDismissed = localStorage.getItem(`trusthyre_dismissed_version_${remoteVersion}`) === 'true';
         if (!isDismissed) {
           setAvailableVersion(remoteVersion);
           setHasUpdate(true);
+        } else {
+          setHasUpdate(false);
         }
+      } else {
+        // Same version or invalid data -> ensure banner is closed
+        setHasUpdate(false);
       }
     } catch {
-      // Network failure or offline - ignore silently
+      // Network failure or offline -> ignore silently
     }
   }, []);
 
-  // Hook into Vite PWA Service Worker updates
-  const {
-    needRefresh: [swNeedRefresh],
-    updateServiceWorker,
-  } = useRegisterSW({
-    onRegistered(r) {
-      if (r) {
-        registrationRef.current = r;
-      }
-    },
-    onRegisterError(error) {
-      console.debug('Service Worker registration note:', error);
-    },
-  });
-
-  // Check for updates on mount, visibility change, and periodic intervals
+  // Polling checks on mount, visibility changes, and every 3 minutes
   useEffect(() => {
-    // 1. Initial check after a brief delay
+    // 1. Initial check after a brief 2-second delay
     const initialTimer = setTimeout(() => {
       checkVersionJson();
     }, 2000);
@@ -63,18 +67,12 @@ export const PwaUpdateManager: React.FC = () => {
     // 2. Periodic polling every 3 minutes
     const intervalId = setInterval(() => {
       checkVersionJson();
-      if (registrationRef.current) {
-        registrationRef.current.update().catch(() => {});
-      }
     }, 3 * 60 * 1000);
 
-    // 3. Check when tab becomes visible
+    // 3. Tab visibility change check
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
         checkVersionJson();
-        if (registrationRef.current) {
-          registrationRef.current.update().catch(() => {});
-        }
       }
     };
 
@@ -87,21 +85,12 @@ export const PwaUpdateManager: React.FC = () => {
     };
   }, [checkVersionJson]);
 
-  // If Service Worker detects an update and version hasn't been dismissed, display banner
-  useEffect(() => {
-    if (swNeedRefresh) {
-      const versionKey = availableVersion || 'sw_update';
-      const isDismissed = sessionStorage.getItem(`trusthyre_dismissed_version_${versionKey}`) === 'true';
-      if (!isDismissed) {
-        setHasUpdate(true);
-      }
-    }
-  }, [swNeedRefresh, availableVersion]);
-
-  // Handle user clicking "Later" - persist in sessionStorage for this version
+  // Handle user clicking "Later" or "X" (close)
+  // Persists in localStorage so the user is NEVER asked again for this version
   const handleDismiss = () => {
-    const versionKey = availableVersion || 'sw_update';
-    sessionStorage.setItem(`trusthyre_dismissed_version_${versionKey}`, 'true');
+    if (availableVersion) {
+      localStorage.setItem(`trusthyre_dismissed_version_${availableVersion}`, 'true');
+    }
     setHasUpdate(false);
   };
 
@@ -119,30 +108,19 @@ export const PwaUpdateManager: React.FC = () => {
     setIsUpdating(true);
     setShowConfirmModal(false);
 
+    // Persist acknowledgement for this version in localStorage so it never asks again
+    if (availableVersion) {
+      localStorage.setItem(`trusthyre_dismissed_version_${availableVersion}`, 'true');
+    }
+
     try {
-      // 1. Clean up session dismissal keys so new version starts clean
-      Object.keys(sessionStorage).forEach((key) => {
-        if (key.startsWith('trusthyre_dismissed_version_') || key.includes('update_dismissed')) {
-          sessionStorage.removeItem(key);
-        }
-      });
-
-      // 2. Skip waiting on active SW registration if available
-      if (typeof updateServiceWorker === 'function') {
-        try {
-          await updateServiceWorker(true);
-        } catch {
-          // ignore
-        }
-      }
-
-      // 3. Clear ALL browser CacheStorage (workbox, precache, runtime, assets)
+      // 1. Clear ALL browser CacheStorage (workbox, precache, runtime assets)
       if ('caches' in window) {
         const cacheKeys = await caches.keys();
         await Promise.all(cacheKeys.map((name) => caches.delete(name)));
       }
 
-      // 4. Unregister all service workers so next visit loads fresh code from server
+      // 2. Unregister application service workers so fresh files are loaded
       if ('serviceWorker' in navigator) {
         const registrations = await navigator.serviceWorker.getRegistrations();
         await Promise.all(
@@ -150,7 +128,9 @@ export const PwaUpdateManager: React.FC = () => {
             if (reg.waiting) {
               reg.waiting.postMessage({ type: 'SKIP_WAITING' });
             }
-            return reg.unregister();
+            if (!reg.active?.scriptURL.includes('firebase-messaging-sw.js')) {
+              return reg.unregister();
+            }
           })
         );
       }
@@ -158,7 +138,7 @@ export const PwaUpdateManager: React.FC = () => {
       console.warn('Cache clearing during update notice:', err);
     }
 
-    // 5. Cache-busting complete hard reload
+    // 3. Cache-busting complete hard reload
     setTimeout(() => {
       const url = new URL(window.location.href);
       url.searchParams.set('_v', Date.now().toString());
@@ -170,7 +150,7 @@ export const PwaUpdateManager: React.FC = () => {
     }, 200);
   };
 
-  if (!hasUpdate) {
+  if (!hasUpdate || !availableVersion) {
     return null;
   }
 
@@ -191,7 +171,7 @@ export const PwaUpdateManager: React.FC = () => {
             <div className="flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
               <p className="text-xs font-semibold uppercase tracking-wider text-[#0f2f63]">
-                {availableVersion ? `Update Ready (v${availableVersion})` : 'Update Ready'}
+                Update Ready (v{availableVersion})
               </p>
             </div>
             <h4 className="text-sm font-bold text-[#0a0a0a] mt-0.5 leading-snug">

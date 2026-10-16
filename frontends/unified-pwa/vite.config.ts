@@ -77,12 +77,12 @@ export default defineConfig({
     },
   },
   plugins: [react(), tailwindcss(), versionSyncPlugin(), VitePWA({
-    registerType: 'prompt',
+    registerType: 'autoUpdate',
     includeAssets: ['logo.png', 'vite.svg'],
     workbox: {
       cleanupOutdatedCaches: true,
       clientsClaim: true,
-      skipWaiting: false,
+      skipWaiting: true,
       maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
       navigateFallback: '/index.html',
       navigateFallbackDenylist: [/^\/api/],
