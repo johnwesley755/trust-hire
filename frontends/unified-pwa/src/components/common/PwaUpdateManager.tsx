@@ -1,32 +1,57 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useRegisterSW } from 'virtual:pwa-register/react';
-import { RefreshCw, Sparkles, X, AlertTriangle } from 'lucide-react';
+import { RefreshCw, Sparkles, X, AlertTriangle, Loader2 } from 'lucide-react';
 import { checkIsUserBusy } from '../../hooks/useUserActivityGuard';
+
+const PWA_DISMISS_KEY = 'trusthyre_pwa_update_dismissed';
 
 export const PwaUpdateManager: React.FC = () => {
   const location = useLocation();
-  const [isDismissed, setIsDismissed] = useState(false);
+  const [isDismissed, setIsDismissed] = useState<boolean>(() => {
+    return typeof window !== 'undefined' && sessionStorage.getItem(PWA_DISMISS_KEY) === 'true';
+  });
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
   const registrationRef = useRef<ServiceWorkerRegistration | null>(null);
+
+  // In development mode, auto-clean old SW registrations on localhost and do not show PWA update popups
+  useEffect(() => {
+    if (import.meta.env.DEV && 'serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then((registrations) => {
+        registrations.forEach((reg) => {
+          // Keep firebase-messaging-sw if active, but unregister any old workbox dev workers
+          if (!reg.active?.scriptURL.includes('firebase-messaging-sw.js')) {
+            reg.unregister().catch(() => {});
+          }
+        });
+      });
+    }
+  }, []);
 
   const {
     needRefresh: [needRefresh, setNeedRefresh],
     updateServiceWorker,
   } = useRegisterSW({
     onRegistered(r) {
-      if (r) {
+      if (r && !import.meta.env.DEV) {
         registrationRef.current = r;
 
-        // Periodic background update check (every 15 minutes)
+        // Periodic background update check (every 30 minutes in production)
         const intervalId = setInterval(() => {
-          r.update().catch((err) => console.debug('Periodic SW update check failed', err));
-        }, 15 * 60 * 1000);
+          const dismissed = sessionStorage.getItem(PWA_DISMISS_KEY) === 'true';
+          if (!dismissed) {
+            r.update().catch((err) => console.debug('Periodic SW update check notice:', err));
+          }
+        }, 30 * 60 * 1000);
 
-        // Check for updates when tab regains focus or visibility
+        // Check for updates when tab regains focus (only if not dismissed in session)
         const handleVisibilityChange = () => {
           if (document.visibilityState === 'visible') {
-            r.update().catch((err) => console.debug('Visibility SW update check failed', err));
+            const dismissed = sessionStorage.getItem(PWA_DISMISS_KEY) === 'true';
+            if (!dismissed) {
+              r.update().catch((err) => console.debug('Visibility SW update check notice:', err));
+            }
           }
         };
 
@@ -43,15 +68,16 @@ export const PwaUpdateManager: React.FC = () => {
     },
   });
 
-  // Check for updates on clean route changes
-  useEffect(() => {
-    if (registrationRef.current) {
-      registrationRef.current.update().catch(() => {});
-    }
+  // Never display PWA update banners in development mode (Vite HMR handles local updates)
+  if (import.meta.env.DEV) {
+    return null;
+  }
 
-    // Reset dismissal on route change if user previously dismissed
-    setIsDismissed(false);
-  }, [location.pathname]);
+  // Handle user choosing "Later" or closing the banner
+  const handleDismiss = () => {
+    setIsDismissed(true);
+    sessionStorage.setItem(PWA_DISMISS_KEY, 'true');
+  };
 
   const handleUpdateClick = () => {
     const isBusy = checkIsUserBusy();
@@ -62,9 +88,38 @@ export const PwaUpdateManager: React.FC = () => {
     }
   };
 
-  const executeReload = () => {
+  // Perform complete, guaranteed hard refresh and cache cleanup
+  const executeReload = async () => {
+    setIsUpdating(true);
     setShowConfirmModal(false);
-    updateServiceWorker(true);
+
+    try {
+      // Clear session dismissal key so fresh version starts clean
+      sessionStorage.removeItem(PWA_DISMISS_KEY);
+
+      // 1. Tell waiting service worker to skip waiting and activate
+      if (typeof updateServiceWorker === 'function') {
+        await updateServiceWorker(true);
+      }
+
+      // 2. Clear outdated precaches from CacheStorage to ensure 100% fresh assets
+      if ('caches' in window) {
+        const cacheKeys = await caches.keys();
+        await Promise.all(
+          cacheKeys
+            .filter((key) => key.includes('workbox') || key.includes('precache') || key.includes('trusthyre'))
+            .map((key) => caches.delete(key))
+        );
+      }
+    } catch (err) {
+      console.warn('PWA update execution notice:', err);
+    }
+
+    // 3. Guaranteed complete hard reload
+    setTimeout(() => {
+      window.location.href = window.location.pathname + window.location.search;
+      window.location.reload();
+    }, 250);
   };
 
   if (!needRefresh || isDismissed) {
@@ -95,22 +150,33 @@ export const PwaUpdateManager: React.FC = () => {
               A new version of TrustHyre is ready
             </h4>
             <p className="text-xs text-[#717784] mt-1 leading-relaxed">
-              Refresh to get the latest features and security updates. Your current forms will remain intact until you confirm.
+              Refresh now to get the latest features and security updates.
             </p>
 
             <div className="flex items-center gap-2.5 mt-3.5">
               <button
                 type="button"
                 onClick={handleUpdateClick}
-                className="px-4 py-2 rounded-full bg-[#0f2f63] hover:bg-[#2563c9] text-white text-xs font-semibold uppercase tracking-wider transition-all shadow-sm active:scale-95 flex items-center gap-1.5 cursor-pointer"
+                disabled={isUpdating}
+                className="px-4 py-2 rounded-full bg-[#0f2f63] hover:bg-[#2563c9] text-white text-xs font-semibold uppercase tracking-wider transition-all shadow-sm active:scale-95 flex items-center gap-1.5 cursor-pointer disabled:opacity-75"
               >
-                <RefreshCw className="w-3.5 h-3.5" />
-                <span>Update Now</span>
+                {isUpdating ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <span>Updating...</span>
+                  </>
+                ) : (
+                  <>
+                    <RefreshCw className="w-3.5 h-3.5" />
+                    <span>Update Now</span>
+                  </>
+                )}
               </button>
 
               <button
                 type="button"
-                onClick={() => setIsDismissed(true)}
+                onClick={handleDismiss}
+                disabled={isUpdating}
                 className="px-3.5 py-2 rounded-full bg-[#f4f4f4] hover:bg-[#e6e8ec] text-[#717784] hover:text-[#0a0a0a] text-xs font-medium uppercase tracking-wider transition-colors cursor-pointer"
               >
                 Later
@@ -120,7 +186,7 @@ export const PwaUpdateManager: React.FC = () => {
 
           <button
             type="button"
-            onClick={() => setIsDismissed(true)}
+            onClick={handleDismiss}
             className="text-[#717784] hover:text-[#0a0a0a] p-1 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer shrink-0"
             aria-label="Dismiss update notification"
           >
@@ -157,9 +223,17 @@ export const PwaUpdateManager: React.FC = () => {
               <button
                 type="button"
                 onClick={executeReload}
-                className="px-5 py-2.5 rounded-full bg-[#0f2f63] hover:bg-[#2563c9] text-xs font-semibold uppercase text-white transition-all shadow-sm cursor-pointer"
+                disabled={isUpdating}
+                className="px-5 py-2.5 rounded-full bg-[#0f2f63] hover:bg-[#2563c9] text-xs font-semibold uppercase text-white transition-all shadow-sm cursor-pointer disabled:opacity-75 flex items-center gap-1.5"
               >
-                Reload & Update
+                {isUpdating ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <span>Reloading...</span>
+                  </>
+                ) : (
+                  <span>Reload & Update</span>
+                )}
               </button>
             </div>
           </div>
