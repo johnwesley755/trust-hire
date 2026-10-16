@@ -112,12 +112,13 @@ export function ProfileLocationPicker({ onLocationSelect, initialPos }: ProfileL
         </button>
       </div>
 
-      <div className="h-64 rounded-3xl overflow-hidden border-2 border-[#0A1931]/5 relative shadow-inner">
+      <div className="h-64 rounded-3xl overflow-hidden border-2 border-[#0A1931]/5 relative z-0 isolate shadow-inner">
         <MapContainer 
           center={markerPos} 
           zoom={13} 
           scrollWheelZoom={false} 
-          style={{ height: '100%', width: '100%' }}
+          style={{ height: '100%', width: '100%', zIndex: 0 }}
+          className="z-0"
         >
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -129,7 +130,7 @@ export function ProfileLocationPicker({ onLocationSelect, initialPos }: ProfileL
         </MapContainer>
         
         {isDetecting && (
-            <div className="absolute inset-0 bg-white/40 backdrop-blur-[2px] z-[1000] flex items-center justify-center">
+            <div className="absolute inset-0 bg-white/40 backdrop-blur-[2px] z-[1001] flex items-center justify-center">
                 <div className="bg-white p-4 rounded-3xl shadow-2xl flex items-center gap-3 border border-[#0A1931]/5">
                     <Loader2 className="w-5 h-5 text-[#0A1931] animate-spin" />
                     <span className="text-[10px] font-black text-[#0A1931] uppercase tracking-widest">Pinpointing...</span>

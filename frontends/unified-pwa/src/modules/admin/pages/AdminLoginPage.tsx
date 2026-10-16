@@ -5,7 +5,6 @@ import apiClient from '../../../api/apiClient';
 import { AuthVisualHero } from '../../auth/components/AuthVisualHero';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShieldCheck, Lock, Mail, Eye, EyeOff, Loader2, AlertCircle, ArrowLeft, ArrowRight } from 'lucide-react';
-import trustHyreLogo from '../../../assets/TrustHyre Skills and Opportunities Logo.png';
 
 export const AdminLoginPage = () => {
   const [email, setEmail] = useState('');

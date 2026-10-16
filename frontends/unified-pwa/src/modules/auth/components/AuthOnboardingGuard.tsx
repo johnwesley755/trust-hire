@@ -2,6 +2,7 @@ import { useAuth, useUser } from "../../../providers/AuthContext";
 import { useEffect, useState } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import apiClient from "../../../api/apiClient";
+import { AppLoader } from "../../../components/common/AppLoader";
 
 export const AuthOnboardingGuard = ({ children }: { children: React.ReactNode }) => {
   const { isSignedIn, isLoaded, updateUser } = useAuth();
@@ -68,11 +69,7 @@ export const AuthOnboardingGuard = ({ children }: { children: React.ReactNode })
   }, [isSignedIn, isLoaded, user?.onboarded, user?.phoneNumber, user?.role, location.pathname]);
 
   if (!isLoaded || loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-[#F8FAFC]">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#0A1931]"></div>
-      </div>
-    );
+    return <AppLoader variant="fullscreen" message="Checking your verified account..." />;
   }
 
   if (!isSignedIn) {

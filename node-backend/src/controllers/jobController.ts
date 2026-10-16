@@ -7,8 +7,25 @@ const ALLOWED_JOB_STATUSES = ['OPEN', 'ACTIVE', 'IN_PROGRESS', 'COMPLETED', 'EXP
 
 const formatJob = (job: any) => {
   if (!job) return job;
+  const isExpired = Boolean(job.expires_at && new Date(job.expires_at).getTime() <= Date.now());
+  const effectiveStatus = isExpired && (job.status === 'OPEN' || job.status === 'ACTIVE')
+    ? 'EXPIRED'
+    : (job.status || 'OPEN');
+
+  const appCount = typeof job._count?.job_applications === 'number'
+    ? job._count.job_applications
+    : (Array.isArray(job.job_applications)
+      ? job.job_applications.length
+      : (typeof job.application_count === 'number'
+        ? job.application_count
+        : (typeof job.applicationCount === 'number' ? job.applicationCount : 0)));
+
   return {
     ...job,
+    status: effectiveStatus,
+    isExpired,
+    applicationCount: appCount,
+    applicantCount: appCount,
     employerId: job.employer_id,
     employerName: job.employer_name,
     experienceYearsRequired: job.experience_years_required != null ? Number(job.experience_years_required) : 0,
@@ -43,8 +60,15 @@ export const createJob = async (c: Context) => {
       ? data.requiredSkills.join(', ') 
       : (typeof data.requiredSkills === 'string' ? data.requiredSkills : '');
 
-    // Defect fix 3.1: Persist expiry date
-    const expiresAt = data.expiresAt ? new Date(data.expiresAt) : (data.expires_at ? new Date(data.expires_at) : null);
+    // Optional auto-expiry: Only persist date if provided and valid
+    let expiresAt: Date | null = null;
+    const rawExpiry = data.expiresAt || data.expires_at;
+    if (rawExpiry && typeof rawExpiry === 'string' && rawExpiry.trim() !== '') {
+      const parsed = new Date(rawExpiry);
+      if (!isNaN(parsed.getTime())) {
+        expiresAt = parsed;
+      }
+    }
 
     const job = await prisma.jobs.create({
       data: {
@@ -118,6 +142,16 @@ export const createJob = async (c: Context) => {
 export const getAllJobs = async (c: Context) => {
   try {
     const { query, category, industry, location, city } = c.req.query();
+
+    // Proactively mark passed jobs as EXPIRED
+    await prisma.jobs.updateMany({
+      where: {
+        status: 'OPEN',
+        expires_at: { lte: new Date() }
+      },
+      data: { status: 'EXPIRED' }
+    }).catch(() => {});
+
     let whereClause: any = {
       status: 'OPEN',
       AND: [
@@ -150,6 +184,11 @@ export const getAllJobs = async (c: Context) => {
 
     const jobs = await prisma.jobs.findMany({
       where: whereClause,
+      include: {
+        _count: {
+          select: { job_applications: true }
+        }
+      },
       orderBy: { created_at: 'desc' }
     });
     return c.json(ApiResponse.ok(jobs.map(formatJob)));
@@ -161,8 +200,24 @@ export const getAllJobs = async (c: Context) => {
 export const getJobById = async (c: Context) => {
   try {
     const id = c.req.param('id') as string;
-    const job = await prisma.jobs.findUnique({ where: { id } });
+    const job = await prisma.jobs.findUnique({ 
+      where: { id },
+      include: {
+        _count: {
+          select: { job_applications: true }
+        }
+      }
+    });
     if (!job) return c.json(ApiResponse.error("Job not found"), 404 as any);
+
+    // If job has passed its expiration date and is still marked OPEN, sync status to EXPIRED
+    if (job.status === 'OPEN' && job.expires_at && new Date(job.expires_at).getTime() <= Date.now()) {
+      await prisma.jobs.update({
+        where: { id },
+        data: { status: 'EXPIRED', updated_at: new Date() }
+      }).catch(() => {});
+      job.status = 'EXPIRED';
+    }
 
     let employerProfile: any = null;
     if (job.employer_id) {
@@ -212,8 +267,23 @@ export const getMyJobs = async (c: Context) => {
     const employerId = c.get('user')?.sub;
     if (!employerId) return c.json(ApiResponse.error("Unauthorized"), 401 as any);
 
+    // Proactively mark passed jobs as EXPIRED for this employer
+    await prisma.jobs.updateMany({
+      where: {
+        employer_id: employerId,
+        status: 'OPEN',
+        expires_at: { lte: new Date() }
+      },
+      data: { status: 'EXPIRED' }
+    }).catch(() => {});
+
     const jobs = await prisma.jobs.findMany({ 
       where: { employer_id: employerId },
+      include: {
+        _count: {
+          select: { job_applications: true }
+        }
+      },
       orderBy: { created_at: 'desc' }
     });
     return c.json(ApiResponse.ok(jobs.map(formatJob)));
@@ -249,7 +319,13 @@ export const updateJob = async (c: Context) => {
     if (data.address !== undefined) updatePayload.address = data.address;
     if (data.industry !== undefined) updatePayload.industry = data.industry;
     if (data.expiresAt !== undefined || data.expires_at !== undefined) {
-      updatePayload.expires_at = data.expiresAt ? new Date(data.expiresAt) : (data.expires_at ? new Date(data.expires_at) : null);
+      const rawExpiry = data.expiresAt !== undefined ? data.expiresAt : data.expires_at;
+      if (rawExpiry && typeof rawExpiry === 'string' && rawExpiry.trim() !== '') {
+        const parsed = new Date(rawExpiry);
+        updatePayload.expires_at = !isNaN(parsed.getTime()) ? parsed : null;
+      } else {
+        updatePayload.expires_at = null;
+      }
     }
     if (data.experienceYearsRequired !== undefined || data.experience_years_required !== undefined) {
       updatePayload.experience_years_required = Number(data.experienceYearsRequired ?? data.experience_years_required);

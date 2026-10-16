@@ -38,6 +38,13 @@ export const JobPostingPage = () => {
   const [previewIndustry, setPreviewIndustry] = useState('ELECTRICAL');
   const [previewBudget, setPreviewBudget] = useState('28000');
   const [previewExp, setPreviewExp] = useState('2');
+  const [previewExpiresAt, setPreviewExpiresAt] = useState('');
+
+  const minExpiryDateTime = useMemo(() => {
+    const now = new Date(Date.now() + 5 * 60 * 1000); // at least 5 minutes in future
+    const pad = (n: number) => n < 10 ? '0' + n : n;
+    return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+  }, []);
 
   const mutation = useMutation({
     mutationFn: (job: any) => jobService.createJob(job),
@@ -66,6 +73,16 @@ export const JobPostingPage = () => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const expiresAtRaw = formData.get('expiresAt') as string;
+    let expiresAtIso: string | undefined = undefined;
+
+    if (expiresAtRaw && expiresAtRaw.trim() !== '') {
+      const parsedDate = new Date(expiresAtRaw);
+      if (isNaN(parsedDate.getTime()) || parsedDate.getTime() <= Date.now()) {
+        toast.error("Auto-expiry date and time must be set in the future.");
+        return;
+      }
+      expiresAtIso = parsedDate.toISOString();
+    }
 
     const jobData = {
       title: formData.get('title') as string,
@@ -80,7 +97,7 @@ export const JobPostingPage = () => {
       city: city,
       requiredSkills: skills,
       status: 'OPEN' as const,
-      expiresAt: expiresAtRaw || undefined,
+      expiresAt: expiresAtIso,
     };
     mutation.mutate(jobData);
   };
@@ -112,14 +129,14 @@ export const JobPostingPage = () => {
               <div className="flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#0f2f63] animate-pulse" />
                 <span className="text-[10px] font-semibold uppercase text-[#0f2f63]">
-                  Enterprise Shift Creator
+                  Job & Shift Posting
                 </span>
               </div>
               <h1 className="text-2xl sm:text-3xl font-bold text-[#0a0a0a]">
                 Post a New Job Opening
               </h1>
               <p className="text-xs text-[#717784] font-medium leading-relaxed max-w-xl">
-                Rapid verified candidate matching across your region with guaranteed escrow protection and zero agency markups.
+                Quickly find verified workers nearby with 100% payment safety and zero agency middle-men fees.
               </p>
             </div>
 
@@ -130,28 +147,6 @@ export const JobPostingPage = () => {
               <Briefcase className="w-3.5 h-3.5 text-[#717784]" />
               <span>Manage Existing Jobs</span>
             </Link>
-          </div>
-        </div>
-
-        {/* 2. Hallmark 4-Point Corporate Ribbon */}
-        <div className="bg-[#fbfbfb] rounded-[1.5rem] p-3 sm:p-4 border border-[#e6e8ec] shadow-2xs">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
-            <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-xl border border-[#e6e8ec]/80">
-              <div className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></div>
-              <span className="font-medium text-[#0a0a0a]">Escrow Wage Backing</span>
-            </div>
-            <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-xl border border-[#e6e8ec]/80">
-              <div className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></div>
-              <span className="font-medium text-[#0a0a0a]">Biometric ID Vetted Talent</span>
-            </div>
-            <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-xl border border-[#e6e8ec]/80">
-              <div className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></div>
-              <span className="font-medium text-[#0a0a0a]">Direct In-App Contact</span>
-            </div>
-            <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-xl border border-[#e6e8ec]/80">
-              <div className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></div>
-              <span className="font-medium text-[#0a0a0a]">Instant Dispatch Notification</span>
-            </div>
           </div>
         </div>
 
@@ -258,7 +253,7 @@ export const JobPostingPage = () => {
                 </div>
 
                 {/* Location Picker Map Component */}
-                <div className="bg-white p-3 rounded-2xl border border-[#e6e8ec]">
+                <div className="bg-white p-3 rounded-2xl border border-[#e6e8ec] relative z-0 isolate">
                   <LocationPicker 
                     onLocationSelect={(lat, lon, addr, cty) => {
                       setCoords({ lat, lon });
@@ -311,14 +306,31 @@ export const JobPostingPage = () => {
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-[#0a0a0a]">Auto-Expiry Date *</label>
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-bold text-[#0a0a0a]">Auto-Expiry Date & Time (Optional)</label>
+                      {previewExpiresAt ? (
+                        <button
+                          type="button"
+                          onClick={() => setPreviewExpiresAt('')}
+                          className="text-[10px] text-rose-600 hover:text-rose-800 font-semibold cursor-pointer underline"
+                        >
+                          Remove Expiry
+                        </button>
+                      ) : (
+                        <span className="text-[10px] text-[#717784] font-medium">Optional</span>
+                      )}
+                    </div>
                     <input 
                       name="expiresAt"
-                      type="date"
-                      required
-                      min={new Date(Date.now() + 86400000).toISOString().split('T')[0]}
-                      className="w-full bg-white border border-[#e6e8ec] rounded-xl p-3 text-xs font-semibold text-[#0a0a0a] focus:border-[#0f2f63] outline-none transition-all"
+                      type="datetime-local"
+                      min={minExpiryDateTime}
+                      value={previewExpiresAt}
+                      onChange={(e) => setPreviewExpiresAt(e.target.value)}
+                      className="w-full bg-white border border-[#e6e8ec] rounded-xl p-3 text-xs font-semibold text-[#0a0a0a] focus:border-[#0f2f63] outline-none transition-all cursor-pointer"
                     />
+                    <p className="text-[10px] text-[#717784]">
+                      Leave blank for open-ended hiring, or pick a date & time if you want this opening to automatically expire.
+                    </p>
                   </div>
                 </div>
 
@@ -463,7 +475,12 @@ export const JobPostingPage = () => {
                     <ShieldCheck className="w-3.5 h-3.5" />
                     <span>100% Escrow Guaranteed</span>
                   </span>
-                  <span className="text-[#0f2f63] font-bold">Apply Now →</span>
+                  {previewExpiresAt && (
+                    <span className="text-[#717784] text-[10px] flex items-center gap-1 font-medium">
+                      <CalendarClock className="w-3 h-3 text-[#0f2f63]" />
+                      <span>Closes {new Date(previewExpiresAt).toLocaleDateString([], { month: 'short', day: 'numeric' })} at {new Date(previewExpiresAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                    </span>
+                  )}
                 </div>
               </div>
             </div>

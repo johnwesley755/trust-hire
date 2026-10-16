@@ -35,7 +35,7 @@ export const TermsPage: React.FC = () => {
     { id: 'accounts', title: '2. User Accounts & Verification', icon: Users },
     { id: 'employers', title: '3. Employer Obligations', icon: Building2 },
     { id: 'workers', title: '4. Worker Rights & Protection', icon: ShieldCheck },
-    { id: 'escrow', title: '5. Escrow & Payment Terms', icon: CreditCard },
+    { id: 'escrow', title: '5. Payment Protection & Safe Pay', icon: CreditCard },
     { id: 'prohibited', title: '6. Prohibited Activities', icon: AlertCircle },
     { id: 'liability', title: '7. Limitation of Liability', icon: Lock },
     { id: 'governing', title: '8. Governing Law & Dispute Resolution', icon: Scale },
@@ -103,7 +103,7 @@ export const TermsPage: React.FC = () => {
               Terms of Service
             </h1>
             <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
-              These terms govern your access to and use of TrustHyre&apos;s verified workforce platform, smart escrow payment guarantee, and digital candidate network.
+              These terms govern your access to and use of TrustHyre&apos;s verified workforce platform, safe advance payment protection, and direct hiring network.
             </p>
             <div className="flex flex-wrap items-center gap-4 text-xs font-semibold text-slate-500 pt-2">
               <span className="bg-white px-3 py-1 rounded-md border border-slate-200 shadow-2xs">
@@ -161,7 +161,7 @@ export const TermsPage: React.FC = () => {
                 <span>Need Clarification?</span>
               </div>
               <p className="text-xs text-slate-600 leading-relaxed">
-                Have questions regarding contractual obligations, enterprise SLAs, or payment escrow guarantees?
+                Have questions regarding work agreements, service promises, or safe advance payments?
               </p>
               <a
                 href="mailto:legal@trusthire.in"
@@ -285,15 +285,15 @@ export const TermsPage: React.FC = () => {
                 <div className="w-9 h-9 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-[#0f2f63]">
                   <CreditCard className="w-5 h-5" />
                 </div>
-                <h2 className="text-xl font-bold text-[#0A1931]">5. Escrow & Payment Terms</h2>
+                <h2 className="text-xl font-bold text-[#0A1931]">5. Payment Protection & Safe Pay</h2>
               </div>
               <p className="text-sm text-slate-600 leading-relaxed">
-                TrustHyre utilizes an escrow smart-hold system to eliminate payment delays and default risks:
+                TrustHyre uses safe advance payment protection so workers never face delayed or missing pay:
               </p>
               <ul className="list-disc pl-5 space-y-2 text-sm text-slate-600">
-                <li>When hiring, employers deposit compensation funds into the designated platform escrow account.</li>
-                <li>Funds are automatically released to the worker upon verified completion of milestone deliverables or weekly check-ins.</li>
-                <li>In the event of a dispute, funds remain secured in neutral escrow pending resolution by the TrustHyre Arbitration Committee.</li>
+                <li>When hiring, employers deposit wage funds safely in advance before work starts.</li>
+                <li>Funds are automatically released directly to the worker upon approved completion of the shift or milestone.</li>
+                <li>In the rare event of an issue, funds remain completely safe while the TrustHyre Support Team helps resolve the matter fairly.</li>
               </ul>
             </section>
 
@@ -311,7 +311,7 @@ export const TermsPage: React.FC = () => {
               <ul className="list-disc pl-5 space-y-2 text-sm text-slate-600">
                 <li>Scraping, harvesting, or reverse-engineering candidate dossiers or employer job data.</li>
                 <li>Posting fraudulent, unlawful, misleading, or deceptive job offers or resumes.</li>
-                <li>Soliciting offline direct payments to intentionally circumvent platform protections and escrow audits.</li>
+                <li>Soliciting offline direct payments to intentionally bypass platform protections and payment safety audits.</li>
                 <li>Deploying malicious automation, bot attacks, denial-of-service scripts, or vulnerability probing.</li>
               </ul>
             </section>

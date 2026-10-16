@@ -162,7 +162,7 @@ export const PrivacyPage: React.FC = () => {
                 <span>Our Privacy Promise</span>
               </div>
               <p className="text-xs text-slate-600 leading-relaxed">
-                We never monetize your personal dossiers by selling data to third-party advertisers. Your information is used strictly for authenticated job matching, verified hiring, and escrow security.
+                We never monetize your personal profiles by selling data to third-party advertisers. Your information is used strictly for authenticated job matching, verified hiring, and safe payment protection.
               </p>
               <a
                 href="mailto:privacy@trusthire.in"
@@ -235,7 +235,7 @@ export const PrivacyPage: React.FC = () => {
               <ul className="list-disc pl-5 space-y-2 text-sm text-slate-600">
                 <li>Connecting qualified workers with employers with matching hiring requirements.</li>
                 <li>Conducting automated Aadhaar and document authenticity checks via certified UIDAI verification partners.</li>
-                <li>Securing escrow wage reserves and validating timesheet milestone releases.</li>
+                <li>Safeguarding advance wage deposits and verifying shift completion for prompt payout.</li>
                 <li>Preventing impersonation, duplicate applications, and fraudulent employer solicitations.</li>
               </ul>
             </section>
@@ -253,7 +253,7 @@ export const PrivacyPage: React.FC = () => {
               </p>
               <ul className="list-disc pl-5 space-y-2 text-sm text-slate-600">
                 <li><strong>Explicit Consent:</strong> Provided by you during registration, phone OTP verification, and document upload.</li>
-                <li><strong>Contractual Necessity:</strong> To fulfill job applications, candidate dispatch offers, and escrow payout obligations.</li>
+                <li><strong>Contractual Necessity:</strong> To fulfill job applications, verified job offers, and guaranteed direct payouts.</li>
                 <li><strong>Legal Compliance:</strong> To satisfy statutory taxation, wage accounting, and fraud prevention obligations.</li>
               </ul>
             </section>
@@ -310,7 +310,7 @@ export const PrivacyPage: React.FC = () => {
               <ul className="list-disc pl-5 space-y-2 text-sm text-slate-600">
                 <li>Your public profile is immediately removed from search listings within 24 hours.</li>
                 <li>All media files, resumes, and identification images are purged from cloud storage within 30 days.</li>
-                <li>Financial escrow records are retained only as required by statutory financial audit laws (typically 7 years).</li>
+                <li>Financial payment records are retained only as required by statutory financial audit laws (typically 7 years).</li>
               </ul>
             </section>
 
@@ -328,7 +328,7 @@ export const PrivacyPage: React.FC = () => {
               <ul className="list-disc pl-5 space-y-2 text-sm text-slate-600">
                 <li><strong>Access:</strong> Request a comprehensive export of all personal data held about you.</li>
                 <li><strong>Rectification:</strong> Correct outdated contact, skill, or trade certification details at any time.</li>
-                <li><strong>Erasure:</strong> Request the irrevocable deletion of your profile dossier and credentials.</li>
+                <li><strong>Erasure:</strong> Request the deletion of your profile, documents, and account credentials.</li>
                 <li><strong>Consent Withdrawal:</strong> Revoke consent for non-essential communications or marketing notifications.</li>
               </ul>
             </section>

@@ -122,3 +122,12 @@
   0%, 100% { opacity: 0.6; transform: scale(1); }
   50% { opacity: 1; transform: scale(1.03); }
 }
+
+/* Leaflet Map Stacking & Isolation (Fixes map zoom controls, tiles & popups overriding sticky navbars) */
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  position: relative !important;
+  z-index: 0 !important;
+  isolation: isolate !important;
+}

@@ -83,7 +83,9 @@ export interface Job {
   createdAt: string;
   updatedAt?: string;
   expiresAt?: string;
+  isExpired?: boolean;
   applicationCount?: number;
+  applicantCount?: number;
 }
 
 export interface JobApplication {

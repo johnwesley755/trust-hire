@@ -53,10 +53,10 @@ export function LandingNavbar() {
             <UserCheck className="w-4 h-4 text-[#0066FF]" />
             Hire Workers
           </Link>
-          <a className="hover:text-[#0066FF] transition-colors flex items-center gap-1.5 cursor-pointer" href="#escrow">
+          <Link className="hover:text-[#0066FF] transition-colors flex items-center gap-1.5 cursor-pointer" to="/terms">
             <ShieldCheck className="w-4 h-4 text-emerald-600" />
-            Escrow Shield
-          </a>
+            Payment Protection
+          </Link>
         </div>
 
         {/* Right Action Switcher */}

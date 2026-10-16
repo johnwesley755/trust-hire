@@ -1,53 +1,61 @@
 import { Link } from "react-router-dom";
+import trustHyreLightLogo from "../../../assets/TrustHyre Logo with Skills Tagline.png";
 
 export function LandingFooter() {
   return (
-    <footer className="bg-surface rounded-t-[40px] mt-20 relative overflow-hidden">
-      <div className="absolute -top-24 -left-24 w-96 h-96 bg-primary-fixed/5 blob-1 -z-10"></div>
+    <footer className="bg-[#0f2f63] text-white rounded-t-[40px] mt-20 relative overflow-hidden font-['Onest',system-ui,sans-serif]">
+      <div className="absolute -top-24 -left-24 w-96 h-96 bg-white/5 rounded-full blur-3xl pointer-events-none -z-10"></div>
       
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-8 px-8 py-16 max-w-7xl mx-auto border-t border-primary/5">
-        <div>
-          <div className="text-2xl font-black text-primary mb-6">TrustHire</div>
-          <p className="text-primary/60 text-sm leading-relaxed max-w-xs font-body">
-            © 2024 TrustHire.<br/>
-            Human-centric hiring for a better India.
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 px-8 py-16 max-w-7xl mx-auto border-t border-white/10">
+        <div className="space-y-4">
+          <Link to="/" className="inline-block" aria-label="TrustHyre Home">
+            <img 
+              src={trustHyreLightLogo} 
+              alt="TrustHyre" 
+              className="h-12 sm:h-14 w-auto object-contain block select-none hover:opacity-90 transition-opacity drop-shadow-md" 
+            />
+          </Link>
+          <p className="text-white/70 text-xs leading-relaxed max-w-xs">
+            © 2026 TrustHyre.<br/>
+            Safe, guaranteed hiring for verified workers and businesses across India.
           </p>
         </div>
         
         <div>
-          <h5 className="font-bold text-primary mb-4 uppercase tracking-widest text-xs font-label">For Workers</h5>
-          <ul className="space-y-2 text-primary/60 text-sm font-body">
-            <li><Link className="hover:text-primary transition-colors" to="/find-jobs">Find Jobs</Link></li>
-            <li><Link className="hover:text-primary transition-colors" to="/safety">Safety Rules</Link></li>
-            <li><Link className="hover:text-primary transition-colors" to="/guide">Hindi Guide</Link></li>
-            <li><Link className="hover:text-primary transition-colors" to="/calculator">Salary Calculator</Link></li>
+          <h5 className="font-bold text-white mb-4 uppercase tracking-widest text-xs font-label">For Workers</h5>
+          <ul className="space-y-2.5 text-white/70 text-xs">
+            <li><Link className="hover:text-white transition-colors" to="/search">Find Jobs</Link></li>
+            <li><Link className="hover:text-white transition-colors" to="/sign-up?role=worker">Worker Sign Up</Link></li>
+            <li><Link className="hover:text-white transition-colors" to="/terms">Payment Safety Rules</Link></li>
+            <li><Link className="hover:text-white transition-colors" to="/privacy">Privacy Policy</Link></li>
           </ul>
         </div>
         
         <div>
-          <h5 className="font-bold text-primary mb-4 uppercase tracking-widest text-xs font-label">Company</h5>
-          <ul className="space-y-2 text-primary/60 text-sm font-body">
-            <li><Link className="hover:text-primary transition-colors" to="/about">About</Link></li>
-            <li><Link className="hover:text-primary transition-colors" to="/impact">Impact Report</Link></li>
-            <li><Link className="hover:text-primary transition-colors" to="/contact">Contact</Link></li>
+          <h5 className="font-bold text-white mb-4 uppercase tracking-widest text-xs font-label">For Employers</h5>
+          <ul className="space-y-2.5 text-white/70 text-xs">
+            <li><Link className="hover:text-white transition-colors" to="/find-workers">Find Workers</Link></li>
+            <li><Link className="hover:text-white transition-colors" to="/post-job">Post a Job</Link></li>
+            <li><Link className="hover:text-white transition-colors" to="/sign-in?role=employer">Employer Login</Link></li>
+            <li><Link className="hover:text-white transition-colors" to="/admin/login">Admin Gateway</Link></li>
           </ul>
         </div>
         
         <div>
-          <h5 className="font-bold text-primary mb-4 uppercase tracking-widest text-xs font-label">Settings</h5>
-          <div className="bg-surface-container-high rounded-xl p-3 inline-block shadow-sm">
-            <select className="bg-transparent border-none text-sm font-bold text-primary focus:ring-0 cursor-pointer">
-              <option>English</option>
-              <option>हिन्दी (Hindi)</option>
-              <option>ಕನ್ನಡ (Kannada)</option>
-              <option>తెలుగు (Telugu)</option>
+          <h5 className="font-bold text-white mb-4 uppercase tracking-widest text-xs font-label">Regional Language</h5>
+          <div className="bg-white/10 rounded-xl p-3 inline-block shadow-xs border border-white/15">
+            <select className="bg-transparent border-none text-xs font-bold text-white focus:ring-0 cursor-pointer">
+              <option className="bg-[#0f2f63] text-white">English</option>
+              <option className="bg-[#0f2f63] text-white">हिन्दी (Hindi)</option>
+              <option className="bg-[#0f2f63] text-white">ಕನ್ನಡ (Kannada)</option>
+              <option className="bg-[#0f2f63] text-white">తెలుగు (Telugu)</option>
             </select>
           </div>
         </div>
       </div>
       
-      <div className="border-t border-primary/5 py-8 text-center px-8">
-        <p className="text-primary/40 text-[12px] font-bold uppercase tracking-wider">Building Trust, One Job at a Time.</p>
+      <div className="border-t border-white/10 py-6 text-center px-8 text-white/50 text-xs font-medium">
+        <p>Building Trust, One Job at a Time · Direct Payouts & Zero Middle-Men</p>
       </div>
     </footer>
   );

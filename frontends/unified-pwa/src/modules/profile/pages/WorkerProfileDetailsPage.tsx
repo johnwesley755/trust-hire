@@ -390,28 +390,7 @@ export default function WorkerProfileDetailsPage() {
           </div>
         </div>
 
-        {/* 2. HALLMARK TRUST PROOF RIBBON */}
-        <div className="bg-[#fbfbfb] rounded-[1.5rem] p-3 sm:p-4 border border-[#e6e8ec] shadow-2xs">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3 text-xs">
-            <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-xl border border-[#e6e8ec]/80">
-              <div className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></div>
-              <span className="font-medium text-[#0a0a0a] truncate">Biometric ID Checked</span>
-            </div>
-            <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-xl border border-[#e6e8ec]/80">
-              <div className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></div>
-              <span className="font-medium text-[#0a0a0a] truncate">Trade Skills Certified</span>
-            </div>
-            <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-xl border border-[#e6e8ec]/80">
-              <div className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></div>
-              <span className="font-medium text-[#0a0a0a] truncate">Escrow Wage Protected</span>
-            </div>
-            <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-xl border border-[#e6e8ec]/80">
-              <div className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></div>
-              <span className="font-medium text-[#0a0a0a] truncate">100% On-Time Record</span>
-            </div>
-          </div>
-        </div>
-
+        
         {/* 3. MAIN 2-COLUMN DOSSIER GRID */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           

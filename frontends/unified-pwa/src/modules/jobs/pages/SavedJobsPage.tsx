@@ -134,11 +134,12 @@ export const SavedJobsPage: React.FC = () => {
                           const companyName = job.companyName || 'Verified Employer';
                           const companyInitial = companyName.charAt(0).toUpperCase();
                           const locationText = job.city || job.location || 'Local Area';
+                          const isExpired = Boolean(job.expiresAt && new Date(job.expiresAt).getTime() <= Date.now());
 
                           return (
                             <tr
                               key={job.id}
-                              className="hover:bg-[#fbfbfb] transition-colors group"
+                              className={`transition-colors group ${isExpired ? 'bg-rose-50/20 hover:bg-rose-50/40' : 'hover:bg-[#fbfbfb]'}`}
                             >
                               {/* Job & Company */}
                               <td className="px-5 py-4">
@@ -165,7 +166,13 @@ export const SavedJobsPage: React.FC = () => {
                                       <span className="text-[#0a0a0a] font-semibold truncate">
                                         {companyName}
                                       </span>
-                                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                                      {isExpired ? (
+                                        <span className="px-1.5 py-0.2 rounded-full bg-rose-50 text-rose-700 text-[9px] font-bold border border-rose-200">
+                                          Expired
+                                        </span>
+                                      ) : (
+                                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                                      )}
                                     </div>
                                   </div>
                                 </div>
@@ -181,9 +188,15 @@ export const SavedJobsPage: React.FC = () => {
 
                               {/* Job Type */}
                               <td className="px-5 py-4 whitespace-nowrap">
-                                <span className="px-2.5 py-1 bg-[#f4f4f4] border border-[#e6e8ec] text-[#0a0a0a] text-[11px] font-medium rounded-full uppercase">
-                                  {job.jobType || 'Full-Time'}
-                                </span>
+                                {isExpired ? (
+                                  <span className="px-2.5 py-1 bg-rose-50 border border-rose-200 text-rose-800 text-[10px] font-bold rounded-full uppercase">
+                                    Expired
+                                  </span>
+                                ) : (
+                                  <span className="px-2.5 py-1 bg-[#f4f4f4] border border-[#e6e8ec] text-[#0a0a0a] text-[11px] font-medium rounded-full uppercase">
+                                    {job.jobType || 'Full-Time'}
+                                  </span>
+                                )}
                               </td>
 
                               {/* Compensation */}
@@ -209,9 +222,13 @@ export const SavedJobsPage: React.FC = () => {
                                   <button
                                     type="button"
                                     onClick={() => navigate(`/jobs/${job.id}`)}
-                                    className="px-3 py-1.5 bg-[#0f2f63] hover:bg-[#1a4487] text-white rounded-full font-medium text-xs shadow-xs transition-all flex items-center gap-1 cursor-pointer uppercase active:scale-95"
+                                    className={`px-3 py-1.5 rounded-full font-medium text-xs shadow-xs transition-all flex items-center gap-1 cursor-pointer uppercase active:scale-95 ${
+                                      isExpired 
+                                        ? 'bg-[#f4f4f4] hover:bg-[#e6e8ec] text-[#0a0a0a] border border-[#e6e8ec]' 
+                                        : 'bg-[#0f2f63] hover:bg-[#1a4487] text-white'
+                                    }`}
                                   >
-                                    <span>View & Apply</span>
+                                    <span>{isExpired ? 'View Details' : 'View & Apply'}</span>
                                     <ChevronRight className="w-3.5 h-3.5" />
                                   </button>
 

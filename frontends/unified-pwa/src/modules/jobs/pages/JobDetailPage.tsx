@@ -85,6 +85,22 @@ export default function JobDetailPage() {
 
   const employer = (job as any)?.employerProfile || (job as any)?.employer || null;
   const isEmployer = user?.role === 'EMPLOYER' || user?.id === (job as any)?.employerId || user?.id === (job as any)?.employer?.userId;
+  const expiryDate = (job as any)?.expiresAt || (job as any)?.expires_at;
+  const isExpired = Boolean(
+    (job as any)?.isExpired || 
+    (job as any)?.status === 'EXPIRED' || 
+    (expiryDate && new Date(expiryDate).getTime() <= Date.now())
+  );
+
+  const { data: employerJobApps = [] } = useQuery({
+    queryKey: queryKeys.jobs.allEmployerApplications(id ? [id] : []),
+    queryFn: () => applicationService.getApplicationsForEmployerJobs([id!]),
+    enabled: !!id && isEmployer,
+  });
+
+  const applicantCount = employerJobApps.length > 0
+    ? employerJobApps.length
+    : (job?.applicationCount || (job as any)?.applicantCount || 0);
 
   const mutation = useMutation({
     mutationFn: (data: Parameters<typeof applicationService.applyForJob>[0]) => applicationService.applyForJob(data),
@@ -115,6 +131,10 @@ export default function JobDetailPage() {
   const handleApply = () => {
     if (isEmployer) {
       toast.info('Employers cannot apply for openings. You can manage candidates from the pipeline.');
+      return;
+    }
+    if (isExpired) {
+      toast.error('This job has expired and is no longer accepting applications.');
       return;
     }
     const missingFields = getMissingProfileFields(profile);
@@ -188,6 +208,7 @@ export default function JobDetailPage() {
       salaryText: anyJob.budget ? `₹${anyJob.budget.toLocaleString()}` : undefined,
       jobType: anyJob.jobType,
       experienceYearsRequired: anyJob.experienceYearsRequired,
+      expiresAt: anyJob.expiresAt,
     });
     toast.success(isSaved ? 'Removed from saved jobs' : 'Job saved to your bookmarks!');
   };
@@ -292,10 +313,17 @@ export default function JobDetailPage() {
                   <h1 className="text-2xl sm:text-3xl font-bold text-[#0a0a0a]">
                     {job.title}
                   </h1>
-                  <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
-                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>Verified Employer</span>
-                  </span>
+                  {isExpired ? (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-800 border border-rose-200">
+                      <Clock className="w-3.5 h-3.5 text-rose-600 animate-pulse" />
+                      <span>Job Expired</span>
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>Verified Employer</span>
+                    </span>
+                  )}
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2.5 text-xs font-medium text-[#717784]">
@@ -312,6 +340,17 @@ export default function JobDetailPage() {
                       <span>•</span>
                       <span className="px-2.5 py-0.5 rounded-full bg-[#0f2f63]/5 text-[#0f2f63] font-semibold border border-[#0f2f63]/10">
                         {job.industry}
+                      </span>
+                    </>
+                  )}
+                  {expiryDate && (
+                    <>
+                      <span>•</span>
+                      <span className={`flex items-center gap-1 font-semibold ${isExpired ? 'text-rose-700' : 'text-[#717784]'}`}>
+                        <Calendar className={`w-3.5 h-3.5 ${isExpired ? 'text-rose-600' : 'text-[#0f2f63]'}`} />
+                        <span>
+                          {isExpired ? 'Expired on' : 'Auto-expires:'} {new Date(expiryDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })} at {new Date(expiryDate).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
+                        </span>
                       </span>
                     </>
                   )}
@@ -337,8 +376,18 @@ export default function JobDetailPage() {
                     className="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-[#0f2f63] hover:bg-[#2563c9] text-white rounded-full font-semibold text-xs shadow-xs transition-all cursor-pointer uppercase active:scale-95"
                   >
                     <Users className="w-3.5 h-3.5" />
-                    <span>Manage Applicants ({job.applicationCount || 0})</span>
+                    <span>Manage Applicants ({applicantCount})</span>
                   </Link>
+                  {isExpired && (
+                    <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-rose-50 text-rose-800 border border-rose-200">
+                      Expired
+                    </span>
+                  )}
+                </div>
+              ) : isExpired ? (
+                <div className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#f4f4f4] text-[#717784] rounded-full font-semibold text-xs border border-[#e6e8ec] cursor-not-allowed">
+                  <Clock className="w-3.5 h-3.5 text-rose-500" />
+                  <span>Requisition Expired • Applications Closed</span>
                 </div>
               ) : !isApplied ? (
                 <button
@@ -355,27 +404,6 @@ export default function JobDetailPage() {
           </div>
         </div>
 
-        {/* 2. HALLMARK TRUST PROOF RIBBON */}
-        <div className="bg-[#fbfbfb] rounded-[1.5rem] p-3 sm:p-4 border border-[#e6e8ec] shadow-2xs">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
-            <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-xl border border-[#e6e8ec]/80">
-              <div className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></div>
-              <span className="font-medium text-[#0a0a0a]">Escrow Wage Protected</span>
-            </div>
-            <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-xl border border-[#e6e8ec]/80">
-              <div className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></div>
-              <span className="font-medium text-[#0a0a0a]">Biometric ID Verified</span>
-            </div>
-            <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-xl border border-[#e6e8ec]/80">
-              <div className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></div>
-              <span className="font-medium text-[#0a0a0a]">Direct Verified Employer</span>
-            </div>
-            <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-xl border border-[#e6e8ec]/80">
-              <div className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></div>
-              <span className="font-medium text-[#0a0a0a]">Zero Brokerage Fees</span>
-            </div>
-          </div>
-        </div>
 
         {/* 3. MAIN 2-COLUMN DOSSIER GRID (Even Layout) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
@@ -452,12 +480,13 @@ export default function JobDetailPage() {
 
                 {/* Leaflet Map Preview Container - ONLY IF VALID REAL COORDINATES EXIST */}
                 {locationCoordinates ? (
-                  <div className="w-full h-56 rounded-xl overflow-hidden border border-[#e6e8ec] relative z-0">
+                  <div className="w-full h-56 rounded-xl overflow-hidden border border-[#e6e8ec] relative z-0 isolate">
                     <MapContainer 
                       center={locationCoordinates} 
                       zoom={13} 
                       scrollWheelZoom={false}
-                      className="w-full h-full"
+                      style={{ height: '100%', width: '100%', zIndex: 0 }}
+                      className="w-full h-full z-0"
                     >
                       <TileLayer
                         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -506,7 +535,7 @@ export default function JobDetailPage() {
                   <div className="grid grid-cols-2 gap-2 text-center">
                     <div className="p-3 bg-[#fbfbfb] rounded-xl border border-[#e6e8ec]">
                       <p className="text-[10px] font-bold uppercase text-[#717784]">Applicants</p>
-                      <p className="text-xl font-bold text-[#0f2f63] mt-0.5">{job.applicationCount || 0}</p>
+                      <p className="text-xl font-bold text-[#0f2f63] mt-0.5">{applicantCount}</p>
                     </div>
                     <div className="p-3 bg-[#fbfbfb] rounded-xl border border-[#e6e8ec]">
                       <p className="text-[10px] font-bold uppercase text-[#717784]">Experience</p>
@@ -520,7 +549,7 @@ export default function JobDetailPage() {
                       className="w-full py-3 px-4 bg-[#0f2f63] hover:bg-[#2563c9] text-white rounded-full font-semibold text-xs uppercase shadow-xs transition-all flex items-center justify-center gap-2"
                     >
                       <Users className="w-4 h-4" />
-                      <span>Review Candidate Pipeline ({job.applicationCount || 0})</span>
+                      <span>Review Candidate Pipeline ({applicantCount})</span>
                     </Link>
 
                     <Link
@@ -549,6 +578,8 @@ export default function JobDetailPage() {
                       ? 'bg-rose-50 text-rose-800 border-rose-200'
                       : isApplied 
                       ? 'bg-blue-50 text-[#0f2f63] border-blue-200'
+                      : isExpired
+                      ? 'bg-rose-50 text-rose-800 border-rose-200'
                       : 'bg-slate-100 text-[#717784] border-slate-200'
                   }`}>
                     {isApproved 
@@ -559,6 +590,8 @@ export default function JobDetailPage() {
                       ? 'Closed' 
                       : isApplied 
                       ? 'In Pipeline' 
+                      : isExpired
+                      ? 'Job Expired'
                       : 'Open for Candidates'}
                   </span>
                 </div>
@@ -574,7 +607,7 @@ export default function JobDetailPage() {
                         </div>
                         <div className="min-w-0">
                           <p className="text-xs font-bold text-[#0a0a0a]">Application Submitted</p>
-                          <p className="text-[10px] text-[#717784]">Profile verified & escrow logged</p>
+                          <p className="text-[10px] text-[#717784]">Profile verified & payment secured</p>
                         </div>
                       </div>
 
@@ -638,16 +671,33 @@ export default function JobDetailPage() {
                       <div className="bg-emerald-50 p-3 rounded-xl border border-emerald-200 text-xs text-emerald-900 space-y-1">
                         <p className="font-bold">✓ Job Confirmed!</p>
                         <p className="text-[11px] text-emerald-800 leading-relaxed">
-                          Please arrive at the worksite with your TrustHire biometric check-in barcode ready.
+                          Please arrive at the worksite with your TrustHyre check-in barcode ready.
                         </p>
                       </div>
                     )}
 
                   </div>
+                ) : isExpired ? (
+                  <div className="bg-rose-50 rounded-2xl p-4 border border-rose-200 space-y-3">
+                    <div className="flex items-center gap-2 text-rose-800 font-bold text-xs uppercase">
+                      <Clock className="w-4 h-4 text-rose-600" />
+                      <span>Applications Closed</span>
+                    </div>
+                    <p className="text-xs text-rose-900 leading-relaxed">
+                      This job reached its auto-expiry deadline on <strong>{expiryDate ? `${new Date(expiryDate).toLocaleDateString('en-IN', { dateStyle: 'medium' })} at ${new Date(expiryDate).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}` : 'the scheduled deadline'}</strong> and is no longer accepting candidate submissions.
+                    </p>
+                    <Link
+                      to="/jobs"
+                      className="inline-flex items-center justify-center gap-1.5 w-full py-2.5 px-4 bg-[#0f2f63] hover:bg-[#2563c9] text-white rounded-full text-xs font-semibold uppercase tracking-wider transition-all shadow-xs"
+                    >
+                      <span>Explore Active Openings</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </Link>
+                  </div>
                 ) : (
                   <div className="bg-white rounded-2xl p-4 border border-[#e6e8ec] space-y-4">
                     <p className="text-xs text-[#717784] leading-relaxed">
-                      Submit your verified TrustHire credential. Your verified ratings, biometric status, and skills are shared directly with the employer.
+                      Submit your verified TrustHyre profile. Your verified ratings, attendance status, and skills are shared directly with the employer.
                     </p>
 
                     {/* Optional Note toggle */}
@@ -703,7 +753,7 @@ export default function JobDetailPage() {
               <div className="bg-white rounded-2xl p-4 border border-[#e6e8ec] space-y-2.5 text-xs">
                 <p className="font-bold text-[#0a0a0a] text-sm">{employerName}</p>
                 <p className="text-[11px] text-[#717784] leading-relaxed">
-                  {employer?.profileBio || 'Corporate partner committed to safe worksite standards and automated escrow wage settlements.'}
+                  {employer?.profileBio || 'Verified employer committed to fair workplaces and guaranteed safe daily payments.'}
                 </p>
                 <div className="pt-2 border-t border-[#e6e8ec] flex justify-between items-center text-[11px] text-[#717784]">
                   <span>Identity Verification:</span>
@@ -728,12 +778,12 @@ export default function JobDetailPage() {
                   <span className="font-semibold text-[#0a0a0a]">{job.experienceYearsRequired || 1}+ Years</span>
                 </div>
                 <div className="flex justify-between items-center py-1 border-b border-[#e6e8ec]/60">
-                  <span className="text-[#717784]">Wage Settlement:</span>
-                  <span className="font-semibold text-emerald-700">Daily Escrow Release</span>
+                  <span className="text-[#717784]">Payment Schedule:</span>
+                  <span className="font-semibold text-emerald-700">Daily Direct Payment</span>
                 </div>
                 <div className="flex justify-between items-center py-1">
-                  <span className="text-[#717784]">Dispute Protection:</span>
-                  <span className="font-semibold text-[#0a0a0a]">100% Backed</span>
+                  <span className="text-[#717784]">Payment Safety:</span>
+                  <span className="font-semibold text-emerald-700">100% Guaranteed</span>
                 </div>
               </div>
             </div>

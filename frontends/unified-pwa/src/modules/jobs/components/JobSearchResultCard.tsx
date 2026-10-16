@@ -1,5 +1,4 @@
-import React from 'react';
-import { Bookmark, MapPin, CheckCircle2, ArrowRight, ShieldCheck } from 'lucide-react';
+import { Bookmark, MapPin, CheckCircle2, ArrowRight, ShieldCheck, Clock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { AppLoader } from '../../../components/common/AppLoader';
 import { useSavedStore } from '../../../hooks/useSavedStore';
@@ -16,6 +15,8 @@ export interface JobCardData {
   experienceYearsRequired?: number;
   status?: string;
   createdAt?: string;
+  expiresAt?: string;
+  isExpired?: boolean;
   employerProfile?: {
     id?: string;
     companyName?: string;
@@ -130,6 +131,7 @@ export const JobSearchResultCard: React.FC<JobSearchResultCardProps> = ({
               jobType: job.jobType,
               experienceText,
               experienceYearsRequired: job.experienceYearsRequired,
+              expiresAt: job.expiresAt,
             });
           }}
           className={`p-2.5 rounded-full border transition-all cursor-pointer shrink-0 ${
@@ -182,39 +184,61 @@ export const JobSearchResultCard: React.FC<JobSearchResultCardProps> = ({
       </div>
 
       {/* Footer Line: Posted Time & Apply / Status */}
-      <div className="flex items-center justify-between pt-2 border-t border-[#e6e8ec] text-xs">
-        <span className="text-[#717784] font-normal">
-          {getPostedTime(job.createdAt)}
-        </span>
+      {(() => {
+        const isExpired = Boolean(
+          job.isExpired || 
+          job.status === 'EXPIRED' || 
+          (job.expiresAt && new Date(job.expiresAt).getTime() <= Date.now())
+        );
 
-        <div className="flex items-center gap-2">
-          {job.hasApplied ? (
-            <span className="px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-700 font-medium text-xs border border-emerald-100 flex items-center gap-1.5">
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-              <span>Applied ({job.applicationStatus || 'Under Review'})</span>
-            </span>
-          ) : (
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                navigate(`/job/${job.id}`);
-              }}
-              disabled={isApplying}
-              className="rounded-full bg-[#0f2f63] hover:bg-[#2563c9] text-white text-xs font-medium uppercase px-4 py-2 transition-all flex items-center gap-1.5 shadow-sm active:scale-95 cursor-pointer"
-            >
-              {isApplying ? (
-                <AppLoader variant="inline" size="sm" />
-              ) : (
-                <>
-                  <span>Apply Now</span>
-                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-                </>
+        return (
+          <div className="flex items-center justify-between pt-2 border-t border-[#e6e8ec] text-xs">
+            <div className="flex items-center gap-2">
+              <span className="text-[#717784] font-normal">
+                {getPostedTime(job.createdAt)}
+              </span>
+              {job.expiresAt && (
+                <span className={`text-[10px] font-medium ${isExpired ? 'text-rose-600 font-semibold' : 'text-[#717784]'}`}>
+                  • {isExpired ? 'Expired' : `Closes ${new Date(job.expiresAt).toLocaleDateString([], { month: 'short', day: 'numeric' })}`}
+                </span>
               )}
-            </button>
-          )}
-        </div>
-      </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              {job.hasApplied ? (
+                <span className="px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-700 font-medium text-xs border border-emerald-100 flex items-center gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>Applied ({job.applicationStatus || 'Under Review'})</span>
+                </span>
+              ) : isExpired ? (
+                <span className="px-3 py-1.5 rounded-full bg-rose-50 text-rose-800 font-medium text-xs border border-rose-200 flex items-center gap-1.5">
+                  <Clock className="w-3.5 h-3.5 text-rose-600" />
+                  <span>Expired</span>
+                </span>
+              ) : (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/job/${job.id}`);
+                  }}
+                  disabled={isApplying}
+                  className="rounded-full bg-[#0f2f63] hover:bg-[#2563c9] text-white text-xs font-medium uppercase px-4 py-2 transition-all flex items-center gap-1.5 shadow-sm active:scale-95 cursor-pointer"
+                >
+                  {isApplying ? (
+                    <AppLoader variant="inline" size="sm" />
+                  ) : (
+                    <>
+                      <span>Apply Now</span>
+                      <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                    </>
+                  )}
+                </button>
+              )}
+            </div>
+          </div>
+        );
+      })()}
 
     </div>
   );

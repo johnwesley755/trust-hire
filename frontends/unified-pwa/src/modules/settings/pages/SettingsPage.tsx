@@ -268,7 +268,7 @@ export const SettingsPage = () => {
                 <div className="space-y-1">
                   <h3 className="text-xs font-bold text-[#0A1931]">Identity & Background Verification</h3>
                   <p className="text-xs text-slate-500 font-medium leading-relaxed">
-                    Your {isEmployer ? 'corporate registration' : 'Aadhaar & identity verification'} is authenticated with TrustHyre Escrow guarantee. To update official legal names or certificates, visit your live profile dossier.
+                    Your {isEmployer ? 'business registration' : 'Aadhaar & identity verification'} is verified with TrustHyre payment safety. To update official legal names or certificates, visit your profile page.
                   </p>
                 </div>
               </div>

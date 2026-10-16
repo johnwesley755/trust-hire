@@ -15,6 +15,7 @@ export interface CreateJobDto {
   longitude?: number;
   address?: string;
   city?: string;
+  expiresAt?: string | null;
 }
 
 export const jobService = {

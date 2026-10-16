@@ -5,6 +5,16 @@ import { ApiResponse } from '../utils/ApiResponse';
 export const searchJobs = async (c: Context) => {
   try {
     const { query, category, industry, location, city, jobType, minSalary, maxSalary, minExperience, maxExperience, sortBy, employerId } = c.req.query();
+
+    // Proactively sync expired open jobs
+    await prisma.jobs.updateMany({
+      where: {
+        status: 'OPEN',
+        expires_at: { lte: new Date() }
+      },
+      data: { status: 'EXPIRED' }
+    }).catch(() => {});
+
     let whereClause: any = {
       status: 'OPEN',
       AND: [
@@ -110,8 +120,9 @@ export const searchJobs = async (c: Context) => {
         budget: j.budget ? Number(j.budget) : 0,
         experienceYearsRequired: j.experience_years_required != null ? Number(j.experience_years_required) : 0,
         experienceLevel: 'Standard',
-        status: j.status || 'OPEN',
+        status: (j.expires_at && new Date(j.expires_at).getTime() <= Date.now()) ? 'EXPIRED' : (j.status || 'OPEN'),
         expiresAt: j.expires_at,
+        isExpired: Boolean(j.expires_at && new Date(j.expires_at).getTime() <= Date.now()),
         createdAt: j.created_at,
         updatedAt: j.updated_at,
         requiredSkills: sIndex?.required_skills

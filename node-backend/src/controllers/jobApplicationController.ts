@@ -31,13 +31,20 @@ export const applyForJob = async (c: Context) => {
     const job = await prisma.jobs.findUnique({ where: { id: jobId } });
     if (!job) return c.json(ApiResponse.error("Job not found"), 404 as any);
 
-    // Defect fix 3.3: Validate that job is OPEN and not expired
-    if (job.status !== 'OPEN') {
-      return c.json(ApiResponse.error(`Cannot apply: This job is currently ${(job.status || 'closed').toLowerCase()}.`), 400 as any);
+    // Validate that job is not expired
+    if (job.status === 'EXPIRED' || (job.expires_at && new Date(job.expires_at).getTime() <= Date.now())) {
+      if (job.status === 'OPEN') {
+        await prisma.jobs.update({
+          where: { id: jobId },
+          data: { status: 'EXPIRED', updated_at: new Date() }
+        }).catch(() => {});
+      }
+      return c.json(ApiResponse.error("Cannot apply: This job posting has expired."), 400 as any);
     }
 
-    if (job.expires_at && new Date(job.expires_at) < new Date()) {
-      return c.json(ApiResponse.error("Cannot apply: This job posting has expired."), 400 as any);
+    // Validate that job is OPEN
+    if (job.status !== 'OPEN') {
+      return c.json(ApiResponse.error(`Cannot apply: This job is currently ${(job.status || 'closed').toLowerCase()}.`), 400 as any);
     }
 
     const existing = await prisma.job_applications.findFirst({

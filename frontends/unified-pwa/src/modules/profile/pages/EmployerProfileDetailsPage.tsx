@@ -1,10 +1,12 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo } from "react";
 import { useAuth, useUser } from "../../../providers/AuthContext";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { profileService, type EmployerProfile } from "../../../services/profile.service";
 import { dashboardService } from "../../../services/dashboard.service";
 import { jobService, type Job } from "../../../services/job.service";
+import { applicationService } from "../../../services/application.service";
+import type { JobApplication } from "../../../types";
 import { queryKeys } from "../../../lib/queryKeys";
 import { 
   Building2, 
@@ -61,6 +63,20 @@ export default function EmployerProfileDetailsPage() {
     queryKey: queryKeys.jobs.employerJobs,
     queryFn: jobService.getMyJobs,
   });
+
+  const jobIds = useMemo(() => jobs.map((j: any) => j.id).filter((id): id is string => !!id), [jobs]);
+
+  const { data: allApplications = [] } = useQuery<JobApplication[]>({
+    queryKey: queryKeys.jobs.allEmployerApplications(jobIds),
+    queryFn: () => applicationService.getApplicationsForEmployerJobs(jobIds),
+    enabled: jobIds.length > 0,
+  });
+
+  const getJobApplicationCount = (job: Job) => {
+    const fromApps = allApplications.filter(a => a.jobId === job.id).length;
+    if (fromApps > 0) return fromApps;
+    return job.applicationCount || (job as any).applicantCount || 0;
+  };
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -172,8 +188,10 @@ export default function EmployerProfileDetailsPage() {
   const contactPersonDisplay = profile?.contactPerson || `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || 'Authorized Hiring Manager';
 
   const activeJobsCount = stats?.activeJobs ?? jobs.filter(j => j.status === 'OPEN' || j.status === 'ACTIVE').length;
-  const totalHiredCount = stats?.totalHired ?? 0;
-  const totalApplicantsCount = stats?.totalApplicants ?? jobs.reduce((sum, j) => sum + (j.applicationCount || 0), 0);
+  const totalHiredCount = stats?.totalHired ?? allApplications.filter(a => a.status === 'ACCEPTED' || a.status === 'APPROVED').length;
+  const totalApplicantsCount = allApplications.length > 0
+    ? allApplications.length
+    : (stats?.totalApplicants ?? jobs.reduce((sum, j) => sum + getJobApplicationCount(j), 0));
 
   return (
     <div className="w-full min-h-screen p-2 sm:p-3 bg-white font-['Onest',system-ui,sans-serif] text-[#0a0a0a]">
@@ -277,40 +295,19 @@ export default function EmployerProfileDetailsPage() {
                 <Edit2 className="w-3.5 h-3.5 text-[#717784]" />
                 <span>Edit Profile</span>
               </button>
-              <Link 
+              {/* <Link 
                 to="/onboarding"
                 className="col-span-1 inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-white hover:bg-slate-50 border border-[#e6e8ec] text-[#0a0a0a] rounded-full font-medium text-xs shadow-2xs transition-all cursor-pointer uppercase active:scale-95"
                 title="Rerun company onboarding setup"
               >
                 <Sparkles className="w-3.5 h-3.5 text-amber-500" />
                 <span>Wizard</span>
-              </Link>
+              </Link> */}
             </div>
 
           </div>
         </div>
 
-        {/* 2. HALLMARK TRUST PROOF RIBBON */}
-        <div className="bg-[#fbfbfb] rounded-[1.5rem] p-3 sm:p-4 border border-[#e6e8ec] shadow-2xs">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3 text-xs">
-            <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-xl border border-[#e6e8ec]/80">
-              <div className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></div>
-              <span className="font-medium text-[#0a0a0a] truncate">Corporate Entity Verified</span>
-            </div>
-            <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-xl border border-[#e6e8ec]/80">
-              <div className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></div>
-              <span className="font-medium text-[#0a0a0a] truncate">Escrow Wage Guarantees</span>
-            </div>
-            <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-xl border border-[#e6e8ec]/80">
-              <div className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></div>
-              <span className="font-medium text-[#0a0a0a] truncate">Direct Verified Employer</span>
-            </div>
-            <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-xl border border-[#e6e8ec]/80">
-              <div className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></div>
-              <span className="font-medium text-[#0a0a0a] truncate">Zero Ghosting Policy</span>
-            </div>
-          </div>
-        </div>
 
         {/* 3. MAIN 2-COLUMN DOSSIER GRID */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
@@ -567,7 +564,7 @@ export default function EmployerProfileDetailsPage() {
                               <span>•</span>
                               <span className="flex items-center gap-1">
                                 <Users className="w-3.5 h-3.5 text-[#0f2f63]" />
-                                <span>{job.applicationCount || 0} Applicants</span>
+                                <span>{getJobApplicationCount(job)} Applicants</span>
                               </span>
                               <span>•</span>
                               <span className="flex items-center gap-1">
@@ -583,7 +580,7 @@ export default function EmployerProfileDetailsPage() {
                               className="flex-1 md:flex-none inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-[#0f2f63] hover:bg-[#2563c9] text-white rounded-full text-xs font-semibold transition-all uppercase shadow-2xs"
                             >
                               <Users className="w-3.5 h-3.5" />
-                              <span>Manage ({job.applicationCount || 0})</span>
+                              <span>Manage ({getJobApplicationCount(job)})</span>
                             </Link>
                             <Link
                               to={`/jobs/${job.id}`}

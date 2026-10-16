@@ -8,6 +8,8 @@ import {
   CheckCircle2, 
   XCircle, 
   Clock, 
+  CalendarClock,
+  AlertCircle,
   ChevronRight, 
   Loader2, 
   MapPin, 
@@ -195,28 +197,7 @@ export default function ApplicationManagementPage() {
               </div>
             </div>
 
-            {/* Hallmark 4-Point Corporate Ribbon */}
-            <div className="bg-[#fbfbfb] rounded-[1.5rem] p-3 sm:p-4 border border-[#e6e8ec] shadow-2xs">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
-                <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-xl border border-[#e6e8ec]/80">
-                  <div className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></div>
-                  <span className="font-medium text-[#0a0a0a]">Corporate Entity Verified</span>
-                </div>
-                <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-xl border border-[#e6e8ec]/80">
-                  <div className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></div>
-                  <span className="font-medium text-[#0a0a0a]">Escrow Wage Backing Active</span>
-                </div>
-                <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-xl border border-[#e6e8ec]/80">
-                  <div className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></div>
-                  <span className="font-medium text-[#0a0a0a]">Zero Ghosting Policy</span>
-                </div>
-                <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-xl border border-[#e6e8ec]/80">
-                  <div className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></div>
-                  <span className="font-medium text-[#0a0a0a]">Instant Candidate Dispatch</span>
-                </div>
-              </div>
-            </div>
-
+          
             {/* Search Filter Capsule */}
             <div className="bg-[#fbfbfb] p-3 rounded-2xl border border-[#e6e8ec] flex items-center gap-3">
               <div className="relative flex-1">
@@ -260,49 +241,77 @@ export default function ApplicationManagementPage() {
                 {paginatedJobs.map((job: any) => {
                   const totalCount = getApplicationCountForJob(job.id);
                   const pendingCount = getPendingCountForJob(job.id);
+                  const isExpired = Boolean(
+                    job.isExpired || 
+                    job.status === 'EXPIRED' || 
+                    (job.expiresAt && new Date(job.expiresAt).getTime() <= Date.now())
+                  );
 
                   return (
                     <div
                       key={job.id}
-                      onClick={() => setSelectedJobId(job.id)}
-                      className="bg-white rounded-2xl p-5 border border-[#e6e8ec] hover:border-[#0f2f63]/40 transition-all space-y-4 shadow-2xs group cursor-pointer flex flex-col justify-between"
-                    >
-                      <div className="space-y-2.5">
-                        <div className="flex items-start justify-between gap-3">
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <span className="px-2 py-0.5 rounded-full bg-[#0f2f63]/5 text-[#0f2f63] text-[10px] font-bold border border-[#0f2f63]/10">
-                                {job.industry || 'Specialist'}
-                              </span>
-                              <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 text-[10px] font-bold border border-emerald-200">
-                                {job.status || 'ACTIVE'}
-                              </span>
+                        onClick={() => setSelectedJobId(job.id)}
+                        className={`bg-white rounded-2xl p-5 border transition-all space-y-4 shadow-2xs group cursor-pointer flex flex-col justify-between ${
+                          isExpired 
+                            ? 'border-rose-200 hover:border-rose-300 bg-rose-50/20' 
+                            : 'border-[#e6e8ec] hover:border-[#0f2f63]/40'
+                        }`}
+                      >
+                        <div className="space-y-2.5">
+                          <div className="flex items-start justify-between gap-3">
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <span className="px-2 py-0.5 rounded-full bg-[#0f2f63]/5 text-[#0f2f63] text-[10px] font-bold border border-[#0f2f63]/10">
+                                  {job.industry || 'Specialist'}
+                                </span>
+                                {isExpired ? (
+                                  <span className="px-2 py-0.5 rounded-full bg-rose-50 text-rose-800 text-[10px] font-bold border border-rose-200 flex items-center gap-1">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
+                                    <span>EXPIRED</span>
+                                  </span>
+                                ) : (
+                                  <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 text-[10px] font-bold border border-emerald-200 flex items-center gap-1">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                                    <span>{job.status || 'ACTIVE'}</span>
+                                  </span>
+                                )}
+                              </div>
+                              <h3 className="text-base font-bold text-[#0a0a0a] group-hover:text-[#0f2f63] transition-colors mt-1">
+                                {job.title}
+                              </h3>
                             </div>
-                            <h3 className="text-base font-bold text-[#0a0a0a] group-hover:text-[#0f2f63] transition-colors mt-1">
-                              {job.title}
-                            </h3>
+
+                            <div className="text-right shrink-0">
+                              <span className="font-bold text-sm text-emerald-700">
+                                ₹{(job.budget || 0).toLocaleString('en-IN')}
+                              </span>
+                              <span className="block text-[10px] text-[#717784]">Escrow Protected</span>
+                            </div>
                           </div>
 
-                          <div className="text-right shrink-0">
-                            <span className="font-bold text-sm text-emerald-700">
-                              ₹{(job.budget || 0).toLocaleString('en-IN')}
+                          <div className="flex flex-wrap items-center gap-2.5 text-xs text-[#717784]">
+                            <span className="flex items-center gap-1">
+                              <MapPin className="w-3.5 h-3.5 text-[#0f2f63]" />
+                              <span>{job.location || job.city || 'Pan India'}</span>
                             </span>
-                            <span className="block text-[10px] text-[#717784]">Escrow Protected</span>
+                            <span>•</span>
+                            <span className="flex items-center gap-1">
+                              <Clock className="w-3.5 h-3.5 text-[#717784]" />
+                              <span>{job.createdAt ? new Date(job.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : 'Recent'}</span>
+                            </span>
+                            {job.expiresAt && (
+                              <>
+                                <span>•</span>
+                                <span className={`flex items-center gap-1 ${isExpired ? 'text-rose-700 font-semibold' : 'text-[#717784]'}`}>
+                                  <CalendarClock className={`w-3.5 h-3.5 ${isExpired ? 'text-rose-600' : 'text-[#0f2f63]'}`} />
+                                  <span>
+                                    {isExpired ? 'Expired' : 'Expires'}: {new Date(job.expiresAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}, {new Date(job.expiresAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
+                                  </span>
+                                </span>
+                              </>
+                            )}
                           </div>
                         </div>
-
-                        <div className="flex flex-wrap items-center gap-2.5 text-xs text-[#717784]">
-                          <span className="flex items-center gap-1">
-                            <MapPin className="w-3.5 h-3.5 text-[#0f2f63]" />
-                            <span>{job.location || job.city || 'Pan India'}</span>
-                          </span>
-                          <span>•</span>
-                          <span className="flex items-center gap-1">
-                            <Clock className="w-3.5 h-3.5 text-[#717784]" />
-                            <span>{job.createdAt ? new Date(job.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : 'Recent'}</span>
-                          </span>
-                        </div>
-                      </div>
 
                       <div className="pt-3 border-t border-[#e6e8ec] flex items-center justify-between">
                         <div className="flex items-center gap-2">
@@ -362,55 +371,114 @@ export default function ApplicationManagementPage() {
             </button>
 
             {/* Selected Job Overview Card */}
-            <div className="bg-[#f4f4f4] rounded-[2rem] p-6 sm:p-8 border border-[#e6e8ec]">
-              <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <span className="px-2 py-0.5 rounded-full bg-[#0f2f63]/5 text-[#0f2f63] text-[10px] font-bold border border-[#0f2f63]/10">
-                      {selectedJob?.industry || 'Enterprise Trade'}
-                    </span>
-                    <span className="text-xs font-semibold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
-                      Escrow Deposit Active
-                    </span>
+            {(() => {
+              const isSelectedJobExpired = Boolean(
+                selectedJob?.isExpired ||
+                selectedJob?.status === 'EXPIRED' ||
+                (selectedJob?.expiresAt && new Date(selectedJob.expiresAt).getTime() <= Date.now())
+              );
+
+              return (
+                <>
+                  <div className={`rounded-[2rem] p-6 sm:p-8 border transition-all ${
+                    isSelectedJobExpired 
+                      ? 'bg-rose-50/40 border-rose-200' 
+                      : 'bg-[#f4f4f4] border-[#e6e8ec]'
+                  }`}>
+                    <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <span className="px-2 py-0.5 rounded-full bg-[#0f2f63]/5 text-[#0f2f63] text-[10px] font-bold border border-[#0f2f63]/10">
+                            {selectedJob?.industry || 'Enterprise Trade'}
+                          </span>
+                          {isSelectedJobExpired ? (
+                            <span className="text-xs font-semibold text-rose-800 bg-rose-50 px-2.5 py-0.5 rounded-full border border-rose-200 flex items-center gap-1">
+                              <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
+                              <span>Requisition Expired</span>
+                            </span>
+                          ) : (
+                            <span className="text-xs font-semibold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200 flex items-center gap-1">
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                              <span>Requisition Active</span>
+                            </span>
+                          )}
+                        </div>
+
+                        <h1 className="text-2xl sm:text-3xl font-bold text-[#0a0a0a]">
+                          {selectedJob?.title}
+                        </h1>
+
+                        <div className="flex flex-wrap items-center gap-3 text-xs text-[#717784]">
+                          <span className="font-semibold text-emerald-700">
+                            ₹{(selectedJob?.budget || 0).toLocaleString('en-IN')} / month
+                          </span>
+                          <span>•</span>
+                          <span className="flex items-center gap-1">
+                            <MapPin className="w-3.5 h-3.5 text-[#0f2f63]" />
+                            <span>{selectedJob?.location || selectedJob?.city || 'Worksite'}</span>
+                          </span>
+                          <span>•</span>
+                          <span>{selectedJob?.experienceYearsRequired || 1}+ Years Experience</span>
+                          {selectedJob?.expiresAt && (
+                            <>
+                              <span>•</span>
+                              <span className={`flex items-center gap-1 font-semibold ${isSelectedJobExpired ? 'text-rose-700' : 'text-[#717784]'}`}>
+                                <CalendarClock className={`w-3.5 h-3.5 ${isSelectedJobExpired ? 'text-rose-600' : 'text-[#0f2f63]'}`} />
+                                <span>
+                                  {isSelectedJobExpired ? 'Expired on' : 'Auto-expires:'} {new Date(selectedJob.expiresAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })} at {new Date(selectedJob.expiresAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
+                                </span>
+                              </span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Pipeline Counters Metric Pill */}
+                      <div className="flex items-center gap-3 bg-white p-3 rounded-2xl border border-[#e6e8ec] shadow-2xs">
+                        <div className="text-center px-2">
+                          <p className="text-base font-bold text-[#0a0a0a]">{countAll}</p>
+                          <p className="text-[10px] text-[#717784] font-medium uppercase">Total</p>
+                        </div>
+                        <div className="w-px h-6 bg-[#e6e8ec]" />
+                        <div className="text-center px-2">
+                          <p className="text-base font-bold text-amber-600">{countPending}</p>
+                          <p className="text-[10px] text-[#717784] font-medium uppercase">Review</p>
+                        </div>
+                        <div className="w-px h-6 bg-[#e6e8ec]" />
+                        <div className="text-center px-2">
+                          <p className="text-base font-bold text-emerald-600">{countAccepted}</p>
+                          <p className="text-[10px] text-[#717784] font-medium uppercase">Hired</p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
 
-                  <h1 className="text-2xl sm:text-3xl font-bold text-[#0a0a0a]">
-                    {selectedJob?.title}
-                  </h1>
-
-                  <div className="flex flex-wrap items-center gap-3 text-xs text-[#717784]">
-                    <span className="font-semibold text-emerald-700">
-                      ₹{(selectedJob?.budget || 0).toLocaleString('en-IN')} / month
-                    </span>
-                    <span>•</span>
-                    <span className="flex items-center gap-1">
-                      <MapPin className="w-3.5 h-3.5 text-[#0f2f63]" />
-                      <span>{selectedJob?.location || selectedJob?.city || 'Worksite'}</span>
-                    </span>
-                    <span>•</span>
-                    <span>{selectedJob?.experienceYearsRequired || 1}+ Years Experience</span>
-                  </div>
-                </div>
-
-                {/* Pipeline Counters Metric Pill */}
-                <div className="flex items-center gap-3 bg-white p-3 rounded-2xl border border-[#e6e8ec] shadow-2xs">
-                  <div className="text-center px-2">
-                    <p className="text-base font-bold text-[#0a0a0a]">{countAll}</p>
-                    <p className="text-[10px] text-[#717784] font-medium uppercase">Total</p>
-                  </div>
-                  <div className="w-px h-6 bg-[#e6e8ec]" />
-                  <div className="text-center px-2">
-                    <p className="text-base font-bold text-amber-600">{countPending}</p>
-                    <p className="text-[10px] text-[#717784] font-medium uppercase">Review</p>
-                  </div>
-                  <div className="w-px h-6 bg-[#e6e8ec]" />
-                  <div className="text-center px-2">
-                    <p className="text-base font-bold text-emerald-600">{countAccepted}</p>
-                    <p className="text-[10px] text-[#717784] font-medium uppercase">Hired</p>
-                  </div>
-                </div>
-              </div>
-            </div>
+                  {isSelectedJobExpired && (
+                    <div className="bg-rose-50 border border-rose-200 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-rose-100 flex items-center justify-center text-rose-700 shrink-0">
+                          <Clock className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <h4 className="text-xs font-bold text-rose-950 uppercase tracking-wide">
+                            Job Requisition Closed • Auto-Expired
+                          </h4>
+                          <p className="text-xs text-rose-800 mt-0.5">
+                            This opening expired on {selectedJob?.expiresAt ? `${new Date(selectedJob.expiresAt).toLocaleDateString('en-IN', { dateStyle: 'medium' })} at ${new Date(selectedJob.expiresAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}` : 'the scheduled deadline'}. Applications from new workers are closed. You can review and process all existing applicants below.
+                          </p>
+                        </div>
+                      </div>
+                      <Link
+                        to="/post-job"
+                        className="shrink-0 px-4 py-2 bg-[#0f2f63] hover:bg-[#2563c9] text-white rounded-full text-xs font-semibold uppercase tracking-wider transition-all shadow-xs self-start sm:self-auto cursor-pointer"
+                      >
+                        Post New Opening
+                      </Link>
+                    </div>
+                  )}
+                </>
+              );
+            })()}
 
             {/* Status Filter Tabs Bar */}
             <div className="flex flex-wrap items-center justify-between gap-3 bg-[#fbfbfb] p-3 rounded-2xl border border-[#e6e8ec]">

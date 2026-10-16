@@ -15,6 +15,7 @@ export interface SavedJob {
   jobType?: string;
   experienceText?: string;
   experienceYearsRequired?: number;
+  expiresAt?: string;
   savedAt: string;
 }
 

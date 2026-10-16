@@ -48,7 +48,7 @@ export const AdminJobsPage: React.FC = () => {
           Job Postings & Moderation
         </h1>
         <p className="text-xs sm:text-sm text-[#717784] mt-1 leading-relaxed">
-          Audit active requisitions, remove spam listings, and maintain employer hiring standards.
+          Review active job openings, remove spam listings, and maintain employer hiring standards.
         </p>
       </div>
 
@@ -84,33 +84,44 @@ export const AdminJobsPage: React.FC = () => {
 
       {/* Jobs Grid */}
       {isLoading ? (
-        <AppLoader variant="page" message="Loading job requisitions..." />
+        <AppLoader variant="page" message="Loading job openings..." />
       ) : jobs.length === 0 ? (
         <div className="text-center py-20 bg-white rounded-2xl border border-[#e6e8ec] shadow-xs">
           <Briefcase className="w-10 h-10 text-[#9ea3ae] mx-auto mb-3" />
           <h3 className="text-sm font-semibold text-[#0a0a0a]">No jobs found</h3>
-          <p className="text-xs text-[#717784] mt-1">No job requisitions matched your filters.</p>
+          <p className="text-xs text-[#717784] mt-1">No jobs matched your filters.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-          {jobs.map((job) => (
-            <div 
-              key={job.id}
-              className="bg-white border border-[#e6e8ec] rounded-2xl p-5 flex flex-col justify-between space-y-4 shadow-xs hover:border-[#0f2f63]/30 transition-all relative overflow-hidden"
-            >
-              <div>
-                <div className="flex items-start justify-between gap-2 mb-2">
-                  <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider ${
-                    job.status === 'OPEN' 
-                      ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' 
-                      : 'bg-[#f4f4f4] text-[#717784] border border-[#e6e8ec]'
-                  }`}>
-                    {job.status}
-                  </span>
-                  <span className="text-[10px] text-[#717784] font-mono">
-                    {job.created_at ? new Date(job.created_at).toLocaleDateString() : ''}
-                  </span>
-                </div>
+          {jobs.map((job: any) => {
+            const isExpired = Boolean(
+              job.status === 'EXPIRED' ||
+              (job.expires_at && new Date(job.expires_at).getTime() <= Date.now()) ||
+              (job.expiresAt && new Date(job.expiresAt).getTime() <= Date.now())
+            );
+
+            return (
+              <div 
+                key={job.id}
+                className={`bg-white border rounded-2xl p-5 flex flex-col justify-between space-y-4 shadow-xs hover:border-[#0f2f63]/30 transition-all relative overflow-hidden ${
+                  isExpired ? 'border-rose-200 bg-rose-50/10' : 'border-[#e6e8ec]'
+                }`}
+              >
+                <div>
+                  <div className="flex items-start justify-between gap-2 mb-2">
+                    <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider ${
+                      isExpired
+                        ? 'bg-rose-50 text-rose-800 border border-rose-200'
+                        : job.status === 'OPEN' 
+                        ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' 
+                        : 'bg-[#f4f4f4] text-[#717784] border border-[#e6e8ec]'
+                    }`}>
+                      {isExpired ? 'EXPIRED' : job.status}
+                    </span>
+                    <span className="text-[10px] text-[#717784] font-mono">
+                      {job.created_at ? new Date(job.created_at).toLocaleDateString() : ''}
+                    </span>
+                  </div>
 
                 <h3 className="text-sm font-semibold text-[#0a0a0a] leading-tight mb-1">{job.title}</h3>
                 <p className="text-xs text-[#717784] font-medium">{job.employer_name || 'Verified Employer'}</p>
@@ -142,8 +153,9 @@ export const AdminJobsPage: React.FC = () => {
                   <span>Delete</span>
                 </button>
               </div>
-            </div>
-          ))}
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

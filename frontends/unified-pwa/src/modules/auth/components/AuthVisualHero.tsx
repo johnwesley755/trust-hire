@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { ShieldCheck, CheckCircle2, Lock, Zap, Building2, UserCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { LANDING_IMAGES } from '../../landing/constants/landingAssets';
+import trustHyreLightLogo from '../../../assets/TrustHyre Logo with Skills Tagline.png';
 
 interface AuthVisualHeroProps {
   role: 'WORKER' | 'EMPLOYER';
@@ -51,11 +52,12 @@ export const AuthVisualHero: React.FC<AuthVisualHeroProps> = ({ role, className 
         </div>
 
         <div className="relative z-10 flex items-center justify-between gap-3">
-          <Link to="/" className="inline-flex items-center gap-2 group">
-            <span className="w-7 h-7 rounded-full border border-white/30 bg-white/10 backdrop-blur-md flex items-center justify-center p-1">
-              <ShieldCheck className="w-3.5 h-3.5 text-white" />
-            </span>
-            <span className="text-sm font-medium text-white">TrustHyre</span>
+          <Link to="/" className="inline-flex items-center group py-0.5" aria-label="TrustHyre Home">
+            <img 
+              src={trustHyreLightLogo} 
+              alt="TrustHyre" 
+              className="h-8 w-auto object-contain block select-none drop-shadow-md" 
+            />
           </Link>
 
           <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-[11px] text-white/90">
@@ -88,13 +90,12 @@ export const AuthVisualHero: React.FC<AuthVisualHeroProps> = ({ role, className 
 
       {/* Top Header: TrustHyre Brand Badge & Live Status Pill */}
       <div className="relative z-10 flex items-center justify-between">
-        <Link to="/" className="inline-flex items-center gap-2.5 group cursor-pointer">
-          <span className="w-8 h-8 rounded-full border border-white/25 bg-white/10 backdrop-blur-md flex items-center justify-center p-1.5 transition-transform group-hover:scale-105 shadow-sm">
-            <ShieldCheck className="w-4 h-4 text-white" />
-          </span>
-          <span className="text-base font-semibold text-white leading-none">
-            TrustHyre
-          </span>
+        <Link to="/" className="inline-flex items-center group cursor-pointer py-1" aria-label="TrustHyre Home">
+          <img 
+            src={trustHyreLightLogo} 
+            alt="TrustHyre" 
+            className="h-10 sm:h-11 w-auto object-contain block select-none drop-shadow-md group-hover:scale-105 transition-transform" 
+          />
         </Link>
 
         {/* Live Status Pill */}

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAuth, useUser } from '../../../providers/AuthContext';
-import logo from '../../../assets/logo.png';
+import trustHyreLightLogo from '../../../assets/TrustHyre Logo with Skills Tagline.png';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { NotificationCenter } from '../features/notifications/NotificationCenter';
 import { UserAvatar } from '../../../components/common/UserAvatar';
@@ -64,16 +64,15 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ isOpen, onCl
           className="mb-4 px-2 flex justify-between items-center cursor-pointer"
           onClick={() => navigate('/')}
         >
-          <div className="flex items-center gap-2.5 group">
-            <div className="w-9 h-9 bg-white rounded-full overflow-hidden shadow-md flex items-center justify-center p-0.5 group-hover:scale-105 transition-transform duration-300">
-              <img src={logo} alt="TrustHire" className="w-full h-full object-contain rounded-full" />
-            </div>
-            <div>
-              <h1 className="text-lg font-black text-white tracking-tight leading-none">TrustHyre</h1>
-              <p className="text-[9px] font-bold text-[#FACD15] uppercase tracking-wider mt-0.5">
-                {isEmployer ? 'Employer Portal' : 'Worker Portal'}
-              </p>
-            </div>
+          <div className="flex flex-col group py-1">
+            <img 
+              src={trustHyreLightLogo} 
+              alt="TrustHyre" 
+              className="h-9 w-auto object-contain block select-none drop-shadow-md group-hover:scale-105 transition-transform origin-left" 
+            />
+            <p className="text-[9px] font-bold text-[#FACD15] uppercase tracking-wider mt-1.5 pl-0.5">
+              {isEmployer ? 'Employer Portal' : 'Worker Portal'}
+            </p>
           </div>
           <button onClick={onClose} className="md:hidden text-white/50 hover:text-white">
             <span className="material-symbols-outlined">close</span>

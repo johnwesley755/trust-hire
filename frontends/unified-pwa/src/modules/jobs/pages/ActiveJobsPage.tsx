@@ -79,22 +79,26 @@ export function ActiveJobsPage() {
         const expiry = new Date(expiresAt);
         const now = new Date();
         const diffMs = expiry.getTime() - now.getTime();
-        const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
 
-        if (diffDays < 0) {
+        if (diffMs <= 0) {
             return (
                 <span className="flex items-center gap-1.5 px-3 py-1.5 bg-[#ffdad6] text-[#ba1a1a] text-[9px] font-black uppercase tracking-widest rounded-xl">
-                    <CalendarClock className="w-3 h-3" /> Expired
+                    <CalendarClock className="w-3 h-3" /> Expired ({expiry.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })})
                 </span>
             );
         }
-        if (diffDays === 0) {
+
+        const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+        const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+
+        if (diffHours < 24) {
             return (
                 <span className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-100 text-orange-700 text-[9px] font-black uppercase tracking-widest rounded-xl">
-                    <CalendarClock className="w-3 h-3" /> Expires today
+                    <CalendarClock className="w-3 h-3" /> Expires in {diffHours <= 1 ? 'under 1h' : `${diffHours}h`}
                 </span>
             );
         }
+
         const color = diffDays <= 3 ? 'bg-orange-100 text-orange-700' : 'bg-[#d1fae5] text-[#4a6b5e]';
         return (
             <span className={`flex items-center gap-1.5 px-3 py-1.5 text-[9px] font-black uppercase tracking-widest rounded-xl ${color}`}>

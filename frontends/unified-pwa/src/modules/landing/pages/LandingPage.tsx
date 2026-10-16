@@ -18,6 +18,8 @@ import {
 } from "lucide-react";
 
 import { LANDING_IMAGES } from "../constants/landingAssets";
+import trustHyreLogo from "../../../assets/TrustHyre Skills and Opportunities Logo.png";
+import trustHyreLightLogo from "../../../assets/TrustHyre Logo with Skills Tagline.png";
 
 // Trust Carousel Slide Data (Sourced from LANDING_IMAGES.specialists)
 const TRUST_SLIDES = LANDING_IMAGES.specialists;
@@ -42,7 +44,7 @@ const HERO_COLLECTIONS = [
     image: LANDING_IMAGES.warehouseLogistics.src,
     brand: "Fleet Logistics",
     title: "Warehouse & Supply",
-    cta: "Deploy crew",
+    cta: "Hire crew",
     alt: LANDING_IMAGES.warehouseLogistics.alt,
   },
   {
@@ -107,40 +109,40 @@ const HERO_MODES = [
     modeLabel: "Platform Overview",
     titleWords: ["CONNECT", "&", "WORK"],
     tagline: ["ZERO BROKERS,", "DIRECT JOBS."],
-    badge: "Open Workforce Application",
+    badge: "Open Workforce Platform",
   },
   {
     role: "WORKER",
-    modeLabel: "For Candidates",
+    modeLabel: "For Workers",
     titleWords: ["FIND", "LOCAL", "JOBS"],
     tagline: ["SHOW UP,", "GET PAID."],
-    badge: "Candidate: Verified Daily Escrow Payouts",
+    badge: "Workers: Guaranteed Daily Safe Pay",
   },
   {
     role: "EMPLOYER",
     modeLabel: "For Employers",
     titleWords: ["HIRE", "SKILLED", "TALENT"],
     tagline: ["VERIFIED,", "ON DEMAND."],
-    badge: "Employer: Direct Hiring & Zero Brokerage",
+    badge: "Employers: Direct Hiring & Zero Middle-Men",
   },
 ];
 
-// Testimonials & Project Personas Data
+// Testimonials & Real Stories Data
 const TESTIMONIALS = [
   {
-    quote: "Finding verified electrical maintenance jobs nearby without losing 20% to brokers changed everything. My wages are secured in escrow before I even reach the site.",
+    quote: "Finding verified electrical jobs nearby without losing 20% to middle-men changed everything. My daily wages are kept safe before I even reach the work site.",
     author: "Rahul S.",
-    role: "Licensed Electrician · Candidate Persona",
+    role: "Electrician · Verified Worker",
   },
   {
-    quote: "When we need kitchen staff for weekend rushes, I can review verified candidate profiles and know attendance is face-matched live at check-in.",
+    quote: "When we need kitchen staff for weekend rushes, I can review verified worker profiles and know attendance is confirmed with a real check-in.",
     author: "Kavitha R.",
-    role: "Cafe & Cloud Kitchen Operator · Employer Persona",
+    role: "Cafe & Cloud Kitchen Owner · Verified Employer",
   },
   {
-    quote: "TrustHyre was built to solve payment disputes and unreliable check-ins through biometric geofencing and automated escrow smart-holds.",
-    author: "TrustHyre Architecture",
-    role: "Open Workforce System Showcase",
+    quote: "TrustHyre was built so workers always get paid on time and employers get genuine workers who actually show up.",
+    author: "TrustHyre Guarantee",
+    role: "Our Verified Platform Promise",
   },
 ];
 
@@ -338,13 +340,13 @@ export default function LandingPage() {
           className={`fixed inset-0 z-[200] bg-[#0f2f63] text-white flex flex-col items-center justify-center transition-transform duration-[850ms] ease-[cubic-bezier(0.65,0,0.35,1)] ${
             ready ? "-translate-y-[105%]" : "translate-y-0"
           }`}
-        >
-          {/* Brand Wordmark with initial fade/rise */}
-          <div className="flex items-center gap-3.5 mb-8 animate-[fadeRise_600ms_cubic-bezier(0.16,1,0.3,1)_forwards]">
-            <div className="w-8 h-8 rounded-full border-[2.2px] border-white flex items-center justify-center p-1.5">
-              <ShieldCheck className="w-full h-full text-white" />
-            </div>
-            <span className="text-2xl font-medium tracking-[0.22em] uppercase">TrustHyre</span>
+        >          {/* Official TrustHyre White Logo on Deep-Navy Curtain */}
+          <div className="mb-8 animate-[fadeRise_600ms_cubic-bezier(0.16,1,0.3,1)_forwards]">
+            <img 
+              src={trustHyreLightLogo} 
+              alt="TrustHyre" 
+              className="h-14 sm:h-16 md:h-20 w-auto object-contain block select-none drop-shadow-2xl" 
+            />
           </div>
 
           {/* Progress Bar Track */}
@@ -364,7 +366,7 @@ export default function LandingPage() {
         <div className="fixed inset-0 z-[120] flex flex-col pointer-events-auto">
           {/* Navy Backdrop */}
           <div 
-            onClick={() => setIsMenuOpen(false)}
+            onClick={() => setIsMenuOpen(false)} 
             className="absolute inset-0 bg-[#0f2f63] opacity-98 transition-opacity duration-300"
           />
 
@@ -372,12 +374,18 @@ export default function LandingPage() {
           <div className="relative z-10 flex flex-col justify-between h-full p-6 sm:p-10 text-white">
             {/* Top Row: Brand & Close Button */}
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-7 h-7 rounded-full border border-white/40 flex items-center justify-center">
-                  <ShieldCheck className="w-4 h-4 text-white" />
-                </div>
-                <span className="text-base font-medium tracking-[0.2em] uppercase">TrustHyre</span>
-              </div>
+              <Link 
+                to="/" 
+                onClick={() => setIsMenuOpen(false)} 
+                className="flex items-center gap-2.5 group"
+                aria-label="TrustHyre Home"
+              >
+                <img 
+                  src={trustHyreLightLogo} 
+                  alt="TrustHyre" 
+                  className="h-10 sm:h-12 w-auto object-contain block select-none drop-shadow-md group-hover:scale-105 transition-transform" 
+                />
+              </Link>
 
               <button
                 type="button"
@@ -467,23 +475,24 @@ export default function LandingPage() {
             {/* Left Navigation (Desktop) */}
             <nav className="hidden lg:flex items-center gap-8 flex-1">
               <a href="#categories" className="text-white/85 hover:text-white transition-colors tracking-wide">
-                Categories & Talent
+                Job Categories
               </a>
               <a href="#technology" className="text-white/85 hover:text-white transition-colors tracking-wide">
-                Trust & Verification
+                How It Works
               </a>
               <a href="#metrics" className="text-white/85 hover:text-white transition-colors tracking-wide">
-                By The Numbers
+                Platform Stats
               </a>
             </nav>
 
-            {/* Center Brand */}
-            <div className="flex items-center justify-center gap-2 flex-1 lg:justify-center">
-              <div className="w-6 h-6 rounded-full border border-white/60 flex items-center justify-center p-1">
-                <ShieldCheck className="w-full h-full text-white" />
-              </div>
-              <span className="text-base font-medium tracking-[0.2em] uppercase text-white">TrustHyre</span>
-            </div>
+            {/* Center Brand with Official White Logo on Dark Hero Background */}
+            <Link to="/" className="flex items-center justify-center gap-2 flex-1 lg:justify-center group cursor-pointer py-1" aria-label="TrustHyre Home">
+              <img 
+                src={trustHyreLightLogo} 
+                alt="TrustHyre" 
+                className="h-12 sm:h-14 md:h-16 w-auto object-contain block select-none drop-shadow-lg group-hover:scale-105 transition-all duration-300" 
+              />
+            </Link>
 
             {/* Right Header Controls */}
             <div className="flex items-center justify-end gap-4 flex-1">
@@ -726,11 +735,11 @@ export default function LandingPage() {
                   #01
                 </span>
                 <h3 className="text-base sm:text-lg font-medium text-[#0a0a0a] tracking-tight">
-                  Direct Workforce Platform
+                  Direct Work & Hiring
                 </h3>
               </div>
               <p className="text-xs text-[#717784] leading-relaxed">
-                Designed to serve culinary kitchens, electrical maintenance, logistics, and skilled trades. Biometric attendance and automated digital escrow keep daily work transparent and fraud-free.
+                Built for cooks, electricians, drivers, helpers, and local businesses. Daily photo check-ins and safe advance pay make sure work is honest and pay is 100% guaranteed.
               </p>
             </article>
           </div>
@@ -902,33 +911,33 @@ export default function LandingPage() {
               </div>
 
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-medium tracking-tight text-[#0a0a0a] leading-[0.96]">
-                Biometric & Escrow <br /> Verification Tech
+                Real Attendance & <br /> Safe Advance Pay
               </h2>
 
               <p className="text-xs sm:text-sm text-[#717784] mt-4 leading-relaxed max-w-sm">
-                Every technician is identity-checked and face-matched on site via geofenced attendance coordinates, with wages guaranteed through automated escrow security.
+                Every worker does a quick photo and location check-in on arrival, and pay is held safely in advance so workers always get paid on time.
               </p>
             </div>
 
             {/* Staggered Verification Cards */}
             <div className="flex items-end gap-4">
               
-              {/* Tile 1: Biometric Verification */}
+              {/* Tile 1: Photo & Location Check-in */}
               <figure className="flex-1 aspect-[3/4] rounded-[1.5rem] overflow-hidden relative bg-[#f4f4f4] group shadow-lg transition-transform duration-500 hover:scale-[1.02]">
                 <img 
                   src={LANDING_IMAGES.biometricGeofence.src} 
                   alt={LANDING_IMAGES.biometricGeofence.alt}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover" 
                 />
                 <figcaption className="absolute inset-x-2.5 bottom-2.5 rounded-xl bg-[#0f2f63]/60 backdrop-blur-md p-2.5 text-white text-left shadow-lg">
-                  <p className="text-xs sm:text-sm font-medium tracking-tight">Biometric Geofence</p>
+                  <p className="text-xs sm:text-sm font-medium tracking-tight">Photo & Location Check-in</p>
                   <p className="text-[0.6rem] text-white/85 leading-snug mt-0.5">
-                    Face-verified punch-in ensures 100% genuine on-site attendance.
+                    Quick photo check-in confirms the right worker arrived at the site.
                   </p>
                 </figcaption>
               </figure>
 
-              {/* Tile 2: Smart Escrow Vault (Staggered mb-6) */}
+              {/* Tile 2: 100% Guaranteed Pay (Staggered mb-6) */}
               <figure className="flex-1 aspect-[3/4] rounded-[1.5rem] overflow-hidden relative bg-[#f4f4f4] mb-6 group shadow-lg transition-transform duration-500 hover:scale-[1.02]">
                 <img 
                   src={LANDING_IMAGES.digitalEscrowVault.src} 
@@ -936,9 +945,9 @@ export default function LandingPage() {
                   className="w-full h-full object-cover"
                 />
                 <figcaption className="absolute inset-x-2.5 bottom-2.5 rounded-xl bg-[#0b6e97]/60 backdrop-blur-md p-2.5 text-white text-left shadow-lg">
-                  <p className="text-xs sm:text-sm font-medium tracking-tight">Digital Escrow Vault</p>
+                  <p className="text-xs sm:text-sm font-medium tracking-tight">100% Guaranteed Pay</p>
                   <p className="text-[0.6rem] text-white/85 leading-snug mt-0.5">
-                    Automated payouts release directly to UPI once work is approved.
+                    Pay is deposited safely before work starts and paid directly to bank or UPI upon approval.
                   </p>
                 </figcaption>
               </figure>
@@ -1069,25 +1078,21 @@ export default function LandingPage() {
             {/* Columns Grid */}
             <div className="py-10 grid grid-cols-1 md:grid-cols-4 gap-8 border-b border-white/15 text-left">
               
-              {/* Brand Column */}
-              <div className="space-y-3 max-w-xs">
+              {/* Brand Column with Official White Logo */}
+              <div className="space-y-4 max-w-xs">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-6 h-6 rounded-full border border-white/60 flex items-center justify-center p-1">
-                    <ShieldCheck className="w-full h-full text-white" />
-                  </div>
-                  <span className="text-base font-medium tracking-[0.18em] uppercase text-white">TrustHyre</span>
+                  <Link to="/" className="group inline-block" aria-label="TrustHyre Home">
+                    <img 
+                      src={trustHyreLightLogo} 
+                      alt="TrustHyre" 
+                      className="h-12 sm:h-14 w-auto object-contain block select-none drop-shadow-md group-hover:opacity-90 transition-opacity" 
+                    />
+                  </Link>
                 </div>
 
                 <p className="text-xs text-white/70 leading-relaxed">
-                  Decentralized on-demand workforce web application. Built to connect skilled workers with businesses through biometric geofenced attendance, PWA accessibility, and automated escrow wage settlements.
+                  A simple, trusted platform connecting skilled workers with verified local employers. Safe advance payments, daily photo check-ins, and direct payouts with zero middle-men fees.
                 </p>
-
-                <div className="text-xs text-white/80 space-y-1.5 pt-2">
-                  <div className="flex items-center gap-2 text-white/60">
-                    <Sparkles className="w-3.5 h-3.5 text-[#5790e6]" />
-                    <span>Stack: React + Node.js + Lakebase Postgres</span>
-                  </div>
-                </div>
               </div>
 
               {/* Column: For Employers */}
@@ -1096,44 +1101,44 @@ export default function LandingPage() {
                   For Employers
                 </h4>
                 <ul className="space-y-2.5 text-xs text-white/80">
-                  <li><Link to="/find-workers" className="hover:text-white transition-colors">Browse Verified Candidates</Link></li>
-                  <li><Link to="/sign-up?role=employer" className="hover:text-white transition-colors">Post a New Job</Link></li>
+                  <li><Link to="/find-workers" className="hover:text-white transition-colors">Find Verified Workers</Link></li>
+                  <li><Link to="/post-job" className="hover:text-white transition-colors">Post a New Job</Link></li>
                   <li><Link to="/sign-in?role=employer" className="hover:text-white transition-colors">Employer Portal Login</Link></li>
-                  <li><Link to="/terms" className="hover:text-white transition-colors">Escrow Protection Terms</Link></li>
+                  <li><Link to="/terms" className="hover:text-white transition-colors">Payment Protection Rules</Link></li>
                 </ul>
               </div>
 
               {/* Column: For Workers */}
               <div>
                 <h4 className="text-xs font-medium uppercase tracking-[0.2em] text-white/50 mb-3">
-                  For Candidates
+                  For Workers
                 </h4>
                 <ul className="space-y-2.5 text-xs text-white/80">
-                  <li><Link to="/search" className="hover:text-white transition-colors">Search Available Jobs</Link></li>
-                  <li><Link to="/sign-up?role=worker" className="hover:text-white transition-colors">Register Candidate Profile</Link></li>
-                  <li><Link to="/sign-in?role=worker" className="hover:text-white transition-colors">Candidate Portal Login</Link></li>
-                  <li><Link to="/privacy" className="hover:text-white transition-colors">Privacy & Data Security</Link></li>
+                  <li><Link to="/search" className="hover:text-white transition-colors">Find Daily & Monthly Jobs</Link></li>
+                  <li><Link to="/sign-up?role=worker" className="hover:text-white transition-colors">Worker Registration</Link></li>
+                  <li><Link to="/sign-in?role=worker" className="hover:text-white transition-colors">Worker Portal Login</Link></li>
+                  <li><Link to="/privacy" className="hover:text-white transition-colors">Privacy & Data Safety</Link></li>
                 </ul>
               </div>
 
-              {/* Column: Platform & Governance */}
+              {/* Column: Platform & Safety */}
               <div>
                 <h4 className="text-xs font-medium uppercase tracking-[0.2em] text-white/50 mb-3">
                   Platform
                 </h4>
                 <ul className="space-y-2.5 text-xs text-white/80">
-                  <li><a href="#categories" className="hover:text-white transition-colors">Supported Job Categories</a></li>
-                  <li><a href="#technology" className="hover:text-white transition-colors">Biometric & Escrow Tech</a></li>
-                  <li><Link to="/admin/login" className="hover:text-white transition-colors">Admin Gateway</Link></li>
+                  <li><a href="#categories" className="hover:text-white transition-colors">Job Categories</a></li>
+                  <li><a href="#technology" className="hover:text-white transition-colors">How Payment Safety Works</a></li>
+                  <li><Link to="/admin/login" className="hover:text-white transition-colors">Admin Portal</Link></li>
                   <li><Link to="/terms" className="hover:text-white transition-colors">Terms of Service</Link></li>
                 </ul>
               </div>
 
             </div>
 
-            {/* Bottom Bar */}
+            {/* Bottom Bar: Clean Production Attribution */}
             <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
-              <p>© 2026 TrustHyre · Personal Portfolio & Workforce Architecture Project.</p>
+              <p>© 2026 TrustHyre. Safe, guaranteed hiring for verified workers and businesses.</p>
               
               <div className="flex items-center gap-6">
                 <Link to="/privacy" className="hover:text-white transition-colors">Privacy</Link>

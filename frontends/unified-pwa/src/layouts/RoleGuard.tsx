@@ -1,6 +1,7 @@
 import React from 'react';
 import { Navigate, useLocation, Outlet } from 'react-router-dom';
 import { useAuth, useUser } from '../providers/AuthContext';
+import { AppLoader } from '../components/common/AppLoader';
 import type { UserRole } from '../types';
 
 interface RoleGuardProps {
@@ -14,11 +15,7 @@ export const RoleGuard: React.FC<RoleGuardProps> = ({ allowedRoles, children }) 
   const location = useLocation();
 
   if (!isLoaded) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-[#F8FAFC]">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#0A1931]"></div>
-      </div>
-    );
+    return <AppLoader variant="fullscreen" message="Verifying access permissions..." />;
   }
 
   if (!isSignedIn || !user) {
