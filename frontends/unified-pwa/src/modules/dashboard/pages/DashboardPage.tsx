@@ -57,28 +57,7 @@ export default function DashboardPage() {
           <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-[#0f2f63]/5 to-transparent rounded-full blur-3xl pointer-events-none" />
           
           <div className="relative z-10 space-y-4">
-            {/* 4-Point Hallmark Trust Ribbon */}
-            <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs font-medium text-[#717784] border-b border-[#e6e8ec] pb-4">
-              <span className="flex items-center gap-1.5 text-[#0a0a0a]">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                Corporate Verified Hub
-              </span>
-              <span className="text-[#e6e8ec]">•</span>
-              <span className="flex items-center gap-1.5 text-[#0a0a0a]">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                Escrow Wage Lock
-              </span>
-              <span className="text-[#e6e8ec]">•</span>
-              <span className="flex items-center gap-1.5 text-[#0a0a0a]">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                Zero Ghosting Policy
-              </span>
-              <span className="text-[#e6e8ec]">•</span>
-              <span className="flex items-center gap-1.5 text-[#0a0a0a]">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                Instant Dispatch Engine
-              </span>
-            </div>
+            
 
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pt-2">
               <div className="space-y-2 max-w-2xl">

@@ -127,23 +127,69 @@ const HERO_MODES = [
   },
 ];
 
-// Testimonials & Real Stories Data
-const TESTIMONIALS = [
+// Core Operating Standards & Guarantees (Replacing Fake Statistics)
+const OPERATING_STANDARDS = [
+  { 
+    number: "#01", 
+    title: "Guaranteed Advance Escrow", 
+    subtitle: "Zero Unpaid Labor",
+    desc: "Employer booking funds are locked securely in advance before workers deploy. Wages are released immediately upon verified task completion." 
+  },
+  { 
+    number: "#02", 
+    title: "GPS & Photo Attendance", 
+    subtitle: "Verified Physical Arrival",
+    desc: "Workers check in on-site using GPS geofencing and live photo capture. Employers get verifiable proof of arrival, eliminating ghost workers." 
+  },
+  { 
+    number: "#03", 
+    title: "Direct UPI Settlement", 
+    subtitle: "0% Brokerage Cut",
+    desc: "Workers receive 100% of their earned wages directly into their UPI or bank accounts with zero middle-men contractor deductions." 
+  },
+  { 
+    number: "#04", 
+    title: "Digital Dispute Records", 
+    subtitle: "Transparent Resolution",
+    desc: "Every shift maintains a permanent digital paper trail of check-ins, agreed hourly rates, and work summaries for fast, neutral conflict resolution." 
+  },
+];
+
+// Platform Commitments (Replacing Fake Testimonials)
+const PLATFORM_COMMITMENTS = [
   {
-    quote: "Finding verified electrical jobs nearby without losing 20% to middle-men changed everything. My daily wages are kept safe before I even reach the work site.",
-    author: "Rahul S.",
-    role: "Electrician · Verified Worker",
+    badge: "For Employers",
+    badgeColor: "bg-[#0f2f63] text-white",
+    title: "Verified Arrival & Skill Assurance",
+    desc: "Know exactly who is coming to your job site before they arrive.",
+    points: [
+      "Government ID & skill badge verified before dispatch",
+      "Geofenced check-in: payment only releases on physical arrival",
+      "Prompt automatic replacement or refund if worker is absent"
+    ]
   },
   {
-    quote: "When we need kitchen staff for weekend rushes, I can review verified worker profiles and know attendance is confirmed with a real check-in.",
-    author: "Kavitha R.",
-    role: "Cafe & Cloud Kitchen Owner · Verified Employer",
+    badge: "For Workers",
+    badgeColor: "bg-[#2563c9] text-white",
+    title: "Protected Wages & Zero Broker Cut",
+    desc: "Get paid on time, every time, without paying middle-men commissions.",
+    points: [
+      "Job budget is locked into escrow before you travel to site",
+      "100% of agreed pay deposited directly to UPI or bank",
+      "Build a permanent, verifiable work history and ratings profile"
+    ]
   },
   {
-    quote: "TrustHyre was built so workers always get paid on time and employers get genuine workers who actually show up.",
-    author: "TrustHyre Guarantee",
-    role: "Our Verified Platform Promise",
-  },
+    badge: "Mutual Safety",
+    badgeColor: "bg-[#e6e8ec] text-[#0a0a0a]",
+    title: "Transparent Digital Work Orders",
+    desc: "Clear records prevent misunderstandings and resolve disputes quickly.",
+    points: [
+      "GPS timestamped logs provide clear evidence of hours worked",
+      "In-app scope and rate confirmation protects both parties",
+      "Dedicated platform support resolves variances within 24 hours"
+    ]
+  }
 ];
 
 export default function LandingPage() {
@@ -235,7 +281,7 @@ export default function LandingPage() {
 
     // Adaptive Rem Scaling for ultra-wide screens (width > 1920)
     const handleResize = () => {
-      const FONT_BASE = 16, BASE_W = 1920, COEF = 0.6666;
+      const FONT_BASE = 17, BASE_W = 1920, COEF = 0.6666;
       const innerW = window.innerWidth;
       const reduction = ((BASE_W - innerW) / BASE_W) * 100 * COEF;
       const size = FONT_BASE - (FONT_BASE * reduction) / 100;
@@ -402,8 +448,8 @@ export default function LandingPage() {
               {[
                 { label: "Categories", href: "#categories" },
                 { label: "Technology", href: "#technology" },
-                { label: "Metrics", href: "#metrics" },
-                { label: "Reviews", href: "#reviews" },
+                { label: "Standards", href: "#standards" },
+                { label: "Protections", href: "#commitments" },
                 { label: "Contact", href: "#contact" },
               ].map((item, idx) => (
                 <a
@@ -474,14 +520,17 @@ export default function LandingPage() {
           <header className="w-full px-6 py-6 sm:px-10 sm:py-8 flex items-center justify-between text-xs z-20">
             {/* Left Navigation (Desktop) */}
             <nav className="hidden lg:flex items-center gap-8 flex-1">
-              <a href="#categories" className="text-white/85 hover:text-white transition-colors tracking-wide">
+              <a href="#categories" className="text-white/85 hover:text-white transition-colors tracking-wide text-sm">
                 Job Categories
               </a>
-              <a href="#technology" className="text-white/85 hover:text-white transition-colors tracking-wide">
+              <a href="#technology" className="text-white/85 hover:text-white transition-colors tracking-wide text-sm">
                 How It Works
               </a>
-              <a href="#metrics" className="text-white/85 hover:text-white transition-colors tracking-wide">
-                Platform Stats
+              <a href="#standards" className="text-white/85 hover:text-white transition-colors tracking-wide text-sm">
+                Standards
+              </a>
+              <a href="#commitments" className="text-white/85 hover:text-white transition-colors tracking-wide text-sm">
+                Protections
               </a>
             </nav>
 
@@ -720,11 +769,12 @@ export default function LandingPage() {
           {/* Top Badges Row - Tight Spacing */}
           <div className="relative z-20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 mb-6 sm:mb-8">
             
-            {/* 100% Circle Badge */}
-            <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-[#f4f4f4] flex flex-col items-center justify-center p-3 text-center shrink-0 shadow-xs">
-              <span className="text-xl sm:text-2xl font-medium tracking-tight text-[#0a0a0a]">100%</span>
-              <span className="text-[0.55rem] text-[#717784] max-w-[8em] leading-tight mt-1 uppercase tracking-wider">
-                Escrow backed & payout insured
+            {/* Direct Verification Seal */}
+            <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-[#f4f4f4] border border-[#e6e8ec] flex flex-col items-center justify-center p-2.5 text-center shrink-0 shadow-xs">
+              <ShieldCheck className="w-6 h-6 text-[#2563c9] mb-1" />
+              <span className="text-xs font-semibold tracking-tight text-[#0a0a0a] uppercase">Direct</span>
+              <span className="text-[0.65rem] text-[#717784] max-w-[9em] leading-tight uppercase tracking-wider">
+                Verified Escrow
               </span>
             </div>
 
@@ -738,8 +788,8 @@ export default function LandingPage() {
                   Direct Work & Hiring
                 </h3>
               </div>
-              <p className="text-xs text-[#717784] leading-relaxed">
-                Built for cooks, electricians, drivers, helpers, and local businesses. Daily photo check-ins and safe advance pay make sure work is honest and pay is 100% guaranteed.
+              <p className="text-sm text-[#717784] leading-relaxed">
+                Built for cooks, electricians, drivers, helpers, and local businesses. Daily photo check-ins and safe advance escrow ensure reliable attendance and direct, guaranteed payouts.
               </p>
             </article>
           </div>
@@ -796,8 +846,8 @@ export default function LandingPage() {
               />
               {/* Glass Caption */}
               <figcaption className="absolute inset-x-2.5 bottom-2.5 rounded-xl bg-[#0f2f63]/60 backdrop-blur-md p-2.5 text-white text-left shadow-lg">
-                <p className="text-xs sm:text-sm font-medium tracking-tight truncate">{currentSlide.name}</p>
-                <p className="text-[0.6rem] text-white/80 uppercase tracking-wide mt-0.5 truncate">{currentSlide.role}</p>
+                <p className="text-sm sm:text-base font-medium tracking-tight truncate">{currentSlide.name}</p>
+                <p className="text-xs text-white/90 uppercase tracking-wide mt-0.5 truncate">{currentSlide.role}</p>
               </figcaption>
             </figure>
           </div>
@@ -867,14 +917,14 @@ export default function LandingPage() {
                     className="group py-4 sm:py-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 transition-colors hover:bg-white/70 px-3 sm:px-4 rounded-xl cursor-pointer"
                   >
                     <div className="flex items-baseline sm:items-center gap-4 sm:gap-6 flex-1">
-                      <span className="w-8 sm:w-10 text-xs sm:text-sm font-medium text-[#717784]">
+                      <span className="w-8 sm:w-10 text-sm font-medium text-[#717784]">
                         {track.index}
                       </span>
                       <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-6 flex-1">
                         <h3 className="text-xl sm:text-2xl font-medium tracking-tight text-[#0a0a0a] min-w-[16rem]">
                           {track.name}
                         </h3>
-                        <p className="text-xs sm:text-sm text-[#717784] max-w-lg">
+                        <p className="text-sm sm:text-[15px] text-[#717784] max-w-lg leading-relaxed">
                           {track.description}
                         </p>
                       </div>
@@ -914,7 +964,7 @@ export default function LandingPage() {
                 Real Attendance & <br /> Safe Advance Pay
               </h2>
 
-              <p className="text-xs sm:text-sm text-[#717784] mt-4 leading-relaxed max-w-sm">
+              <p className="text-sm sm:text-base text-[#717784] mt-4 leading-relaxed max-w-md">
                 Every worker does a quick photo and location check-in on arrival, and pay is held safely in advance so workers always get paid on time.
               </p>
             </div>
@@ -930,14 +980,14 @@ export default function LandingPage() {
                   className="w-full h-full object-cover" 
                 />
                 <figcaption className="absolute inset-x-2.5 bottom-2.5 rounded-xl bg-[#0f2f63]/60 backdrop-blur-md p-2.5 text-white text-left shadow-lg">
-                  <p className="text-xs sm:text-sm font-medium tracking-tight">Photo & Location Check-in</p>
-                  <p className="text-[0.6rem] text-white/85 leading-snug mt-0.5">
+                  <p className="text-sm sm:text-base font-medium tracking-tight">Photo & Location Check-in</p>
+                  <p className="text-xs text-white/90 leading-normal mt-1">
                     Quick photo check-in confirms the right worker arrived at the site.
                   </p>
                 </figcaption>
               </figure>
 
-              {/* Tile 2: 100% Guaranteed Pay (Staggered mb-6) */}
+              {/* Tile 2: Protected Advance Escrow (Staggered mb-6) */}
               <figure className="flex-1 aspect-[3/4] rounded-[1.5rem] overflow-hidden relative bg-[#f4f4f4] mb-6 group shadow-lg transition-transform duration-500 hover:scale-[1.02]">
                 <img 
                   src={LANDING_IMAGES.digitalEscrowVault.src} 
@@ -945,8 +995,8 @@ export default function LandingPage() {
                   className="w-full h-full object-cover"
                 />
                 <figcaption className="absolute inset-x-2.5 bottom-2.5 rounded-xl bg-[#0b6e97]/60 backdrop-blur-md p-2.5 text-white text-left shadow-lg">
-                  <p className="text-xs sm:text-sm font-medium tracking-tight">100% Guaranteed Pay</p>
-                  <p className="text-[0.6rem] text-white/85 leading-snug mt-0.5">
+                  <p className="text-sm sm:text-base font-medium tracking-tight">Protected Advance Escrow</p>
+                  <p className="text-xs text-white/90 leading-normal mt-1">
                     Pay is deposited safely before work starts and paid directly to bank or UPI upon approval.
                   </p>
                 </figcaption>
@@ -957,10 +1007,10 @@ export default function LandingPage() {
         </section>
 
         {/* =================================================================== */}
-        {/* 5. STATS SECTION (Deep Navy Band - Tight Spacing) */}
+        {/* 5. OPERATING STANDARDS SECTION (Deep Navy Band - Tight Spacing) */}
         {/* =================================================================== */}
         <section 
-          id="metrics" 
+          id="standards" 
           className="mt-3 rounded-[2rem] bg-[#0f2f63] text-white py-12 sm:py-14 px-6 sm:px-10"
         >
           <div className="max-w-6xl mx-auto">
@@ -968,33 +1018,33 @@ export default function LandingPage() {
             <div>
               <div className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.22em] text-white/70 mb-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#5790e6]" />
-                <span>Enterprise Scale</span>
+                <span>Operating Principles</span>
               </div>
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-medium tracking-tight text-white leading-[0.96]">
-                A platform that <br /> keeps score
+                Architected for <br /> accountability
               </h2>
             </div>
 
-            {/* 4-Up Metrics Grid */}
-            <dl className="mt-8 sm:mt-10 grid grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-8">
-              {[
-                { value: "100%", label: "Escrow Wage Protection", desc: "Automated funds lock on booking, released on verified completion" },
-                { value: "GPS + Face", label: "Geofenced Check-In", desc: "Real-time biometric attendance verified within site radius" },
-                { value: "0%", label: "Agency Brokerage", desc: "Direct worker-to-employer connection with honest transparent wages" },
-                { value: "Instant", label: "UPI Payout Settlement", desc: "Direct UPI wage transfer without payroll paperwork friction" },
-              ].map((stat, idx) => (
-                <div key={idx} className="border-t border-white/20 pt-4 text-left">
-                  <dt className="sr-only">{stat.label}</dt>
+            {/* 4-Up Operating Standards Grid */}
+            <dl className="mt-8 sm:mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-8">
+              {OPERATING_STANDARDS.map((std) => (
+                <div key={std.number} className="border-t border-white/20 pt-4 text-left">
+                  <dt className="sr-only">{std.title}</dt>
                   <dd>
-                    <div className="text-3xl sm:text-4xl font-medium tracking-tight text-white leading-none">
-                      {stat.value}
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-xs font-semibold uppercase tracking-widest text-[#5790e6]">
+                        {std.number}
+                      </span>
+                      <span className="text-[11px] font-medium uppercase tracking-wider text-white/50">
+                        {std.subtitle}
+                      </span>
                     </div>
-                    <div className="text-xs sm:text-sm font-medium text-white/90 mt-2 leading-snug">
-                      {stat.label}
+                    <div className="text-lg sm:text-xl font-medium text-white tracking-tight leading-snug">
+                      {std.title}
                     </div>
-                    <div className="text-[11px] text-white/60 mt-1 leading-snug">
-                      {stat.desc}
-                    </div>
+                    <p className="text-sm text-white/75 mt-2 leading-relaxed">
+                      {std.desc}
+                    </p>
                   </dd>
                 </div>
               ))}
@@ -1003,36 +1053,49 @@ export default function LandingPage() {
         </section>
 
         {/* =================================================================== */}
-        {/* 6. TESTIMONIALS SECTION (Tight Spacing) */}
+        {/* 6. PLATFORM COMMITMENTS SECTION (Tight Spacing) */}
         {/* =================================================================== */}
-        <section id="reviews" className="py-10 sm:py-14 px-6 sm:px-10 bg-white text-[#0a0a0a]">
+        <section id="commitments" className="py-10 sm:py-14 px-6 sm:px-10 bg-white text-[#0a0a0a]">
           <div className="max-w-6xl mx-auto">
             {/* Header */}
             <div>
               <div className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.22em] text-[#717784] mb-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#2563c9]" />
-                <span>Enterprise Feedback</span>
+                <span>Platform Commitments</span>
               </div>
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-medium tracking-tight text-[#0a0a0a] leading-[0.96]">
-                Loved by operations <br /> teams & managers
+                Clear rules for <br /> both sides
               </h2>
+              <p className="text-sm sm:text-base text-[#717784] mt-3 max-w-xl leading-relaxed">
+                TrustHyre replaces verbal agreements and contractor middle-men with transparent hiring protections for employers and workers alike.
+              </p>
             </div>
 
             {/* 3-Up Cards */}
             <ul className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-5">
-              {TESTIMONIALS.map((t, idx) => (
+              {PLATFORM_COMMITMENTS.map((card, idx) => (
                 <li key={idx}>
-                  <div className="flex flex-col justify-between h-full rounded-[1.5rem] bg-[#f4f4f4] p-6 transition-transform duration-300 hover:-translate-y-1.5 shadow-xs">
-                    <span className="text-3xl font-serif text-[#2563c9] leading-none">
-                      “
-                    </span>
-                    <blockquote className="text-sm sm:text-base text-[#0a0a0a] leading-relaxed my-3">
-                      {t.quote}
-                    </blockquote>
-                    <figcaption className="border-t border-[#e6e8ec] pt-3 text-left">
-                      <p className="font-medium text-sm text-[#0a0a0a]">{t.author}</p>
-                      <p className="text-xs text-[#717784] mt-0.5">{t.role}</p>
-                    </figcaption>
+                  <div className="flex flex-col justify-between h-full rounded-[1.5rem] bg-[#f4f4f4] p-6 sm:p-7 transition-transform duration-300 hover:-translate-y-1.5 shadow-xs">
+                    <div>
+                      <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider mb-4 ${card.badgeColor}`}>
+                        {card.badge}
+                      </span>
+                      <h3 className="text-xl sm:text-2xl font-medium text-[#0a0a0a] tracking-tight leading-snug">
+                        {card.title}
+                      </h3>
+                      <p className="text-sm text-[#717784] mt-2 leading-relaxed">
+                        {card.desc}
+                      </p>
+                    </div>
+
+                    <ul className="border-t border-[#e6e8ec] pt-4 mt-5 space-y-2.5">
+                      {card.points.map((pt, pIdx) => (
+                        <li key={pIdx} className="flex items-start gap-2.5 text-sm text-[#0a0a0a] leading-relaxed">
+                          <CheckCircle2 className="w-4 h-4 text-[#2563c9] shrink-0 mt-0.5" />
+                          <span>{pt}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
                 </li>
               ))}
@@ -1076,7 +1139,7 @@ export default function LandingPage() {
             </div>
 
             {/* Columns Grid */}
-            <div className="py-10 grid grid-cols-1 md:grid-cols-4 gap-8 border-b border-white/15 text-left">
+            <div className="py-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 border-b border-white/15 text-left">
               
               {/* Brand Column with Official White Logo */}
               <div className="space-y-4 max-w-xs">
@@ -1090,60 +1153,54 @@ export default function LandingPage() {
                   </Link>
                 </div>
 
-                <p className="text-xs text-white/70 leading-relaxed">
-                  A simple, trusted platform connecting skilled workers with verified local employers. Safe advance payments, daily photo check-ins, and direct payouts with zero middle-men fees.
+                <p className="text-sm text-white/80 leading-relaxed">
+                  A simple, trusted platform connecting skilled workers with verified local employers. Safe advance escrow, daily photo check-ins, and direct payouts with zero middle-men fees.
                 </p>
               </div>
 
               {/* Column: For Employers */}
               <div>
-                <h4 className="text-xs font-medium uppercase tracking-[0.2em] text-white/50 mb-3">
+                <h4 className="text-xs font-semibold uppercase tracking-[0.2em] text-white/50 mb-3">
                   For Employers
                 </h4>
-                <ul className="space-y-2.5 text-xs text-white/80">
-                  <li><Link to="/find-workers" className="hover:text-white transition-colors">Find Verified Workers</Link></li>
-                  <li><Link to="/post-job" className="hover:text-white transition-colors">Post a New Job</Link></li>
-                  <li><Link to="/sign-in?role=employer" className="hover:text-white transition-colors">Employer Portal Login</Link></li>
-                  <li><Link to="/terms" className="hover:text-white transition-colors">Payment Protection Rules</Link></li>
+                <ul className="space-y-3 text-sm text-white/80">
+                  <li><Link to="/find-workers" className="hover:text-white transition-colors">Browse Candidates</Link></li>
+                  <li><Link to="/post-job" className="hover:text-white transition-colors">Post a Job</Link></li>
                 </ul>
               </div>
 
               {/* Column: For Workers */}
               <div>
-                <h4 className="text-xs font-medium uppercase tracking-[0.2em] text-white/50 mb-3">
+                <h4 className="text-xs font-semibold uppercase tracking-[0.2em] text-white/50 mb-3">
                   For Workers
                 </h4>
-                <ul className="space-y-2.5 text-xs text-white/80">
-                  <li><Link to="/search" className="hover:text-white transition-colors">Find Daily & Monthly Jobs</Link></li>
+                <ul className="space-y-3 text-sm text-white/80">
+                  <li><Link to="/search" className="hover:text-white transition-colors">Find Jobs</Link></li>
                   <li><Link to="/sign-up?role=worker" className="hover:text-white transition-colors">Worker Registration</Link></li>
-                  <li><Link to="/sign-in?role=worker" className="hover:text-white transition-colors">Worker Portal Login</Link></li>
-                  <li><Link to="/privacy" className="hover:text-white transition-colors">Privacy & Data Safety</Link></li>
                 </ul>
               </div>
 
-              {/* Column: Platform & Safety */}
+              {/* Column: Access & Legal */}
               <div>
-                <h4 className="text-xs font-medium uppercase tracking-[0.2em] text-white/50 mb-3">
-                  Platform
+                <h4 className="text-xs font-semibold uppercase tracking-[0.2em] text-white/50 mb-3">
+                  Access & Legal
                 </h4>
-                <ul className="space-y-2.5 text-xs text-white/80">
-                  <li><a href="#categories" className="hover:text-white transition-colors">Job Categories</a></li>
-                  <li><a href="#technology" className="hover:text-white transition-colors">How Payment Safety Works</a></li>
-                  <li><Link to="/admin/login" className="hover:text-white transition-colors">Admin Portal</Link></li>
+                <ul className="space-y-3 text-sm text-white/80">
+                  <li><Link to="/sign-in" className="hover:text-white transition-colors">Sign In</Link></li>
                   <li><Link to="/terms" className="hover:text-white transition-colors">Terms of Service</Link></li>
+                  <li><Link to="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
                 </ul>
               </div>
 
             </div>
 
             {/* Bottom Bar: Clean Production Attribution */}
-            <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
+            <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-white/70">
               <p>© 2026 TrustHyre. Safe, guaranteed hiring for verified workers and businesses.</p>
               
               <div className="flex items-center gap-6">
                 <Link to="/privacy" className="hover:text-white transition-colors">Privacy</Link>
                 <Link to="/terms" className="hover:text-white transition-colors">Terms</Link>
-                <Link to="/admin/login" className="hover:text-white transition-colors">Admin Portal</Link>
               </div>
             </div>
 

@@ -405,7 +405,7 @@ export default function JobDetailPage() {
         </div>
 
 
-        {/* 3. MAIN 2-COLUMN DOSSIER GRID (Even Layout) */}
+        {/* 3. MAIN 2-COLUMN PROFILE GRID (Even Layout) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           
           {/* LEFT COLUMN (8 Cols): Scope, Skills & Worksite Details */}

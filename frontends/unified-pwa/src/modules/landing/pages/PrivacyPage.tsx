@@ -216,7 +216,7 @@ export const PrivacyPage: React.FC = () => {
               <ul className="list-disc pl-5 space-y-2 text-sm text-slate-600">
                 <li><strong>Identity Information:</strong> Full legal name, gender, date of birth, profile photograph, and government ID verification status.</li>
                 <li><strong>Contact Data:</strong> Primary phone number, email address, physical location, and pincode for hyperlocal job matching.</li>
-                <li><strong>Professional Dossier:</strong> Trade specializations (electrician, carpentry, cooking, logistics), years of verified experience, salary expectations, and uploaded portfolio images.</li>
+                <li><strong>Professional Profile:</strong> Trade specializations (electrician, carpentry, cooking, logistics), years of verified experience, salary expectations, and uploaded portfolio images.</li>
                 <li><strong>Technical Telemetry:</strong> Device browser, IP address, login timestamps, and essential authentication cookies.</li>
               </ul>
             </section>

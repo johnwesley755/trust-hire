@@ -143,7 +143,7 @@ export const AdminJobsPage: React.FC = () => {
               </div>
 
               <div className="pt-3 border-t border-[#e6e8ec] flex items-center justify-between">
-                <span className="text-[10px] text-[#9ea3ae] font-mono truncate max-w-[140px]">{job.id}</span>
+                <span className="text-[11px] text-[#717784] font-medium">{job.city || job.location || 'Pan India'}</span>
                 <button
                   onClick={() => handleDelete(job.id, job.title)}
                   disabled={deleteMutation.isPending}

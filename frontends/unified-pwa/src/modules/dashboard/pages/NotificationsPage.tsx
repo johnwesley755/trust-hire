@@ -1,140 +1,346 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { notificationService, type AppNotification } from '../../../services/notification.service';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Bell, CheckCircle2, Info, AlertTriangle, ChevronLeft, CheckCheck } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { 
+  Bell, 
+  BellOff, 
+  CheckCheck, 
+  Trash2, 
+  RefreshCw, 
+  CheckCircle2, 
+  Briefcase, 
+  Award, 
+  ShieldCheck, 
+  Info, 
+  ChevronRight,
+  ExternalLink,
+  ArrowLeft,
+  Settings
+} from 'lucide-react';
+import { notificationService, type AppNotification } from '../../../services/notification.service';
+import { AppLoader } from '../../../components/common/AppLoader';
 
-export default function NotificationsPage() {
-    const navigate = useNavigate();
-    const queryClient = useQueryClient();
+export const NotificationsPage: React.FC = () => {
+  const [filter, setFilter] = useState<'all' | 'unread'>('all');
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
-    const { data: notifications = [], isLoading } = useQuery<AppNotification[]>({
-        queryKey: ['notifications'],
-        queryFn: notificationService.getNotifications,
-        staleTime: Infinity 
-    });
+  const { data: notifications = [], isLoading, isRefetching, refetch } = useQuery<AppNotification[]>({
+    queryKey: ['notifications'],
+    queryFn: async () => {
+      const data = await notificationService.getNotifications();
+      return data;
+    },
+    staleTime: 15 * 1000,
+  });
 
-    const markAsReadMutation = useMutation({
-        mutationFn: notificationService.markAsRead,
-        onSuccess: (_, id) => {
-            queryClient.setQueryData<AppNotification[]>(['notifications'], (old = []) => 
-                old.map(n => n.id === id ? { ...n, isRead: true } : n)
-            );
-            queryClient.setQueryData<number>(['unreadCount'], (c = 0) => Math.max(0, (c || 0) - 1));
-        }
-    });
+  const unreadCount = notifications.filter(n => !n.isRead && !(n as any).is_read).length;
 
-    const markAllAsReadMutation = useMutation({
-        mutationFn: notificationService.markAllAsRead,
-        onSuccess: () => {
-            queryClient.setQueryData<AppNotification[]>(['notifications'], (old = []) => 
-                old.map(n => ({ ...n, isRead: true }))
-            );
-            queryClient.setQueryData<number>(['unreadCount'], 0);
-        }
-    });
+  const markReadMutation = useMutation({
+    mutationFn: (id: string) => notificationService.markAsRead(id),
+    onSuccess: (_, id) => {
+      queryClient.setQueryData<AppNotification[]>(['notifications'], (old = []) =>
+        old.map(n => n.id === id ? { ...n, isRead: true, is_read: true } : n)
+      );
+      queryClient.setQueryData<number>(['unreadCount'], (c = 0) => Math.max(0, (c || 0) - 1));
+    }
+  });
 
-    const getIcon = (type?: string) => {
-        switch (type?.toLowerCase()) {
-            case 'success':
-            case 'application_accepted':
-                return <CheckCircle2 className="w-5 h-5 text-emerald-500" />;
-            case 'warning':
-                return <AlertTriangle className="w-5 h-5 text-amber-500" />;
-            case 'info':
-            case 'application_update':
-                return <Info className="w-5 h-5 text-blue-500" />;
-            default:
-                return <Bell className="w-5 h-5 text-[#0A1931]" />;
-        }
-    };
+  const markAllReadMutation = useMutation({
+    mutationFn: () => notificationService.markAllAsRead(),
+    onSuccess: () => {
+      queryClient.setQueryData<AppNotification[]>(['notifications'], (old = []) =>
+        old.map(n => ({ ...n, isRead: true, is_read: true }))
+      );
+      queryClient.setQueryData<number>(['unreadCount'], 0);
+    }
+  });
 
-    const handleMarkAllRead = () => {
-        markAllAsReadMutation.mutate();
-    };
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => notificationService.deleteNotification(id),
+    onSuccess: (_, id) => {
+      queryClient.setQueryData<AppNotification[]>(['notifications'], (old = []) =>
+        old.filter(n => n.id !== id)
+      );
+      queryClient.setQueryData<number>(['unreadCount'], (c = 0) => Math.max(0, (c || 0) - 1));
+    }
+  });
 
-    return (
-        <div className="min-h-screen bg-[#F8FAFC] p-4 md:p-8 lg:p-12">
-            <div className="max-w-3xl mx-auto">
-                {/* Header */}
-                <header className="flex items-center justify-between mb-8">
-                    <div className="flex items-center gap-4">
-                        <button 
-                            onClick={() => navigate(-1)}
-                            className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm border border-[#0A1931]/5 hover:bg-[#FACD15] transition-all"
-                        >
-                            <ChevronLeft className="w-5 h-5" />
-                        </button>
-                        <h1 className="text-2xl font-black text-[#0A1931] tracking-tight">Notifications</h1>
-                    </div>
-                    {notifications.some(n => !n.isRead) && (
-                        <button 
-                            onClick={handleMarkAllRead}
-                            className="flex items-center gap-2 px-4 py-2 bg-white rounded-full text-[10px] font-bold uppercase tracking-widest text-[#0A1931] border border-[#0A1931]/5 hover:bg-[#0A1931] hover:text-white transition-all shadow-sm"
-                        >
-                            <CheckCheck className="w-3.5 h-3.5" />
-                            Mark all read
-                        </button>
-                    )}
-                </header>
+  const deleteAllMutation = useMutation({
+    mutationFn: () => notificationService.deleteAllNotifications(),
+    onSuccess: () => {
+      queryClient.setQueryData<AppNotification[]>(['notifications'], []);
+      queryClient.setQueryData<number>(['unreadCount'], 0);
+    }
+  });
 
-                {isLoading ? (
-                    <div className="flex flex-col items-center justify-center py-20 space-y-4">
-                        <div className="w-12 h-12 border-4 border-[#0A1931] border-t-transparent rounded-full animate-spin" />
-                        <p className="text-sm font-bold text-[#0A1931]/40 uppercase tracking-widest">Loading alerts...</p>
-                    </div>
-                ) : notifications.length === 0 ? (
-                    <motion.div 
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="bg-white rounded-[2rem] p-12 text-center border border-[#0A1931]/5 shadow-sm"
-                    >
-                        <div className="w-20 h-20 bg-[#F8FAFC] rounded-full flex items-center justify-center mx-auto mb-6">
-                            <Bell className="w-10 h-10 text-[#0A1931]/20" />
-                        </div>
-                        <h3 className="text-xl font-black text-[#0A1931] mb-2">No notifications yet</h3>
-                        <p className="text-[#414845] font-medium opacity-60 max-w-xs mx-auto">We'll alert you when there are updates on your applications or profile.</p>
-                    </motion.div>
-                ) : (
-                    <div className="space-y-3">
-                        <AnimatePresence>
-                            {notifications.map((notification: AppNotification) => (
-                                <motion.div
-                                    key={notification.id}
-                                    layout
-                                    initial={{ opacity: 0, scale: 0.95 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    exit={{ opacity: 0, scale: 0.95 }}
-                                    onClick={() => !notification.isRead && markAsReadMutation.mutate(notification.id)}
-                                    className={`relative group bg-white p-5 rounded-2xl flex gap-4 border transition-all cursor-pointer shadow-sm hover:shadow-md ${notification.isRead ? 'border-transparent' : 'border-[#FACD15] shadow-[#FACD15]/5'}`}
-                                >
-                                    <div className={`w-12 h-12 shrink-0 rounded-xl flex items-center justify-center ${notification.isRead ? 'bg-[#F8FAFC]' : 'bg-[#FACD15]/10'}`}>
-                                        {getIcon(notification.type)}
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex items-center justify-between gap-2 mb-1">
-                                            <h4 className={`font-extrabold truncate ${notification.isRead ? 'text-[#0A1931]/60' : 'text-[#0A1931]'}`}>
-                                                {notification.title}
-                                            </h4>
-                                            <span className="text-[10px] font-bold text-[#414845]/40 whitespace-nowrap">
-                                                {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}
-                                            </span>
-                                        </div>
-                                        <p className={`text-sm font-medium leading-relaxed ${notification.isRead ? 'text-[#414845]/40' : 'text-[#414845]'}`}>
-                                            {notification.message}
-                                        </p>
-                                    </div>
-                                    {!notification.isRead && (
-                                        <div className="absolute top-4 right-4 w-2 h-2 bg-[#FACD15] rounded-full" />
-                                    )}
-                                </motion.div>
-                            ))}
-                        </AnimatePresence>
-                    </div>
-                )}
-            </div>
+  const handleNotificationClick = (n: AppNotification) => {
+    markReadMutation.mutate(n.id);
+
+    if (n.link && n.link !== '/notifications') {
+      navigate(n.link);
+      return;
+    }
+
+    const t = n.type?.toUpperCase();
+    if (t === 'APPLICATION_SUBMITTED' || t === 'APPLICATION_UPDATE' || t === 'APPLICATION_ACCEPTED' || t === 'APPLICATION_SHORTLISTED') {
+      navigate('/applied-jobs');
+    } else if (t === 'NEW_APPLICATION') {
+      navigate('/dashboard/employer/jobs');
+    } else if (t === 'NEW_JOB' || t === 'JOB_MATCH' || t === 'JOB_MATCH_ALERT' || t === 'APPLICATION_REJECTED') {
+      navigate('/search');
+    } else if (t === 'WELCOME' || t === 'KYC_VERIFIED' || t === 'KYC_REJECTED' || t === 'SKILL_BADGE_EARNED') {
+      navigate('/profile');
+    }
+  };
+
+  const getNotificationIcon = (type?: string) => {
+    const t = type?.toUpperCase();
+    if (t?.includes('APPLICATION') || t?.includes('JOB')) {
+      return (
+        <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 border border-blue-100 shadow-2xs">
+          <Briefcase className="w-5 h-5" />
         </div>
+      );
+    }
+    if (t?.includes('KYC') || t?.includes('VERIF')) {
+      return (
+        <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 border border-emerald-100 shadow-2xs">
+          <ShieldCheck className="w-5 h-5" />
+        </div>
+      );
+    }
+    if (t?.includes('SKILL') || t?.includes('BADGE')) {
+      return (
+        <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0 border border-amber-100 shadow-2xs">
+          <Award className="w-5 h-5" />
+        </div>
+      );
+    }
+    return (
+      <div className="w-10 h-10 rounded-xl bg-slate-50 text-slate-600 flex items-center justify-center shrink-0 border border-slate-200/80 shadow-2xs">
+        <Info className="w-5 h-5" />
+      </div>
     );
-}
+  };
+
+  const filteredNotifications = notifications.filter(n => {
+    const isUnread = !n.isRead && !(n as any).is_read;
+    if (filter === 'unread') return isUnread;
+    return true;
+  });
+
+  return (
+    <div className="min-h-screen bg-[#F8FAFC] pb-24 pt-6 px-4 sm:px-6 lg:px-8 font-['Onest',system-ui,sans-serif]">
+      <div className="max-w-4xl mx-auto space-y-6">
+
+        {/* Top Navigation Bar */}
+        <div className="flex items-center justify-between gap-3">
+          <button
+            onClick={() => navigate(-1)}
+            className="inline-flex items-center gap-2 text-xs font-bold text-slate-700 hover:text-[#0A1931] bg-white hover:bg-slate-100 border border-slate-200/80 px-3.5 py-2 rounded-xl transition-all cursor-pointer shadow-2xs"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>Back</span>
+          </button>
+
+          <button
+            onClick={() => navigate('/settings?tab=notifications')}
+            className="inline-flex items-center gap-2 text-xs font-bold text-[#0066FF] hover:bg-blue-50/80 bg-white border border-blue-200/70 px-3.5 py-2 rounded-xl transition-all cursor-pointer shadow-2xs"
+          >
+            <Settings className="w-3.5 h-3.5" />
+            <span>Notification Preferences</span>
+          </button>
+        </div>
+
+        {/* Header Banner */}
+        <div className="bg-white rounded-[1.75rem] border border-slate-200/80 p-5 sm:p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse" />
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-blue-600">
+                Activity & Updates
+              </span>
+            </div>
+            <h1 className="text-xl sm:text-2xl font-black text-[#0A1931] flex items-center gap-2.5">
+              <span>Notifications</span>
+              {unreadCount > 0 && (
+                <span className="px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-600 border border-blue-100 text-xs font-bold">
+                  {unreadCount} unread
+                </span>
+              )}
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-500 font-medium">
+              Real-time alerts for job applications, interview offers, verifications, and platform updates.
+            </p>
+          </div>
+
+          {/* Quick Actions */}
+          <div className="flex items-center gap-2 shrink-0 flex-wrap">
+            <button
+              onClick={() => refetch()}
+              disabled={isRefetching}
+              className="p-2 rounded-full bg-slate-50 hover:bg-slate-100 border border-slate-200/80 text-slate-600 hover:text-[#0A1931] transition-all cursor-pointer disabled:opacity-50"
+              title="Refresh notifications"
+            >
+              <RefreshCw className={`w-4 h-4 ${isRefetching ? 'animate-spin text-blue-600' : ''}`} />
+            </button>
+
+            {unreadCount > 0 && (
+              <button
+                onClick={() => markAllReadMutation.mutate()}
+                disabled={markAllReadMutation.isPending}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-100 text-xs font-semibold transition-all cursor-pointer"
+              >
+                <CheckCheck className="w-3.5 h-3.5" />
+                <span>Mark All Read</span>
+              </button>
+            )}
+
+            {notifications.length > 0 && (
+              <button
+                onClick={() => {
+                  if (confirm("Are you sure you want to clear all notifications?")) {
+                    deleteAllMutation.mutate();
+                  }
+                }}
+                disabled={deleteAllMutation.isPending}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-100 text-xs font-semibold transition-all cursor-pointer"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>Clear All</span>
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Filter Segmented Control */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setFilter('all')}
+            className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+              filter === 'all'
+                ? 'bg-[#0f2f63] text-white shadow-xs'
+                : 'bg-white border border-slate-200/80 text-slate-600 hover:bg-slate-50'
+            }`}
+          >
+            All Updates ({notifications.length})
+          </button>
+          <button
+            onClick={() => setFilter('unread')}
+            className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+              filter === 'unread'
+                ? 'bg-[#0f2f63] text-white shadow-xs'
+                : 'bg-white border border-slate-200/80 text-slate-600 hover:bg-slate-50'
+            }`}
+          >
+            Unread ({unreadCount})
+          </button>
+        </div>
+
+        {/* Notifications Feed */}
+        {isLoading ? (
+          <AppLoader variant="page" message="Loading notifications..." />
+        ) : filteredNotifications.length > 0 ? (
+          <div className="bg-white rounded-[1.75rem] border border-slate-200/80 divide-y divide-slate-100 overflow-hidden shadow-xs">
+            {filteredNotifications.map((n) => {
+              const isUnread = !n.isRead && !(n as any).is_read;
+              return (
+                <div
+                  key={n.id}
+                  onClick={() => handleNotificationClick(n)}
+                  className={`p-4 sm:p-5 flex items-start gap-3.5 transition-colors cursor-pointer group ${
+                    isUnread ? 'bg-blue-50/30 hover:bg-blue-50/50' : 'hover:bg-slate-50/80'
+                  }`}
+                >
+                  {getNotificationIcon(n.type)}
+
+                  <div className="min-w-0 flex-1 space-y-1">
+                    <div className="flex items-center justify-between gap-2">
+                      <h3 className={`text-sm font-bold truncate ${isUnread ? 'text-[#0A1931]' : 'text-slate-800'}`}>
+                        {n.title}
+                      </h3>
+                      <span className="text-[11px] font-medium text-slate-400 shrink-0">
+                        {n.createdAt || (n as any).created_at
+                          ? formatDistanceToNow(new Date(n.createdAt || (n as any).created_at), { addSuffix: true })
+                          : 'Just now'}
+                      </span>
+                    </div>
+
+                    <p className="text-xs text-slate-600 leading-relaxed font-normal">
+                      {n.message}
+                    </p>
+
+                    <div className="flex items-center gap-3 pt-1">
+                      {n.link && (
+                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-600 group-hover:underline">
+                          <span>View Details</span>
+                          <ChevronRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+                        </span>
+                      )}
+
+                      {isUnread && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            markReadMutation.mutate(n.id);
+                          }}
+                          className="text-[11px] font-medium text-slate-500 hover:text-blue-600"
+                        >
+                          Mark as read
+                        </button>
+                      )}
+
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          deleteMutation.mutate(n.id);
+                        }}
+                        className="text-[11px] font-medium text-slate-400 hover:text-rose-600 ml-auto"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+
+                  {isUnread && (
+                    <span className="w-2.5 h-2.5 rounded-full bg-blue-600 shrink-0 mt-1.5" title="Unread" />
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          /* Empty State */
+          <div className="bg-white rounded-[2rem] border border-slate-200/80 p-12 text-center max-w-lg mx-auto space-y-4 shadow-xs">
+            <div className="w-16 h-16 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center mx-auto border border-blue-100 shadow-2xs">
+              <BellOff className="w-8 h-8" />
+            </div>
+            <h2 className="text-lg sm:text-xl font-bold text-[#0A1931]">
+              {filter === 'unread' ? 'No unread notifications' : 'No notifications yet'}
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-500 leading-relaxed max-w-sm mx-auto">
+              {filter === 'unread' 
+                ? 'You are all caught up! When you receive job updates or messages, they will appear here.'
+                : 'When employers message you, candidates apply, or status changes occur, real-time alerts will be delivered here.'}
+            </p>
+            {filter === 'unread' && (
+              <button
+                onClick={() => setFilter('all')}
+                className="mt-2 text-xs font-bold text-blue-600 hover:underline cursor-pointer"
+              >
+                View all notifications
+              </button>
+            )}
+          </div>
+        )}
+
+      </div>
+    </div>
+  );
+};
+
+export default NotificationsPage;

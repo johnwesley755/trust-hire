@@ -50,3 +50,15 @@ export function getFirebaseMessaging(): Messaging | null {
 export const isFirebaseAdminReady = (): boolean => {
   return getApps().length > 0 && messagingInstance !== null;
 };
+
+export const getFirebaseAdminStatus = () => {
+  const serviceAccount = getFirebaseServiceAccount();
+  return {
+    isReady: isFirebaseAdminReady(),
+    hasApp: Boolean(appInstance),
+    hasMessaging: Boolean(messagingInstance),
+    projectId: serviceAccount?.project_id || null,
+    clientEmail: serviceAccount?.client_email || null,
+    hasPrivateKey: Boolean(serviceAccount?.private_key)
+  };
+};

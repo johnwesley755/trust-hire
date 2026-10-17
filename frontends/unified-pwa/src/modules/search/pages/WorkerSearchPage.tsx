@@ -150,7 +150,7 @@ export const WorkerSearchPage = () => {
   const hasActiveFilters = Boolean(query || city || experience !== 'all' || selectedTrade !== 'All');
 
   return (
-    <div className="w-full min-h-screen p-2 sm:p-3 bg-white font-['Onest',system-ui,sans-serif] text-[#0a0a0a]">
+    <div className="w-full min-h-screen p-2 sm:p-3 bg-white font-['Onest',system-ui,sans-serif] text-[#0A1931]">
       <div className="max-w-7xl mx-auto space-y-6">
         
         {/* 1. Header Hero Banner Replicating Landing Page Navy Aesthetic */}
@@ -173,12 +173,12 @@ export const WorkerSearchPage = () => {
         {/* 2. Mobile Quick Filter Action Row (Visible on Mobile Only) */}
         <div className="lg:hidden px-1">
           <div className="flex items-center justify-between gap-3">
-            <span className="text-xs font-medium text-[#717784]">
-              <strong className="text-[#0a0a0a] font-bold">{results.length}</strong> verified specialists
+            <span className="text-xs font-medium text-slate-500">
+              <strong className="text-[#0A1931] font-bold">{results.length}</strong> verified specialists
             </span>
             <button
               onClick={() => setIsMobileFilterOpen(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-[#f4f4f4] hover:bg-[#e6e8ec] border border-[#e6e8ec] rounded-full text-xs font-medium uppercase text-[#0a0a0a] shadow-xs active:scale-95 transition-all cursor-pointer"
+              className="flex items-center gap-2 px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200/80 rounded-full text-xs font-medium uppercase text-slate-700 shadow-xs active:scale-95 transition-all cursor-pointer"
             >
               <SlidersHorizontal className="w-3.5 h-3.5 text-[#0f2f63]" />
               <span>Filters</span>
@@ -195,11 +195,11 @@ export const WorkerSearchPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           
           {/* DESKTOP LEFT COLUMN: Talent Filter Sidebar (Hidden on mobile) */}
-          <div className="hidden lg:block lg:col-span-3 bg-[#f4f4f4] rounded-[1.5rem] p-5 sm:p-6 border border-[#e6e8ec] space-y-6 lg:sticky lg:top-4 lg:self-start lg:max-h-[calc(100vh-2rem)] lg:overflow-y-auto">
-            <div className="flex items-center justify-between pb-3 border-b border-[#e6e8ec]">
+          <div className="hidden lg:block lg:col-span-3 bg-white rounded-[1.5rem] p-5 sm:p-6 border border-slate-200/80 shadow-xs space-y-6 lg:sticky lg:top-4 lg:self-start lg:max-h-[calc(100vh-2rem)] lg:overflow-y-auto">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2">
                 <SlidersHorizontal className="w-4 h-4 text-[#0f2f63]" />
-                <h2 className="text-sm font-medium uppercase text-[#0a0a0a]">
+                <h2 className="text-sm font-medium uppercase text-[#0A1931]">
                   Talent Filters
                 </h2>
               </div>
@@ -216,7 +216,7 @@ export const WorkerSearchPage = () => {
 
             {/* Job Category */}
             <div className="space-y-2">
-              <span className="text-[10px] font-medium uppercase text-[#717784]">
+              <span className="text-[10px] font-medium uppercase text-slate-500">
                 Industry & Category
               </span>
               <div className="space-y-1">
@@ -232,7 +232,7 @@ export const WorkerSearchPage = () => {
                       className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all text-left cursor-pointer ${
                         isSelected
                           ? 'bg-[#0f2f63] text-white shadow-xs'
-                          : 'bg-white/80 hover:bg-white text-[#0a0a0a] border border-[#e6e8ec]/80 hover:border-[#0f2f63]/30'
+                          : 'bg-slate-50/80 hover:bg-slate-100/80 text-slate-700 border border-slate-200/60 hover:border-slate-300'
                       }`}
                     >
                       <span>{cat}</span>
@@ -244,8 +244,8 @@ export const WorkerSearchPage = () => {
             </div>
 
             {/* Experience Level Filter */}
-            <div className="space-y-2 pt-4 border-t border-[#e6e8ec]">
-              <span className="text-[10px] font-medium uppercase text-[#717784]">
+            <div className="space-y-2 pt-4 border-t border-slate-100">
+              <span className="text-[10px] font-medium uppercase text-slate-500">
                 Experience Level
               </span>
               <div className="space-y-1">
@@ -261,7 +261,7 @@ export const WorkerSearchPage = () => {
                       className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all text-left cursor-pointer ${
                         isSelected
                           ? 'bg-[#0f2f63] text-white shadow-xs'
-                          : 'bg-white/80 hover:bg-white text-[#0a0a0a] border border-[#e6e8ec]/80 hover:border-[#0f2f63]/30'
+                          : 'bg-slate-50/80 hover:bg-slate-100/80 text-slate-700 border border-slate-200/60 hover:border-slate-300'
                       }`}
                     >
                       <span>{el.label}</span>
@@ -280,8 +280,8 @@ export const WorkerSearchPage = () => {
             {/* Header Result Count */}
             <div className="flex items-center justify-between px-1 gap-2 flex-wrap">
               <div className="flex items-center gap-3">
-                <span className="text-xs font-medium text-[#717784]">
-                  <strong className="text-[#0a0a0a] font-bold">{results.length}</strong> verified specialists available
+                <span className="text-xs font-medium text-slate-500">
+                  <strong className="text-[#0A1931] font-bold">{results.length}</strong> verified specialists available
                 </span>
                 <button
                   type="button"
@@ -339,7 +339,7 @@ export const WorkerSearchPage = () => {
                       <div
                         key={worker.userId}
                         onClick={() => navigate(`/worker/${worker.userId}`)}
-                        className="bg-white rounded-[1.75rem] p-5 sm:p-6 border border-[#e6e8ec] hover:border-[#0f2f63]/50 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 group cursor-pointer space-y-4 shadow-xs relative overflow-hidden"
+                        className="bg-white rounded-[1.75rem] p-5 sm:p-6 border border-slate-200/80 hover:border-slate-300 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 group cursor-pointer space-y-4 shadow-xs relative overflow-hidden"
                       >
                         {/* Card Header Cluster */}
                         <div className="flex items-start justify-between gap-3">
@@ -359,7 +359,7 @@ export const WorkerSearchPage = () => {
 
                             <div className="min-w-0 space-y-0.5">
                               <div className="flex items-center gap-2 flex-wrap">
-                                <h3 className="text-base sm:text-lg font-semibold text-[#0a0a0a] group-hover:text-[#0f2f63] transition-colors truncate">
+                                <h3 className="text-base sm:text-lg font-semibold text-[#0A1931] group-hover:text-blue-600 transition-colors truncate">
                                   {worker.name}
                                 </h3>
                                 {worker.isVerified && (
@@ -370,13 +370,13 @@ export const WorkerSearchPage = () => {
                                 )}
                               </div>
 
-                              <div className="flex items-center gap-2 text-xs text-[#717784] font-medium flex-wrap">
-                                <span className="inline-flex items-center gap-1 text-[#0a0a0a] font-medium">
+                              <div className="flex items-center gap-2 text-xs text-slate-500 font-medium flex-wrap">
+                                <span className="inline-flex items-center gap-1 text-slate-700 font-medium">
                                   <MapPin className="w-3.5 h-3.5 text-[#2563c9]" />
                                   <span>{worker.city || worker.location || 'Local Area'}</span>
                                 </span>
-                                <span className="text-[#e6e8ec]">•</span>
-                                <span className="px-2.5 py-0.5 bg-[#0f2f63]/5 text-[#0f2f63] border border-[#0f2f63]/10 rounded-full font-medium text-[11px]">
+                                <span className="text-slate-300">•</span>
+                                <span className="px-2.5 py-0.5 bg-blue-50 text-[#0f2f63] border border-blue-100/60 rounded-full font-medium text-[11px]">
                                   {displayRole}
                                 </span>
                               </div>
@@ -406,7 +406,7 @@ export const WorkerSearchPage = () => {
                               className={`p-2.5 rounded-full border transition-all cursor-pointer ${
                                 (isWorkerSaved(worker.userId) || worker.isSaved)
                                   ? 'bg-[#0f2f63] border-[#0f2f63] text-white shadow-xs'
-                                  : 'bg-[#f4f4f4] border-[#e6e8ec] text-[#717784] hover:text-[#0a0a0a] hover:bg-white'
+                                  : 'bg-slate-50 border-slate-200/80 text-slate-400 hover:text-slate-700 hover:bg-slate-100'
                               }`}
                               title={(isWorkerSaved(worker.userId) || worker.isSaved) ? 'Remove from Saved' : 'Save Profile'}
                             >
@@ -417,7 +417,7 @@ export const WorkerSearchPage = () => {
 
                         {/* Bio Snippet */}
                         {worker.bio && (
-                          <p className="text-xs text-[#717784] line-clamp-2 leading-relaxed font-normal">
+                          <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed font-normal">
                             {worker.bio}
                           </p>
                         )}
@@ -428,13 +428,13 @@ export const WorkerSearchPage = () => {
                             {skillList.slice(0, 5).map((skill: string, idx: number) => (
                               <span
                                 key={idx}
-                                className="px-3 py-1 bg-[#f4f4f4] hover:bg-[#e6e8ec] text-[#0a0a0a] text-xs font-medium rounded-full border border-transparent transition-colors"
+                                className="px-3 py-1 bg-slate-100/90 hover:bg-slate-200/80 text-slate-700 text-xs font-medium rounded-full border border-slate-200/60 transition-colors"
                               >
                                 {skill}
                               </span>
                             ))}
                             {skillList.length > 5 && (
-                              <span className="px-2.5 py-1 text-[#717784] text-xs font-medium">
+                              <span className="px-2.5 py-1 text-slate-500 text-xs font-medium">
                                 +{skillList.length - 5} more
                               </span>
                             )}
@@ -444,7 +444,7 @@ export const WorkerSearchPage = () => {
                      
 
                         {/* Card Footer: Live Status & View Profile CTA */}
-                        <div className="flex items-center justify-between pt-3 border-t border-[#e6e8ec] text-xs">
+                        <div className="flex items-center justify-between pt-3 border-t border-slate-100 text-xs">
                           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-medium border border-emerald-100/60">
                             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
                             <span>Available for Direct Hire</span>
@@ -478,19 +478,19 @@ export const WorkerSearchPage = () => {
                     setCurrentPage(1);
                   }}
                   itemName="specialists"
-                  className="rounded-[1.5rem] border border-[#e6e8ec] bg-white p-3 shadow-xs"
+                  className="rounded-[1.5rem] border border-slate-200/80 bg-white p-3 shadow-xs"
                 />
               </div>
             ) : (
-              <div className="bg-[#f4f4f4] rounded-[1.5rem] p-10 border border-[#e6e8ec] text-center space-y-4">
-                <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center mx-auto text-[#717784] shadow-xs">
+              <div className="bg-white rounded-[1.5rem] p-10 border border-slate-200/80 text-center space-y-4 shadow-xs">
+                <div className="w-14 h-14 bg-slate-50 rounded-2xl flex items-center justify-center mx-auto text-slate-400 border border-slate-200/60 shadow-xs">
                   <Users className="w-7 h-7" />
                 </div>
                 <div className="space-y-1">
-                  <h3 className="text-base font-medium uppercase text-[#0a0a0a]">
+                  <h3 className="text-base font-medium uppercase text-[#0A1931]">
                     No verified workers found
                   </h3>
-                  <p className="text-xs text-[#717784] max-w-sm mx-auto leading-relaxed">
+                  <p className="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
                     Try loosening your criteria or search across different cities to see available technicians.
                   </p>
                 </div>
@@ -530,7 +530,7 @@ export const WorkerSearchPage = () => {
 
               <Link
                 to="/post-job"
-                className="relative z-10 w-full py-2.5 px-4 bg-white text-[#0f2f63] hover:bg-[#f4f4f4] rounded-full font-medium uppercase text-xs flex items-center justify-center gap-2 transition-all shadow-sm active:scale-95 cursor-pointer"
+                className="relative z-10 w-full py-2.5 px-4 bg-white text-[#0f2f63] hover:bg-slate-100 rounded-full font-medium uppercase text-xs flex items-center justify-center gap-2 transition-all shadow-sm active:scale-95 cursor-pointer"
               >
                 <PlusCircle className="w-4 h-4 text-[#0f2f63]" />
                 <span>Post a Job Opening</span>
@@ -538,12 +538,12 @@ export const WorkerSearchPage = () => {
             </div>
 
             {/* Hiring Guarantee Info Card */}
-            <div className="rounded-[1.5rem] bg-[#f4f4f4] p-5 sm:p-6 border border-[#e6e8ec] space-y-4 shadow-xs">
-              <div className="flex items-center gap-2 text-[#0a0a0a] font-medium text-xs uppercase">
+            <div className="rounded-[1.5rem] bg-white p-5 sm:p-6 border border-slate-200/80 space-y-4 shadow-xs">
+              <div className="flex items-center gap-2 text-[#0A1931] font-medium text-xs uppercase">
                 <ShieldCheck className="w-4 h-4 text-emerald-600" />
                 <span>TrustHyre Verification Standard</span>
               </div>
-              <ul className="text-xs text-[#717784] space-y-2.5 font-medium">
+              <ul className="text-xs text-slate-500 space-y-2.5 font-medium">
                 <li className="flex items-center gap-2.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 shrink-0" />
                   <span>Aadhaar & biometric ID verified</span>
@@ -571,19 +571,19 @@ export const WorkerSearchPage = () => {
       {/* MOBILE FILTER MODAL / BOTTOM SHEET */}
       {isMobileFilterOpen && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-xs p-0 sm:p-4">
-          <div className="bg-white w-full max-w-lg rounded-t-[2rem] sm:rounded-[2rem] p-6 space-y-6 max-h-[85vh] overflow-y-auto animate-in slide-in-from-bottom duration-200 shadow-2xl border border-[#e6e8ec]">
+          <div className="bg-white w-full max-w-lg rounded-t-[2rem] sm:rounded-[2rem] p-6 space-y-6 max-h-[85vh] overflow-y-auto animate-in slide-in-from-bottom duration-200 shadow-2xl border border-slate-200/80">
             
             {/* Modal Header */}
-            <div className="flex items-center justify-between pb-3 border-b border-[#e6e8ec]">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2">
                 <SlidersHorizontal className="w-4 h-4 text-[#0f2f63]" />
-                <h3 className="text-base font-medium uppercase text-[#0a0a0a]">
+                <h3 className="text-base font-medium uppercase text-[#0A1931]">
                   Filter Talent
                 </h3>
               </div>
               <button
                 onClick={() => setIsMobileFilterOpen(false)}
-                className="w-8 h-8 rounded-full bg-[#f4f4f4] hover:bg-[#e6e8ec] flex items-center justify-center text-[#717784] transition-colors cursor-pointer"
+                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 transition-colors cursor-pointer"
                 aria-label="Close filters"
               >
                 <X className="w-4 h-4" />
@@ -592,7 +592,7 @@ export const WorkerSearchPage = () => {
 
             {/* Job Categories */}
             <div className="space-y-2.5">
-              <span className="text-[10px] font-medium uppercase text-[#717784]">
+              <span className="text-[10px] font-medium uppercase text-slate-500">
                 Industry & Category
               </span>
               <div className="grid grid-cols-2 gap-2">
@@ -605,7 +605,7 @@ export const WorkerSearchPage = () => {
                       className={`px-3 py-2.5 rounded-xl text-xs font-medium text-left transition-all flex items-center justify-between cursor-pointer ${
                         isSelected
                           ? 'bg-[#0f2f63] text-white shadow-xs'
-                          : 'bg-[#f4f4f4] text-[#0a0a0a] hover:bg-[#e6e8ec] border border-transparent'
+                          : 'bg-slate-50 text-slate-700 hover:bg-slate-100 border border-slate-200/60'
                       }`}
                     >
                       <span>{cat}</span>
@@ -617,8 +617,8 @@ export const WorkerSearchPage = () => {
             </div>
 
             {/* Experience Levels */}
-            <div className="space-y-2.5 pt-3 border-t border-[#e6e8ec]">
-              <span className="text-[10px] font-medium uppercase text-[#717784]">
+            <div className="space-y-2.5 pt-3 border-t border-slate-100">
+              <span className="text-[10px] font-medium uppercase text-slate-500">
                 Experience Level
               </span>
               <div className="space-y-1.5">
@@ -631,7 +631,7 @@ export const WorkerSearchPage = () => {
                       className={`w-full px-3.5 py-2.5 rounded-xl text-xs font-medium text-left transition-all flex items-center justify-between cursor-pointer ${
                         isSelected
                           ? 'bg-[#0f2f63] text-white shadow-xs'
-                          : 'bg-[#f4f4f4] text-[#0a0a0a] hover:bg-[#e6e8ec] border border-transparent'
+                          : 'bg-slate-50 text-slate-700 hover:bg-slate-100 border border-slate-200/60'
                       }`}
                     >
                       <span>{el.label}</span>
@@ -643,14 +643,14 @@ export const WorkerSearchPage = () => {
             </div>
 
             {/* Modal Actions */}
-            <div className="pt-4 border-t border-[#e6e8ec] flex items-center gap-3">
+            <div className="pt-4 border-t border-slate-100 flex items-center gap-3">
               <button
                 type="button"
                 onClick={() => {
                   clearFilters();
                   setIsMobileFilterOpen(false);
                 }}
-                className="flex-1 py-3 bg-[#f4f4f4] hover:bg-[#e6e8ec] text-[#0a0a0a] rounded-full text-xs font-medium uppercase transition-colors cursor-pointer"
+                className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-full text-xs font-medium uppercase transition-colors cursor-pointer"
               >
                 Reset
               </button>

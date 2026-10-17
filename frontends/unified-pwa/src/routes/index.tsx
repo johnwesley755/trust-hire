@@ -20,6 +20,7 @@ import ForgotPasswordPage from '../modules/auth/pages/ForgotPasswordPage';
 import ResetPasswordPage from '../modules/auth/pages/ResetPasswordPage';
 import OnboardingPage from '../modules/profile/pages/OnboardingPage';
 import ProfilePage from '../modules/profile/pages/ProfilePage';
+import NotificationsPage from '../modules/dashboard/pages/NotificationsPage';
 import { SettingsPage } from '../modules/settings/pages/SettingsPage';
 import TermsPage from '../modules/landing/pages/TermsPage';
 import PrivacyPage from '../modules/landing/pages/PrivacyPage';
@@ -180,6 +181,10 @@ export const router = createBrowserRouter([
           {
             path: '/settings',
             element: <SettingsPage />,
+          },
+          {
+            path: '/notifications',
+            element: <NotificationsPage />,
           },
         ],
       },

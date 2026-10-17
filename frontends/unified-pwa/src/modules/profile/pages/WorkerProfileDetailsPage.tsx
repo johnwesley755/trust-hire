@@ -290,7 +290,7 @@ export default function WorkerProfileDetailsPage() {
       <main className="max-w-7xl mx-auto space-y-6 pb-20">
         
         {/* 1. HERO PROFILE CARD (Landing Page Aesthetic) */}
-        <div className="bg-[#f4f4f4] rounded-[2rem] p-6 sm:p-8 border border-[#e6e8ec] relative overflow-hidden">
+        <div className="bg-white rounded-[2rem] p-6 sm:p-8 border border-slate-200/80 shadow-xs relative overflow-hidden">
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
             
             {/* Identity & Avatar Cluster */}
@@ -328,18 +328,18 @@ export default function WorkerProfileDetailsPage() {
               {/* Name, Trade, Badges */}
               <div className="space-y-2">
                 <div className="flex flex-wrap items-center gap-2.5">
-                  <h1 className="text-2xl sm:text-3xl font-bold text-[#0a0a0a]">
+                  <h1 className="text-2xl sm:text-3xl font-bold text-[#0A1931]">
                     {profile?.fullName || `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || 'Candidate Profile'}
                   </h1>
                   <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold ${
-                    isVerified ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-[#e6e8ec] text-[#717784]'
+                    isVerified ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-slate-100 text-slate-600 border border-slate-200/60'
                   }`}>
                     <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
                     <span>{isVerified ? 'Biometric Verified' : 'Pending Verification'}</span>
                   </span>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-2 text-xs font-medium text-[#717784]">
+                <div className="flex flex-wrap items-center gap-2 text-xs font-medium text-slate-500">
                   <span className="px-3 py-1 bg-[#0f2f63]/5 text-[#0f2f63] border border-[#0f2f63]/10 rounded-full font-semibold">
                     {currentTrade}
                   </span>
@@ -372,14 +372,14 @@ export default function WorkerProfileDetailsPage() {
               </button>
               <button 
                 onClick={() => setIsEditModalOpen(true)}
-                className="col-span-1 inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-white hover:bg-slate-50 border border-[#e6e8ec] text-[#0a0a0a] rounded-full font-medium text-xs shadow-2xs transition-all cursor-pointer uppercase active:scale-95"
+                className="col-span-1 inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-white hover:bg-slate-50 border border-slate-200/80 text-[#0A1931] rounded-full font-medium text-xs shadow-2xs transition-all cursor-pointer uppercase active:scale-95"
               >
-                <Edit2 className="w-3.5 h-3.5 text-[#717784]" />
+                <Edit2 className="w-3.5 h-3.5 text-slate-500" />
                 <span>Edit Profile</span>
               </button>
               <Link 
                 to="/onboarding"
-                className="col-span-1 inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-white hover:bg-slate-50 border border-[#e6e8ec] text-[#0a0a0a] rounded-full font-medium text-xs shadow-2xs transition-all cursor-pointer uppercase active:scale-95"
+                className="col-span-1 inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-white hover:bg-slate-50 border border-slate-200/80 text-[#0A1931] rounded-full font-medium text-xs shadow-2xs transition-all cursor-pointer uppercase active:scale-95"
                 title="Rerun onboarding wizard"
               >
                 <Sparkles className="w-3.5 h-3.5 text-amber-500" />
@@ -391,18 +391,18 @@ export default function WorkerProfileDetailsPage() {
         </div>
 
         
-        {/* 3. MAIN 2-COLUMN DOSSIER GRID */}
+        {/* 3. MAIN 2-COLUMN PROFILE GRID */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           
           {/* LEFT COLUMN (4 Cols): Official Contact, Trust Tier & Quick Stats (order-2 on mobile so tabs are immediately visible) */}
           <div className="col-span-1 lg:col-span-4 space-y-6 order-2 lg:order-1">
             
             {/* Trust Level Tier Progression Card */}
-            <div className="bg-[#f4f4f4] rounded-[1.75rem] p-6 border border-[#e6e8ec] space-y-4">
+            <div className="bg-white rounded-[1.75rem] p-6 border border-slate-200/80 shadow-xs space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <ShieldCheck className="w-4 h-4 text-[#0f2f63]" />
-                  <h3 className="text-xs font-bold uppercase text-[#717784]">
+                  <h3 className="text-xs font-bold uppercase text-slate-500">
                     Trust Progression
                   </h3>
                 </div>
@@ -412,9 +412,9 @@ export default function WorkerProfileDetailsPage() {
                 </Link>
               </div>
 
-              <div className="bg-white p-4 rounded-[1.25rem] border border-[#e6e8ec] space-y-3">
+              <div className="bg-slate-50/80 p-4 rounded-[1.25rem] border border-slate-100 space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-bold text-[#0a0a0a]">
+                  <span className="text-sm font-bold text-[#0A1931]">
                     Level 2: Verified Specialist
                   </span>
                   <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
@@ -422,78 +422,78 @@ export default function WorkerProfileDetailsPage() {
                   </span>
                 </div>
                 {/* Progress bar */}
-                <div className="w-full bg-[#f4f4f4] h-2 rounded-full overflow-hidden border border-[#e6e8ec]">
+                <div className="w-full bg-slate-200/70 h-2 rounded-full overflow-hidden">
                   <div className="bg-[#0f2f63] h-full rounded-full" style={{ width: '65%' }}></div>
                 </div>
-                <p className="text-[11px] text-[#717784] font-medium leading-relaxed">
+                <p className="text-[11px] text-slate-500 font-medium leading-relaxed">
                   Complete 2 more verified shifts or pass a trade test to unlock Level 3 direct wage premiums.
                 </p>
               </div>
 
               {/* Quick Metrics 2x2 Grid */}
               <div className="grid grid-cols-2 gap-3 pt-1">
-                <div className="bg-white p-3.5 rounded-2xl border border-[#e6e8ec] text-center">
-                  <p className="text-[10px] font-bold uppercase text-[#717784]">Completed</p>
-                  <p className="text-xl font-bold text-[#0a0a0a] mt-0.5">{completedJobsCount}</p>
-                  <p className="text-[10px] text-[#717784]">shifts</p>
+                <div className="bg-slate-50/80 p-3.5 rounded-2xl border border-slate-100 text-center">
+                  <p className="text-[10px] font-bold uppercase text-slate-500">Completed</p>
+                  <p className="text-xl font-bold text-[#0A1931] mt-0.5">{completedJobsCount}</p>
+                  <p className="text-[10px] text-slate-500">shifts</p>
                 </div>
-                <div className="bg-white p-3.5 rounded-2xl border border-[#e6e8ec] text-center">
-                  <p className="text-[10px] font-bold uppercase text-[#717784]">Rating</p>
+                <div className="bg-slate-50/80 p-3.5 rounded-2xl border border-slate-100 text-center">
+                  <p className="text-[10px] font-bold uppercase text-slate-500">Rating</p>
                   <div className="flex items-center justify-center gap-1 mt-0.5">
-                    <span className="text-xl font-bold text-[#0a0a0a]">{ratingDisplay}</span>
+                    <span className="text-xl font-bold text-[#0A1931]">{ratingDisplay}</span>
                     <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
                   </div>
-                  <p className="text-[10px] text-[#717784]">average</p>
+                  <p className="text-[10px] text-slate-500">average</p>
                 </div>
               </div>
             </div>
 
             {/* Official Contact & Identification Card */}
-            <div className="bg-[#f4f4f4] rounded-[1.75rem] p-6 border border-[#e6e8ec] space-y-4">
-              <div className="flex items-center gap-2 pb-2 border-b border-[#e6e8ec]">
+            <div className="bg-white rounded-[1.75rem] p-6 border border-slate-200/80 shadow-xs space-y-4">
+              <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
                 <UserIcon className="w-4 h-4 text-[#0f2f63]" />
-                <h3 className="text-xs font-bold uppercase text-[#717784]">
-                  Contact & Dossier Details
+                <h3 className="text-xs font-bold uppercase text-slate-500">
+                  Contact & Profile Details
                 </h3>
               </div>
 
               <div className="space-y-3 text-xs">
-                <div className="flex items-center justify-between py-1 border-b border-[#e6e8ec]">
-                  <span className="text-[#717784] font-medium flex items-center gap-1.5">
+                <div className="flex items-center justify-between py-1 border-b border-slate-100">
+                  <span className="text-slate-500 font-medium flex items-center gap-1.5">
                     <Phone className="w-3.5 h-3.5 text-[#0f2f63]" /> Phone
                   </span>
-                  <span className="font-bold text-[#0a0a0a]">{formattedPhone}</span>
+                  <span className="font-bold text-[#0A1931]">{formattedPhone}</span>
                 </div>
 
-                <div className="flex items-center justify-between py-1 border-b border-[#e6e8ec]">
-                  <span className="text-[#717784] font-medium flex items-center gap-1.5">
+                <div className="flex items-center justify-between py-1 border-b border-slate-100">
+                  <span className="text-slate-500 font-medium flex items-center gap-1.5">
                     <Mail className="w-3.5 h-3.5 text-[#0f2f63]" /> Email
                   </span>
-                  <span className="font-bold text-[#0a0a0a] truncate max-w-[150px]" title={displayEmail}>
+                  <span className="font-bold text-[#0A1931] truncate max-w-[150px]" title={displayEmail}>
                     {displayEmail}
                   </span>
                 </div>
 
                 {displayDob && (
-                  <div className="flex items-center justify-between py-1 border-b border-[#e6e8ec]">
-                    <span className="text-[#717784] font-medium flex items-center gap-1.5">
+                  <div className="flex items-center justify-between py-1 border-b border-slate-100">
+                    <span className="text-slate-500 font-medium flex items-center gap-1.5">
                       <Calendar className="w-3.5 h-3.5 text-[#0f2f63]" /> Date of Birth
                     </span>
-                    <span className="font-bold text-[#0a0a0a]">{displayDob}</span>
+                    <span className="font-bold text-[#0A1931]">{displayDob}</span>
                   </div>
                 )}
 
                 {displayGender && (
-                  <div className="flex items-center justify-between py-1 border-b border-[#e6e8ec]">
-                    <span className="text-[#717784] font-medium flex items-center gap-1.5">
+                  <div className="flex items-center justify-between py-1 border-b border-slate-100">
+                    <span className="text-slate-500 font-medium flex items-center gap-1.5">
                       <UserIcon className="w-3.5 h-3.5 text-[#0f2f63]" /> Gender
                     </span>
-                    <span className="font-bold text-[#0a0a0a]">{displayGender}</span>
+                    <span className="font-bold text-[#0A1931]">{displayGender}</span>
                   </div>
                 )}
 
                 <div className="flex items-center justify-between py-1">
-                  <span className="text-[#717784] font-medium flex items-center gap-1.5">
+                  <span className="text-slate-500 font-medium flex items-center gap-1.5">
                     <MessageSquare className="w-3.5 h-3.5 text-emerald-600" /> WhatsApp Alerts
                   </span>
                   <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
@@ -506,10 +506,10 @@ export default function WorkerProfileDetailsPage() {
             </div>
 
             {/* Work Zone & Live Location Card */}
-            <div className="bg-[#f4f4f4] rounded-[1.75rem] p-6 border border-[#e6e8ec] space-y-4">
-              <div className="flex items-center gap-2 pb-2 border-b border-[#e6e8ec]">
+            <div className="bg-white rounded-[1.75rem] p-6 border border-slate-200/80 shadow-xs space-y-4">
+              <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
                 <MapPinned className="w-4 h-4 text-[#0f2f63]" />
-                <h3 className="text-xs font-bold uppercase text-[#717784]">
+                <h3 className="text-xs font-bold uppercase text-slate-500">
                   Operational Zone & GPS
                 </h3>
               </div>
@@ -517,7 +517,7 @@ export default function WorkerProfileDetailsPage() {
               <div className="space-y-2 text-xs">
                 <div className="flex items-start gap-2">
                   <MapPin className="w-4 h-4 text-[#0f2f63] mt-0.5 shrink-0" />
-                  <p className="font-semibold text-[#0a0a0a]">
+                  <p className="font-semibold text-[#0A1931]">
                     {profile?.address || profile?.city || profile?.location || 'Location not specified'}
                   </p>
                 </div>
@@ -530,20 +530,20 @@ export default function WorkerProfileDetailsPage() {
                 )}
 
                 {locationStatus && (
-                  <p className="text-xs font-semibold text-[#0f2f63] bg-white p-2 rounded-lg border border-[#e6e8ec]">
+                  <p className="text-xs font-semibold text-[#0f2f63] bg-slate-50/80 p-2 rounded-lg border border-slate-200/60">
                     {locationStatus}
                   </p>
                 )}
 
                 {profile?.willingToRelocate && (
-                  <div className="p-3 bg-white rounded-xl border border-[#e6e8ec] text-xs space-y-1">
-                    <p className="font-bold text-[#0a0a0a] flex items-center gap-1.5">
+                  <div className="p-3 bg-slate-50/80 rounded-xl border border-slate-100 text-xs space-y-1">
+                    <p className="font-bold text-[#0A1931] flex items-center gap-1.5">
                       <Globe className="w-3.5 h-3.5 text-[#0f2f63]" /> Willing to relocate for work
                     </p>
                     {profile?.preferredCities && profile.preferredCities.length > 0 && (
                       <div className="flex flex-wrap gap-1 pt-1">
                         {profile.preferredCities.map((city, idx) => (
-                          <span key={idx} className="px-2 py-0.5 bg-[#f4f4f4] rounded text-[10px] font-semibold text-[#0a0a0a] border border-[#e6e8ec]">
+                          <span key={idx} className="px-2 py-0.5 bg-white rounded text-[10px] font-semibold text-[#0A1931] border border-slate-200/60 shadow-2xs">
                             {city}
                           </span>
                         ))}
@@ -555,7 +555,7 @@ export default function WorkerProfileDetailsPage() {
                 <button 
                   onClick={handleUpdateGPSLocation}
                   disabled={isLocating}
-                  className="w-full py-2.5 bg-white hover:bg-slate-50 text-[#0f2f63] font-medium text-xs rounded-full border border-[#e6e8ec] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 uppercase active:scale-95 shadow-2xs mt-2"
+                  className="w-full py-2.5 bg-slate-50 hover:bg-slate-100 text-[#0f2f63] font-medium text-xs rounded-full border border-slate-200 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 uppercase active:scale-95 shadow-2xs mt-2"
                 >
                   <MapPin className="w-3.5 h-3.5" />
                   <span>{isLocating ? 'Detecting Location...' : 'Update Live Location'}</span>
@@ -565,7 +565,7 @@ export default function WorkerProfileDetailsPage() {
 
           </div>
 
-          {/* RIGHT COLUMN (8 Cols): Tabbed Dossier Sections (order-1 on mobile so main tabs are immediately visible) */}
+          {/* RIGHT COLUMN (8 Cols): Tabbed Profile Sections (order-1 on mobile so main tabs are immediately visible) */}
           <div className="col-span-1 lg:col-span-8 space-y-6 order-1 lg:order-2">
             
             {/* Pill Tab Switcher */}
@@ -585,7 +585,7 @@ export default function WorkerProfileDetailsPage() {
                     className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-xs font-medium transition-all shrink-0 cursor-pointer ${
                       isSelected
                         ? 'bg-[#0f2f63] text-white shadow-xs'
-                        : 'bg-[#f4f4f4] hover:bg-[#e6e8ec] text-[#0a0a0a] border border-[#e6e8ec]'
+                        : 'bg-slate-100/90 hover:bg-slate-200/60 text-slate-700 border border-slate-200/60'
                     }`}
                   >
                     <Icon className="w-3.5 h-3.5" />
@@ -597,25 +597,25 @@ export default function WorkerProfileDetailsPage() {
 
             {/* TAB CONTENT: Academics */}
             {activeTab === 'academics' && (
-              <div className="bg-[#f4f4f4] rounded-[1.75rem] p-6 sm:p-7 border border-[#e6e8ec] space-y-6 animate-in fade-in duration-150">
-                <div className="flex items-center justify-between pb-3 border-b border-[#e6e8ec]">
+              <div className="bg-white rounded-[1.75rem] p-6 sm:p-7 border border-slate-200/80 shadow-xs space-y-6 animate-in fade-in duration-150">
+                <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                   <div className="flex items-center gap-2">
                     <GraduationCap className="w-4 h-4 text-[#0f2f63]" />
-                    <h3 className="text-sm font-bold text-[#0a0a0a]">
+                    <h3 className="text-sm font-bold text-[#0A1931]">
                       Educational Credentials & Academics
                     </h3>
                   </div>
                   {profile?.highestEducation && (
-                    <span className="px-3 py-1 bg-white text-[#0f2f63] text-xs font-semibold rounded-full border border-[#e6e8ec]">
+                    <span className="px-3 py-1 bg-slate-50/80 text-[#0f2f63] text-xs font-semibold rounded-full border border-slate-200/60">
                       {profile.highestEducation}
                     </span>
                   )}
                 </div>
 
                 <div className="grid sm:grid-cols-2 gap-4">
-                  <div className="p-4 bg-white rounded-2xl border border-[#e6e8ec] space-y-1">
-                    <span className="text-[10px] font-bold text-[#717784] uppercase">Highest Qualification</span>
-                    <p className="text-sm font-bold text-[#0a0a0a]">
+                  <div className="p-4 bg-slate-50/80 rounded-2xl border border-slate-100 space-y-1">
+                    <span className="text-[10px] font-bold text-slate-500 uppercase">Highest Qualification</span>
+                    <p className="text-sm font-bold text-[#0A1931]">
                       {profile?.highestEducation || 'High School / Secondary'}
                     </p>
                     <span className="inline-block text-[11px] font-semibold text-emerald-700">
@@ -623,16 +623,16 @@ export default function WorkerProfileDetailsPage() {
                     </span>
                   </div>
 
-                  <div className="p-4 bg-white rounded-2xl border border-[#e6e8ec] space-y-1">
-                    <span className="text-[10px] font-bold text-[#717784] uppercase">Degree / Specialization</span>
-                    <p className="text-sm font-bold text-[#0a0a0a]">
+                  <div className="p-4 bg-slate-50/80 rounded-2xl border border-slate-100 space-y-1">
+                    <span className="text-[10px] font-bold text-slate-500 uppercase">Degree / Specialization</span>
+                    <p className="text-sm font-bold text-[#0A1931]">
                       {profile?.degree || profile?.specialization || profile?.schoolMedium ? (
                         `${profile?.degree || ''} ${profile?.specialization ? `(${profile.specialization})` : ''} ${profile?.schoolMedium ? `- ${profile.schoolMedium}` : ''}`.trim()
                       ) : (
                         'Standard Secondary Education'
                       )}
                     </p>
-                    <p className="text-[11px] text-[#717784] font-medium">
+                    <p className="text-[11px] text-slate-500 font-medium">
                       {profile?.collegeName || 'Recognized Board / Technical Institute'}
                     </p>
                   </div>
@@ -640,27 +640,27 @@ export default function WorkerProfileDetailsPage() {
 
                 {/* Language Matrix */}
                 <div className="pt-2 space-y-3">
-                  <h4 className="text-xs font-bold uppercase text-[#717784] flex items-center gap-1.5">
+                  <h4 className="text-xs font-bold uppercase text-slate-500 flex items-center gap-1.5">
                     <Languages className="w-3.5 h-3.5 text-[#0f2f63]" /> Language Matrix
                   </h4>
                   <div className="grid sm:grid-cols-2 gap-4">
-                    <div className="p-4 bg-white rounded-2xl border border-[#e6e8ec] space-y-1">
-                      <span className="text-[10px] font-bold text-[#717784] uppercase">English Competency</span>
-                      <p className="text-sm font-bold text-[#0a0a0a]">{englishLevelLabel}</p>
-                      <p className="text-[11px] text-[#717784]">Standard workplace communication ready</p>
+                    <div className="p-4 bg-slate-50/80 rounded-2xl border border-slate-100 space-y-1">
+                      <span className="text-[10px] font-bold text-slate-500 uppercase">English Competency</span>
+                      <p className="text-sm font-bold text-[#0A1931]">{englishLevelLabel}</p>
+                      <p className="text-[11px] text-slate-500">Standard workplace communication ready</p>
                     </div>
 
-                    <div className="p-4 bg-white rounded-2xl border border-[#e6e8ec] space-y-1">
-                      <span className="text-[10px] font-bold text-[#717784] uppercase">Other Languages Known</span>
+                    <div className="p-4 bg-slate-50/80 rounded-2xl border border-slate-100 space-y-1">
+                      <span className="text-[10px] font-bold text-slate-500 uppercase">Other Languages Known</span>
                       <div className="flex flex-wrap gap-1.5 pt-1">
                         {profile?.languagesKnown && profile.languagesKnown.length > 0 ? (
                           profile.languagesKnown.map((lang, idx) => (
-                            <span key={idx} className="px-2.5 py-1 bg-[#f4f4f4] text-[#0a0a0a] text-xs font-semibold rounded-lg border border-[#e6e8ec]">
+                            <span key={idx} className="px-2.5 py-1 bg-slate-100/90 text-slate-700 text-xs font-semibold rounded-lg border border-slate-200/60 shadow-2xs">
                               {lang}
                             </span>
                           ))
                         ) : (
-                          <span className="text-xs text-[#717784] font-medium">English, Tamil, Hindi</span>
+                          <span className="text-xs text-slate-500 font-medium">English, Tamil, Hindi</span>
                         )}
                       </div>
                     </div>
@@ -671,11 +671,11 @@ export default function WorkerProfileDetailsPage() {
 
             {/* TAB CONTENT: Skills & Certifications */}
             {activeTab === 'skills' && (
-              <div className="bg-[#f4f4f4] rounded-[1.75rem] p-6 sm:p-7 border border-[#e6e8ec] space-y-6 animate-in fade-in duration-150">
-                <div className="flex items-center justify-between pb-3 border-b border-[#e6e8ec]">
+              <div className="bg-white rounded-[1.75rem] p-6 sm:p-7 border border-slate-200/80 shadow-xs space-y-6 animate-in fade-in duration-150">
+                <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                   <div className="flex items-center gap-2">
                     <Award className="w-4 h-4 text-[#0f2f63]" />
-                    <h3 className="text-sm font-bold text-[#0a0a0a]">
+                    <h3 className="text-sm font-bold text-[#0A1931]">
                       Verified Trade Skills & Certifications
                     </h3>
                   </div>
@@ -692,12 +692,12 @@ export default function WorkerProfileDetailsPage() {
                   {/* Preferred Roles */}
                   {profile?.preferredRoles && profile.preferredRoles.length > 0 && (
                     <div className="space-y-2">
-                      <span className="text-xs font-bold text-[#717784] uppercase">Primary Target Trades:</span>
+                      <span className="text-xs font-bold text-slate-500 uppercase">Primary Target Trades:</span>
                       <div className="flex flex-wrap gap-2">
                         {profile.preferredRoles.map((role, idx) => (
                           <div 
                             key={idx} 
-                            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border border-[#e6e8ec] text-[#0a0a0a] font-semibold text-xs shadow-2xs"
+                            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-50/80 border border-slate-200/60 text-[#0A1931] font-semibold text-xs shadow-2xs"
                           >
                             <Award className="w-3.5 h-3.5 text-[#0f2f63]" />
                             <span>{role}</span>
@@ -709,18 +709,18 @@ export default function WorkerProfileDetailsPage() {
 
                   {/* Registered Skills */}
                   <div className="space-y-2">
-                    <span className="text-xs font-bold text-[#717784] uppercase">Verified Competencies:</span>
+                    <span className="text-xs font-bold text-slate-500 uppercase">Verified Competencies:</span>
                     <div className="flex flex-wrap gap-2">
                       {profile?.skills?.split(',').filter(Boolean).map((skill, idx) => (
                         <div 
                           key={idx} 
-                          className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-[#e6e8ec] text-[#0a0a0a] font-semibold text-xs shadow-2xs hover:border-[#0f2f63]/40 transition-colors"
+                          className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-50/80 border border-slate-200/60 text-slate-700 font-semibold text-xs shadow-2xs hover:border-[#0f2f63]/40 transition-colors"
                         >
                           <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                           <span>{skill.trim()}</span>
                         </div>
                       )) || (
-                        <div className="text-[#717784] text-xs font-medium">
+                        <div className="text-slate-500 text-xs font-medium">
                           No competencies registered. Update your profile to add skills.
                         </div>
                       )}
@@ -732,11 +732,11 @@ export default function WorkerProfileDetailsPage() {
 
             {/* TAB CONTENT: Applications */}
             {activeTab === 'applications' && (
-              <div className="bg-[#f4f4f4] rounded-[1.75rem] border border-[#e6e8ec] overflow-hidden animate-in fade-in duration-150">
-                <div className="p-6 border-b border-[#e6e8ec] flex justify-between items-center">
+              <div className="bg-white rounded-[1.75rem] border border-slate-200/80 shadow-xs overflow-hidden animate-in fade-in duration-150">
+                <div className="p-6 border-b border-slate-100 flex justify-between items-center">
                   <div className="flex items-center gap-2">
                     <History className="w-4 h-4 text-[#0f2f63]" />
-                    <h3 className="text-sm font-bold text-[#0a0a0a]">
+                    <h3 className="text-sm font-bold text-[#0A1931]">
                       Recent Job Applications & Status
                     </h3>
                   </div>
@@ -746,14 +746,14 @@ export default function WorkerProfileDetailsPage() {
                   </Link>
                 </div>
 
-                <div className="divide-y divide-[#e6e8ec]">
+                <div className="divide-y divide-slate-100">
                   {myApplications.length === 0 ? (
                     <div className="p-10 text-center space-y-3">
-                      <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center mx-auto text-[#717784] border border-[#e6e8ec]">
+                      <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center mx-auto text-slate-500 border border-slate-200/60">
                         <Briefcase className="w-6 h-6 text-[#0f2f63]" />
                       </div>
-                      <h4 className="text-sm font-bold text-[#0a0a0a]">No job applications yet</h4>
-                      <p className="text-xs text-[#717784] max-w-sm mx-auto">
+                      <h4 className="text-sm font-bold text-[#0A1931]">No job applications yet</h4>
+                      <p className="text-xs text-slate-500 max-w-sm mx-auto">
                         Explore verified openings matching your skills to start working and earning on-time payouts.
                       </p>
                       <Link 
@@ -765,16 +765,16 @@ export default function WorkerProfileDetailsPage() {
                     </div>
                   ) : (
                     myApplications.slice(0, 5).map((app: any) => (
-                      <div key={app.id} className="p-4 sm:p-5 bg-white hover:bg-[#fbfbfb] transition-colors flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
+                      <div key={app.id} className="p-4 sm:p-5 bg-white hover:bg-slate-50/70 transition-colors flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
                         <div className="flex gap-3.5 items-center">
-                          <div className="w-10 h-10 rounded-xl bg-[#f4f4f4] border border-[#e6e8ec] flex items-center justify-center font-bold text-[#0f2f63] shrink-0">
+                          <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200/60 flex items-center justify-center font-bold text-[#0f2f63] shrink-0">
                             <Zap className="w-5 h-5" />
                           </div>
                           <div>
-                            <h4 className="font-bold text-xs sm:text-sm text-[#0a0a0a]">
+                            <h4 className="font-bold text-xs sm:text-sm text-[#0A1931]">
                               {app.job?.title || app.jobTitle || 'Job Role'}
                             </h4>
-                            <p className="text-[11px] text-[#717784] mt-0.5">
+                            <p className="text-[11px] text-slate-500 mt-0.5">
                               {app.job?.location || app.job?.city || 'Local area'}
                             </p>
                           </div>
@@ -786,7 +786,7 @@ export default function WorkerProfileDetailsPage() {
                           <span className={`text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full mt-1 border ${
                             app.status === 'ACCEPTED' ? 'bg-emerald-50 text-emerald-800 border-emerald-200' :
                             app.status === 'REJECTED' ? 'bg-rose-50 text-rose-800 border-rose-200' :
-                            'bg-[#f4f4f4] text-[#0a0a0a] border-[#e6e8ec]'
+                            'bg-slate-100 text-slate-700 border-slate-200/60'
                           }`}>
                             {app.status}
                           </span>
@@ -800,14 +800,14 @@ export default function WorkerProfileDetailsPage() {
 
             {/* TAB CONTENT: About / Bio */}
             {activeTab === 'about' && (
-              <div className="bg-[#f4f4f4] rounded-[1.75rem] p-6 sm:p-7 border border-[#e6e8ec] space-y-4 animate-in fade-in duration-150">
-                <div className="flex items-center gap-2 pb-3 border-b border-[#e6e8ec]">
+              <div className="bg-white rounded-[1.75rem] p-6 sm:p-7 border border-slate-200/80 shadow-xs space-y-4 animate-in fade-in duration-150">
+                <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
                   <FileText className="w-4 h-4 text-[#0f2f63]" />
-                  <h3 className="text-sm font-bold text-[#0a0a0a]">
+                  <h3 className="text-sm font-bold text-[#0A1931]">
                     Professional Summary & Bio
                   </h3>
                 </div>
-                <div className="bg-white p-5 rounded-2xl border border-[#e6e8ec] text-xs text-[#0a0a0a] leading-relaxed">
+                <div className="bg-slate-50/80 p-5 rounded-2xl border border-slate-100 text-xs text-slate-700 leading-relaxed">
                   <p>{profile?.bio || 'Dedicated professional with verified skills, strong work ethic, and quick learning capabilities. Committed to punctual delivery, clean trade standards, and reliable attendance across client assignments.'}</p>
                 </div>
               </div>

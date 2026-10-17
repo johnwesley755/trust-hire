@@ -76,7 +76,7 @@ export const WorkerSearchHero: React.FC<WorkerSearchHeroProps> = ({
   const isDetecting = internalLocating || isLocating;
 
   return (
-    <div className="bg-[#f4f4f4] rounded-[1.75rem] border border-[#e6e8ec] p-5 sm:p-6 mb-6 shadow-xs font-['Onest',system-ui,sans-serif] space-y-4">
+    <div className="bg-white rounded-[1.75rem] border border-slate-200/80 p-5 sm:p-6 mb-6 shadow-xs font-['Onest',system-ui,sans-serif] space-y-4">
       
       {/* Top Row: Section Title, Counter & Location Detector */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -90,11 +90,11 @@ export const WorkerSearchHero: React.FC<WorkerSearchHeroProps> = ({
             </span>
           </div>
 
-          <h1 className="text-xl sm:text-2xl lg:text-3xl font-medium uppercase leading-tight text-[#0a0a0a]">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-medium uppercase leading-tight text-[#0A1931]">
             {resolvedTitle}
           </h1>
           
-          <p className="text-xs text-[#717784] font-normal leading-relaxed max-w-xl">
+          <p className="text-xs text-slate-500 font-normal leading-relaxed max-w-xl">
             {resolvedSubtitle}
           </p>
         </div>
@@ -103,9 +103,9 @@ export const WorkerSearchHero: React.FC<WorkerSearchHeroProps> = ({
         <div className="flex flex-wrap items-center gap-2.5 shrink-0 self-start md:self-auto">
           
           {/* Active Total Specialists Badge */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-[#e6e8ec] text-xs font-medium text-[#0a0a0a] shadow-xs">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-50 border border-slate-200/80 text-xs font-medium text-slate-700 shadow-xs">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span><strong className="font-semibold text-[#0a0a0a]">{totalWorkers}</strong> Specialists Available</span>
+            <span><strong className="font-semibold text-[#0A1931]">{totalWorkers}</strong> Specialists Available</span>
           </div>
 
           {/* Quick Location Chip / Detector */}
@@ -127,7 +127,7 @@ export const WorkerSearchHero: React.FC<WorkerSearchHeroProps> = ({
               type="button"
               onClick={handleLocateClick}
               disabled={isDetecting}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white hover:bg-white/80 border border-[#e6e8ec] text-xs font-medium text-[#0a0a0a] shadow-xs transition-all active:scale-95 cursor-pointer disabled:opacity-60"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-slate-50 hover:bg-slate-100 border border-slate-200/80 text-xs font-medium text-slate-700 shadow-xs transition-all active:scale-95 cursor-pointer disabled:opacity-60"
             >
               {isDetecting ? (
                 <Loader2 className="w-3.5 h-3.5 text-[#0f2f63] animate-spin" />
@@ -158,8 +158,8 @@ export const WorkerSearchHero: React.FC<WorkerSearchHeroProps> = ({
       )}
 
       {/* Horizontal Trade Filter Pills */}
-      <div className="pt-2 border-t border-[#e6e8ec]/80 flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-        <span className="text-[10px] font-medium uppercase text-[#717784] shrink-0 mr-1 hidden sm:inline-block">
+      <div className="pt-2 border-t border-slate-100 flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+        <span className="text-[10px] font-medium uppercase text-slate-500 shrink-0 mr-1 hidden sm:inline-block">
           Categories:
         </span>
         {FEATURED_TRADES.map((trade) => {
@@ -171,7 +171,7 @@ export const WorkerSearchHero: React.FC<WorkerSearchHeroProps> = ({
               className={`px-3.5 py-1.5 rounded-full text-xs font-medium shrink-0 transition-all cursor-pointer ${
                 isSelected
                   ? 'bg-[#0f2f63] text-white shadow-xs'
-                  : 'bg-white border border-[#e6e8ec] text-[#0a0a0a] hover:border-[#0f2f63]/40'
+                  : 'bg-slate-50 hover:bg-slate-100 border border-slate-200/80 text-slate-700 hover:border-slate-300'
               }`}
             >
               {trade}

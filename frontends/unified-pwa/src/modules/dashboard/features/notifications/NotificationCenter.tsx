@@ -1,7 +1,23 @@
 import { useState, useRef, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { notificationService, type AppNotification } from '../../../../services/notification.service';
-import { Bell, BellOff, CheckCircle2, Info, AlertTriangle, Clock, RefreshCw, Trash2, CheckCheck, Briefcase, Award, ShieldCheck } from 'lucide-react';
+import { 
+    Bell, 
+    BellOff, 
+    CheckCircle2, 
+    Info, 
+    AlertTriangle, 
+    Clock, 
+    RefreshCw, 
+    Trash2, 
+    CheckCheck, 
+    Briefcase, 
+    Award, 
+    ShieldCheck,
+    ChevronRight,
+    Settings,
+    ExternalLink
+} from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -127,26 +143,26 @@ export const NotificationCenter = () => {
     };
 
     return (
-        <div className="relative font-sans" ref={containerRef}>
+        <div className="relative font-['Onest',system-ui,sans-serif]" ref={containerRef}>
             {/* Bell Trigger Button */}
             <button 
                 onClick={() => setIsOpen(!isOpen)}
                 className={`w-9 h-9 flex items-center justify-center rounded-full transition-all relative cursor-pointer border ${
                     isOpen 
-                        ? 'bg-[#0f2f63]/10 text-[#0f2f63] border-[#0f2f63]/30' 
-                        : 'bg-[#f4f4f4] hover:bg-[#e6e8ec] text-[#0a0a0a] border-[#e6e8ec]'
+                        ? 'bg-blue-50 text-[#0066FF] border-blue-200 shadow-xs' 
+                        : 'bg-white hover:bg-slate-100 text-slate-700 border-slate-200/80 shadow-2xs'
                 }`}
                 title="Notifications"
             >
                 <Bell className="w-4 h-4" />
                 {unreadCount > 0 && (
-                    <span className="absolute -top-1 -right-1 min-w-4 h-4 px-1 bg-[#ba1a1a] text-white text-[9px] font-bold flex items-center justify-center rounded-full border border-white shadow-xs animate-pulse">
+                    <span className="absolute -top-1 -right-1 min-w-4 h-4 px-1 bg-rose-600 text-white text-[9px] font-bold flex items-center justify-center rounded-full border border-white shadow-xs animate-pulse">
                         {unreadCount > 9 ? '9+' : unreadCount}
                     </span>
                 )}
             </button>
 
-            {/* Notification Popover Dropdown */}
+            {/* Notification Popover Dropdown - Fully Responsive */}
             <AnimatePresence>
                 {isOpen && (
                     <motion.div 
@@ -154,42 +170,59 @@ export const NotificationCenter = () => {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 6, scale: 0.98 }}
                         transition={{ duration: 0.12 }}
-                        className="absolute right-0 mt-2.5 w-[calc(100vw-2rem)] sm:w-88 md:w-96 bg-white border border-[#e6e8ec] rounded-2xl shadow-2xl z-50 overflow-hidden text-[#0a0a0a]"
+                        className="fixed inset-x-3 top-16 sm:inset-x-auto sm:absolute sm:right-0 sm:top-full sm:mt-2.5 w-auto sm:w-88 md:w-96 max-w-[calc(100vw-1.5rem)] bg-white border border-slate-200/90 rounded-2xl shadow-2xl z-50 overflow-hidden text-[#0A1931]"
                     >
                         {/* Header */}
-                        <div className="px-4 py-3.5 border-b border-[#e6e8ec] flex justify-between items-center bg-[#fbfbfb]">
+                        <div className="px-4 py-3 border-b border-slate-100 flex justify-between items-center bg-slate-50/80">
                             <div className="flex items-center gap-2">
-                                <h4 className="text-xs font-bold text-[#0a0a0a]">
+                                <h4 className="text-xs font-black text-[#0A1931] tracking-tight">
                                     Notifications
                                 </h4>
-                                {unreadCount > 0 && (
-                                    <span className="px-2 py-0.5 rounded-full bg-[#0f2f63]/10 text-[#0f2f63] text-[10px] font-bold">
+                                {unreadCount > 0 ? (
+                                    <span className="px-2 py-0.5 rounded-full bg-blue-50 text-[#0066FF] border border-blue-100 text-[10px] font-bold">
                                         {unreadCount} new
+                                    </span>
+                                ) : (
+                                    <span className="text-[10px] font-medium text-slate-400">
+                                        ({notifications.length})
                                     </span>
                                 )}
                             </div>
+
                             <div className="flex items-center gap-1.5">
+                                <button
+                                    onClick={() => {
+                                        setIsOpen(false);
+                                        navigate('/notifications');
+                                    }}
+                                    className="text-[11px] font-bold text-[#0066FF] hover:underline flex items-center gap-1 px-1.5 py-0.5 rounded cursor-pointer mr-1"
+                                    title="Open Full Page"
+                                >
+                                    <span>Inbox</span>
+                                    <ExternalLink className="w-3 h-3" />
+                                </button>
+
                                 {unreadCount > 0 && (
                                     <button 
                                         onClick={() => markAllReadMutation.mutate()}
-                                        className="text-[11px] font-semibold text-[#0f2f63] hover:underline flex items-center gap-1 px-1.5 py-1 rounded cursor-pointer"
+                                        className="text-[11px] font-bold text-slate-600 hover:text-[#0066FF] flex items-center gap-1 px-1.5 py-1 rounded cursor-pointer transition-colors"
                                         title="Mark all as read"
                                     >
                                         <CheckCheck className="w-3 h-3" />
-                                        <span>Read all</span>
+                                        <span className="hidden sm:inline">Read all</span>
                                     </button>
                                 )}
                                 <button 
                                     onClick={() => refetch()}
-                                    className="p-1 hover:bg-[#f4f4f4] rounded-lg transition-colors cursor-pointer text-[#717784]"
+                                    className="p-1 hover:bg-slate-200/60 rounded-lg transition-colors cursor-pointer text-slate-500 hover:text-slate-800"
                                     title="Refresh"
                                 >
-                                    <RefreshCw className={`w-3.5 h-3.5 ${isRefetching ? 'animate-spin' : ''}`} />
+                                    <RefreshCw className={`w-3.5 h-3.5 ${isRefetching ? 'animate-spin text-[#0066FF]' : ''}`} />
                                 </button>
                                 {notifications.length > 0 && (
                                     <button 
                                         onClick={() => deleteAllMutation.mutate()}
-                                        className="p-1 hover:bg-rose-50 text-[#717784] hover:text-rose-600 rounded-lg transition-colors cursor-pointer"
+                                        className="p-1 hover:bg-rose-50 text-slate-400 hover:text-rose-600 rounded-lg transition-colors cursor-pointer"
                                         title="Clear All"
                                     >
                                         <Trash2 className="w-3.5 h-3.5" />
@@ -199,19 +232,19 @@ export const NotificationCenter = () => {
                         </div>
 
                         {/* Push Permission Prompt if not yet granted */}
-                        {fcmService.isPushSupported() && Notification.permission !== 'granted' && (
-                            <div className="px-4 py-2 bg-[#0f2f63]/5 border-b border-[#0f2f63]/10 flex items-center justify-between gap-2">
+                        {fcmService.isPushSupported() && typeof window !== 'undefined' && 'Notification' in window && Notification.permission !== 'granted' && (
+                            <div className="px-4 py-2 bg-blue-50/60 border-b border-blue-100 flex items-center justify-between gap-2">
                                 <div className="flex items-center gap-2 min-w-0">
-                                    <Bell className="w-3.5 h-3.5 text-[#0f2f63] shrink-0" />
-                                    <span className="text-[11px] text-[#0f2f63] font-medium truncate">
-                                        Push notifications are disabled
+                                    <Bell className="w-3.5 h-3.5 text-[#0066FF] shrink-0" />
+                                    <span className="text-[11px] text-[#0A1931] font-medium truncate">
+                                        Push alerts are disabled
                                     </span>
                                 </div>
                                 <button
                                     onClick={async () => {
                                         await fcmService.requestPushPermissionAndRegister();
                                     }}
-                                    className="px-2.5 py-1 bg-[#0f2f63] text-white text-[10px] font-bold rounded-lg hover:bg-[#1a4487] transition-all cursor-pointer shrink-0"
+                                    className="px-2.5 py-1 bg-[#0066FF] text-white text-[10px] font-bold rounded-lg hover:bg-blue-700 transition-all cursor-pointer shrink-0 shadow-2xs"
                                 >
                                     Enable
                                 </button>
@@ -219,7 +252,7 @@ export const NotificationCenter = () => {
                         )}
                         
                         {/* Notification List Body */}
-                        <div className="max-h-84 overflow-y-auto divide-y divide-[#e6e8ec]">
+                        <div className="max-h-80 overflow-y-auto divide-y divide-slate-100">
                             {notifications.length > 0 ? (
                                 notifications.map((n) => {
                                     const isRead = Boolean(n.isRead || (n as any).is_read);
@@ -228,16 +261,16 @@ export const NotificationCenter = () => {
                                         <div 
                                             key={n.id} 
                                             onClick={() => handleNotificationClick(n)}
-                                            className={`p-3.5 transition-all hover:bg-[#f4f4f4] cursor-pointer flex gap-3 items-start group ${
-                                                isRead ? 'opacity-60 bg-white' : 'bg-[#e6eefc]/30'
+                                            className={`p-3.5 transition-all hover:bg-slate-50 cursor-pointer flex gap-3 items-start group ${
+                                                isRead ? 'opacity-65 bg-white' : 'bg-blue-50/20'
                                             }`}
                                         >
-                                            <div className="mt-0.5 w-8 h-8 shrink-0 rounded-xl bg-white border border-[#e6e8ec] flex items-center justify-center shadow-2xs">
+                                            <div className="mt-0.5 w-8 h-8 shrink-0 rounded-xl bg-white border border-slate-200/80 flex items-center justify-center shadow-2xs">
                                                 {getIcon(n.type)}
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <div className="flex justify-between items-start gap-2">
-                                                    <p className="text-xs font-bold text-[#0a0a0a] leading-snug truncate">
+                                                    <p className={`text-xs font-bold leading-snug truncate ${isRead ? 'text-slate-700' : 'text-[#0A1931]'}`}>
                                                         {n.title}
                                                     </p>
                                                     <button 
@@ -245,14 +278,14 @@ export const NotificationCenter = () => {
                                                             e.stopPropagation();
                                                             deleteMutation.mutate(n.id);
                                                         }}
-                                                        className="opacity-0 group-hover:opacity-100 p-0.5 hover:text-rose-600 text-[#717784] transition-opacity"
+                                                        className="opacity-0 group-hover:opacity-100 p-0.5 hover:text-rose-600 text-slate-400 transition-opacity"
                                                         title="Dismiss"
                                                     >
                                                         <Trash2 className="w-3 h-3" />
                                                     </button>
                                                 </div>
-                                                <p className="text-[11px] text-[#717784] font-medium line-clamp-2 mt-0.5">{n.message}</p>
-                                                <div className="flex items-center gap-1 mt-1 text-[10px] text-[#717784]">
+                                                <p className="text-[11px] text-slate-500 font-medium line-clamp-2 mt-0.5">{n.message}</p>
+                                                <div className="flex items-center gap-1 mt-1 text-[10px] text-slate-400">
                                                     <Clock className="w-2.5 h-2.5" />
                                                     <span>
                                                         {createdAt ? formatDistanceToNow(new Date(createdAt), { addSuffix: true }) : 'just now'}
@@ -263,14 +296,38 @@ export const NotificationCenter = () => {
                                     );
                                 })
                             ) : (
-                                <div className="p-10 text-center space-y-2">
-                                    <div className="w-10 h-10 bg-[#f4f4f4] rounded-full flex items-center justify-center mx-auto text-[#717784]">
+                                <div className="p-8 text-center space-y-2">
+                                    <div className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center mx-auto text-slate-400">
                                         <BellOff className="w-5 h-5" />
                                     </div>
-                                    <p className="text-xs font-semibold text-[#0a0a0a]">All caught up!</p>
-                                    <p className="text-[11px] text-[#717784]">No new shift or application alerts.</p>
+                                    <p className="text-xs font-bold text-[#0A1931]">All caught up!</p>
+                                    <p className="text-[11px] text-slate-500 font-medium">No new notifications right now.</p>
                                 </div>
                             )}
+                        </div>
+
+                        {/* Dedicated Footer Navigation to Full Notifications Page & Settings */}
+                        <div className="p-2.5 border-t border-slate-100 bg-slate-50/90 flex items-center justify-between gap-2">
+                            <button
+                                onClick={() => {
+                                    setIsOpen(false);
+                                    navigate('/notifications');
+                                }}
+                                className="flex-1 py-2 px-3 text-xs font-bold text-[#0066FF] hover:bg-blue-50/80 bg-white border border-blue-200/60 rounded-xl transition-all flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer group"
+                            >
+                                <span>View All Notifications</span>
+                                <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                            </button>
+                            <button
+                                onClick={() => {
+                                    setIsOpen(false);
+                                    navigate('/settings?tab=notifications');
+                                }}
+                                className="p-2 rounded-xl text-slate-500 hover:text-slate-800 bg-white hover:bg-slate-100 border border-slate-200/60 transition-colors cursor-pointer shadow-2xs"
+                                title="Notification Settings"
+                            >
+                                <Settings className="w-3.5 h-3.5" />
+                            </button>
                         </div>
                     </motion.div>
                 )}

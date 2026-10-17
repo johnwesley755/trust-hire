@@ -147,7 +147,7 @@ export const AdminUsersPage: React.FC = () => {
                           </div>
                           <div>
                             <span className="font-semibold text-[#0a0a0a] block">{fullName}</span>
-                            <span className="text-[11px] text-[#9ea3ae] font-mono">{u.id.slice(0, 8)}...</span>
+                            <span className="text-[11px] text-[#717784]">{u.email || u.phone_number || 'Registered Member'}</span>
                           </div>
                         </div>
                       </td>

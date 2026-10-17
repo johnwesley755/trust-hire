@@ -18,14 +18,15 @@ export const NotificationListener = () => {
 
     if (fcmService.isPushSupported()) {
       const currentPerm = Notification.permission;
+      console.log(`\n🎧 [NotificationListener] Mounting listener for user: ${user.id} (${user.email || 'user'}). Browser permission: ${currentPerm}`);
       
       if (currentPerm === 'granted') {
-        // Token refresh and keep alive
-        fcmService.requestPushPermissionAndRegister().catch(() => {});
+        // Token refresh and keep alive with active user ID
+        fcmService.requestPushPermissionAndRegister(user.id).catch(() => {});
       } else if (currentPerm === 'default') {
         // 1. Attempt non-blocking auto-request after user has landed
         const autoTimer = setTimeout(() => {
-          fcmService.requestPushPermissionAndRegister().then(res => {
+          fcmService.requestPushPermissionAndRegister(user.id).then(res => {
             if (res.status === 'granted') {
               setShowPromptBanner(false);
             }
@@ -47,6 +48,7 @@ export const NotificationListener = () => {
 
     fcmService.listenToForegroundMessages((payload) => {
       // Invalidate TanStack query cache immediately to refresh bell badge count in real time
+      console.log('🔄 [FCM-CLIENT:STEP-9:CACHE-INVALIDATION] Invalidating notification queries in TanStack cache...');
       queryClient.invalidateQueries({ queryKey: ['notifications'] });
       queryClient.invalidateQueries({ queryKey: ['unreadCount'] });
 
@@ -70,14 +72,14 @@ export const NotificationListener = () => {
         icon: getNotificationIcon(type),
         duration: 6000,
         className: "bg-[#FFFFFF] dark:bg-[#0f2f63] text-slate-900 dark:text-white rounded-2xl border border-slate-200 dark:border-blue-900 shadow-xl p-4 font-sans",
-        action: link ? {
+        action: {
           label: 'View',
           onClick: () => {
-            navigate(link);
+            navigate(link || '/notifications');
             queryClient.invalidateQueries({ queryKey: ['notifications'] });
             queryClient.invalidateQueries({ queryKey: ['unreadCount'] });
           }
-        } : undefined
+        }
       });
     }).then((unsub) => {
       cleanupListener = unsub;
@@ -93,7 +95,7 @@ export const NotificationListener = () => {
   const handleEnablePush = async () => {
     setIsRequesting(true);
     try {
-      const result = await fcmService.requestPushPermissionAndRegister();
+      const result = await fcmService.requestPushPermissionAndRegister(user?.id);
       if (result.status === 'granted') {
         toast.success("Push notifications enabled! You will receive real-time updates.", {
           icon: <CheckCircle2 className="w-5 h-5 text-emerald-500" />

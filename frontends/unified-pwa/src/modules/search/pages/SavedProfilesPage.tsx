@@ -68,28 +68,28 @@ export const SavedProfilesPage: React.FC = () => {
       <div className="max-w-7xl mx-auto space-y-6 pb-20">
 
         {/* 1. Hallmark Hero Header Banner */}
-        <div className="rounded-[2rem] border border-[#e6e8ec] bg-[#f4f4f4] p-6 sm:p-8 shadow-xs relative overflow-hidden">
+        <div className="rounded-[2rem] border border-slate-200/80 bg-white p-6 sm:p-8 shadow-xs relative overflow-hidden">
           <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-[#0f2f63]/5 to-transparent rounded-full blur-3xl pointer-events-none" />
           
           <div className="relative z-10 space-y-4">
             {/* 4-Point Hallmark Trust Ribbon */}
-            <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs font-medium text-[#717784] border-b border-[#e6e8ec] pb-4">
-              <span className="flex items-center gap-1.5 text-[#0a0a0a]">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs font-medium text-slate-500 border-b border-slate-100 pb-4">
+              <span className="flex items-center gap-1.5 text-[#0A1931]">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                 Verified Talent
               </span>
-              <span className="text-[#e6e8ec]">•</span>
-              <span className="flex items-center gap-1.5 text-[#0a0a0a]">
+              <span className="text-slate-300">•</span>
+              <span className="flex items-center gap-1.5 text-[#0A1931]">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                 Escrow Wage Lock
               </span>
-              <span className="text-[#e6e8ec]">•</span>
-              <span className="flex items-center gap-1.5 text-[#0a0a0a]">
+              <span className="text-slate-300">•</span>
+              <span className="flex items-center gap-1.5 text-[#0A1931]">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                 Direct Offer Dispatch
               </span>
-              <span className="text-[#e6e8ec]">•</span>
-              <span className="flex items-center gap-1.5 text-[#0a0a0a]">
+              <span className="text-slate-300">•</span>
+              <span className="flex items-center gap-1.5 text-[#0A1931]">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                 Zero Ghosting Policy
               </span>
@@ -101,10 +101,10 @@ export const SavedProfilesPage: React.FC = () => {
                   <Bookmark className="w-3.5 h-3.5 fill-current" />
                   <span>SHORTLISTED SPECIALISTS</span>
                 </div>
-                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#0a0a0a] tracking-tight">
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#0A1931] tracking-tight">
                   Saved Candidate Profiles
                 </h1>
-                <p className="text-[#717784] text-sm leading-relaxed">
+                <p className="text-slate-500 text-sm leading-relaxed">
                   Review and manage your bookmarked specialists. Compare skills, track verification status, and extend direct shift offers instantly.
                 </p>
               </div>
@@ -126,9 +126,9 @@ export const SavedProfilesPage: React.FC = () => {
         {savedWorkers.length > 0 ? (
           <div className="space-y-5">
             {/* Tactile Control Bar */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-[#f4f4f4] p-3 sm:p-4 rounded-[1.5rem] border border-[#e6e8ec] shadow-xs">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-slate-50/80 p-3 sm:p-4 rounded-[1.5rem] border border-slate-200/80 shadow-xs">
               <div className="relative flex-1 max-w-md">
-                <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#717784]" />
+                <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
                   type="text"
                   value={searchQuery}
@@ -137,26 +137,26 @@ export const SavedProfilesPage: React.FC = () => {
                     setCurrentPage(1);
                   }}
                   placeholder="Filter by candidate name, skill, or location..."
-                  className="w-full pl-9 pr-4 py-2 bg-white border border-[#e6e8ec] rounded-full text-xs font-medium text-[#0a0a0a] placeholder:text-[#717784] focus:outline-none focus:ring-2 focus:ring-[#0f2f63]/20 focus:border-[#0f2f63] transition-all"
+                  className="w-full pl-9 pr-4 py-2 bg-white border border-slate-200/80 rounded-full text-xs font-medium text-[#0A1931] placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0f2f63]/20 focus:border-[#0f2f63] transition-all"
                 />
               </div>
 
               <div className="flex items-center justify-between sm:justify-end gap-3">
-                <span className="text-xs font-medium text-[#717784] px-1">
+                <span className="text-xs font-medium text-slate-500 px-1">
                   {filteredWorkers.length}{' '}
                   {filteredWorkers.length === 1 ? 'specialist' : 'specialists'}{' '}
                   {searchQuery ? 'matching' : 'saved'}
                 </span>
 
                 {/* View Mode Toggle */}
-                <div className="flex items-center gap-1 bg-white p-1 rounded-full border border-[#e6e8ec]">
+                <div className="flex items-center gap-1 bg-white p-1 rounded-full border border-slate-200/80 shadow-2xs">
                   <button
                     type="button"
                     onClick={() => setViewMode('grid')}
                     className={`p-1.5 rounded-full transition-all cursor-pointer ${
                       viewMode === 'grid'
                         ? 'bg-[#0f2f63] text-white shadow-xs'
-                        : 'text-[#717784] hover:text-[#0a0a0a]'
+                        : 'text-slate-500 hover:text-[#0A1931]'
                     }`}
                     title="Grid View"
                   >
@@ -168,7 +168,7 @@ export const SavedProfilesPage: React.FC = () => {
                     className={`p-1.5 rounded-full transition-all cursor-pointer ${
                       viewMode === 'table'
                         ? 'bg-[#0f2f63] text-white shadow-xs'
-                        : 'text-[#717784] hover:text-[#0a0a0a]'
+                        : 'text-slate-500 hover:text-[#0A1931]'
                     }`}
                     title="Table View"
                   >
@@ -188,7 +188,7 @@ export const SavedProfilesPage: React.FC = () => {
                       <div
                         key={worker.userId}
                         onClick={() => navigate(`/worker/${worker.userId}`)}
-                        className="rounded-[2rem] border border-[#e6e8ec] bg-[#f4f4f4] p-5 sm:p-6 shadow-xs hover:border-[#0f2f63]/40 transition-all flex flex-col justify-between group cursor-pointer space-y-4"
+                        className="rounded-[2rem] border border-slate-200/80 bg-white p-5 sm:p-6 shadow-xs hover:border-[#0f2f63]/40 transition-all flex flex-col justify-between group cursor-pointer space-y-4"
                       >
                         {/* Header: Avatar, Name & Remove Bookmark */}
                         <div className="flex items-start justify-between gap-3">
@@ -200,7 +200,7 @@ export const SavedProfilesPage: React.FC = () => {
                             />
                             <div className="min-w-0">
                               <div className="flex items-center gap-1.5">
-                                <h3 className="font-extrabold text-[#0a0a0a] group-hover:text-[#0f2f63] transition-colors truncate text-sm sm:text-base">
+                                <h3 className="font-extrabold text-[#0A1931] group-hover:text-[#0f2f63] transition-colors truncate text-sm sm:text-base">
                                   {worker.name}
                                 </h3>
                                 {worker.isVerified && (
@@ -209,14 +209,10 @@ export const SavedProfilesPage: React.FC = () => {
                                   </span>
                                 )}
                               </div>
-                              <div className="flex items-center gap-2 text-xs text-[#717784] mt-0.5">
+                              <div className="flex items-center gap-2 text-xs text-slate-500 mt-0.5">
                                 <span className="flex items-center gap-1">
                                   <MapPin className="w-3 h-3 text-[#0f2f63]" />
                                   <span>{worker.city || worker.location || 'Local Area'}</span>
-                                </span>
-                                <span>•</span>
-                                <span className="font-mono text-[11px]">
-                                  ID: {worker.userId.slice(0, 8)}
                                 </span>
                               </div>
                             </div>
@@ -228,7 +224,7 @@ export const SavedProfilesPage: React.FC = () => {
                               e.stopPropagation();
                               removeSavedWorker(worker.userId);
                             }}
-                            className="p-2 rounded-full text-[#717784] hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer border border-transparent hover:border-rose-200"
+                            className="p-2 rounded-full text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer border border-transparent hover:border-rose-200"
                             title="Remove from saved profiles"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -240,7 +236,7 @@ export const SavedProfilesPage: React.FC = () => {
                           <span className="px-3 py-1 rounded-full bg-[#0f2f63]/10 text-[#0f2f63] text-xs font-semibold">
                             {skillList[0] || 'Technical Specialist'}
                           </span>
-                          <span className="px-3 py-1 rounded-full bg-white border border-[#e6e8ec] text-[#0a0a0a] text-xs font-medium">
+                          <span className="px-3 py-1 rounded-full bg-slate-50 border border-slate-200/80 text-[#0A1931] text-xs font-medium">
                             {worker.experience ? `${worker.experience}+ Yrs Experience` : 'Certified'}
                           </span>
                         </div>
@@ -251,13 +247,13 @@ export const SavedProfilesPage: React.FC = () => {
                             {skillList.slice(0, 4).map((skill: string, idx: number) => (
                               <span
                                 key={idx}
-                                className="px-2.5 py-0.5 bg-white hover:bg-slate-100 text-[#0a0a0a] text-xs font-medium rounded-full border border-[#e6e8ec] transition-colors"
+                                className="px-2.5 py-0.5 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-medium rounded-full border border-slate-200/60 transition-colors"
                               >
                                 {skill}
                               </span>
                             ))}
                             {skillList.length > 4 && (
-                              <span className="px-2 py-0.5 text-[#717784] text-xs font-medium self-center">
+                              <span className="px-2 py-0.5 text-slate-500 text-xs font-medium self-center">
                                 +{skillList.length - 4} more
                               </span>
                             )}
@@ -265,24 +261,24 @@ export const SavedProfilesPage: React.FC = () => {
                         )}
 
                         {/* Hallmark Trust Check Badges */}
-                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-2 text-[11px] text-[#717784] font-medium border-t border-[#e6e8ec]">
-                          <span className="inline-flex items-center gap-1.5 text-[#0a0a0a]">
+                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-2 text-[11px] text-slate-500 font-medium border-t border-slate-100">
+                          <span className="inline-flex items-center gap-1.5 text-[#0A1931]">
                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                             Biometric Checked
                           </span>
-                          <span className="inline-flex items-center gap-1.5 text-[#0a0a0a]">
+                          <span className="inline-flex items-center gap-1.5 text-[#0A1931]">
                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                             Skill Verified
                           </span>
-                          <span className="inline-flex items-center gap-1.5 text-[#0a0a0a]">
+                          <span className="inline-flex items-center gap-1.5 text-[#0A1931]">
                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                             Escrow Protected
                           </span>
                         </div>
 
                         {/* Footer Actions */}
-                        <div className="flex items-center justify-between pt-3 border-t border-[#e6e8ec] text-xs">
-                          <span className="flex items-center gap-1 text-[#717784] text-[11px]">
+                        <div className="flex items-center justify-between pt-3 border-t border-slate-100 text-xs">
+                          <span className="flex items-center gap-1 text-slate-500 text-[11px]">
                             <Clock className="w-3 h-3" />
                             <span>Saved {new Date(worker.savedAt).toLocaleDateString()}</span>
                           </span>
@@ -295,7 +291,7 @@ export const SavedProfilesPage: React.FC = () => {
                             }}
                             className="rounded-full bg-[#0f2f63] hover:bg-[#2563c9] text-white text-xs font-medium uppercase px-4 py-2 transition-all flex items-center gap-1.5 shadow-sm active:scale-95 cursor-pointer"
                           >
-                            <span>View Dossier</span>
+                            <span>View Profile</span>
                             <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
                           </button>
                         </div>
@@ -303,8 +299,8 @@ export const SavedProfilesPage: React.FC = () => {
                     );
                   })
                 ) : (
-                  <div className="col-span-full py-12 text-center text-[#717784] bg-[#f4f4f4] rounded-[2rem] border border-[#e6e8ec]">
-                    <p className="font-semibold text-sm">No specialists match your filter criteria.</p>
+                  <div className="col-span-full py-12 text-center text-slate-500 bg-white rounded-[2rem] border border-slate-200/80 shadow-xs">
+                    <p className="font-semibold text-sm text-[#0A1931]">No specialists match your filter criteria.</p>
                     <button
                       onClick={() => setSearchQuery('')}
                       className="mt-2 text-xs font-bold text-[#0f2f63] hover:underline"
@@ -318,10 +314,10 @@ export const SavedProfilesPage: React.FC = () => {
 
             {/* View Mode 2: Tactile High-Craft Table View */}
             {viewMode === 'table' && (
-              <div className="rounded-[2rem] border border-[#e6e8ec] bg-white overflow-hidden shadow-xs">
+              <div className="rounded-[2rem] border border-slate-200/80 bg-white overflow-hidden shadow-xs">
                 <div className="overflow-x-auto">
-                  <table className="w-full text-left text-xs text-[#0a0a0a]">
-                    <thead className="bg-[#f4f4f4] text-[#717784] text-xs font-bold border-b border-[#e6e8ec]">
+                  <table className="w-full text-left text-xs text-[#0A1931]">
+                    <thead className="bg-slate-50/80 text-slate-500 text-xs font-bold border-b border-slate-200/80">
                       <tr>
                         <th className="px-5 py-4">Specialist</th>
                         <th className="px-5 py-4">Role & Experience</th>
@@ -331,12 +327,12 @@ export const SavedProfilesPage: React.FC = () => {
                         <th className="px-5 py-4 text-right">Actions</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-[#e6e8ec]">
+                    <tbody className="divide-y divide-slate-200/70">
                       {paginatedWorkers.length > 0 ? (
                         paginatedWorkers.map((worker) => (
                           <tr
                             key={worker.userId}
-                            className="hover:bg-[#f4f4f4]/60 transition-colors group"
+                            className="hover:bg-slate-50/70 transition-colors group"
                           >
                             {/* Candidate Avatar & Name */}
                             <td className="px-5 py-4">
@@ -350,7 +346,7 @@ export const SavedProfilesPage: React.FC = () => {
                                   <div className="flex items-center gap-1.5">
                                     <button
                                       onClick={() => navigate(`/worker/${worker.userId}`)}
-                                      className="font-bold text-[#0a0a0a] group-hover:text-[#0f2f63] transition-colors truncate hover:underline text-left cursor-pointer text-sm"
+                                      className="font-bold text-[#0A1931] group-hover:text-blue-600 transition-colors truncate hover:underline text-left cursor-pointer text-sm"
                                     >
                                       {worker.name}
                                     </button>
@@ -360,8 +356,9 @@ export const SavedProfilesPage: React.FC = () => {
                                       </span>
                                     )}
                                   </div>
-                                  <span className="text-[11px] text-[#717784] font-mono block">
-                                    ID: {worker.userId.slice(0, 8)}
+                                  <span className="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5">
+                                    <MapPin className="w-3 h-3 text-[#0f2f63]" />
+                                    <span>{worker.city || worker.location || 'Local Area'}</span>
                                   </span>
                                 </div>
                               </div>
@@ -370,10 +367,10 @@ export const SavedProfilesPage: React.FC = () => {
                             {/* Role & Experience */}
                             <td className="px-5 py-4 whitespace-nowrap">
                               <div className="space-y-1">
-                                <span className="font-semibold text-[#0a0a0a] text-xs block">
+                                <span className="font-semibold text-[#0A1931] text-xs block">
                                   {worker.skills?.[0] || 'Technical Specialist'}
                                 </span>
-                                <span className="inline-block px-2.5 py-0.5 bg-[#0f2f63]/10 text-[#0f2f63] rounded-full font-semibold text-[11px]">
+                                <span className="inline-block px-2.5 py-0.5 bg-blue-50 text-[#0f2f63] border border-blue-100/60 rounded-full font-semibold text-[11px]">
                                   {worker.experience ? `${worker.experience}+ Yrs Exp` : 'Verified'}
                                 </span>
                               </div>
@@ -381,7 +378,7 @@ export const SavedProfilesPage: React.FC = () => {
 
                             {/* Location */}
                             <td className="px-5 py-4 whitespace-nowrap">
-                              <div className="flex items-center gap-1.5 text-[#0a0a0a] font-medium">
+                              <div className="flex items-center gap-1.5 text-slate-700 font-medium">
                                 <MapPin className="w-3.5 h-3.5 text-[#0f2f63] shrink-0" />
                                 <span className="truncate max-w-[140px]">
                                   {worker.city || worker.location || 'Local Area'}
@@ -397,25 +394,25 @@ export const SavedProfilesPage: React.FC = () => {
                                     {worker.skills.slice(0, 3).map((skill, idx) => (
                                       <span
                                         key={idx}
-                                        className="px-2 py-0.5 bg-[#f4f4f4] text-[#0a0a0a] text-[10px] font-medium rounded-full border border-[#e6e8ec] whitespace-nowrap"
+                                        className="px-2 py-0.5 bg-slate-100/90 text-slate-700 text-[10px] font-medium rounded-full border border-slate-200/60 whitespace-nowrap"
                                       >
                                         {skill}
                                       </span>
                                     ))}
                                     {worker.skills.length > 3 && (
-                                      <span className="text-[#717784] text-[10px] font-medium self-center">
+                                      <span className="text-slate-500 text-[10px] font-medium self-center">
                                         +{worker.skills.length - 3}
                                       </span>
                                     )}
                                   </>
                                 ) : (
-                                  <span className="text-[#717784] italic text-[11px]">Verified Skills</span>
+                                  <span className="text-slate-500 italic text-[11px]">Verified Skills</span>
                                 )}
                               </div>
                             </td>
 
                             {/* Saved Date */}
-                            <td className="px-5 py-4 whitespace-nowrap text-[#717784] font-medium">
+                            <td className="px-5 py-4 whitespace-nowrap text-slate-500 font-medium">
                               {new Date(worker.savedAt).toLocaleDateString()}
                             </td>
 
@@ -434,7 +431,7 @@ export const SavedProfilesPage: React.FC = () => {
                                 <button
                                   type="button"
                                   onClick={() => removeSavedWorker(worker.userId)}
-                                  className="p-1.5 text-[#717784] hover:text-rose-600 hover:bg-rose-50 rounded-full transition-colors cursor-pointer"
+                                  className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-full transition-colors cursor-pointer"
                                   title="Remove from Saved"
                                 >
                                   <Trash2 className="w-4 h-4" />
@@ -445,7 +442,7 @@ export const SavedProfilesPage: React.FC = () => {
                         ))
                       ) : (
                         <tr>
-                          <td colSpan={6} className="px-6 py-12 text-center text-[#717784]">
+                          <td colSpan={6} className="px-6 py-12 text-center text-slate-500">
                             <p className="font-semibold text-sm">No specialists match your filter criteria.</p>
                             <button
                               onClick={() => setSearchQuery('')}
@@ -472,19 +469,19 @@ export const SavedProfilesPage: React.FC = () => {
               onPageChange={handlePageChange}
               onPageSizeChange={handlePageSizeChange}
               itemName="saved specialists"
-              className="rounded-[1.5rem] border border-[#e6e8ec] bg-[#f4f4f4] p-3 shadow-xs"
+              className="rounded-[1.5rem] border border-slate-200/80 bg-white p-3 shadow-xs"
             />
           </div>
         ) : (
           /* Empty State */
-          <div className="rounded-[2rem] border border-[#e6e8ec] bg-[#f4f4f4] p-12 text-center max-w-xl mx-auto space-y-4">
-            <div className="w-16 h-16 rounded-full bg-[#0f2f63]/10 text-[#0f2f63] flex items-center justify-center mx-auto border border-[#0f2f63]/20 shadow-xs">
+          <div className="rounded-[2rem] border border-slate-200/80 bg-white p-12 text-center max-w-xl mx-auto space-y-4 shadow-xs">
+            <div className="w-16 h-16 rounded-full bg-blue-50 text-[#0f2f63] flex items-center justify-center mx-auto border border-blue-100 shadow-xs">
               <Bookmark className="w-8 h-8 fill-current" />
             </div>
-            <h2 className="text-xl sm:text-2xl font-extrabold text-[#0a0a0a]">
+            <h2 className="text-xl sm:text-2xl font-extrabold text-[#0A1931]">
               No Saved Profiles Yet
             </h2>
-            <p className="text-[#717784] text-xs sm:text-sm max-w-md mx-auto leading-relaxed">
+            <p className="text-slate-500 text-xs sm:text-sm max-w-md mx-auto leading-relaxed">
               When browsing specialists and candidates in the talent directory, click the bookmark icon to save profiles here for fast review and direct hiring.
             </p>
             <div className="pt-2">

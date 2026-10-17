@@ -198,7 +198,7 @@ export default function EmployerProfileDetailsPage() {
       <main className="max-w-7xl mx-auto space-y-6 pb-20">
         
         {/* 1. HERO PROFILE CARD (Landing Page Aesthetic) */}
-        <div className="bg-[#f4f4f4] rounded-[2rem] p-6 sm:p-8 border border-[#e6e8ec] relative overflow-hidden">
+        <div className="bg-white rounded-[2rem] p-6 sm:p-8 border border-slate-200/80 shadow-xs relative overflow-hidden">
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
             
             {/* Identity & Logo Cluster */}
@@ -218,7 +218,7 @@ export default function EmployerProfileDetailsPage() {
                   title="Click to update company logo"
                   className="relative group cursor-pointer"
                 >
-                  <div className="w-20 h-20 sm:w-24 sm:h-24 bg-white rounded-3xl border border-[#e6e8ec] flex items-center justify-center overflow-hidden shadow-2xs">
+                  <div className="w-20 h-20 sm:w-24 sm:h-24 bg-white rounded-3xl border border-slate-200/80 flex items-center justify-center overflow-hidden shadow-2xs">
                     {companyLogoUrl ? (
                       <img 
                         src={companyLogoUrl} 
@@ -242,18 +242,18 @@ export default function EmployerProfileDetailsPage() {
               {/* Name, Industry, Badges */}
               <div className="space-y-2">
                 <div className="flex flex-wrap items-center gap-2.5">
-                  <h1 className="text-2xl sm:text-3xl font-bold text-[#0a0a0a]">
+                  <h1 className="text-2xl sm:text-3xl font-bold text-[#0A1931]">
                     {companyNameDisplay}
                   </h1>
                   <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold ${
-                    isVerified ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-[#e6e8ec] text-[#717784]'
+                    isVerified ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-slate-100 text-slate-600 border border-slate-200/60'
                   }`}>
                     <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
                     <span>{isVerified ? 'Corporate Verified' : 'Pending Verification'}</span>
                   </span>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-2 text-xs font-medium text-[#717784]">
+                <div className="flex flex-wrap items-center gap-2 text-xs font-medium text-slate-500">
                   <span className="px-3 py-1 bg-[#0f2f63]/5 text-[#0f2f63] border border-[#0f2f63]/10 rounded-full font-semibold">
                     {industryDisplay}
                   </span>
@@ -283,44 +283,36 @@ export default function EmployerProfileDetailsPage() {
             <div className="grid grid-cols-2 sm:flex sm:items-center gap-2.5 w-full lg:w-auto">
               <Link 
                 to="/post-job"
-                className="col-span-2 sm:col-span-1 inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#0f2f63] hover:bg-[#2563c9] text-white rounded-full font-medium text-xs shadow-xs transition-all cursor-pointer active:scale-95 uppercase"
+                className="col-span-2 sm:col-span-1 inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#0f2f63] hover:bg-[#2563c9] text-white rounded-full font-medium text-xs shadow-xs transition-all cursor-pointer active:scale-95 uppercase whitespace-nowrap shrink-0"
               >
-                <Plus className="w-4 h-4" />
-                <span>Post a Job</span>
+                <Plus className="w-4 h-4 shrink-0" />
+                <span className="whitespace-nowrap">Post a Job</span>
               </Link>
               <button 
                 onClick={() => setIsEditModalOpen(true)}
-                className="col-span-1 inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-white hover:bg-slate-50 border border-[#e6e8ec] text-[#0a0a0a] rounded-full font-medium text-xs shadow-2xs transition-all cursor-pointer uppercase active:scale-95"
+                className="col-span-1 inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-white hover:bg-slate-50 border border-slate-200/80 text-[#0A1931] rounded-full font-medium text-xs shadow-2xs transition-all cursor-pointer uppercase active:scale-95"
               >
-                <Edit2 className="w-3.5 h-3.5 text-[#717784]" />
+                <Edit2 className="w-3.5 h-3.5 text-slate-500" />
                 <span>Edit Profile</span>
               </button>
-              {/* <Link 
-                to="/onboarding"
-                className="col-span-1 inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-white hover:bg-slate-50 border border-[#e6e8ec] text-[#0a0a0a] rounded-full font-medium text-xs shadow-2xs transition-all cursor-pointer uppercase active:scale-95"
-                title="Rerun company onboarding setup"
-              >
-                <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                <span>Wizard</span>
-              </Link> */}
             </div>
 
           </div>
         </div>
 
 
-        {/* 3. MAIN 2-COLUMN DOSSIER GRID */}
+        {/* 3. MAIN 2-COLUMN PROFILE GRID */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           
           {/* LEFT COLUMN (4 Cols): Official Contact, Compliance & Quick Metrics (order-2 on mobile so tabs are immediately visible) */}
           <div className="col-span-1 lg:col-span-4 space-y-6 order-2 lg:order-1">
             
             {/* Hiring Health & Escrow Card */}
-            <div className="bg-[#f4f4f4] rounded-[1.75rem] p-6 border border-[#e6e8ec] space-y-4">
+            <div className="bg-white rounded-[1.75rem] p-6 border border-slate-200/80 shadow-xs space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <ShieldCheck className="w-4 h-4 text-[#0f2f63]" />
-                  <h3 className="text-xs font-bold uppercase text-[#717784]">
+                  <h3 className="text-xs font-bold uppercase text-slate-500">
                     Employer Health & Escrow
                   </h3>
                 </div>
@@ -329,9 +321,9 @@ export default function EmployerProfileDetailsPage() {
                 </span>
               </div>
 
-              <div className="bg-white p-4 rounded-[1.25rem] border border-[#e6e8ec] space-y-3">
+              <div className="bg-slate-50/80 p-4 rounded-[1.25rem] border border-slate-100 space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-bold text-[#0a0a0a]">
+                  <span className="text-sm font-bold text-[#0A1931]">
                     Escrow Wage Backing
                   </span>
                   <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
@@ -339,44 +331,44 @@ export default function EmployerProfileDetailsPage() {
                   </span>
                 </div>
                 {/* Progress bar */}
-                <div className="w-full bg-[#f4f4f4] h-2 rounded-full overflow-hidden border border-[#e6e8ec]">
+                <div className="w-full bg-slate-200/70 h-2 rounded-full overflow-hidden">
                   <div className="bg-[#0f2f63] h-full rounded-full" style={{ width: '100%' }}></div>
                 </div>
-                <p className="text-[11px] text-[#717784] font-medium leading-relaxed">
+                <p className="text-[11px] text-slate-500 font-medium leading-relaxed">
                   All posted shifts and jobs are backed with automated escrow deposit to assure workers instantaneous post-shift settlements.
                 </p>
               </div>
 
               {/* Quick Metrics 2x2 Grid */}
               <div className="grid grid-cols-2 gap-3 pt-1">
-                <div className="bg-white p-3.5 rounded-2xl border border-[#e6e8ec] text-center">
-                  <p className="text-[10px] font-bold uppercase text-[#717784]">Active Jobs</p>
-                  <p className="text-xl font-bold text-[#0a0a0a] mt-0.5">{activeJobsCount}</p>
-                  <p className="text-[10px] text-[#717784]">listings</p>
+                <div className="bg-slate-50/80 p-3.5 rounded-2xl border border-slate-100 text-center">
+                  <p className="text-[10px] font-bold uppercase text-slate-500">Active Jobs</p>
+                  <p className="text-xl font-bold text-[#0A1931] mt-0.5">{activeJobsCount}</p>
+                  <p className="text-[10px] text-slate-500">listings</p>
                 </div>
-                <div className="bg-white p-3.5 rounded-2xl border border-[#e6e8ec] text-center">
-                  <p className="text-[10px] font-bold uppercase text-[#717784]">Total Hires</p>
-                  <p className="text-xl font-bold text-[#0a0a0a] mt-0.5">{totalHiredCount}</p>
-                  <p className="text-[10px] text-[#717784]">workers</p>
+                <div className="bg-slate-50/80 p-3.5 rounded-2xl border border-slate-100 text-center">
+                  <p className="text-[10px] font-bold uppercase text-slate-500">Total Hires</p>
+                  <p className="text-xl font-bold text-[#0A1931] mt-0.5">{totalHiredCount}</p>
+                  <p className="text-[10px] text-slate-500">workers</p>
                 </div>
-                <div className="bg-white p-3.5 rounded-2xl border border-[#e6e8ec] text-center">
-                  <p className="text-[10px] font-bold uppercase text-[#717784]">Applicants</p>
-                  <p className="text-xl font-bold text-[#0a0a0a] mt-0.5">{totalApplicantsCount}</p>
-                  <p className="text-[10px] text-[#717784]">screened</p>
+                <div className="bg-slate-50/80 p-3.5 rounded-2xl border border-slate-100 text-center">
+                  <p className="text-[10px] font-bold uppercase text-slate-500">Applicants</p>
+                  <p className="text-xl font-bold text-[#0A1931] mt-0.5">{totalApplicantsCount}</p>
+                  <p className="text-[10px] text-slate-500">screened</p>
                 </div>
-                <div className="bg-white p-3.5 rounded-2xl border border-[#e6e8ec] text-center">
-                  <p className="text-[10px] font-bold uppercase text-[#717784]">KYC Standing</p>
+                <div className="bg-slate-50/80 p-3.5 rounded-2xl border border-slate-100 text-center">
+                  <p className="text-[10px] font-bold uppercase text-slate-500">KYC Standing</p>
                   <p className="text-base font-bold text-emerald-700 mt-1">Verified</p>
-                  <p className="text-[10px] text-[#717784]">enterprise</p>
+                  <p className="text-[10px] text-slate-500">enterprise</p>
                 </div>
               </div>
             </div>
 
-            {/* Official Company Dossier & Contact Information */}
-            <div className="bg-[#f4f4f4] rounded-[1.75rem] p-6 border border-[#e6e8ec] space-y-4">
-              <div className="flex items-center justify-between border-b border-[#e6e8ec] pb-3">
-                <h3 className="text-xs font-bold uppercase text-[#717784]">
-                  Official Company Dossier
+            {/* Official Company Profile & Contact Information */}
+            <div className="bg-white rounded-[1.75rem] p-6 border border-slate-200/80 shadow-xs space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 className="text-xs font-bold uppercase text-slate-500">
+                  Official Company Profile
                 </h3>
                 <span className="text-[11px] font-semibold text-[#0f2f63] bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200">
                   Verified Contact
@@ -385,47 +377,47 @@ export default function EmployerProfileDetailsPage() {
 
               <div className="space-y-3.5 text-xs">
                 {/* Contact Person */}
-                <div className="flex items-start gap-3 bg-white p-3 rounded-2xl border border-[#e6e8ec]">
+                <div className="flex items-start gap-3 bg-slate-50/80 p-3 rounded-2xl border border-slate-100">
                   <Users className="w-4 h-4 text-[#0f2f63] shrink-0 mt-0.5" />
                   <div className="min-w-0 flex-1">
-                    <p className="text-[10px] font-bold text-[#717784] uppercase">Hiring Contact Person</p>
-                    <p className="font-semibold text-[#0a0a0a] mt-0.5 truncate">{contactPersonDisplay}</p>
+                    <p className="text-[10px] font-bold text-slate-500 uppercase">Hiring Contact Person</p>
+                    <p className="font-semibold text-[#0A1931] mt-0.5 truncate">{contactPersonDisplay}</p>
                   </div>
                 </div>
 
                 {/* Phone */}
-                <div className="flex items-start gap-3 bg-white p-3 rounded-2xl border border-[#e6e8ec]">
+                <div className="flex items-start gap-3 bg-slate-50/80 p-3 rounded-2xl border border-slate-100">
                   <Phone className="w-4 h-4 text-[#0f2f63] shrink-0 mt-0.5" />
                   <div className="min-w-0 flex-1">
-                    <p className="text-[10px] font-bold text-[#717784] uppercase">Direct Phone Line</p>
-                    <p className="font-semibold text-[#0a0a0a] mt-0.5">{phoneDisplay}</p>
+                    <p className="text-[10px] font-bold text-slate-500 uppercase">Direct Phone Line</p>
+                    <p className="font-semibold text-[#0A1931] mt-0.5">{phoneDisplay}</p>
                   </div>
                 </div>
 
                 {/* Email */}
-                <div className="flex items-start gap-3 bg-white p-3 rounded-2xl border border-[#e6e8ec]">
+                <div className="flex items-start gap-3 bg-slate-50/80 p-3 rounded-2xl border border-slate-100">
                   <Mail className="w-4 h-4 text-[#0f2f63] shrink-0 mt-0.5" />
                   <div className="min-w-0 flex-1">
-                    <p className="text-[10px] font-bold text-[#717784] uppercase">Official Business Email</p>
-                    <p className="font-semibold text-[#0a0a0a] mt-0.5 truncate">{emailDisplay}</p>
+                    <p className="text-[10px] font-bold text-slate-500 uppercase">Official Business Email</p>
+                    <p className="font-semibold text-[#0A1931] mt-0.5 truncate">{emailDisplay}</p>
                   </div>
                 </div>
 
                 {/* Operating Region */}
-                <div className="flex items-start gap-3 bg-white p-3 rounded-2xl border border-[#e6e8ec]">
+                <div className="flex items-start gap-3 bg-slate-50/80 p-3 rounded-2xl border border-slate-100">
                   <MapPin className="w-4 h-4 text-[#0f2f63] shrink-0 mt-0.5" />
                   <div className="min-w-0 flex-1">
-                    <p className="text-[10px] font-bold text-[#717784] uppercase">Operating City / Region</p>
-                    <p className="font-semibold text-[#0a0a0a] mt-0.5">{locationDisplay}</p>
+                    <p className="text-[10px] font-bold text-slate-500 uppercase">Operating City / Region</p>
+                    <p className="font-semibold text-[#0A1931] mt-0.5">{locationDisplay}</p>
                   </div>
                 </div>
 
                 {/* Registered Address */}
-                <div className="flex items-start gap-3 bg-white p-3 rounded-2xl border border-[#e6e8ec]">
+                <div className="flex items-start gap-3 bg-slate-50/80 p-3 rounded-2xl border border-slate-100">
                   <Building2 className="w-4 h-4 text-[#0f2f63] shrink-0 mt-0.5" />
                   <div className="min-w-0 flex-1">
-                    <p className="text-[10px] font-bold text-[#717784] uppercase">Registered Office Address</p>
-                    <p className="font-semibold text-[#0a0a0a] mt-0.5 leading-relaxed">
+                    <p className="text-[10px] font-bold text-slate-500 uppercase">Registered Office Address</p>
+                    <p className="font-semibold text-[#0A1931] mt-0.5 leading-relaxed">
                       {profile?.address || 'Corporate address verified during compliance onboarding'}
                     </p>
                   </div>
@@ -433,10 +425,10 @@ export default function EmployerProfileDetailsPage() {
 
                 {/* Website */}
                 {profile?.companyWebsite && (
-                  <div className="flex items-start gap-3 bg-white p-3 rounded-2xl border border-[#e6e8ec]">
+                  <div className="flex items-start gap-3 bg-slate-50/80 p-3 rounded-2xl border border-slate-100">
                     <Globe className="w-4 h-4 text-[#0f2f63] shrink-0 mt-0.5" />
                     <div className="min-w-0 flex-1">
-                      <p className="text-[10px] font-bold text-[#717784] uppercase">Official Website</p>
+                      <p className="text-[10px] font-bold text-slate-500 uppercase">Official Website</p>
                       <a 
                         href={profile.companyWebsite.startsWith('http') ? profile.companyWebsite : `https://${profile.companyWebsite}`}
                         target="_blank"
@@ -454,17 +446,17 @@ export default function EmployerProfileDetailsPage() {
 
           </div>
 
-          {/* RIGHT COLUMN (8 Cols): Tab Switcher & Rich Dossier Panels (order-1 on mobile so main tabs are immediately visible) */}
+          {/* RIGHT COLUMN (8 Cols): Tab Switcher & Rich Profile Panels (order-1 on mobile so main tabs are immediately visible) */}
           <div className="col-span-1 lg:col-span-8 space-y-6 order-1 lg:order-2">
             
             {/* Pill Tab Switcher */}
-            <div className="bg-[#f4f4f4] p-1.5 rounded-full border border-[#e6e8ec] flex items-center gap-1 overflow-x-auto scrollbar-none">
+            <div className="bg-slate-100/90 p-1.5 rounded-full border border-slate-200/60 flex items-center gap-1 overflow-x-auto scrollbar-none">
               <button
                 onClick={() => setActiveTab('openings')}
                 className={`flex-1 min-w-[130px] py-2.5 px-4 rounded-full text-xs font-semibold transition-all cursor-pointer flex items-center justify-center gap-2 ${
                   activeTab === 'openings'
-                    ? 'bg-white text-[#0a0a0a] shadow-xs'
-                    : 'text-[#717784] hover:text-[#0a0a0a]'
+                    ? 'bg-white text-[#0A1931] shadow-xs'
+                    : 'text-slate-500 hover:text-[#0A1931]'
                 }`}
               >
                 <Briefcase className="w-3.5 h-3.5" />
@@ -475,35 +467,35 @@ export default function EmployerProfileDetailsPage() {
                 onClick={() => setActiveTab('overview')}
                 className={`flex-1 min-w-[130px] py-2.5 px-4 rounded-full text-xs font-semibold transition-all cursor-pointer flex items-center justify-center gap-2 ${
                   activeTab === 'overview'
-                    ? 'bg-white text-[#0a0a0a] shadow-xs'
-                    : 'text-[#717784] hover:text-[#0a0a0a]'
+                    ? 'bg-white text-[#0A1931] shadow-xs'
+                    : 'text-slate-500 hover:text-[#0A1931]'
                 }`}
               >
                 <Building2 className="w-3.5 h-3.5" />
                 <span>Company Overview</span>
               </button>
-
+{/* 
               <button
                 onClick={() => setActiveTab('compliance')}
                 className={`flex-1 min-w-[130px] py-2.5 px-4 rounded-full text-xs font-semibold transition-all cursor-pointer flex items-center justify-center gap-2 ${
                   activeTab === 'compliance'
-                    ? 'bg-white text-[#0a0a0a] shadow-xs'
-                    : 'text-[#717784] hover:text-[#0a0a0a]'
+                    ? 'bg-white text-[#0A1931] shadow-xs'
+                    : 'text-slate-500 hover:text-[#0A1931]'
                 }`}
               >
                 <ShieldCheck className="w-3.5 h-3.5" />
                 <span>Escrow & History</span>
-              </button>
+              </button> */}
             </div>
 
             {/* TAB CONTENT 1: Active Job Openings */}
             {activeTab === 'openings' && (
               <div className="space-y-4">
-                <div className="bg-[#f4f4f4] rounded-[1.75rem] p-6 sm:p-8 border border-[#e6e8ec] space-y-4">
-                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-[#e6e8ec] pb-4">
+                <div className="bg-white rounded-[1.75rem] p-6 sm:p-8 border border-slate-200/80 shadow-xs space-y-4">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-100 pb-4">
                     <div>
-                      <h3 className="text-lg font-bold text-[#0a0a0a]">Published Jobs & Shifts</h3>
-                      <p className="text-xs text-[#717784] font-medium mt-0.5">
+                      <h3 className="text-lg font-bold text-[#0A1931]">Published Jobs & Shifts</h3>
+                      <p className="text-xs text-slate-500 font-medium mt-0.5">
                         Manage active roles, monitor candidate applications, and schedule interviews.
                       </p>
                     </div>
@@ -517,13 +509,13 @@ export default function EmployerProfileDetailsPage() {
                   </div>
 
                   {jobs.length === 0 ? (
-                    <div className="bg-white rounded-2xl p-8 border border-[#e6e8ec] text-center space-y-4">
-                      <div className="w-14 h-14 bg-[#f4f4f4] rounded-full flex items-center justify-center mx-auto text-[#0f2f63]">
+                    <div className="bg-slate-50/80 rounded-2xl p-8 border border-slate-100 text-center space-y-4">
+                      <div className="w-14 h-14 bg-white rounded-full flex items-center justify-center mx-auto text-[#0f2f63] shadow-xs border border-slate-200/60">
                         <Briefcase className="w-6 h-6" />
                       </div>
                       <div className="space-y-1">
-                        <h4 className="text-base font-bold text-[#0a0a0a]">No Jobs Posted Yet</h4>
-                        <p className="text-xs text-[#717784] max-w-md mx-auto">
+                        <h4 className="text-base font-bold text-[#0A1931]">No Jobs Posted Yet</h4>
+                        <p className="text-xs text-slate-500 max-w-md mx-auto">
                           Post your first role in under 2 minutes. Gain access to thousands of pre-screened, biometric-verified candidates.
                         </p>
                       </div>
@@ -540,11 +532,11 @@ export default function EmployerProfileDetailsPage() {
                       {jobs.map((job) => (
                         <div 
                           key={job.id}
-                          className="bg-white rounded-2xl p-5 border border-[#e6e8ec] hover:border-[#0f2f63]/40 transition-all flex flex-col md:flex-row justify-between items-start md:items-center gap-4 group"
+                          className="bg-slate-50/60 rounded-2xl p-5 border border-slate-200/70 hover:border-[#0f2f63]/40 hover:bg-white transition-all flex flex-col md:flex-row justify-between items-start md:items-center gap-4 group"
                         >
                           <div className="space-y-2 flex-1">
                             <div className="flex flex-wrap items-center gap-2.5">
-                              <h4 className="text-base font-bold text-[#0a0a0a] group-hover:text-[#0f2f63] transition-colors">
+                              <h4 className="text-base font-bold text-[#0A1931] group-hover:text-[#0f2f63] transition-colors">
                                 {job.title}
                               </h4>
                               <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
@@ -556,7 +548,7 @@ export default function EmployerProfileDetailsPage() {
                               </span>
                             </div>
 
-                            <div className="flex flex-wrap items-center gap-3 text-xs text-[#717784]">
+                            <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500">
                               <span className="flex items-center gap-1">
                                 <MapPin className="w-3.5 h-3.5 text-[#0f2f63]" />
                                 <span>{job.location || job.city || 'Pan India'}</span>
@@ -568,13 +560,13 @@ export default function EmployerProfileDetailsPage() {
                               </span>
                               <span>•</span>
                               <span className="flex items-center gap-1">
-                                <Calendar className="w-3.5 h-3.5 text-[#717784]" />
+                                <Calendar className="w-3.5 h-3.5 text-slate-400" />
                                 <span>{job.createdAt && !isNaN(new Date(job.createdAt).getTime()) ? format(new Date(job.createdAt), 'MMM d, yyyy') : 'Recent'}</span>
                               </span>
                             </div>
                           </div>
 
-                          <div className="flex items-center gap-2 w-full md:w-auto pt-2 md:pt-0 border-t md:border-t-0 border-[#e6e8ec]">
+                          <div className="flex items-center gap-2 w-full md:w-auto pt-2 md:pt-0 border-t md:border-t-0 border-slate-200/60">
                             <Link
                               to={`/jobs?jobId=${job.id}`}
                               className="flex-1 md:flex-none inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-[#0f2f63] hover:bg-[#2563c9] text-white rounded-full text-xs font-semibold transition-all uppercase shadow-2xs"
@@ -584,7 +576,7 @@ export default function EmployerProfileDetailsPage() {
                             </Link>
                             <Link
                               to={`/jobs/${job.id}`}
-                              className="flex-1 md:flex-none inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-[#f4f4f4] hover:bg-[#0f2f63] hover:text-white text-[#0a0a0a] rounded-full text-xs font-semibold transition-all uppercase"
+                              className="flex-1 md:flex-none inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-white hover:bg-[#0f2f63] hover:text-white text-[#0A1931] border border-slate-200 rounded-full text-xs font-semibold transition-all uppercase shadow-2xs"
                             >
                               <span>View Opening</span>
                               <ArrowRight className="w-3.5 h-3.5" />
@@ -601,17 +593,17 @@ export default function EmployerProfileDetailsPage() {
             {/* TAB CONTENT 2: Company Overview & Bio */}
             {activeTab === 'overview' && (
               <div className="space-y-4">
-                <div className="bg-[#f4f4f4] rounded-[1.75rem] p-6 sm:p-8 border border-[#e6e8ec] space-y-6">
+                <div className="bg-white rounded-[1.75rem] p-6 sm:p-8 border border-slate-200/80 shadow-xs space-y-6">
                   
                   {/* About the Enterprise */}
                   <div className="space-y-3">
-                    <h3 className="text-base font-bold text-[#0a0a0a] flex items-center gap-2">
+                    <h3 className="text-base font-bold text-[#0A1931] flex items-center gap-2">
                       <Building2 className="w-4 h-4 text-[#0f2f63]" />
                       <span>About {companyNameDisplay}</span>
                     </h3>
-                    <div className="bg-white rounded-2xl p-5 border border-[#e6e8ec] text-xs text-[#0a0a0a] leading-relaxed">
+                    <div className="bg-slate-50/80 rounded-2xl p-5 border border-slate-100 text-xs text-[#0A1931] leading-relaxed">
                       {profile?.profileBio || (
-                        <p className="text-[#717784] italic">
+                        <p className="text-slate-500 italic">
                           No company bio provided yet. Click "Edit Profile" above to share your company's mission, work environment, and benefits to attract top verified candidates.
                         </p>
                       )}
@@ -620,47 +612,47 @@ export default function EmployerProfileDetailsPage() {
 
                   {/* Corporate Highlights */}
                   <div className="space-y-3">
-                    <h3 className="text-base font-bold text-[#0a0a0a] flex items-center gap-2">
+                    <h3 className="text-base font-bold text-[#0A1931] flex items-center gap-2">
                       <Award className="w-4 h-4 text-[#0f2f63]" />
                       <span>Hiring Highlights & Worker Guarantees</span>
                     </h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                      <div className="bg-white rounded-2xl p-4 border border-[#e6e8ec] space-y-1.5">
+                      <div className="bg-slate-50/80 rounded-2xl p-4 border border-slate-100 space-y-1.5">
                         <div className="flex items-center gap-2">
                           <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                          <h4 className="text-xs font-bold text-[#0a0a0a]">Instant Digital Settlement</h4>
+                          <h4 className="text-xs font-bold text-[#0A1931]">Instant Digital Settlement</h4>
                         </div>
-                        <p className="text-[11px] text-[#717784] leading-relaxed">
+                        <p className="text-[11px] text-slate-500 leading-relaxed">
                           Wages are released automatically to candidates via Escrow as soon as shift attendance is confirmed.
                         </p>
                       </div>
 
-                      <div className="bg-white rounded-2xl p-4 border border-[#e6e8ec] space-y-1.5">
+                      <div className="bg-slate-50/80 rounded-2xl p-4 border border-slate-100 space-y-1.5">
                         <div className="flex items-center gap-2">
                           <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                          <h4 className="text-xs font-bold text-[#0a0a0a]">Verified Work Standards</h4>
+                          <h4 className="text-xs font-bold text-[#0A1931]">Verified Work Standards</h4>
                         </div>
-                        <p className="text-[11px] text-[#717784] leading-relaxed">
+                        <p className="text-[11px] text-slate-500 leading-relaxed">
                           All job roles adhere to fair wage policies and safe workplace compliance guidelines.
                         </p>
                       </div>
 
-                      <div className="bg-white rounded-2xl p-4 border border-[#e6e8ec] space-y-1.5">
+                      <div className="bg-slate-50/80 rounded-2xl p-4 border border-slate-100 space-y-1.5">
                         <div className="flex items-center gap-2">
                           <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                          <h4 className="text-xs font-bold text-[#0a0a0a]">Direct Communication</h4>
+                          <h4 className="text-xs font-bold text-[#0A1931]">Direct Communication</h4>
                         </div>
-                        <p className="text-[11px] text-[#717784] leading-relaxed">
+                        <p className="text-[11px] text-slate-500 leading-relaxed">
                           Connect immediately with verified workers without intermediary agencies or recruiter markups.
                         </p>
                       </div>
 
-                      <div className="bg-white rounded-2xl p-4 border border-[#e6e8ec] space-y-1.5">
+                      <div className="bg-slate-50/80 rounded-2xl p-4 border border-slate-100 space-y-1.5">
                         <div className="flex items-center gap-2">
                           <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                          <h4 className="text-xs font-bold text-[#0a0a0a]">Rapid Deployment</h4>
+                          <h4 className="text-xs font-bold text-[#0A1931]">Rapid Deployment</h4>
                         </div>
-                        <p className="text-[11px] text-[#717784] leading-relaxed">
+                        <p className="text-[11px] text-slate-500 leading-relaxed">
                           Average position fulfillment rate of under 12 hours across retail, logistics, and technical trades.
                         </p>
                       </div>
@@ -674,11 +666,11 @@ export default function EmployerProfileDetailsPage() {
             {/* TAB CONTENT 3: Escrow & Hiring History */}
             {activeTab === 'compliance' && (
               <div className="space-y-4">
-                <div className="bg-[#f4f4f4] rounded-[1.75rem] p-6 sm:p-8 border border-[#e6e8ec] space-y-6">
+                <div className="bg-white rounded-[1.75rem] p-6 sm:p-8 border border-slate-200/80 shadow-xs space-y-6">
                   
-                  <div className="border-b border-[#e6e8ec] pb-4">
-                    <h3 className="text-lg font-bold text-[#0a0a0a]">Escrow & Corporate Compliance</h3>
-                    <p className="text-xs text-[#717784] font-medium mt-0.5">
+                  <div className="border-b border-slate-100 pb-4">
+                    <h3 className="text-lg font-bold text-[#0A1931]">Escrow & Corporate Compliance</h3>
+                    <p className="text-xs text-slate-500 font-medium mt-0.5">
                       TrustHire audit record and timeline of your company verification milestones.
                     </p>
                   </div>
@@ -687,54 +679,54 @@ export default function EmployerProfileDetailsPage() {
                   <div className="space-y-4">
                     
                     {/* Item 1 */}
-                    <div className="flex items-start gap-4 bg-white p-4 rounded-2xl border border-[#e6e8ec]">
+                    <div className="flex items-start gap-4 bg-slate-50/80 p-4 rounded-2xl border border-slate-100">
                       <div className="w-9 h-9 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center shrink-0 text-emerald-600">
                         <ShieldCheck className="w-5 h-5" />
                       </div>
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
-                          <h4 className="text-xs font-bold text-[#0a0a0a]">Corporate Entity Verified</h4>
+                          <h4 className="text-xs font-bold text-[#0A1931]">Corporate Entity Verified</h4>
                           <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">
                             Passed
                           </span>
                         </div>
-                        <p className="text-[11px] text-[#717784] leading-relaxed">
+                        <p className="text-[11px] text-slate-500 leading-relaxed">
                           Business identity, official address, and authorized contact person verified under TrustHire standard KYC protocol.
                         </p>
                       </div>
                     </div>
 
                     {/* Item 2 */}
-                    <div className="flex items-start gap-4 bg-white p-4 rounded-2xl border border-[#e6e8ec]">
+                    <div className="flex items-start gap-4 bg-slate-50/80 p-4 rounded-2xl border border-slate-100">
                       <div className="w-9 h-9 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center shrink-0 text-[#0f2f63]">
                         <DollarSign className="w-5 h-5" />
                       </div>
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
-                          <h4 className="text-xs font-bold text-[#0a0a0a]">Escrow Security Vault Active</h4>
+                          <h4 className="text-xs font-bold text-[#0A1931]">Escrow Security Vault Active</h4>
                           <span className="text-[10px] font-semibold text-[#0f2f63] bg-blue-50 px-2 py-0.5 rounded-full">
                             Active
                           </span>
                         </div>
-                        <p className="text-[11px] text-[#717784] leading-relaxed">
+                        <p className="text-[11px] text-slate-500 leading-relaxed">
                           Automated payout escrow linked. Shift workers are guaranteed 100% dispute protection and immediate fund releases upon check-out.
                         </p>
                       </div>
                     </div>
 
                     {/* Item 3 */}
-                    <div className="flex items-start gap-4 bg-white p-4 rounded-2xl border border-[#e6e8ec]">
+                    <div className="flex items-start gap-4 bg-slate-50/80 p-4 rounded-2xl border border-slate-100">
                       <div className="w-9 h-9 rounded-full bg-amber-50 border border-amber-200 flex items-center justify-center shrink-0 text-amber-600">
                         <Clock className="w-5 h-5" />
                       </div>
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
-                          <h4 className="text-xs font-bold text-[#0a0a0a]">Zero Ghosting Commitment</h4>
+                          <h4 className="text-xs font-bold text-[#0A1931]">Zero Ghosting Commitment</h4>
                           <span className="text-[10px] font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full">
                             Enforced
                           </span>
                         </div>
-                        <p className="text-[11px] text-[#717784] leading-relaxed">
+                        <p className="text-[11px] text-slate-500 leading-relaxed">
                           Maintains average application review time under 4 hours. All applied candidates receive status responses or interview invites.
                         </p>
                       </div>

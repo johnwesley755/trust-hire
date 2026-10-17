@@ -1,9 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { useAuth, useUser } from '../providers/AuthContext';
 import { UserAvatar } from '../components/common/UserAvatar';
 import { NotificationCenter } from '../modules/dashboard/features/notifications/NotificationCenter';
 import { NavbarSearchInput } from '../modules/search/components/NavbarSearchInput';
+import { notificationService, type AppNotification } from '../services/notification.service';
 import trustHyreLogo from '../assets/TrustHyre Skills and Opportunities Logo.png';
 import { 
   Upload, 
@@ -22,7 +24,8 @@ import {
   CheckCircle2,
   LayoutDashboard,
   FileText,
-  Users
+  Users,
+  Bell
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -31,6 +34,16 @@ export const AppTopNavbar = () => {
   const { logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+
+  const { data: notifications = [] } = useQuery<AppNotification[]>({
+    queryKey: ['notifications'],
+    queryFn: async () => {
+      return notificationService.getNotifications();
+    },
+    staleTime: 15 * 1000,
+    enabled: Boolean(user),
+  });
+  const unreadCount = notifications.filter(n => !n.isRead && !(n as any).is_read).length;
 
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -90,10 +103,10 @@ export const AppTopNavbar = () => {
 
   return (
     <header className="sticky top-0 z-50 w-full bg-white/90 backdrop-blur-md border-b border-[#e6e8ec] shadow-xs text-[#0a0a0a] select-none font-['Onest',system-ui,sans-serif]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-18 flex items-center justify-between gap-3 sm:gap-4">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-18 flex items-center justify-between gap-3 sm:gap-4">
         
         {/* Left: Brand Logo */}
-        <div className="flex items-center gap-4 sm:gap-6 shrink-0">
+        <div className="flex items-center gap-3 sm:gap-5 shrink-0">
           <Link to="/" className="flex items-center group py-1" aria-label="TrustHyre Home">
             <img 
               src={trustHyreLogo} 
@@ -103,14 +116,14 @@ export const AppTopNavbar = () => {
           </Link>
 
           {/* Desktop Nav Links - Complete List without Truncation */}
-          <nav className="hidden lg:flex items-center gap-1">
+          <nav className="hidden lg:flex items-center gap-0.5 xl:gap-1 shrink-0">
             {navLinks.map((link) => {
               const isActive = location.pathname === link.path || (link.path === '/search' && location.pathname === '/');
               return (
                 <Link
                   key={link.path}
                   to={link.path}
-                  className={`px-3 py-1.5 text-xs font-medium rounded-full transition-all ${
+                  className={`px-2.5 xl:px-3 py-1.5 text-xs font-medium rounded-full transition-all whitespace-nowrap ${
                     isActive 
                       ? 'bg-[#0f2f63] text-white shadow-xs' 
                       : 'text-[#717784] hover:text-[#0a0a0a] hover:bg-[#f4f4f4]'
@@ -123,16 +136,16 @@ export const AppTopNavbar = () => {
           </nav>
         </div>
 
-        {/* Center: Hallmark N13 Inline Capsule Search Bar */}
-        <div className="hidden md:flex items-center flex-1 max-w-xs md:max-w-sm lg:max-w-md mx-2">
+        {/* Center: Hallmark N13 Inline Capsule Search Bar (Reduced & Compact) */}
+        <div className="hidden md:flex items-center flex-1 max-w-[240px] lg:max-w-[280px] xl:max-w-[320px] mx-2 lg:mx-3">
           <NavbarSearchInput 
             className="w-full" 
-            placeholder={isEmployer ? "Search specialists, skills..." : "Search jobs, roles..."} 
+            placeholder={isEmployer ? "Search specialists..." : "Search jobs..."} 
           />
         </div>
 
         {/* Right Actions: CTA + Notifications + Profile Menu / Guest Buttons */}
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           
           {/* Mobile Search Toggle Button */}
           <button
@@ -151,41 +164,41 @@ export const AppTopNavbar = () => {
               {isEmployer ? (
                 <Link
                   to="/post-job"
-                  className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#0f2f63] hover:bg-[#2563c9] text-white text-xs font-medium uppercase shadow-xs transition-all active:scale-95 cursor-pointer"
+                  className="hidden sm:inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-full bg-[#0f2f63] hover:bg-[#2563c9] text-white text-xs font-semibold uppercase tracking-wider shadow-xs transition-all active:scale-95 cursor-pointer shrink-0 whitespace-nowrap h-9 leading-none"
                 >
-                  <PlusCircle className="w-3.5 h-3.5" />
-                  <span>Post a Job</span>
+                  <PlusCircle className="w-3.5 h-3.5 shrink-0" />
+                  <span className="whitespace-nowrap">Post a Job</span>
                 </Link>
               ) : (
                 <Link
                   to="/profile"
-                  className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#f4f4f4] hover:bg-[#e6e8ec] text-[#0f2f63] border border-[#e6e8ec] text-xs font-medium uppercase transition-all active:scale-95 cursor-pointer"
+                  className="hidden sm:inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-full bg-[#f4f4f4] hover:bg-[#e6e8ec] text-[#0f2f63] border border-[#e6e8ec] text-xs font-semibold uppercase tracking-wider transition-all active:scale-95 cursor-pointer shrink-0 whitespace-nowrap h-9 leading-none"
                 >
-                  <Upload className="w-3.5 h-3.5" />
-                  <span>Upload Resume</span>
+                  <Upload className="w-3.5 h-3.5 shrink-0" />
+                  <span className="whitespace-nowrap">Upload Resume</span>
                 </Link>
               )}
 
               {/* Notification Center */}
-              <div className="relative">
+              <div className="relative shrink-0">
                 <NotificationCenter />
               </div>
 
               {/* User Profile Dropdown Pill */}
-              <div className="relative" ref={profileMenuRef}>
+              <div className="relative shrink-0" ref={profileMenuRef}>
                 <button
                   onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                  className="flex items-center gap-2 p-1 pl-1.5 pr-2 rounded-full bg-[#f4f4f4] hover:bg-[#e6e8ec] border border-[#e6e8ec] transition-all cursor-pointer"
+                  className="flex items-center gap-2 p-1 pl-1.5 pr-2.5 rounded-full bg-[#f4f4f4] hover:bg-[#e6e8ec] border border-[#e6e8ec] transition-all cursor-pointer shrink-0 whitespace-nowrap h-9"
                 >
                   <UserAvatar
                     src={user?.profileImageUrl}
                     name={displayName}
                     size="sm"
                   />
-                  <span className="hidden lg:block text-xs font-medium text-[#0a0a0a] max-w-[110px] truncate">
+                  <span className="hidden lg:block text-xs font-medium text-[#0a0a0a] max-w-[100px] truncate">
                     {displayName}
                   </span>
-                  <ChevronDown className={`w-3.5 h-3.5 text-[#717784] transition-transform duration-200 ${isProfileMenuOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDown className={`w-3.5 h-3.5 text-[#717784] shrink-0 transition-transform duration-200 ${isProfileMenuOpen ? 'rotate-180' : ''}`} />
                 </button>
 
                 {/* Dropdown Menu Modal */}
@@ -304,11 +317,29 @@ export const AppTopNavbar = () => {
                         <button
                           onClick={() => {
                             setIsProfileMenuOpen(false);
+                            navigate('/notifications');
+                          }}
+                          className="w-full px-4 py-2 text-xs font-medium text-slate-800 hover:bg-slate-100 flex items-center justify-between transition-colors cursor-pointer text-left"
+                        >
+                          <div className="flex items-center gap-3">
+                            <Bell className="w-4 h-4 text-slate-500" />
+                            <span>Notifications</span>
+                          </div>
+                          {unreadCount > 0 && (
+                            <span className="px-1.5 py-0.5 bg-blue-50 text-[#0066FF] text-[10px] font-bold rounded-full border border-blue-100">
+                              {unreadCount}
+                            </span>
+                          )}
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            setIsProfileMenuOpen(false);
                             navigate('/settings');
                           }}
-                          className="w-full px-4 py-2 text-xs font-medium text-[#0a0a0a] hover:bg-[#f4f4f4] flex items-center gap-3 transition-colors cursor-pointer text-left"
+                          className="w-full px-4 py-2 text-xs font-medium text-slate-800 hover:bg-slate-100 flex items-center gap-3 transition-colors cursor-pointer text-left"
                         >
-                          <Settings className="w-4 h-4 text-[#717784]" />
+                          <Settings className="w-4 h-4 text-slate-500" />
                           <span>Account Settings</span>
                         </button>
                       </div>
@@ -512,11 +543,27 @@ export const AppTopNavbar = () => {
                   )}
 
                   <Link
+                    to="/notifications"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium text-slate-800 hover:bg-slate-100"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <Bell className="w-4 h-4 text-slate-500" />
+                      <span>Notifications</span>
+                    </div>
+                    {unreadCount > 0 && (
+                      <span className="px-2 py-0.5 bg-blue-50 text-[#0066FF] text-[10px] font-bold rounded-full border border-blue-100">
+                        {unreadCount} unread
+                      </span>
+                    )}
+                  </Link>
+
+                  <Link
                     to="/settings"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs font-medium text-[#0a0a0a] hover:bg-[#f4f4f4]"
+                    className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs font-medium text-slate-800 hover:bg-slate-100"
                   >
-                    <Settings className="w-4 h-4 text-[#717784]" />
+                    <Settings className="w-4 h-4 text-slate-500" />
                     <span>Account Settings</span>
                   </Link>
 

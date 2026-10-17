@@ -213,7 +213,7 @@ export const TermsPage: React.FC = () => {
                 <h2 className="text-xl font-bold text-[#0A1931]">1. Agreement & Acceptance</h2>
               </div>
               <p className="text-sm text-slate-600 leading-relaxed">
-                By creating an account, browsing job listings, searching worker dossiers, or using any feature on TrustHyre (operated by TrustHyre Technologies Pvt. Ltd., &ldquo;TrustHyre&rdquo;, &ldquo;we&rdquo;, &ldquo;us&rdquo;), you confirm that you have read, understood, and agree to be bound by these Terms of Service. If you do not agree with these terms, you must not access or utilize the platform.
+                By creating an account, browsing job listings, searching worker profiles, or using any feature on TrustHyre (operated by TrustHyre Technologies Pvt. Ltd., &ldquo;TrustHyre&rdquo;, &ldquo;we&rdquo;, &ldquo;us&rdquo;), you confirm that you have read, understood, and agree to be bound by these Terms of Service. If you do not agree with these terms, you must not access or utilize the platform.
               </p>
               <p className="text-sm text-slate-600 leading-relaxed">
                 These terms apply universally to individual candidates seeking employment (&ldquo;Workers&rdquo;), corporate recruiters, business managers, household employers (&ldquo;Employers&rdquo;), and general visitors.
@@ -309,7 +309,7 @@ export const TermsPage: React.FC = () => {
                 Users are strictly prohibited from engaging in any of the following activities:
               </p>
               <ul className="list-disc pl-5 space-y-2 text-sm text-slate-600">
-                <li>Scraping, harvesting, or reverse-engineering candidate dossiers or employer job data.</li>
+                <li>Scraping, harvesting, or reverse-engineering candidate profiles or employer job data.</li>
                 <li>Posting fraudulent, unlawful, misleading, or deceptive job offers or resumes.</li>
                 <li>Soliciting offline direct payments to intentionally bypass platform protections and payment safety audits.</li>
                 <li>Deploying malicious automation, bot attacks, denial-of-service scripts, or vulnerability probing.</li>

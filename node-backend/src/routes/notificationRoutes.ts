@@ -10,9 +10,10 @@ router.get('/unread/count', authenticateJWT, notificationController.getUnreadCou
 router.patch('/read-all', authenticateJWT, notificationController.markAllAsRead);
 router.delete('/all', authenticateJWT, notificationController.deleteAllNotifications);
 
-// Firebase Cloud Messaging (FCM) device token management
+// Firebase Cloud Messaging (FCM) device token management & testing
 router.post('/fcm-token', authenticateJWT, notificationController.registerFcmToken);
 router.delete('/fcm-token', authenticateJWT, notificationController.unregisterFcmToken);
+router.post('/test-push', authenticateJWT, notificationController.testPushNotification);
 
 // Individual item parameter routes
 router.patch('/:id/read', authenticateJWT, notificationController.markAsRead);

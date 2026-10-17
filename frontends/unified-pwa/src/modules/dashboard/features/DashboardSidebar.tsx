@@ -36,6 +36,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ isOpen, onCl
   const menuItems = isEmployer ? employerMenuItems : workerMenuItems;
 
   const secondaryItems = [
+    { name: 'Notifications', icon: 'notifications', path: '/notifications' },
     { name: 'Settings', icon: 'settings', path: '/settings' },
   ];
 
