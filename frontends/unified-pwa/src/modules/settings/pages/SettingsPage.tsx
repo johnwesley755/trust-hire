@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import apiClient from '../../../api/apiClient';
 import { useAuth } from '../../../providers/AuthContext';
 import { queryKeys } from '../../../lib/queryKeys';
+import { notificationService } from '../../../services/notification.service';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Building2, 
@@ -153,19 +154,14 @@ export const SettingsPage: React.FC = () => {
     enabled: !!user?.id
   });
 
-  // 3. Unread Notifications Count Query
+  // 3. Unread Notifications Count Query (fetched on mount/invalidation, no polling)
   const { data: unreadNotificationsCount = 0 } = useQuery<number>({
     queryKey: queryKeys.notifications.unreadCount,
-    queryFn: async () => {
-      try {
-        const res = await apiClient.get('/api/notifications/unread-count');
-        return typeof res.data === 'number' ? res.data : (res.data?.count || 0);
-      } catch {
-        return 0;
-      }
-    },
+    queryFn: () => notificationService.getUnreadCount(),
     enabled: !!user?.id,
-    refetchInterval: 30000
+    staleTime: 60 * 1000,
+    refetchOnWindowFocus: false,
+    retry: 1
   });
 
   // Populate profile form when user or profile data is fetched
@@ -624,7 +620,7 @@ export const SettingsPage: React.FC = () => {
                 <span>Need Assistance?</span>
               </div>
               <p className="text-[11px] text-slate-500 font-medium leading-relaxed">
-                Have questions about billing, Aadhaar verification, or enterprise escrow? Our team is available 24/7.
+                Have questions about billing, Aadhaar verification, or enterprise accounts? Our team is available 24/7.
               </p>
               <div className="pt-1">
                 <a
@@ -692,7 +688,7 @@ export const SettingsPage: React.FC = () => {
 
                   {/* Profile Edit Form Card */}
                   <div className="bg-white rounded-[2rem] p-6 sm:p-7 border border-slate-200/90 shadow-xs space-y-5">
-                    <div className="pb-4 border-b border-slate-100 flex items-center justify-between">
+                    {/* <div className="pb-4 border-b border-slate-100 flex items-center justify-between">
                       <div>
                         <h2 className="text-base font-bold text-[#0A1931]">
                           {isEmployer ? 'Company & Business Details' : 'Personal & Contact Details'}
@@ -704,7 +700,7 @@ export const SettingsPage: React.FC = () => {
                       <span className="text-[10px] font-bold uppercase tracking-wider text-[#0f2f63] bg-[#0f2f63]/10 px-2.5 py-1 rounded-full border border-[#0f2f63]/20">
                         Live Sync
                       </span>
-                    </div>
+                    </div> */}
 
                     <form onSubmit={handleSaveProfile} className="space-y-4">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -893,7 +889,7 @@ export const SettingsPage: React.FC = () => {
                         </span>
                       </div>
                       <p className="text-xs text-slate-500 font-medium leading-relaxed">
-                        Your account is linked to verified Aadhaar / business registration under TrustHyre escrow compliance. To request updates to legal names or certificates, please contact compliance support.
+                        Your account is linked to verified Aadhaar / business registration under TrustHyre compliance standards. To request updates to legal names or certificates, please contact compliance support.
                       </p>
                     </div>
                   </div>
@@ -1368,7 +1364,7 @@ export const SettingsPage: React.FC = () => {
                     <div className="pb-3 border-b border-slate-100">
                       <h3 className="text-base font-bold text-[#0A1931]">Marketplace Regional Configuration</h3>
                       <p className="text-xs text-slate-500 font-medium mt-0.5">
-                        Default currency and timezone applied to job wage rates, escrow releases, and shift schedules.
+                        Default currency and timezone applied to job wage rates, payment releases, and shift schedules.
                       </p>
                     </div>
 
@@ -1391,9 +1387,9 @@ export const SettingsPage: React.FC = () => {
                   {/* Legal Terms & Data Privacy Card */}
                   <div className="bg-white rounded-[2rem] p-6 sm:p-7 border border-slate-200/90 shadow-xs space-y-4">
                     <div className="pb-3 border-b border-slate-100">
-                      <h3 className="text-base font-bold text-[#0A1931]">Compliance, Privacy & Escrow Policy</h3>
+                      <h3 className="text-base font-bold text-[#0A1931]">Compliance, Privacy & Payment Policy</h3>
                       <p className="text-xs text-slate-500 font-medium mt-0.5">
-                        TrustHyre operates under rigorous Aadhaar KYC verification and milestone escrow safety standards.
+                        TrustHyre operates under rigorous Aadhaar KYC verification and milestone payment safety standards.
                       </p>
                     </div>
 

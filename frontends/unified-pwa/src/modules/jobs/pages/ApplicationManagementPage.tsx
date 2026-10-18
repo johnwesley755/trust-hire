@@ -285,7 +285,7 @@ export default function ApplicationManagementPage() {
                               <span className="font-bold text-sm text-emerald-700">
                                 ₹{(job.budget || 0).toLocaleString('en-IN')}
                               </span>
-                              <span className="block text-[10px] text-[#717784]">Escrow Protected</span>
+                              <span className="block text-[10px] text-[#717784]">Payment Protected</span>
                             </div>
                           </div>
 

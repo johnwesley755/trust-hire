@@ -44,8 +44,8 @@ export const JobSearchHero: React.FC<JobSearchHeroProps> = ({
   const displayName = user?.firstName || 'Candidate';
   const resolvedTitle = title || (user ? `Welcome back, ${displayName}! 👋` : "Verified Job Openings");
   const resolvedSubtitle = subtitle || (user 
-    ? "Explore newly posted roles matching your verified trade skills with guaranteed escrow payouts."
-    : "Discover verified roles, escrow-protected wage payouts, and background-checked employers.");
+    ? "Explore newly posted roles matching your verified trade skills with direct guaranteed payouts."
+    : "Discover verified roles, protected wage payouts, and background-checked employers.");
   const [internalLocating, setInternalLocating] = useState(false);
   const [locationNotice, setLocationNotice] = useState<string | null>(null);
 

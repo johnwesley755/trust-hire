@@ -20,7 +20,8 @@ export const getDashboardSummary = async (c: Context) => {
         acceptedCount,
         unreadNotifications,
         employerProfile,
-        recentApplications
+        recentApplications,
+        availableWorkersCount
       ] = await Promise.all([
         prisma.jobs.count({ where: { employer_id: userId, status: 'OPEN' } }),
         prisma.jobs.count({ where: { employer_id: userId } }),
@@ -34,10 +35,11 @@ export const getDashboardSummary = async (c: Context) => {
           take: 5,
           orderBy: { applied_at: 'desc' },
           include: { jobs: { select: { title: true, city: true } } }
-        })
+        }),
+        prisma.worker_profiles.count({ where: { is_available: true } })
       ]);
 
-      const fillRate = totalJobs > 0 ? Math.min(100, Math.round((acceptedCount / totalJobs) * 100)) : 94;
+      const fillRate = totalJobs > 0 ? Math.min(100, Math.round((acceptedCount / totalJobs) * 100)) : 0;
 
       return c.json(ApiResponse.ok({
         role: 'EMPLOYER',
@@ -52,7 +54,8 @@ export const getDashboardSummary = async (c: Context) => {
         companyName: employerProfile?.company_name || 'Employer',
         businessTier: employerProfile?.business_tier || 'ENTERPRISE',
         city: employerProfile?.city || '',
-        radarNearbyWorkersCount: 48,
+        availableWorkersCount,
+        radarNearbyWorkersCount: availableWorkersCount,
         recentApplications: recentApplications.map(app => ({
           id: app.id,
           jobTitle: app.jobs?.title || 'Open Shift',
@@ -84,8 +87,8 @@ export const getDashboardSummary = async (c: Context) => {
         approvedHired: approvedCount,
         unreadNotifications,
         level: profile?.level && !profile.level.startsWith('L') ? profile.level : 'Verified Specialist',
-        trustScore: profile?.trust_score ?? 98,
-        hourlyRate: profile?.hourly_rate ?? 450,
+        trustScore: profile?.trust_score ?? 0,
+        hourlyRate: profile?.hourly_rate ?? 0,
         city: profile?.city || '',
         isVerified: true
       }));

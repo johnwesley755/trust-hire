@@ -11,12 +11,9 @@ import {
   ShieldCheck, 
   PlusCircle, 
   ArrowRight, 
-  Zap, 
-  TrendingUp, 
   Sparkles,
   Bookmark,
   History,
-  CheckCircle2,
   ChevronRight,
   Send,
   Building2
@@ -45,8 +42,7 @@ export default function DashboardPage() {
   const totalApplicants = summary?.totalApplicants ?? 0;
   const interviewingCount = summary?.interviewingCount ?? 0;
   const totalHired = summary?.totalHired ?? 0;
-  const fillRate = summary?.fillRatePercentage ?? 94;
-  const radarNearbyCount = summary?.radarNearbyWorkersCount ?? 48;
+  const availableCandidates = summary?.availableWorkersCount ?? summary?.radarNearbyWorkersCount ?? 0;
 
   return (
     <div className="w-full min-h-screen p-2 sm:p-3 bg-white font-['Onest',system-ui,sans-serif] text-[#0a0a0a]">
@@ -69,7 +65,7 @@ export default function DashboardPage() {
                   Welcome back, {displayName} 👋
                 </h1>
                 <p className="text-[#717784] text-sm leading-relaxed">
-                  Real-time talent operations, candidate application pipeline, and escrow wage security overview.
+                  Real-time talent operations, candidate application pipeline, and verified hiring overview.
                 </p>
               </div>
 
@@ -208,42 +204,42 @@ export default function DashboardPage() {
 
         </div>
 
-        {/* 3. Operational Grid (2 Columns: Operations Radar + Trust & Quick Actions) */}
+        {/* 3. Operational Grid (2 Columns: Candidate Discovery + Trust & Quick Actions) */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           
-          {/* Left 2 Columns: Talent Radar & Performance */}
+          {/* Left 2 Columns: Talent Discovery */}
           <div className="lg:col-span-2 space-y-6">
             
-            {/* Talent Radar Card */}
+            {/* Verified Candidate Discovery Card */}
             <div className="rounded-[2rem] border border-[#e6e8ec] bg-[#f4f4f4] p-6 sm:p-8 shadow-xs space-y-5">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-2xl bg-white border border-[#e6e8ec] text-amber-500 flex items-center justify-center">
-                    <Zap className="w-5 h-5 fill-current" />
+                  <div className="w-10 h-10 rounded-2xl bg-white border border-[#e6e8ec] text-[#0f2f63] flex items-center justify-center">
+                    <Users className="w-5 h-5" />
                   </div>
                   <div>
                     <h3 className="text-base sm:text-lg font-extrabold text-[#0a0a0a]">
-                      Hyperlocal Talent Radar Active
+                      Verified Talent Directory
                     </h3>
                     <p className="text-xs text-[#717784]">
-                      Verified blue-collar & trade technicians within immediate dispatch radius
+                      Pre-screened trade technicians and skilled candidates ready for immediate hire
                     </p>
                   </div>
                 </div>
 
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold self-start sm:self-auto border border-emerald-100">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  Live Radar Feed
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                  Verified Database
                 </span>
               </div>
 
               <div className="p-4 sm:p-5 rounded-[1.5rem] bg-white border border-[#e6e8ec] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
                   <div className="text-2xl sm:text-3xl font-extrabold text-[#0a0a0a]">
-                    {radarNearbyCount}+ Verified Candidates
+                    {availableCandidates > 0 ? `${availableCandidates} Verified Candidates Available` : 'Search Verified Candidates'}
                   </div>
                   <p className="text-xs text-[#717784] mt-1">
-                    Pre-vetted electricians, welders, plumbers, and equipment operators within 5km.
+                    Pre-screened electricians, welders, plumbers, drivers, carpenters, and technical trades.
                   </p>
                 </div>
                 <Link
@@ -272,43 +268,6 @@ export default function DashboardPage() {
                     </button>
                   ))}
                 </div>
-              </div>
-            </div>
-
-            {/* Hiring Fill Rate & Operations Health */}
-            <div className="rounded-[2rem] border border-[#e6e8ec] bg-[#f4f4f4] p-6 sm:p-8 shadow-xs space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-2xl bg-white border border-[#e6e8ec] text-[#0f2f63] flex items-center justify-center">
-                    <TrendingUp className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h3 className="text-base sm:text-lg font-extrabold text-[#0a0a0a]">
-                      Hiring Fill Rate & SLA
-                    </h3>
-                    <p className="text-xs text-[#717784]">
-                      Your candidate acceptance and position fulfillment metric
-                    </p>
-                  </div>
-                </div>
-                <span className="text-2xl font-black text-emerald-600">
-                  {fillRate}%
-                </span>
-              </div>
-
-              <div className="w-full bg-white h-3 rounded-full border border-[#e6e8ec] overflow-hidden p-0.5">
-                <div 
-                  className="bg-[#0f2f63] h-full rounded-full transition-all duration-700" 
-                  style={{ width: `${fillRate}%` }}
-                />
-              </div>
-
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between text-xs text-[#717784] pt-1 gap-2">
-                <span className="flex items-center gap-1.5 text-[#0a0a0a] font-medium">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  <span>Top 5% fulfillment speed across platform employers</span>
-                </span>
-                <span>Average match time: ~42 mins</span>
               </div>
             </div>
 
@@ -398,13 +357,13 @@ export default function DashboardPage() {
                 <li className="flex items-start gap-2.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0 mt-1.5" />
                   <span className="text-[#717784]">
-                    <strong className="text-[#0a0a0a]">Escrow Wage Lock:</strong> Payouts are protected in trust until shift milestone sign-off.
+                    <strong className="text-[#0a0a0a]">Secure Payment Protection:</strong> Direct, guaranteed payouts released upon shift milestone sign-off.
                   </span>
                 </li>
                 <li className="flex items-start gap-2.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0 mt-1.5" />
                   <span className="text-[#717784]">
-                    <strong className="text-[#0a0a0a]">Zero Ghosting SLA:</strong> Automatic immediate replacement warranty if a specialist cancels.
+                    <strong className="text-[#0a0a0a]">Reliable Replacement Guarantee:</strong> Immediate candidate replacement assistance if a specialist cancels.
                   </span>
                 </li>
               </ul>

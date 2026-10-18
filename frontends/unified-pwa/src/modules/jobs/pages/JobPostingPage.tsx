@@ -393,7 +393,7 @@ export const JobPostingPage = () => {
               {/* Submit Button Action Row */}
               <div className="bg-[#fbfbfb] p-4 rounded-2xl border border-[#e6e8ec] flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div className="text-xs text-[#717784]">
-                  <p className="font-semibold text-[#0a0a0a]">Escrow Protected Shift Posting</p>
+                  <p className="font-semibold text-[#0a0a0a]">Secure Protected Shift Posting</p>
                   <p className="text-[11px]">Funds are held securely and released upon candidate check-out confirmation.</p>
                 </div>
 
@@ -419,7 +419,7 @@ export const JobPostingPage = () => {
             
             {/* Live Mockup Card */}
             <div className="bg-[#f4f4f4] rounded-[1.75rem] p-6 border border-[#e6e8ec] space-y-4">
-              <div className="flex items-center justify-between border-b border-[#e6e8ec] pb-3">
+              {/* <div className="flex items-center justify-between border-b border-[#e6e8ec] pb-3">
                 <div className="flex items-center gap-1.5">
                   <Eye className="w-4 h-4 text-[#0f2f63]" />
                   <h3 className="text-xs font-bold uppercase text-[#717784]">
@@ -429,7 +429,7 @@ export const JobPostingPage = () => {
                 <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
                   Live Sync
                 </span>
-              </div>
+              </div> */}
 
               {/* Mockup Card */}
               <div className="bg-white rounded-2xl p-5 border border-[#e6e8ec] shadow-sm space-y-3">
@@ -473,7 +473,7 @@ export const JobPostingPage = () => {
                 <div className="pt-2 border-t border-[#e6e8ec] flex items-center justify-between text-[11px]">
                   <span className="text-emerald-700 font-semibold flex items-center gap-1">
                     <ShieldCheck className="w-3.5 h-3.5" />
-                    <span>100% Escrow Guaranteed</span>
+                    <span>100% Payment Protected</span>
                   </span>
                   {previewExpiresAt && (
                     <span className="text-[#717784] text-[10px] flex items-center gap-1 font-medium">

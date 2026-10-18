@@ -349,7 +349,7 @@ export const PrivacyPage: React.FC = () => {
                 <p><strong>Entity:</strong> TrustHyre Technologies Private Limited</p>
                 <p><strong>Address:</strong> HSR Layout, Sector 4, Bengaluru, Karnataka 560102, India</p>
                 <p><strong>Email:</strong> <a href="mailto:grievance@trusthire.in" className="text-[#0f2f63] font-bold hover:underline">grievance@trusthire.in</a> / <a href="mailto:privacy@trusthire.in" className="text-[#0f2f63] font-bold hover:underline">privacy@trusthire.in</a></p>
-                <p><strong>Resolution SLA:</strong> All formal privacy complaints are acknowledged within 24 hours and resolved within 15 business days.</p>
+                <p><strong>Resolution Timeline:</strong> All formal privacy complaints are acknowledged within 24 hours and resolved within 15 business days.</p>
               </div>
             </section>
 

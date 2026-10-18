@@ -46,7 +46,7 @@ export const StatsSection: React.FC<{ trustScore?: number; nearbyJobs?: number; 
         containerColor="bg-blue-50 border border-blue-100"
       />
       <StatCard 
-        label="Wallet & Escrow Balance"
+        label="Wallet & Available Balance"
         value={earnings}
         icon={<Wallet className="w-6 h-6 text-indigo-600" />}
         containerColor="bg-indigo-50 border border-indigo-100"

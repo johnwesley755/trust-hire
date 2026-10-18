@@ -43,7 +43,7 @@ export const getUnreadCount = async (c: Context) => {
     const count = await prisma.notifications.count({
       where: { user_id: userId, is_read: false }
     });
-    return c.json(ApiResponse.ok("Unread count fetched", count));
+    return c.json(ApiResponse.ok("Unread count fetched", { count, unreadCount: count }));
   } catch (err: any) {
     return c.json(ApiResponse.error(err.message), 500 as any);
   }

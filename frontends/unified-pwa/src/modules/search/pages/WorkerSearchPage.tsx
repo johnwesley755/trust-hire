@@ -554,7 +554,7 @@ export const WorkerSearchPage = () => {
                 </li>
                 <li className="flex items-center gap-2.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 shrink-0" />
-                  <span>Escrow-protected daily payouts</span>
+                  <span>Protected daily wage payouts</span>
                 </li>
                 <li className="flex items-center gap-2.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 shrink-0" />

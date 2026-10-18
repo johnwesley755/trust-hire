@@ -141,7 +141,7 @@ export const LANDING_IMAGES = {
   digitalEscrowVault: {
     src: "/images/landing/indian_plumber.jpg",
     alt: "Indian commercial technician inspecting milestone installation",
-    title: "Automated Escrow Settlement",
-    category: "Escrow",
+    title: "Direct Payment Settlement",
+    category: "Payment",
   },
 } as const;

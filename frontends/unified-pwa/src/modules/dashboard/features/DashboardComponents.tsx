@@ -19,7 +19,7 @@ export const StatsGrid = () => {
         { 
             label: 'Active Postings', 
             value: stats?.activeJobs || 0, 
-            trend: '+2 this week', 
+            trend: 'Live Openings', 
             trendColor: 'text-emerald-700 bg-emerald-50',
             icon: <Briefcase className="w-5 h-5 text-[#0066FF]" />,
             bg: 'bg-blue-50'
@@ -43,7 +43,7 @@ export const StatsGrid = () => {
         { 
             label: 'Hired & Active', 
             value: stats?.totalHired || 0, 
-            trend: '100% Escrow Guaranteed', 
+            trend: 'Payment Protected', 
             trendColor: 'text-emerald-700 bg-emerald-50',
             icon: <Award className="w-5 h-5 text-emerald-600" />,
             bg: 'bg-emerald-50'

@@ -191,7 +191,7 @@ export const TermsPage: React.FC = () => {
                 </li>
                 <li className="flex items-start gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>Abide by TrustHyre Escrow Smart-Hold protection.</span>
+                  <span>Abide by TrustHyre Smart-Hold payment protection.</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
@@ -267,7 +267,7 @@ export const TermsPage: React.FC = () => {
                 <div className="w-9 h-9 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-[#0f2f63]">
                   <ShieldCheck className="w-5 h-5" />
                 </div>
-                <h2 className="text-xl font-bold text-[#0A1931]">4. Worker Rights, Commitments & Escrow Protections</h2>
+                <h2 className="text-xl font-bold text-[#0A1931]">4. Worker Rights, Commitments & Payment Protections</h2>
               </div>
               <p className="text-sm text-slate-600 leading-relaxed">
                 Workers registered on TrustHyre are guaranteed fair assessment, verified compensation schedules, and prompt dispute review. In return, workers agree to:

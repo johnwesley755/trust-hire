@@ -125,7 +125,7 @@ export default function AppliedJobsPage() {
                 My Active Job Applications
               </h1>
               <p className="text-xs text-[#717784] font-medium leading-relaxed max-w-xl">
-                Tracking {applications.length} submitted applications with real-time status updates and guaranteed escrow wage protections.
+                Tracking {applications.length} submitted applications with real-time status updates and guaranteed wage protections.
               </p>
             </div>
 
@@ -144,7 +144,7 @@ export default function AppliedJobsPage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
             <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-xl border border-[#e6e8ec]/80">
               <div className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></div>
-              <span className="font-medium text-[#0a0a0a]">Escrow Wage Protection</span>
+              <span className="font-medium text-[#0a0a0a]">Direct Wage Protection</span>
             </div>
             <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-xl border border-[#e6e8ec]/80">
               <div className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></div>
@@ -339,7 +339,7 @@ export default function AppliedJobsPage() {
                   <div className="pt-3 border-t border-[#e6e8ec] flex items-center justify-between">
                     <span className="text-[11px] text-[#717784] font-medium flex items-center gap-1">
                       <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                      <span>Escrow Protected</span>
+                      <span>Payment Protected</span>
                     </span>
 
                     <button

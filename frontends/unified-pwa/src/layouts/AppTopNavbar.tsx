@@ -40,7 +40,8 @@ export const AppTopNavbar = () => {
     queryFn: async () => {
       return notificationService.getNotifications();
     },
-    staleTime: 15 * 1000,
+    staleTime: 60 * 1000,
+    refetchOnWindowFocus: false,
     enabled: Boolean(user),
   });
   const unreadCount = notifications.filter(n => !n.isRead && !(n as any).is_read).length;

@@ -6,6 +6,7 @@ const router = new Hono();
 
 // Static collection & bulk action routes (MUST come before :id routes)
 router.get('/', authenticateJWT, notificationController.getMyNotifications);
+router.get('/unread-count', authenticateJWT, notificationController.getUnreadCount);
 router.get('/unread/count', authenticateJWT, notificationController.getUnreadCount);
 router.patch('/read-all', authenticateJWT, notificationController.markAllAsRead);
 router.delete('/all', authenticateJWT, notificationController.deleteAllNotifications);

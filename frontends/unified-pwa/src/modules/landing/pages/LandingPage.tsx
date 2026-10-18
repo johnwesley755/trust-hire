@@ -131,9 +131,9 @@ const HERO_MODES = [
 const OPERATING_STANDARDS = [
   { 
     number: "#01", 
-    title: "Guaranteed Advance Escrow", 
+    title: "Guaranteed Advance Pay Protection", 
     subtitle: "Zero Unpaid Labor",
-    desc: "Employer booking funds are locked securely in advance before workers deploy. Wages are released immediately upon verified task completion." 
+    desc: "Employer booking funds are secured in advance before workers deploy. Wages are released immediately upon verified task completion." 
   },
   { 
     number: "#02", 
@@ -174,7 +174,7 @@ const PLATFORM_COMMITMENTS = [
     title: "Protected Wages & Zero Broker Cut",
     desc: "Get paid on time, every time, without paying middle-men commissions.",
     points: [
-      "Job budget is locked into escrow before you travel to site",
+      "Job budget is securely deposited before you travel to site",
       "100% of agreed pay deposited directly to UPI or bank",
       "Build a permanent, verifiable work history and ratings profile"
     ]
@@ -774,7 +774,7 @@ export default function LandingPage() {
               <ShieldCheck className="w-6 h-6 text-[#2563c9] mb-1" />
               <span className="text-xs font-semibold tracking-tight text-[#0a0a0a] uppercase">Direct</span>
               <span className="text-[0.65rem] text-[#717784] max-w-[9em] leading-tight uppercase tracking-wider">
-                Verified Escrow
+                Verified Pay
               </span>
             </div>
 
@@ -789,7 +789,7 @@ export default function LandingPage() {
                 </h3>
               </div>
               <p className="text-sm text-[#717784] leading-relaxed">
-                Built for cooks, electricians, drivers, helpers, and local businesses. Daily photo check-ins and safe advance escrow ensure reliable attendance and direct, guaranteed payouts.
+                Built for cooks, electricians, drivers, helpers, and local businesses. Daily photo check-ins and safe advance payments ensure reliable attendance and direct, guaranteed payouts.
               </p>
             </article>
           </div>
@@ -987,7 +987,7 @@ export default function LandingPage() {
                 </figcaption>
               </figure>
 
-              {/* Tile 2: Protected Advance Escrow (Staggered mb-6) */}
+              {/* Tile 2: Protected Advance Pay (Staggered mb-6) */}
               <figure className="flex-1 aspect-[3/4] rounded-[1.5rem] overflow-hidden relative bg-[#f4f4f4] mb-6 group shadow-lg transition-transform duration-500 hover:scale-[1.02]">
                 <img 
                   src={LANDING_IMAGES.digitalEscrowVault.src} 
@@ -995,7 +995,7 @@ export default function LandingPage() {
                   className="w-full h-full object-cover"
                 />
                 <figcaption className="absolute inset-x-2.5 bottom-2.5 rounded-xl bg-[#0b6e97]/60 backdrop-blur-md p-2.5 text-white text-left shadow-lg">
-                  <p className="text-sm sm:text-base font-medium tracking-tight">Protected Advance Escrow</p>
+                  <p className="text-sm sm:text-base font-medium tracking-tight">Protected Advance Pay</p>
                   <p className="text-xs text-white/90 leading-normal mt-1">
                     Pay is deposited safely before work starts and paid directly to bank or UPI upon approval.
                   </p>
@@ -1154,7 +1154,7 @@ export default function LandingPage() {
                 </div>
 
                 <p className="text-sm text-white/80 leading-relaxed">
-                  A simple, trusted platform connecting skilled workers with verified local employers. Safe advance escrow, daily photo check-ins, and direct payouts with zero middle-men fees.
+                  A simple, trusted platform connecting skilled workers with verified local employers. Safe advance payments, daily photo check-ins, and direct payouts with zero middle-men fees.
                 </p>
               </div>
 

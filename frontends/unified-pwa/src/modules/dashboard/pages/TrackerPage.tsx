@@ -119,7 +119,7 @@ export default function TrackerPage() {
                 Activity & Application History
               </h1>
               <p className="text-xs text-[#717784] font-medium leading-relaxed max-w-xl">
-                Comprehensive log of your verified job applications, shift confirmations, and automated escrow payout releases.
+                Comprehensive log of your verified job applications, shift confirmations, and automated payment releases.
               </p>
             </div>
 
@@ -200,7 +200,7 @@ export default function TrackerPage() {
                   : 'bg-white text-[#717784] hover:text-[#0a0a0a] border border-[#e6e8ec]'
               }`}
             >
-              Escrow Payouts
+              Payouts
             </button>
           </div>
 

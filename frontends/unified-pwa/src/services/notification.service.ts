@@ -9,9 +9,21 @@ export const notificationService = {
     return res.data;
   },
   getUnreadCount: async (): Promise<number> => {
-    const res = await apiClient.get<{ count: number } | number>('/api/notifications/unread/count');
-    if (typeof res.data === 'number') return res.data;
-    if (res.data && typeof res.data === 'object' && 'count' in res.data) return (res.data as any).count;
+    let res: any;
+    try {
+      res = await apiClient.get<{ count?: number; unreadCount?: number } | number>('/api/notifications/unread-count');
+    } catch {
+      try {
+        res = await apiClient.get<{ count?: number; unreadCount?: number } | number>('/api/notifications/unread/count');
+      } catch {
+        return 0;
+      }
+    }
+    if (typeof res?.data === 'number') return res.data;
+    if (res?.data && typeof res.data === 'object') {
+      if (typeof res.data.count === 'number') return res.data.count;
+      if (typeof res.data.unreadCount === 'number') return res.data.unreadCount;
+    }
     return 0;
   },
   markAsRead: async (id: string): Promise<any> => {

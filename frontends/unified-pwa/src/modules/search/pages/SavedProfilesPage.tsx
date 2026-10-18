@@ -81,7 +81,7 @@ export const SavedProfilesPage: React.FC = () => {
               <span className="text-slate-300">•</span>
               <span className="flex items-center gap-1.5 text-[#0A1931]">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                Escrow Wage Lock
+                Payment Protected
               </span>
               <span className="text-slate-300">•</span>
               <span className="flex items-center gap-1.5 text-[#0A1931]">
@@ -272,7 +272,7 @@ export const SavedProfilesPage: React.FC = () => {
                           </span>
                           <span className="inline-flex items-center gap-1.5 text-[#0A1931]">
                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                            Escrow Protected
+                            Payment Protected
                           </span>
                         </div>
 

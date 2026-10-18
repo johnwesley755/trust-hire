@@ -171,7 +171,7 @@ export const JobSearchResultCard: React.FC<JobSearchResultCardProps> = ({
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-0.5 text-[11px] text-[#717784] font-medium border-t border-[#e6e8ec]/60">
         <span className="inline-flex items-center gap-1.5 text-[#0a0a0a]">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-          <span>Escrow Protected Wages</span>
+          <span>Protected Wages</span>
         </span>
         <span className="inline-flex items-center gap-1.5 text-[#0a0a0a]">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />

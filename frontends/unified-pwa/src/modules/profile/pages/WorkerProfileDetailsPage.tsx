@@ -7,6 +7,7 @@ import { applicationService } from "../../../services/application.service";
 import { queryKeys } from "../../../lib/queryKeys";
 import { UserAvatar } from "../../../components/common/UserAvatar";
 import { AppLoader } from "../../../components/common/AppLoader";
+import { PhoneDisplay } from "../../../components/common/PhoneDisplay";
 import { 
   ShieldCheck, 
   MapPin, 
@@ -462,7 +463,7 @@ export default function WorkerProfileDetailsPage() {
                   <span className="text-slate-500 font-medium flex items-center gap-1.5">
                     <Phone className="w-3.5 h-3.5 text-[#0f2f63]" /> Phone
                   </span>
-                  <span className="font-bold text-[#0A1931]">{formattedPhone}</span>
+                  <PhoneDisplay phone={formattedPhone} />
                 </div>
 
                 <div className="flex items-center justify-between py-1 border-b border-slate-100">

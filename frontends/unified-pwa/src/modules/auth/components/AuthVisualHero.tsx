@@ -127,7 +127,7 @@ export const AuthVisualHero: React.FC<AuthVisualHeroProps> = ({ role, className 
           </div>
         </motion.div>
 
-        {/* Card 2: Escrow Payouts */}
+        {/* Card 2: Protected Payouts */}
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
@@ -140,7 +140,7 @@ export const AuthVisualHero: React.FC<AuthVisualHeroProps> = ({ role, className 
                 {isCandidate ? <Zap className="w-4 h-4 text-emerald-400" /> : <Lock className="w-4 h-4 text-emerald-400" />}
               </div>
               <p className="text-sm font-medium text-white">
-                {isCandidate ? 'Instant UPI Escrow Payouts' : 'Smart Escrow Vault Protection'}
+                {isCandidate ? 'Instant UPI Wage Payouts' : 'Direct Payment Protection'}
               </p>
             </div>
             <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 shrink-0">

@@ -29,16 +29,15 @@ export const NotificationCenter = () => {
     const navigate = useNavigate();
     const containerRef = useRef<HTMLDivElement>(null);
 
-    // Synchronized notification query with 30s background heartbeat polling fallback
+    // Notification query: loaded on mount or explicit user actions (no continuous polling)
     const { data: notifications = [], refetch, isRefetching } = useQuery<AppNotification[]>({
         queryKey: ['notifications'],
         queryFn: async () => {
             const data = await notificationService.getNotifications();
             return data;
         },
-        staleTime: 15 * 1000,
-        refetchInterval: 30 * 1000,
-        refetchOnWindowFocus: true
+        staleTime: 60 * 1000,
+        refetchOnWindowFocus: false
     });
 
     const unreadCount = notifications.filter(n => !n.isRead && !(n as any).is_read).length;
@@ -146,7 +145,13 @@ export const NotificationCenter = () => {
         <div className="relative font-['Onest',system-ui,sans-serif]" ref={containerRef}>
             {/* Bell Trigger Button */}
             <button 
-                onClick={() => setIsOpen(!isOpen)}
+                onClick={() => {
+                    const nextState = !isOpen;
+                    setIsOpen(nextState);
+                    if (nextState) {
+                        refetch();
+                    }
+                }}
                 className={`w-9 h-9 flex items-center justify-center rounded-full transition-all relative cursor-pointer border ${
                     isOpen 
                         ? 'bg-blue-50 text-[#0066FF] border-blue-200 shadow-xs' 

@@ -114,7 +114,7 @@ export default function JobDetailPage() {
       queryClient.invalidateQueries({ queryKey: queryKeys.jobs.all });
       queryClient.invalidateQueries({ queryKey: ['recommendedJobs'] });
       queryClient.invalidateQueries({ queryKey: queryKeys.jobs.myApplications });
-      toast.success('Application submitted successfully with Escrow guarantee!');
+      toast.success('Application submitted successfully with payment guarantee!');
     },
     onError: (error: unknown) => {
       const message = (error as any)?.response?.data?.message || (error as Error)?.message || 'Failed to submit application.';
