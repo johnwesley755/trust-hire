@@ -52,5 +52,16 @@ export const searchAlertService = {
   deleteAlert: async (alertId: string): Promise<any> => {
     const res = await apiClient.delete<any>(`/api/search/alerts/${alertId}`);
     return res.data;
+  },
+
+  testCandidateMatch: async (alertId?: string): Promise<any> => {
+    const res = await apiClient.post<any>('/api/search/alerts/test-match', { alertId, alertType: 'CANDIDATE_ALERT' });
+    return res.data?.data || res.data;
+  },
+
+  testJobMatch: async (alertId?: string): Promise<any> => {
+    const res = await apiClient.post<any>('/api/search/alerts/test-match', { alertId, alertType: 'JOB_ALERT' });
+    return res.data?.data || res.data;
   }
 };
+

@@ -1,35 +1,53 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import apiClient from "../../../api/apiClient";
-import trustHyreLogo from "../../../assets/TrustHyre Skills and Opportunities Logo.png";
 import { useAuth } from "../../../providers/AuthContext";
 import { motion, AnimatePresence } from 'framer-motion';
-import { LocationPicker } from "../../jobs/components/LocationPicker";
+import { 
+  Building2, 
+  MapPin, 
+  Phone, 
+  Globe, 
+  ArrowLeft, 
+  ArrowRight, 
+  LocateFixed, 
+  Loader2, 
+  LogOut,
+  CheckCircle2,
+  AlertCircle
+} from "lucide-react";
+import { OnboardingVisualHero } from "../components/OnboardingVisualHero";
 
 const INDUSTRY_OPTIONS = [
-  { id: 'CONSTRUCTION', label: 'Construction', icon: 'construction' },
-  { id: 'MAINTENANCE', label: 'Maintenance & Repair', icon: 'handyman' },
-  { id: 'LOGISTICS', label: 'Logistics & Delivery', icon: 'local_shipping' },
-  { id: 'COOKING_CHEF', label: 'Cooking / Chef', icon: 'restaurant' },
-  { id: 'HOSPITALITY', label: 'Hospitality & Hotel', icon: 'hotel' },
-  { id: 'DOMESTIC_HELP', label: 'Domestic Help', icon: 'cleaning_services' },
-  { id: 'RETAIL', label: 'Retail & Shop', icon: 'shopping_cart' },
-  { id: 'SECURITY', label: 'Security Services', icon: 'security' },
-  { id: 'AGRICULTURE', label: 'Agriculture', icon: 'agriculture' },
-  { id: 'MANUFACTURING', label: 'Manufacturing', icon: 'precision_manufacturing' },
-  { id: 'GARMENT', label: 'Tailoring / Garment', icon: 'apparel' },
-  { id: 'BEAUTY', label: 'Salon & Beauty', icon: 'content_cut' },
-  { id: 'HEALTHCARE', label: 'Healthcare', icon: 'medical_services' }
+  { id: 'CONSTRUCTION', label: 'Construction & Civil', icon: '🏗️' },
+  { id: 'MAINTENANCE', label: 'Maintenance & Facility', icon: '🔧' },
+  { id: 'LOGISTICS', label: 'Logistics & Warehousing', icon: '📦' },
+  { id: 'COOKING_CHEF', label: 'Commercial Kitchens', icon: '🍳' },
+  { id: 'HOSPITALITY', label: 'Hospitality & Dining', icon: '🏨' },
+  { id: 'DOMESTIC_HELP', label: 'Domestic & Facility Help', icon: '🧹' },
+  { id: 'RETAIL', label: 'Retail & Showrooms', icon: '🛒' },
+  { id: 'SECURITY', label: 'Physical Security', icon: '🛡️' },
+  { id: 'AGRICULTURE', label: 'Agriculture & Farm Ops', icon: '🌾' },
+  { id: 'MANUFACTURING', label: 'Manufacturing & Plants', icon: '⚙️' },
+  { id: 'GARMENT', label: 'Garment & Apparel', icon: '🧵' },
+  { id: 'BEAUTY', label: 'Salon & Wellness', icon: '✂️' },
+  { id: 'HEALTHCARE', label: 'Healthcare & Support', icon: '🏥' }
 ];
 
-export default function OnboardingPage() {
+const STEP_TITLES: Record<number, string> = {
+  1: "Company Details",
+  2: "Workforce Domain & Bio",
+  3: "Base Location & Verification"
+};
+
+export default function EmployerOnboardingPage() {
   const navigate = useNavigate();
-  const { user, updateUser } = useAuth();
+  const { user, updateUser, logout } = useAuth();
   
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
-    companyName: "",
-    businessPhone: "",
+    companyName: user?.companyName || "",
+    businessPhone: user?.phoneNumber?.replace(/\D/g, '').slice(-10) || "",
     industry: "",
     companyWebsite: "",
     profileBio: "",
@@ -40,69 +58,110 @@ export default function OnboardingPage() {
   });
   
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [locationError, setLocationError] = useState("");
+  const [isLocating, setIsLocating] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const nextStep = () => setStep(s => s + 1);
-  const prevStep = () => setStep(s => s - 1);
-
-  const detectLocation = () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        async (pos) => {
-          const { latitude, longitude } = pos.coords;
-          setFormData(prev => ({
-            ...prev,
-            latitude,
-            longitude,
-            businessAddress: "Detecting location..."
-          }));
-
-          try {
-            const response = await fetch(
-              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`,
-              { headers: { 'Accept-Language': 'en' } }
-            );
-            const data = await response.json();
-            
-            const address = data.display_name;
-            const city = data.address.city || data.address.town || data.address.village || data.address.suburb || "Unknown City";
-            
-            setFormData(prev => ({
-              ...prev,
-              businessAddress: address,
-              city: city
-            }));
-            setLocationError("");
-          } catch (err) {
-            console.error("Reverse geocoding failed:", err);
-            setFormData(prev => ({
-              ...prev,
-              businessAddress: "Detected (Manual fix needed)"
-            }));
-          }
-        },
-        (err) => {
-          setLocationError("Access denied. Please enter manually.");
-          console.error(err);
-        }
-      );
+  const nextStep = () => {
+    setErrorMessage("");
+    if (step === 1) {
+      if (!formData.companyName.trim()) {
+        setErrorMessage("Please enter your company or business name.");
+        return;
+      }
+      const clean = formData.businessPhone.replace(/\D/g, '');
+      if (clean.length !== 10) {
+        setErrorMessage("Please enter a valid 10-digit business phone number.");
+        return;
+      }
+      setStep(2);
+    } else if (step === 2) {
+      if (!formData.industry) {
+        setErrorMessage("Please select your primary industry sector.");
+        return;
+      }
+      setStep(3);
     }
   };
 
+  const prevStep = () => {
+    setErrorMessage("");
+    if (step > 1) setStep(s => s - 1);
+  };
+
+  const detectLocation = () => {
+    if (!navigator.geolocation) {
+      setErrorMessage("Geolocation is not supported by your browser.");
+      return;
+    }
+
+    setIsLocating(true);
+    setErrorMessage("");
+
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const { latitude, longitude } = pos.coords;
+        setFormData(prev => ({
+          ...prev,
+          latitude,
+          longitude,
+          businessAddress: "Detecting address..."
+        }));
+
+        try {
+          const response = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`,
+            { headers: { 'Accept-Language': 'en' } }
+          );
+          const data = await response.json();
+          
+          const address = data.display_name || "Detected Location";
+          const detectedCity = data.address?.city || data.address?.town || data.address?.village || data.address?.suburb || "Chennai";
+          
+          setFormData(prev => ({
+            ...prev,
+            businessAddress: address,
+            city: detectedCity
+          }));
+        } catch (err) {
+          console.error("Reverse geocoding error:", err);
+          setFormData(prev => ({
+            ...prev,
+            businessAddress: "Manual location set",
+            city: prev.city || "Chennai"
+          }));
+        } finally {
+          setIsLocating(false);
+        }
+      },
+      (err) => {
+        setIsLocating(false);
+        setErrorMessage("Location access was denied. Please type your city and address manually.");
+        console.error(err);
+      },
+      { timeout: 8000 }
+    );
+  };
+
   const handleSubmit = async () => {
+    setErrorMessage("");
+    if (!formData.city && !formData.businessAddress) {
+      setErrorMessage("Please provide your office city or base location.");
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       await apiClient.put('/api/employer/profile', {
-          companyName: formData.companyName,
-          industry: formData.industry,
-          companyWebsite: formData.companyWebsite,
-          profileBio: formData.profileBio,
-          businessTier: "VERIFIED",
-          is_verified: true,
-          latitude: formData.latitude,
-          longitude: formData.longitude,
-          address: formData.businessAddress,
-          city: formData.city || ""
+        companyName: formData.companyName.trim(),
+        industry: formData.industry,
+        companyWebsite: formData.companyWebsite.trim(),
+        profileBio: formData.profileBio.trim() || `${formData.companyName} operating in ${formData.industry}.`,
+        businessTier: "VERIFIED",
+        is_verified: true,
+        latitude: formData.latitude,
+        longitude: formData.longitude,
+        address: formData.businessAddress,
+        city: formData.city || "Chennai"
       });
 
       const syncRes = await apiClient.post('/api/auth/sync', { 
@@ -126,467 +185,309 @@ export default function OnboardingPage() {
     } catch (error: any) {
       console.error("Onboarding failure:", error);
       const msg = error.response?.data?.message || "Verification sync failed. Please try again.";
-      alert(msg);
+      setErrorMessage(msg);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const progress = (step / 3) * 100;
+  const progressPercentage = Math.round((step / 3) * 100);
 
   return (
-    <div className="bg-[#F8FAFC] text-[#0A1931] antialiased min-h-screen flex flex-col overflow-x-hidden selection:bg-[#0066FF] selection:text-white">
+    <div className="w-full min-h-screen p-2 sm:p-3 bg-white font-['Onest',system-ui,sans-serif] selection:bg-[#2563c9] selection:text-white flex flex-col">
       
-      {/* Top Navigation / Progress Header */}
-      <header className="fixed top-0 left-0 w-full z-50 flex flex-col bg-white/95 backdrop-blur-md border-b border-slate-200">
-        <div className="flex justify-between items-center px-4 sm:px-6 lg:px-8 h-16 max-w-7xl mx-auto w-full">
-            <Link to="/" className="flex items-center group py-1" aria-label="TrustHyre Home">
-              <img 
-                src={trustHyreLogo} 
-                alt="TrustHyre" 
-                className="h-10 sm:h-12 w-auto object-contain block select-none mix-blend-multiply group-hover:opacity-90 transition-opacity" 
-              />
-            </Link>
-            <div className="flex items-center gap-4">
-                <div className="hidden md:flex flex-col items-end gap-0.5">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#0A1931]/60">Step {step} of 3</span>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#0066FF]">{Math.round(progress)}% Complete</span>
-                </div>
-                <Link to="/help" className="text-slate-500 hover:text-[#0066FF] p-2 hover:bg-blue-50 rounded-full transition-colors">
-                    <span className="material-symbols-outlined text-xl leading-none">help_outline</span>
-                </Link>
-            </div>
+      {/* Framed Full-Screen Canvas matching Landing & Auth Architecture */}
+      <div className="relative w-full flex-1 min-h-[calc(100svh-1rem)] sm:min-h-[calc(100svh-1.5rem)] lg:h-[calc(100svh-1.5rem)] rounded-2xl sm:rounded-[2rem] overflow-hidden border border-[#e6e8ec] bg-white shadow-xl grid grid-cols-1 lg:grid-cols-12 transition-all">
+        
+        {/* Left Side: Full-Bleed Brand Visual Hero with Sector Photography */}
+        <div className="lg:col-span-5 xl:col-span-5 hidden lg:block h-full">
+          <OnboardingVisualHero 
+            role="EMPLOYER" 
+            currentStep={step} 
+            totalSteps={3} 
+          />
         </div>
-        <div className="w-full h-1.5 bg-[#E9E8E3]">
-            <motion.div 
-                initial={{ width: 0 }}
-                animate={{ width: `${progress}%` }}
-                className="h-full bg-[#0066FF] rounded-r-full shadow-[0_0_10px_rgba(250,205,21,0.5)]"
+
+        {/* Right Side: Clean Modern Form with Independent Smooth Scroll */}
+        <div className="lg:col-span-7 xl:col-span-7 p-4 sm:p-8 lg:p-10 flex flex-col justify-between relative bg-white h-full overflow-y-auto">
+          
+          {/* Mobile Banner with Sector Photography & Logo (Visible only on < lg screens) */}
+          <div className="block lg:hidden mb-4">
+            <OnboardingVisualHero 
+              role="EMPLOYER" 
+              currentStep={step} 
+              totalSteps={3} 
+              isMobileBanner={true} 
             />
-        </div>
-      </header>
+          </div>
 
-      <main className="flex-grow flex flex-col lg:flex-row pt-20 min-h-screen">
-        <AnimatePresence mode="wait">
-            {step === 1 && (
-                <motion.div 
-                    key="step1"
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: 20 }}
-                    className="w-full flex flex-col lg:flex-row min-h-[calc(100vh-80px)]"
-                >
-                    {/* Left Section: Form */}
-                    <section className="w-full lg:w-1/2 flex items-center justify-center p-4 sm:p-8 lg:p-16">
-                        <div className="max-w-md w-full">
-                            <div className="mb-8 sm:mb-10">
-                                <h1 className="text-2xl sm:text-4xl md:text-5xl font-extrabold tracking-tight mb-3 sm:mb-4 leading-tight">
-                                    Welcome to TrustHire.
-                                </h1>
-                                <p className="text-base sm:text-lg text-[#0A1931]/70 leading-relaxed font-medium">
-                                    Let's start by getting to know your business. This helps us tailor the hiring experience for your specific needs.
-                                </p>
-                            </div>
-
-                            <form className="space-y-6 sm:space-y-8" onSubmit={(e) => { e.preventDefault(); nextStep(); }}>
-                                <div className="group">
-                                    <label className="block text-xs font-bold uppercase text-[#0A1931] mb-3">
-                                        Company Name *
-                                    </label>
-                                    <div className="relative">
-                                        <input 
-                                            className="w-full bg-[#E9E8E3] border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#0066FF] text-[#0A1931] font-medium transition-all placeholder:text-[#0A1931]/30 text-base sm:text-sm" 
-                                            placeholder="e.g., Reliance Logistics" 
-                                            type="text"
-                                            value={formData.companyName}
-                                            onChange={(e) => setFormData({...formData, companyName: e.target.value})}
-                                            required
-                                        />
-                                        <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-[#0A1931]/20">
-                                            domain
-                                        </span>
-                                    </div>
-                                </div>
-
-                                <div className="group">
-                                    <div className="flex justify-between items-center mb-3">
-                                        <label className="block text-xs font-bold uppercase text-[#0A1931]">
-                                            Business Phone Number *
-                                        </label>
-                                        <span className="text-[10px] text-slate-400 font-medium">10-Digit Mobile</span>
-                                    </div>
-                                    <div className="relative flex items-center">
-                                        <div className="absolute left-3.5 flex items-center gap-1 text-slate-600 font-bold text-xs pointer-events-none select-none border-r border-slate-300/60 pr-2 z-10">
-                                            <span className="text-sm leading-none">🇮🇳</span>
-                                            <span>+91</span>
-                                        </div>
-                                        <input 
-                                            className="w-full bg-[#E9E8E3] border-none rounded-xl pl-16 pr-4 py-3 focus:ring-2 focus:ring-[#0066FF] text-[#0A1931] font-medium transition-all placeholder:text-[#0A1931]/30 outline-none text-base sm:text-sm" 
-                                            placeholder="9876543210" 
-                                            type="tel"
-                                            maxLength={10}
-                                            value={formData.businessPhone}
-                                            onChange={(e) => setFormData({...formData, businessPhone: e.target.value.replace(/\D/g, '').slice(0, 10)})}
-                                            required
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="group">
-                                    <div className="flex justify-between items-center mb-3">
-                                        <label className="block text-xs font-bold uppercase text-[#0A1931]">
-                                            Website
-                                        </label>
-                                        <span className="text-[10px] font-bold text-[#0A1931]/40 uppercase tracking-tighter">Optional</span>
-                                    </div>
-                                    <div className="relative">
-                                        <input 
-                                            className="w-full bg-[#E9E8E3] border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#0066FF] text-[#0A1931] font-medium transition-all placeholder:text-[#0A1931]/30 text-base sm:text-sm" 
-                                            placeholder="https://company.com" 
-                                            type="url"
-                                            value={formData.companyWebsite}
-                                            onChange={(e) => setFormData({...formData, companyWebsite: e.target.value})}
-                                        />
-                                        <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-[#0A1931]/20">
-                                            language
-                                        </span>
-                                    </div>
-                                </div>
-
-                                <div className="pt-4">
-                                    <button 
-                                        type="submit"
-                                        disabled={!formData.companyName}
-                                        className="w-full h-12 bg-[#0066FF] text-white py-3 rounded-[12px] font-bold uppercase shadow-[0_4px_0_0_#0047b3] active:translate-y-[2px] active:shadow-none transition-all flex items-center justify-center gap-3 group disabled:opacity-50 disabled:shadow-none disabled:translate-y-0"
-                                    >
-                                        NEXT STEP
-                                        <span className="material-symbols-outlined transition-transform group-hover:translate-x-1">
-                                            arrow_forward
-                                        </span>
-                                    </button>
-                                </div>
-                            </form>
-                            <p className="mt-8 text-center text-sm text-[#0A1931]/40 font-medium">
-                                By continuing, you agree to our Terms of Service.
-                            </p>
-                        </div>
-                    </section>
-
-                    {/* Right Section: Visual */}
-                    <section className="hidden lg:flex lg:w-1/2 relative bg-[#e2e8f0] items-center justify-center p-12 overflow-hidden">
-                        <div className="absolute top-[-10%] right-[-10%] w-[60%] h-[60%] bg-[#0066FF]/10 rounded-full blur-3xl"></div>
-                        <div className="absolute bottom-[-5%] left-[-5%] w-[40%] h-[40%] bg-[#0066FF]/5 rounded-full blur-3xl"></div>
-                        
-                        <div className="relative z-10 w-full max-w-lg">
-                            <div className="relative w-full aspect-square bg-white rounded-[48px] p-6 shadow-2xl shadow-[#0A1931]/5">
-                                <div className="w-full h-full blob-mask overflow-hidden bg-[#0066FF]/20">
-                                    <img 
-                                        className="w-full h-full object-cover grayscale-[20%] hover:grayscale-0 transition-all duration-700" 
-                                        alt="Professional Indian employer" 
-                                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuBMwrbXOaZ1sZJoc_-LAlahXR8jSZWgKJ8KasA2UIEfC4-6P7dBB-jNhQLyyl4BE1Uh6pdaX0bljB4szmLiKigt_RsTxbQQNHzTo8dKTg5MVzUZetvx_jgBJ7tiBKGXdhVSO_u0Mlj5bGCqwMRY3jI0RKCBhn_kItjpK-tO1C_bMKJNon68JR7RgYSZTnN20by-IAWm4sxkH2-0Dq1BwQZJqnzgvHda7G6CQnXxz8BDm49LLgDc016PbHAG-l-2KufTQ1vK1SLxSA0" 
-                                    />
-                                </div>
-                                <div className="absolute -top-4 -right-4 bg-white p-4 rounded-2xl shadow-xl flex items-center gap-3">
-                                    <div className="w-10 h-10 bg-[#0066FF] rounded-full flex items-center justify-center">
-                                        <span className="material-symbols-outlined text-white text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>verified_user</span>
-                                    </div>
-                                    <div>
-                                        <p className="text-[10px] font-bold uppercase text-[#0A1931]/40 leading-none mb-1">Status</p>
-                                        <p className="text-xs font-bold text-[#0A1931] leading-none">Verified Employer</p>
-                                    </div>
-                                </div>
-                                <div className="absolute bottom-12 -left-8 bg-white p-5 rounded-[24px] shadow-xl max-w-[200px]">
-                                    <div className="flex items-center gap-1 mb-2">
-                                        {[1, 2, 3, 4, 5].map(i => (
-                                            <span key={i} className="material-symbols-outlined text-[#EAB308] text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                                        ))}
-                                    </div>
-                                    <p className="text-sm font-bold leading-tight">"Finding trust-worthy talent has never been simpler."</p>
-                                </div>
-                            </div>
-                            <div className="mt-12 text-center lg:text-left px-4">
-                                <p className="text-[#0A1931] font-extrabold text-2xl leading-tight">
-                                    Powering over 50,000+ logistics companies across Bharat.
-                                </p>
-                            </div>
-                        </div>
-                    </section>
-                </motion.div>
-            )}
-
-            {step === 2 && (
-                <motion.div 
-                    key="step2"
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: 20 }}
-                    className="w-full flex-grow flex flex-col lg:flex-row max-w-7xl mx-auto pt-6 sm:pt-10 pb-8 px-4 sm:px-6 lg:px-12 gap-8 lg:gap-12"
-                >
-                    <section className="flex-1 space-y-8 sm:space-y-10 order-2 lg:order-1">
-                        <header>
-                            <h1 className="text-2xl sm:text-4xl lg:text-5xl font-extrabold leading-tight tracking-tight text-[#0A1931]">
-                                Define your <span className="relative">workforce<span className="absolute bottom-1 left-0 w-full h-3 bg-[#0066FF]/30 -z-10"></span></span> niche.
-                            </h1>
-                            <p className="mt-3 sm:mt-4 text-base sm:text-lg text-[#0A1931]/70 leading-relaxed max-w-lg font-medium">
-                                Select the industry sector you operate in and tell us about your company's mission. This helps us match you with specialized talent.
-                            </p>
-                        </header>
-
-                        <div className="space-y-4">
-                            <label className="text-[11px] font-bold uppercase text-[#0A1931]/60">Select Industry Sector</label>
-                            <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-                                {INDUSTRY_OPTIONS.map(opt => (
-                                    <button 
-                                        key={opt.id}
-                                        onClick={() => setFormData({...formData, industry: opt.id})}
-                                        className={`flex items-center gap-3 p-3.5 sm:p-4 rounded-xl border-2 transition-all group shadow-sm active:scale-95 text-left cursor-pointer ${
-                                            formData.industry === opt.id 
-                                            ? 'bg-[#0066FF] text-white border-[#0066FF] scale-102 shadow-lg' 
-                                            : 'bg-white border-transparent hover:border-[#0066FF]'
-                                        }`}
-                                    >
-                                        <span className={`material-symbols-outlined text-lg sm:text-xl ${formData.industry === opt.id ? '' : 'text-[#0066FF] group-hover:scale-110'} transition-transform`}
-                                              style={{ fontVariationSettings: formData.industry === opt.id ? "'FILL' 1" : "'FILL' 0" }}>
-                                            {opt.icon}
-                                        </span>
-                                        <span className="text-xs sm:text-sm font-bold truncate">{opt.label}</span>
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-
-                        <div className="space-y-4">
-                            <div className="flex justify-between items-end">
-                                <label className="text-[11px] font-bold uppercase text-[#0A1931]/60">Company Bio</label>
-                                <span className={`text-[10px] font-medium ${formData.profileBio.length < 100 ? 'text-red-400' : 'text-[#0A1931]/40'}`}>
-                                    {formData.profileBio.length} / 500 (Min 100)
-                                </span>
-                            </div>
-                            <div className="relative group">
-                                <textarea 
-                                    className="w-full bg-[#E9E8E3] border-none rounded-2xl p-4 sm:p-6 text-[#0A1931] placeholder:text-[#0A1931]/30 focus:ring-2 focus:ring-[#0066FF] transition-all resize-none font-medium h-36 sm:h-40 text-base sm:text-sm" 
-                                    placeholder="Share your story, values, and why people love working with you..."
-                                    value={formData.profileBio}
-                                    onChange={(e) => setFormData({...formData, profileBio: e.target.value.slice(0, 500)})}
-                                />
-                            </div>
-                        </div>
-
-                        <div className="pt-4 sm:pt-6 flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
-                            <button 
-                                onClick={nextStep}
-                                disabled={!formData.industry || formData.profileBio.length < 100}
-                                className="group relative w-full sm:w-auto h-12 lg:min-w-[240px] bg-[#0066FF] text-white font-bold text-sm py-3 px-8 rounded-[12px] shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 transition-all uppercase flex items-center justify-center gap-3 disabled:opacity-50 disabled:translate-y-0 disabled:shadow-none cursor-pointer"
-                            >
-                                Next Step
-                                <span className="material-symbols-outlined text-xl group-hover:translate-x-1 transition-transform">arrow_forward</span>
-                            </button>
-                            <button 
-                                onClick={nextStep}
-                                className="text-[#0A1931]/60 hover:text-[#0A1931] font-bold text-xs uppercase transition-colors cursor-pointer py-2"
-                            >
-                                Skip for now
-                            </button>
-                        </div>
-                    </section>
-
-                    <section className="flex-1 lg:flex relative min-h-[400px] lg:min-h-0 order-1 lg:order-2 flex items-center justify-center">
-                        <div className="absolute inset-0 overflow-hidden -z-10">
-                            <div className="absolute top-[10%] left-[20%] w-[300px] h-[300px] bg-[#0066FF]/20 rounded-full blur-[80px]"></div>
-                            <div className="absolute bottom-[20%] right-[10%] w-[250px] h-[250px] bg-[#456559]/10 rounded-full blur-[60px]"></div>
-                        </div>
-                        <div className="relative w-full max-w-md aspect-square lg:aspect-[4/5] xl:aspect-square">
-                            <div className="w-full h-full bg-[#E9E8E3] overflow-hidden organic-blob shadow-2xl">
-                                <img 
-                                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuC1Oj7x_jSw7m127nPvwKZkhxSuiQh1b79s7ME-jQi93dzK-b4hNxlPTkA8Q0-TLvSh5AfLzsJ0ptYj7HEhHSvxaJQBpIka8UON3qIt1Q5guk3AQmPAiX1RAgyu9okS0M4_I-3ynWMtSikR3uaVUCl3bBJuBTxqT1DTalGe7D5aZHxT74i1KDCrWOmvNkXtPzmCzkkTiwf3_okH8J3SFw4ewd__p1ioN9HSmw5fxsi7TuH4yfFwRzLrl_7Dx7p_TtbdwWlYOcWu9tA" 
-                                    alt="Industrial sector" 
-                                    className="w-full h-full object-cover grayscale-[20%] hover:grayscale-0 transition-all duration-700 hover:scale-105" 
-                                />
-                            </div>
-                            {/* Floating Cards OUTSIDE overflow-hidden container */}
-                            <div className="absolute bottom-16 right-0 lg:translate-x-1/4 bg-white p-6 rounded-2xl shadow-xl max-w-[200px] border-l-4 border-[#0066FF]">
-                                <div className="flex items-center gap-2 mb-2">
-                                    <span className="material-symbols-outlined text-[#0066FF] text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
-                                    <span className="text-[10px] font-bold text-[#0A1931] uppercase tracking-wider">Trusted Hire</span>
-                                </div>
-                                <p className="text-xs text-[#0A1931]/70 italic leading-relaxed font-medium">"Helping us find 50+ specialized welders in less than 48 hours."</p>
-                            </div>
-                            <div className="absolute top-12 -left-8 bg-[#0A1931] text-[#0066FF] px-4 py-3 rounded-xl shadow-lg flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-full bg-[#0066FF]/20 flex items-center justify-center">
-                                    <span className="material-symbols-outlined text-sm">trending_up</span>
-                                </div>
-                                <div className="flex flex-col">
-                                    <span className="text-[14px] font-black tracking-tight">85% Match</span>
-                                    <span className="text-[8px] uppercase font-bold text-[#0066FF]/60">Optimization</span>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-                </motion.div>
-            )}
-
-            {step === 3 && (
-                <motion.div 
-                    key="step3"
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: 20 }}
-                    className="w-full flex-grow flex flex-col lg:flex-row min-h-[calc(100vh-80px)]"
-                >
-                    <section className="flex-1 px-4 sm:px-8 lg:px-20 py-8 sm:py-12 flex flex-col justify-center max-w-3xl">
-                        <div className="space-y-2 mb-8 sm:mb-10">
-                            <h1 className="text-2xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-[#0A1931] leading-[1.1]">Where are you located?</h1>
-                            <p className="text-base sm:text-lg text-[#0A1931]/70 max-w-md font-medium">Setting your base helps us connect you with local opportunities and verified talent in your neighborhood.</p>
-                        </div>
-                        <div className="space-y-6 sm:space-y-8">
-                            <button 
-                                onClick={detectLocation}
-                                className="w-full group relative flex items-center justify-between p-4 sm:p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 border border-slate-200 hover:border-[#0066FF]/30 active:scale-[0.98] cursor-pointer"
-                            >
-                                <div className="flex items-center gap-4 sm:gap-5">
-                                    <div className="w-12 h-12 sm:w-14 sm:h-14 bg-[#0066FF] rounded-full flex items-center justify-center text-white shadow-md shrink-0">
-                                        <span className="material-symbols-outlined text-2xl sm:text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>my_location</span>
-                                    </div>
-                                    <div className="text-left">
-                                        <span className="block text-lg sm:text-xl font-bold text-[#0A1931]">Use Current Location</span>
-                                        <span className="block text-xs sm:text-sm text-[#0A1931]/60 font-medium">Fastest way to get started</span>
-                                    </div>
-                                </div>
-                                <span className="material-symbols-outlined text-[#0A1931]/30 group-hover:translate-x-1 transition-transform">arrow_forward_ios</span>
-                            </button>
-
-                            <div className="flex items-center gap-4">
-                                <div className="flex-grow h-px bg-[#0A1931]/10"></div>
-                                <span className="text-[10px] font-bold uppercase tracking-wider text-[#0A1931]/40">Or Enter Manually</span>
-                                <div className="flex-grow h-px bg-[#0A1931]/10"></div>
-                            </div>
-
-                            <div className="space-y-2">
-                                <label className="text-xs font-bold uppercase text-[#0A1931] ml-1">Business Address</label>
-                                <div className="relative">
-                                    <textarea 
-                                        className="w-full bg-[#E9E8E3] border-none rounded-xl p-4 sm:p-5 text-[#0A1931] focus:ring-2 focus:ring-[#0066FF] transition-all placeholder:text-[#0A1931]/30 font-medium h-32 text-base sm:text-sm" 
-                                        placeholder="Street, Building name, Area, City..."
-                                        value={formData.businessAddress}
-                                        onChange={(e) => setFormData({...formData, businessAddress: e.target.value})}
-                                    />
-                                    <div className="absolute right-4 bottom-4">
-                                        <span className="material-symbols-outlined text-[#0A1931]/20">business</span>
-                                    </div>
-                                </div>
-                                {locationError && <p className="text-red-500 text-xs font-bold px-1">{locationError}</p>}
-                            </div>
-                        </div>
-                        <div className="mt-8 sm:mt-12 flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
-                            <button 
-                                onClick={handleSubmit}
-                                disabled={isSubmitting || !formData.businessAddress}
-                                className="w-full sm:w-auto h-12 px-8 py-3 bg-[#0066FF] text-white font-bold text-sm uppercase rounded-[12px] shadow-lg active:translate-y-0.5 transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
-                            >
-                                {isSubmitting ? <span className="material-symbols-outlined animate-spin">progress_activity</span> : (
-                                    <>
-                                        COMPLETE SETUP
-                                        <span className="material-symbols-outlined text-sm">rocket_launch</span>
-                                    </>
-                                )}
-                            </button>
-                            <button 
-                                onClick={prevStep}
-                                className="text-[#0A1931]/60 font-bold text-xs uppercase hover:text-[#0A1931] transition-colors py-2 cursor-pointer"
-                            >
-                                Back to previous
-                            </button>
-                        </div>
-                    </section>
-
-                    <section className="flex-1 relative hidden lg:flex items-center justify-center bg-[#e2e8f0] overflow-hidden">
-                        <div className="absolute top-0 right-0 w-96 h-96 bg-[#0066FF]/10 rounded-full blur-3xl -mr-20 -mt-20"></div>
-                        <div className="absolute bottom-0 left-0 w-80 h-80 bg-[#0066FF]/5 rounded-full blur-3xl -ml-20 -mb-20"></div>
-                        <div className="relative w-full h-full flex flex-col items-center justify-center p-12 space-y-8">
-                            <div className="blob-mask w-full max-w-xl aspect-square bg-[#E9E8E3] relative overflow-hidden shadow-2xl z-0 ring-4 ring-white/50">
-                                <LocationPicker 
-                                    onLocationSelect={(lat, lon, addr, city) => {
-                                        setFormData(prev => ({
-                                            ...prev,
-                                            latitude: lat,
-                                            longitude: lon,
-                                            businessAddress: addr,
-                                            city: city
-                                        }));
-                                    }}
-                                    initialPos={formData.latitude && formData.longitude ? { lat: formData.latitude, lon: formData.longitude } : undefined}
-                                />
-                            </div>
-
-                            {/* Floating Map Card */}
-                            <div className="bg-white/90 backdrop-blur-xl p-5 rounded-2xl shadow-2xl flex items-center gap-4 border border-white/50 min-w-[320px] z-30 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                <div className="w-12 h-12 bg-[#0A1931] rounded-xl flex items-center justify-center text-[#0066FF]">
-                                    <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>location_on</span>
-                                </div>
-                                <div>
-                                    <p className="font-bold text-[#0A1931] text-sm leading-tight">Interactive Mapping</p>
-                                    <p className="text-xs text-[#0A1931]/60 font-medium italic">Click the map to precisely pin your base</p>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-                </motion.div>
-            )}
-        </AnimatePresence>
-      </main>
-
-      {/* Mobile-only Progress Sticky Footer (Steps 2 and 3) */}
-      {step > 1 && (
-        <div className="lg:hidden fixed bottom-0 left-0 w-full bg-white/95 backdrop-blur-xl border-t border-[#E9E8E3] p-4 z-50">
-            <div className="flex items-center gap-4">
-                <div className="flex-1">
-                    <div className="w-full h-1.5 bg-[#E9E8E3] rounded-full overflow-hidden">
-                        <div className="bg-[#0066FF] h-full rounded-full" style={{ width: `${progress}%` }}></div>
-                    </div>
+          {/* Top Navigation Row: Step Counter + Back Button + Sign Out */}
+          <div className="shrink-0">
+            <div className="flex items-center justify-between gap-3 mb-3">
+              <div className="flex items-center gap-2">
+                {step > 1 && (
+                  <button
+                    type="button"
+                    onClick={prevStep}
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#717784] hover:text-[#0A1931] px-2.5 py-1.5 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
+                  >
+                    <ArrowLeft className="w-3.5 h-3.5" />
+                    <span>Back</span>
+                  </button>
+                )}
+                <div>
+                  <h1 className="text-sm font-bold text-[#0A1931] leading-tight">
+                    {STEP_TITLES[step]}
+                  </h1>
+                  <p className="text-[11px] text-[#717784] font-medium hidden sm:block">
+                    Step {step} of 3 • Enterprise Onboarding & Verification
+                  </p>
                 </div>
-                <span className="text-[10px] font-bold text-[#0A1931] uppercase tracking-widest">{Math.round(progress)}% Complete</span>
-            </div>
-        </div>
-      )}
+              </div>
 
-      {/* Font & Styles Integration */}
-      <style>{`
-        .blob-mask {
-            mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%23FF0066' d='M44.7,-76.4C58.8,-69.2,71.8,-59.1,79.6,-45.8C87.4,-32.5,90,-16.3,88.5,-0.9C86.9,14.6,81.2,29.2,73.4,42.5C65.6,55.8,55.7,67.7,43.3,73.8C30.9,80,16,80.3,1.4,77.9C-13.2,75.5,-26.4,70.3,-38.4,63.8C50.4,57.2,-61.2,49.2,-68.8,38C-76.4,26.8,-80.8,12.4,-81,-1.9C-81.2,-16.3,-77.2,-30.5,-69.3,-41.8C-61.4,-53.1,-49.7,-61.5,-37.4,-69.8C-25.1,-78.2,-12.6,-86.4,1.4,-88.9C15.4,-91.3,30.7,-83.5,44.7,-76.4Z' transform='translate(100 100)' /%3E%3C/svg%3E");
-            -webkit-mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%23FF0066' d='M44.7,-76.4C58.8,-69.2,71.8,-59.1,79.6,-45.8C87.4,-32.5,90,-16.3,88.5,-0.9C86.9,14.6,81.2,29.2,73.4,42.5C65.6,55.8,55.7,67.7,43.3,73.8C30.9,80,16,80.3,1.4,77.9C-13.2,75.5,-26.4,70.3,-38.4,63.8C50.4,57.2,-61.2,49.2,-68.8,38C-76.4,26.8,-80.8,12.4,-81,-1.9C-81.2,-16.3,-77.2,-30.5,-69.3,-41.8C-61.4,-53.1,-49.7,-61.5,-37.4,-69.8C-25.1,-78.2,-12.6,-86.4,1.4,-88.9C15.4,-91.3,30.7,-83.5,44.7,-76.4Z' transform='translate(100 100)' /%3E%3C/svg%3E");
-            mask-size: contain;
-            -webkit-mask-size: contain;
-            mask-repeat: no-repeat;
-            -webkit-mask-repeat: no-repeat;
-            mask-position: center;
-            -webkit-mask-position: center;
-        }
-        .organic-blob {
-            mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%23FF0066' d='M44.7,-76.4C58.8,-69.2,71.8,-59.1,79.6,-46.2C87.4,-33.4,90.1,-17.7,89.2,-2.1C88.3,13.5,83.8,29,75.2,42.5C66.6,56,53.8,67.5,39.4,75.1C25,82.7,8.9,86.4,-6.4,85.1C-21.7,83.7,-36.2,77.2,-48.8,68.4C-61.4,59.6,-72,48.5,-79.1,35.5C-86.2,22.5,-89.7,7.7,-88.4,-6.8C-87.1,-21.3,-81,-35.4,-71.5,-46.9C-62,-58.4,-49.1,-67.3,-35.7,-74.8C-22.3,-82.3,-8.4,-88.4,5.4,-89.1C19.2,-89.8,30.6,-83.6,44.7,-76.4Z' transform='translate(100 100)' /%3E%3C/svg%3E");
-            -webkit-mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%23FF0066' d='M44.7,-76.4C58.8,-69.2,71.8,-59.1,79.6,-46.2C87.4,-33.4,90.1,-17.7,89.2,-2.1C88.3,13.5,83.8,29,75.2,42.5C66.6,56,53.8,67.5,39.4,75.1C25,82.7,8.9,86.4,-6.4,85.1C-21.7,83.7,-36.2,77.2,-48.8,68.4C-61.4,59.6,-72,48.5,-79.1,35.5C-86.2,22.5,-89.7,7.7,-88.4,-6.8C-87.1,-21.3,-81,-35.4,-71.5,-46.9C-62,-58.4,-49.1,-67.3,-35.7,-74.8C-22.3,-82.3,-8.4,-88.4,5.4,-89.1C19.2,-89.8,30.6,-83.6,44.7,-76.4Z' transform='translate(100 100)' /%3E%3C/svg%3E");
-            mask-size: contain;
-            -webkit-mask-size: contain;
-            mask-repeat: no-repeat;
-            -webkit-mask-repeat: no-repeat;
-            mask-position: center;
-            -webkit-mask-position: center;
-        }
-      `}</style>
-      {/* Footer */}
-      <footer className="w-full bg-white border-t border-slate-200 py-6 mt-auto">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-          {/* <div className="flex items-center gap-2">
-            <img src="/logo.png" alt="TrustHyre Logo" className="w-5 h-5 object-contain" />
-            <span className="font-semibold text-slate-700">© 2026 TrustHyre Technologies. All rights reserved.</span>
-          </div> */}
-          <div className="flex items-center gap-6 font-semibold">
-            <Link to="/privacy" className="hover:text-[#0066FF] transition-colors">Privacy Policy</Link>
-            <Link to="/terms" className="hover:text-[#0066FF] transition-colors">Terms of Service</Link>
-            <Link to="/help" className="hover:text-[#0066FF] transition-colors">Help Center</Link>
+              <div className="flex items-center gap-3">
+                <span className="text-xs font-bold text-[#0f2f63]">
+                  Step {step} of 3
+                </span>
+                <button
+                  type="button"
+                  onClick={() => logout()}
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#717784] hover:text-[#0A1931] px-2.5 py-1.5 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Sign out</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Sleek Minimal Progress Bar */}
+            <div className="w-full bg-[#f4f4f4] h-1.5 rounded-full overflow-hidden mb-6">
+              <div 
+                className="bg-[#0f2f63] h-full transition-all duration-300 rounded-full"
+                style={{ width: `${progressPercentage}%` }}
+              />
+            </div>
+
+            {/* Error Notification */}
+            {errorMessage && (
+              <div className="mb-5 p-3.5 bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold rounded-xl flex items-center gap-2.5">
+                <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+                <span>{errorMessage}</span>
+              </div>
+            )}
+          </div>
+
+          {/* FORM BODY BY STEP */}
+          <div className="flex-1 flex flex-col justify-center py-2">
+            
+            {/* Step 1: Company Name, Phone, Website */}
+            {step === 1 && (
+              <div className="space-y-5">
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-bold uppercase tracking-wider text-[#0A1931]">
+                    Company / Business Name *
+                  </label>
+                  <div className="relative">
+                    <input 
+                      className="w-full bg-white border border-[#e6e8ec] hover:border-[#0f2f63]/50 focus:border-[#0f2f63] focus:ring-2 focus:ring-[#0f2f63]/10 rounded-xl px-4 py-3 text-sm text-[#0A1931] outline-none transition-all placeholder:text-slate-400 font-medium" 
+                      placeholder="e.g. Reliance Logistics / Apex Engineering" 
+                      type="text"
+                      value={formData.companyName}
+                      onChange={(e) => setFormData({...formData, companyName: e.target.value})}
+                      required
+                    />
+                    <Building2 className="w-4 h-4 text-slate-400 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <div className="flex justify-between items-center">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-[#0A1931]">
+                      Business Phone Number *
+                    </label>
+                    <span className="text-[10px] text-[#717784] font-medium">10-Digit Mobile</span>
+                  </div>
+                  <div className="relative flex items-center">
+                    <div className="absolute left-3.5 flex items-center gap-1.5 text-slate-700 font-bold text-xs pointer-events-none select-none border-r border-slate-200 pr-2.5 z-10">
+                      <span className="text-sm leading-none">🇮🇳</span>
+                      <span>+91</span>
+                    </div>
+                    <input 
+                      className="w-full bg-white border border-[#e6e8ec] hover:border-[#0f2f63]/50 focus:border-[#0f2f63] focus:ring-2 focus:ring-[#0f2f63]/10 rounded-xl pl-18 pr-4 py-3 text-sm text-[#0A1931] outline-none transition-all placeholder:text-slate-400 font-medium" 
+                      placeholder="98765 43210" 
+                      type="tel"
+                      maxLength={10}
+                      value={formData.businessPhone}
+                      onChange={(e) => setFormData({...formData, businessPhone: e.target.value.replace(/\D/g, '').slice(0, 10)})}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <div className="flex justify-between items-center">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-[#0A1931]">
+                      Company Website
+                    </label>
+                    <span className="text-[10px] font-semibold text-[#717784] uppercase">Optional</span>
+                  </div>
+                  <div className="relative">
+                    <input 
+                      className="w-full bg-white border border-[#e6e8ec] hover:border-[#0f2f63]/50 focus:border-[#0f2f63] focus:ring-2 focus:ring-[#0f2f63]/10 rounded-xl px-4 py-3 text-sm text-[#0A1931] outline-none transition-all placeholder:text-slate-400 font-medium" 
+                      placeholder="https://yourcompany.com" 
+                      type="url"
+                      value={formData.companyWebsite}
+                      onChange={(e) => setFormData({...formData, companyWebsite: e.target.value})}
+                    />
+                    <Globe className="w-4 h-4 text-slate-400 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Step 2: Industry Sector & Mission */}
+            {step === 2 && (
+              <div className="space-y-5">
+                <div className="space-y-2.5">
+                  <label className="block text-xs font-bold uppercase tracking-wider text-[#0A1931]">
+                    Select Primary Industry Sector *
+                  </label>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 max-h-56 overflow-y-auto p-1">
+                    {INDUSTRY_OPTIONS.map(opt => (
+                      <button 
+                        key={opt.id}
+                        type="button"
+                        onClick={() => setFormData({...formData, industry: opt.id})}
+                        className={`flex items-center gap-2 p-3 rounded-xl border transition-all text-left cursor-pointer ${
+                          formData.industry === opt.id 
+                            ? 'bg-[#0f2f63] text-white border-[#0f2f63] shadow-xs' 
+                            : 'bg-[#f4f4f4] border-transparent text-[#717784] hover:text-[#0A1931] hover:bg-slate-200/70'
+                        }`}
+                      >
+                        <span className="text-base leading-none shrink-0">{opt.icon}</span>
+                        <span className="text-xs font-semibold truncate">{opt.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-1.5 pt-2 border-t border-[#e6e8ec]">
+                  <div className="flex justify-between items-center">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-[#0A1931]">
+                      Company Overview & Hiring Requirements
+                    </label>
+                    <span className="text-[10px] text-[#717784] font-medium">
+                      {formData.profileBio.length} / 500
+                    </span>
+                  </div>
+                  <textarea 
+                    className="w-full bg-white border border-[#e6e8ec] hover:border-[#0f2f63]/50 focus:border-[#0f2f63] focus:ring-2 focus:ring-[#0f2f63]/10 rounded-xl p-3.5 text-xs text-[#0A1931] placeholder:text-slate-400 outline-none transition-all resize-none font-medium h-28" 
+                    placeholder="Tell candidates about your operations, typical shifts, and hiring expectations..."
+                    value={formData.profileBio}
+                    onChange={(e) => setFormData({...formData, profileBio: e.target.value.slice(0, 500)})}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Step 3: Location Details */}
+            {step === 3 && (
+              <div className="space-y-5">
+                <div className="p-4 sm:p-5 rounded-2xl bg-[#fbfbfb] border border-[#e6e8ec] space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold uppercase tracking-wider text-[#0A1931]">Operating Base / City</span>
+                    <button
+                      type="button"
+                      onClick={detectLocation}
+                      disabled={isLocating}
+                      className="text-xs font-bold text-[#0f2f63] hover:underline cursor-pointer flex items-center gap-1"
+                    >
+                      {isLocating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <LocateFixed className="w-3.5 h-3.5" />}
+                      <span>{isLocating ? "Detecting..." : "Auto-Detect"}</span>
+                    </button>
+                  </div>
+
+                  <div className="space-y-2">
+                    <input 
+                      type="text"
+                      placeholder="City (e.g. Chennai / Bengaluru)"
+                      value={formData.city}
+                      onChange={(e) => setFormData({...formData, city: e.target.value})}
+                      className="w-full bg-white border border-[#e6e8ec] focus:border-[#0f2f63] focus:ring-2 focus:ring-[#0f2f63]/10 rounded-xl px-4 py-2.5 text-xs text-[#0A1931] font-semibold outline-none"
+                    />
+
+                    <input 
+                      type="text"
+                      placeholder="Detailed Office / Facility Address"
+                      value={formData.businessAddress}
+                      onChange={(e) => setFormData({...formData, businessAddress: e.target.value})}
+                      className="w-full bg-white border border-[#e6e8ec] focus:border-[#0f2f63] focus:ring-2 focus:ring-[#0f2f63]/10 rounded-xl px-4 py-2.5 text-xs text-[#0A1931] font-semibold outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-xl bg-[#0f2f63]/5 border border-[#0f2f63]/15 flex items-start gap-3">
+                  <CheckCircle2 className="w-5 h-5 text-[#0f2f63] shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-xs font-bold text-[#0A1931]">Instant Talent Discovery</p>
+                    <p className="text-[11px] text-[#717784] mt-0.5 leading-relaxed">
+                      Your company will be verified immediately upon submission, unlocking access to verified candidate portfolios, contact information, and direct hiring tools.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* ANCHORED BOTTOM ACTION BAR */}
+          <div className="pt-4 border-t border-[#e6e8ec] shrink-0 mt-4">
+            <div className="flex items-center justify-between gap-3">
+              {step > 1 ? (
+                <button
+                  type="button"
+                  onClick={prevStep}
+                  className="px-4 py-3 bg-[#f4f4f4] hover:bg-slate-200/80 text-[#0A1931] text-xs font-bold rounded-xl transition-all cursor-pointer flex items-center gap-1.5"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                  <span>Previous</span>
+                </button>
+              ) : (
+                <div />
+              )}
+
+              {step < 3 ? (
+                <button
+                  type="button"
+                  onClick={nextStep}
+                  className="bg-[#0f2f63] hover:bg-[#0c244c] active:bg-[#081a38] text-white py-3.5 px-6 rounded-xl font-bold text-xs sm:text-sm tracking-wide shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer ml-auto"
+                >
+                  <span>Continue</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleSubmit}
+                  disabled={isSubmitting || !formData.companyName}
+                  className="bg-[#0f2f63] hover:bg-[#0c244c] active:bg-[#081a38] disabled:opacity-50 text-white py-3.5 px-6 rounded-xl font-bold text-xs sm:text-sm tracking-wide shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer ml-auto"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Verifying Company...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Complete Verification & Find Workers</span>
+                      <Building2 className="w-4 h-4" />
+                    </>
+                  )}
+                </button>
+              )}
+            </div>
           </div>
         </div>
-      </footer>
+      </div>
     </div>
   );
 }
-

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export interface WorkerPreferences {
@@ -68,9 +69,9 @@ export const PreferencesModal: React.FC<PreferencesModalProps> = ({
 
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
+      <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs font-['Onest',system-ui,sans-serif]">
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 10 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -223,6 +224,7 @@ export const PreferencesModal: React.FC<PreferencesModalProps> = ({
           </div>
         </motion.div>
       </div>
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 };

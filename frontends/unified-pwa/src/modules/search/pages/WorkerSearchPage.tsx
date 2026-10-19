@@ -25,8 +25,9 @@ import { DataTablePagination } from '../../../components/common/DataTablePaginat
 import { useAuth } from '../../../providers/AuthContext';
 import { useQueryClient } from '@tanstack/react-query';
 import { fcmService } from '../../../services/fcm.service';
-import { searchAlertService } from '../../../services/searchAlert.service';
+import { searchAlertService, type SearchAlert } from '../../../services/searchAlert.service';
 import { ManageAlertsModal } from '../../dashboard/features/alerts/ManageAlertsModal';
+import { TalentAlertModal } from '../components/TalentAlertModal';
 
 const JOB_CATEGORIES = [
   "All",
@@ -58,38 +59,39 @@ export const WorkerSearchPage = () => {
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
-  const [isAlertSaved, setIsAlertSaved] = useState(false);
+  const [isManageAlertsOpen, setIsManageAlertsOpen] = useState(false);
+  const [isTalentAlertModalOpen, setIsTalentAlertModalOpen] = useState(false);
 
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
-  const handleSaveCandidateAlert = async () => {
+  // Fetch employer's active candidate alerts to reflect live subscription state
+  const { data: userAlerts = [] } = useQuery<SearchAlert[]>({
+    queryKey: ['searchAlerts', 'CANDIDATE_ALERT'],
+    queryFn: () => searchAlertService.getMyAlerts('CANDIDATE_ALERT'),
+    enabled: Boolean(user),
+    staleTime: 60 * 1000
+  });
+
+  // Check if an alert matching the current active filter is already configured
+  const isMatchingAlertActive = Boolean(userAlerts.some(a => {
+    if (!a.is_active) return false;
+    const alertCity = (a.city || '').trim().toLowerCase();
+    const currentCityLower = (city || '').trim().toLowerCase();
+    const alertTrade = (a.category || 'All').trim().toLowerCase();
+    const currentTradeLower = (selectedTrade || 'All').trim().toLowerCase();
+    const alertQuery = (a.query || '').trim().toLowerCase();
+    const currentQueryLower = (query || '').trim().toLowerCase();
+
+    return alertCity === currentCityLower && alertTrade === currentTradeLower && alertQuery === currentQueryLower;
+  }));
+
+  const handleOpenTalentAlertModal = () => {
     if (!user) {
-      alert("Please sign in or create an account to save candidate search alerts.");
+      alert("Please sign in or create an account to configure candidate search alerts.");
       return;
     }
-
-    // Prompt native browser push notification permission if not yet granted
-    if (fcmService.isPushSupported() && Notification.permission !== 'granted') {
-      await fcmService.requestPushPermissionAndRegister().catch(() => {});
-    }
-
-    try {
-      await searchAlertService.createAlert({
-        alertType: 'CANDIDATE_ALERT',
-        city: city || undefined,
-        category: selectedTrade !== 'All' ? selectedTrade : undefined,
-        query: query || undefined,
-        experience: experience !== 'all' ? experience : undefined,
-        frequency: 'INSTANT'
-      });
-      setIsAlertSaved(true);
-      setTimeout(() => setIsAlertSaved(false), 4000);
-      queryClient.invalidateQueries({ queryKey: ['searchAlerts'] });
-    } catch (e: any) {
-      console.warn("Save candidate alert error:", e);
-    }
+    setIsTalentAlertModalOpen(true);
   };
 
   const { isWorkerSaved, toggleSaveWorker, syncSavedStatusFromList } = useSavedStore({ lazy: true });
@@ -285,17 +287,18 @@ export const WorkerSearchPage = () => {
                 </span>
                 <button
                   type="button"
-                  onClick={handleSaveCandidateAlert}
+                  onClick={handleOpenTalentAlertModal}
                   className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold border transition-all cursor-pointer ${
-                    isAlertSaved
-                      ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
+                    isMatchingAlertActive
+                      ? 'bg-emerald-50 text-emerald-800 border-emerald-300 shadow-2xs hover:bg-emerald-100/70'
                       : 'bg-white hover:bg-[#0f2f63] text-[#0f2f63] hover:text-white border-[#0f2f63]/30 shadow-2xs'
                   }`}
+                  title={isMatchingAlertActive ? 'Talent Alert Active - Click to view or manage' : 'Configure talent alert'}
                 >
-                  {isAlertSaved ? (
+                  {isMatchingAlertActive ? (
                     <>
                       <Check className="w-3.5 h-3.5 text-emerald-600" />
-                      <span>Talent Alert Saved!</span>
+                      <span>Talent Alert Active</span>
                     </>
                   ) : (
                     <>
@@ -570,7 +573,7 @@ export const WorkerSearchPage = () => {
 
       {/* MOBILE FILTER MODAL / BOTTOM SHEET */}
       {isMobileFilterOpen && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-xs p-0 sm:p-4">
+        <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-xs p-0 sm:p-4">
           <div className="bg-white w-full max-w-lg rounded-t-[2rem] sm:rounded-[2rem] p-6 space-y-6 max-h-[85vh] overflow-y-auto animate-in slide-in-from-bottom duration-200 shadow-2xl border border-slate-200/80">
             
             {/* Modal Header */}
@@ -670,10 +673,21 @@ export const WorkerSearchPage = () => {
         </div>
       )}
 
+      {/* Talent Alert Configuration Modal */}
+      <TalentAlertModal
+        isOpen={isTalentAlertModalOpen}
+        onClose={() => setIsTalentAlertModalOpen(false)}
+        currentQuery={query}
+        currentCity={city}
+        currentTrade={selectedTrade}
+        currentExperience={experience}
+        onOpenManageAlerts={() => setIsManageAlertsOpen(true)}
+      />
+
       {/* Manage Candidate Alerts Modal */}
       <ManageAlertsModal
-        isOpen={isAlertModalOpen}
-        onClose={() => setIsAlertModalOpen(false)}
+        isOpen={isManageAlertsOpen}
+        onClose={() => setIsManageAlertsOpen(false)}
         alertType="CANDIDATE_ALERT"
       />
 

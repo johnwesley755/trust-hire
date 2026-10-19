@@ -1,6 +1,24 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Save, Loader2, User, Briefcase, MapPin, GraduationCap, Languages, Calendar, Award, Sparkles, Camera, UploadCloud, CheckCircle2 } from 'lucide-react';
+import { 
+  X, 
+  Loader2, 
+  User, 
+  Briefcase, 
+  MapPin, 
+  GraduationCap, 
+  Languages, 
+  Calendar, 
+  Award, 
+  Sparkles, 
+  Camera, 
+  UploadCloud, 
+  CheckCircle2, 
+  Clock, 
+  Wrench, 
+  FileText
+} from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { profileService, type WorkerProfile } from '../../../services/profile.service';
 import { queryKeys } from '../../../lib/queryKeys';
@@ -29,6 +47,34 @@ const ENGLISH_LEVELS = [
   { id: 'NONE', label: 'No English' }
 ];
 
+const POPULAR_SKILLS = [
+  "Maintenance & Repair",
+  "Electrical Wiring",
+  "Pipe Fitting & Plumbing",
+  "Customer Support",
+  "Inventory & Warehousing",
+  "Driving & Delivery",
+  "Cooking & Food Safety",
+  "MS Office / Data Entry",
+  "Retail Sales & Cash Handling",
+  "Facility Cleaning",
+  "Carpentry & Woodwork",
+  "Machine Operation"
+];
+
+const POPULAR_ROLES = [
+  "Electrician",
+  "Plumber",
+  "Delivery Driver",
+  "Warehouse Associate",
+  "Cook / Chef / Kitchen Help",
+  "Retail Sales & Operations",
+  "Customer Support / BPO",
+  "Data Entry Operator",
+  "Security Guard",
+  "Carpenter"
+];
+
 export const EditWorkerProfileModal: React.FC<EditWorkerProfileModalProps> = ({
   isOpen,
   onClose,
@@ -40,6 +86,7 @@ export const EditWorkerProfileModal: React.FC<EditWorkerProfileModalProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [profileImageUrl, setProfileImageUrl] = useState<string>('');
   const [isProcessingPhoto, setIsProcessingPhoto] = useState<boolean>(false);
+  const [skillInput, setSkillInput] = useState<string>('');
 
   const [formData, setFormData] = useState({
     fullName: '',
@@ -64,18 +111,39 @@ export const EditWorkerProfileModal: React.FC<EditWorkerProfileModalProps> = ({
   });
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
+  // Sync data whenever modal opens or profile changes
   useEffect(() => {
     if (profile) {
       setProfileImageUrl(profile.profileImageUrl || (profile as any).profile_image_url || (profile as any).profilePhoto || user?.profileImageUrl || '');
+      
+      const skillsStr = Array.isArray(profile.skills) 
+        ? profile.skills.join(', ') 
+        : (profile.skills || '');
+      
+      const rolesStr = Array.isArray(profile.preferredRoles)
+        ? profile.preferredRoles.join(', ')
+        : (profile.preferredRoles || profile.skills || 'Electrician, Customer Support');
+
+      const exp = Number(profile.experienceYears ?? (profile as any).experience_years) || 0;
+
+      let formattedDob = '';
+      if (profile.dob) {
+        try {
+          formattedDob = new Date(profile.dob).toISOString().split('T')[0];
+        } catch {
+          formattedDob = String(profile.dob).slice(0, 10);
+        }
+      }
+
       setFormData({
-        fullName: profile.fullName || '',
-        skills: profile.skills || '',
-        experienceYears: profile.experienceYears || 0,
+        fullName: profile.fullName || `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || '',
+        skills: skillsStr,
+        experienceYears: exp,
         hourlyRate: profile.hourlyRate || 0,
         city: profile.city || profile.location || '',
         address: profile.address || '',
         bio: profile.bio || '',
-        dob: profile.dob || '',
+        dob: formattedDob,
         gender: profile.gender || 'MALE',
         highestEducation: profile.highestEducation || '12th Pass',
         collegeName: profile.collegeName || '',
@@ -83,14 +151,66 @@ export const EditWorkerProfileModal: React.FC<EditWorkerProfileModalProps> = ({
         specialization: profile.specialization || '',
         schoolMedium: profile.schoolMedium || '',
         englishProficiency: profile.englishProficiency || 'BASIC',
-        languagesKnown: profile.languagesKnown?.join(', ') || 'English, Hindi, Tamil',
-        preferredRoles: profile.preferredRoles?.join(', ') || profile.skills || 'Electrician, Customer Support',
+        languagesKnown: Array.isArray(profile.languagesKnown) ? profile.languagesKnown.join(', ') : (profile.languagesKnown || 'English, Hindi, Tamil'),
+        preferredRoles: rolesStr,
         willingToRelocate: Boolean(profile.willingToRelocate),
-        preferredCities: profile.preferredCities?.join(', ') || 'Chennai, Bangalore',
+        preferredCities: Array.isArray(profile.preferredCities) ? profile.preferredCities.join(', ') : (profile.preferredCities || 'Chennai, Bangalore'),
       });
     }
   }, [profile, isOpen, user]);
 
+  // Skill Helpers
+  const skillsList = formData.skills
+    ? formData.skills.split(',').map(s => s.trim()).filter(Boolean)
+    : [];
+
+  const handleAddSkill = (skillToAdd?: string) => {
+    const val = (skillToAdd || skillInput).trim();
+    if (!val) return;
+    if (!skillsList.includes(val)) {
+      const updated = [...skillsList, val].join(', ');
+      setFormData(prev => ({ ...prev, skills: updated }));
+    }
+    setSkillInput('');
+  };
+
+  const handleRemoveSkill = (skillToRemove: string) => {
+    const updated = skillsList.filter(s => s !== skillToRemove).join(', ');
+    setFormData(prev => ({ ...prev, skills: updated }));
+  };
+
+  // Role Helpers
+  const rolesList = formData.preferredRoles
+    ? formData.preferredRoles.split(',').map(s => s.trim()).filter(Boolean)
+    : [];
+
+  const handleToggleRole = (role: string) => {
+    let updated: string[];
+    if (rolesList.includes(role)) {
+      if (rolesList.length > 1) {
+        updated = rolesList.filter(r => r !== role);
+      } else {
+        return;
+      }
+    } else {
+      updated = [...rolesList, role];
+    }
+    setFormData(prev => ({ ...prev, preferredRoles: updated.join(', ') }));
+  };
+
+  // Auto-Generate Bio
+  const handleAutoGenerateBio = () => {
+    const roles = formData.preferredRoles || 'Skilled professional';
+    const loc = formData.city ? `based in ${formData.city}` : 'ready for local assignments';
+    const exp = formData.experienceYears > 0 
+      ? `${formData.experienceYears} years of verified practical experience` 
+      : 'Dedicated and motivated professional ready to contribute immediately';
+    const topSkills = skillsList.length > 0 ? `Core strengths include ${skillsList.slice(0, 4).join(', ')}.` : '';
+    const bioText = `${roles} ${loc} with ${exp}. ${topSkills} Proficient in ${formData.englishProficiency.toLowerCase()} English. Dedicated, punctual, and committed to high performance.`;
+    setFormData(prev => ({ ...prev, bio: bioText }));
+  };
+
+  // Handle Photo Upload with Client-Side Canvas Compression
   const handleModalPhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -154,19 +274,24 @@ export const EditWorkerProfileModal: React.FC<EditWorkerProfileModalProps> = ({
           profile_image_url: profileImageUrl
         });
       }
-      // Live patch without triggering GET network refetch
       queryClient.setQueryData(queryKeys.workers.detail('me'), (old: any) => ({
         ...(old || {}),
         ...formData,
         profileImageUrl,
         profile_image_url: profileImageUrl,
         profilePhoto: profileImageUrl,
+        skills: formData.skills,
+        experienceYears: Number(formData.experienceYears) || 0,
+        experience_years: Number(formData.experienceYears) || 0,
+        bio: formData.bio,
         languagesKnown: formData.languagesKnown.split(',').map(s => s.trim()).filter(Boolean),
         preferredRoles: formData.preferredRoles.split(',').map(s => s.trim()).filter(Boolean),
         preferredCities: formData.preferredCities.split(',').map(s => s.trim()).filter(Boolean),
         ...(updatedData || {})
       }));
+      queryClient.invalidateQueries({ queryKey: queryKeys.workers.all });
       queryClient.invalidateQueries({ queryKey: queryKeys.workers.detail('me') });
+      queryClient.invalidateQueries({ queryKey: queryKeys.workers.me });
       onClose();
     },
     onError: (err: any) => {
@@ -178,24 +303,25 @@ export const EditWorkerProfileModal: React.FC<EditWorkerProfileModalProps> = ({
     e.preventDefault();
     setErrorMsg(null);
     mutation.mutate({
-      fullName: formData.fullName,
+      fullName: formData.fullName.trim(),
       profileImageUrl: profileImageUrl || undefined,
       profile_image_url: profileImageUrl || undefined,
       profilePhoto: profileImageUrl || undefined,
       skills: formData.skills,
       experienceYears: Number(formData.experienceYears) || 0,
+      experience_years: Number(formData.experienceYears) || 0,
       hourlyRate: Number(formData.hourlyRate) || 0,
-      city: formData.city,
+      city: formData.city.trim(),
       location: `${formData.address ? formData.address + ', ' : ''}${formData.city}`,
-      address: formData.address,
-      bio: formData.bio,
+      address: formData.address.trim(),
+      bio: formData.bio.trim(),
       dob: formData.dob || null,
       gender: formData.gender,
       highestEducation: formData.highestEducation,
-      collegeName: formData.collegeName || null,
-      degree: formData.degree || null,
-      specialization: formData.specialization || null,
-      schoolMedium: formData.schoolMedium || null,
+      collegeName: formData.collegeName?.trim() || null,
+      degree: formData.degree?.trim() || null,
+      specialization: formData.specialization?.trim() || null,
+      schoolMedium: formData.schoolMedium?.trim() || null,
       englishProficiency: formData.englishProficiency,
       languagesKnown: formData.languagesKnown.split(',').map(s => s.trim()).filter(Boolean),
       preferredRoles: formData.preferredRoles.split(',').map(s => s.trim()).filter(Boolean),
@@ -204,288 +330,508 @@ export const EditWorkerProfileModal: React.FC<EditWorkerProfileModalProps> = ({
     });
   };
 
+  // Body scroll lock and Escape key listener
+  useEffect(() => {
+    if (!isOpen) return;
+    const orig = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.body.style.overflow = orig;
+      window.removeEventListener('keydown', onKeyDown);
+    };
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+      <div 
+        className="fixed inset-0 z-[99999] flex items-center justify-center p-3 sm:p-6 md:p-8 bg-slate-900/60 backdrop-blur-xs font-['Onest',system-ui,sans-serif] overflow-y-auto select-none"
+        onClick={(e) => {
+          if (e.target === e.currentTarget) onClose();
+        }}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="edit-profile-title"
+      >
         <motion.div
-          initial={{ opacity: 0, scale: 0.96 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.96 }}
-          className="bg-white rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-y-auto border border-slate-200 shadow-2xl"
+          initial={{ opacity: 0, scale: 0.96, y: 10 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.96, y: 10 }}
+          transition={{ duration: 0.2, ease: "easeOut" }}
+          onClick={(e) => e.stopPropagation()}
+          className="bg-white rounded-3xl md:rounded-[2rem] w-full max-w-2xl max-h-[88vh] flex flex-col border border-[#e6e8ec] shadow-2xl overflow-hidden my-auto select-text"
         >
-          {/* Header */}
-          <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 sticky top-0 bg-white z-10">
-            <div>
-              <h2 className="text-lg font-black text-[#0A1931]">Edit Candidate Profile</h2>
-              <p className="text-xs text-slate-500 font-medium">Update your photo, bio, education, languages, and preferred roles.</p>
+          {/* PINNED HEADER (Current App Theme) */}
+          <div className="flex items-center justify-between px-6 py-4.5 border-b border-[#e6e8ec] shrink-0 bg-white z-10">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-[#0f2f63]/10 border border-[#0f2f63]/15 flex items-center justify-center text-[#0f2f63] shrink-0">
+                <User className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 id="edit-profile-title" className="text-base sm:text-lg font-bold text-[#0A1931]">
+                  Edit Candidate Profile
+                </h2>
+                <p className="text-xs text-[#717784]">
+                  Update your credentials, experience, skills, and professional bio
+                </p>
+              </div>
             </div>
             <button
+              type="button"
               onClick={onClose}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-all cursor-pointer"
+              className="p-2 rounded-xl text-slate-400 hover:text-[#0A1931] hover:bg-slate-100 transition-all cursor-pointer"
+              title="Close"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
 
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="p-6 space-y-5">
-            {errorMsg && (
-              <div className="p-3 text-xs font-semibold text-red-700 bg-red-50 rounded-xl border border-red-200">
-                {errorMsg}
-              </div>
-            )}
+          {/* FORM BODY WITH INDEPENDENT SMOOTH SCROLL */}
+          <form onSubmit={handleSubmit} className="flex flex-col min-h-0 flex-1 overflow-hidden">
+            <div className="p-6 space-y-6 overflow-y-auto flex-1">
+              {errorMsg && (
+                <div className="p-3 text-xs font-semibold text-rose-700 bg-rose-50 rounded-xl border border-rose-200">
+                  {errorMsg}
+                </div>
+              )}
 
-            {/* Profile Photo Section */}
-            <div className="p-4 bg-slate-50/80 rounded-2xl border border-slate-200 flex items-center gap-4">
-              <input 
-                type="file"
-                ref={fileInputRef}
-                accept="image/png, image/jpeg, image/jpg, image/webp"
-                onChange={handleModalPhotoUpload}
-                className="hidden"
-              />
-
-              <div className="relative group shrink-0">
-                <UserAvatar 
-                  src={profileImageUrl}
-                  name={formData.fullName || 'Candidate'}
-                  size="lg"
+              {/* 1. Profile Photo Section */}
+              <div className="p-4 bg-[#f8f9fa] rounded-2xl border border-[#e6e8ec] flex items-center gap-4">
+                <input 
+                  type="file"
+                  ref={fileInputRef}
+                  accept="image/png, image/jpeg, image/jpg, image/webp"
+                  onChange={handleModalPhotoUpload}
+                  className="hidden"
                 />
+
+                <div className="relative group shrink-0">
+                  <UserAvatar 
+                    src={profileImageUrl}
+                    name={formData.fullName || 'Candidate'}
+                    size="lg"
+                  />
+                </div>
+
+                <div className="flex-1 space-y-1.5">
+                  <label className="text-xs font-bold text-[#0A1931] flex items-center gap-1.5">
+                    <Camera className="w-3.5 h-3.5 text-[#0f2f63]" />
+                    <span>Profile Photo</span>
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={isProcessingPhoto}
+                      className="px-3.5 py-1.5 bg-[#0f2f63] hover:bg-[#0c244c] text-white rounded-xl text-xs font-bold shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer"
+                    >
+                      {isProcessingPhoto ? (
+                        <>
+                          <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
+                          <span>Processing...</span>
+                        </>
+                      ) : (
+                        <>
+                          <UploadCloud className="w-3.5 h-3.5 text-white" />
+                          <span>{profileImageUrl ? "Change Photo" : "Upload Photo"}</span>
+                        </>
+                      )}
+                    </button>
+                    {profileImageUrl && (
+                      <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg flex items-center gap-1 border border-emerald-200">
+                        <CheckCircle2 className="w-3.5 h-3.5" /> Attached
+                      </span>
+                    )}
+                  </div>
+                </div>
               </div>
 
-              <div className="flex-1 space-y-1">
-                <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                  <Camera className="w-3.5 h-3.5 text-[#0066FF]" />
-                  Profile Photo
-                </label>
-                <div className="flex items-center gap-2">
+              {/* 2. Personal Details */}
+              <div className="space-y-3.5">
+                <div className="flex items-center gap-2 pb-1 border-b border-[#e6e8ec]">
+                  <User className="w-3.5 h-3.5 text-[#0f2f63]" />
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-[#0A1931]">Personal Details</h3>
+                </div>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-[#0A1931]">Full Name *</label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.fullName}
+                      onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                      className="w-full bg-white border border-[#e6e8ec] focus:border-[#0f2f63] focus:ring-2 focus:ring-[#0f2f63]/10 rounded-xl px-4 py-2.5 text-xs text-[#0A1931] font-semibold outline-none transition-all placeholder:text-slate-400"
+                      placeholder="e.g. Ramesh Kumar"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-[#0A1931]">Date of Birth</label>
+                    <input
+                      type="date"
+                      value={formData.dob}
+                      onChange={(e) => setFormData({ ...formData, dob: e.target.value })}
+                      className="w-full bg-white border border-[#e6e8ec] focus:border-[#0f2f63] focus:ring-2 focus:ring-[#0f2f63]/10 rounded-xl px-4 py-2.5 text-xs text-[#0A1931] font-semibold outline-none transition-all"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-[#0A1931]">Gender</label>
+                    <select
+                      value={formData.gender}
+                      onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
+                      className="w-full bg-white border border-[#e6e8ec] focus:border-[#0f2f63] focus:ring-2 focus:ring-[#0f2f63]/10 rounded-xl px-4 py-2.5 text-xs text-[#0A1931] font-semibold outline-none transition-all cursor-pointer"
+                    >
+                      <option value="MALE">Male</option>
+                      <option value="FEMALE">Female</option>
+                      <option value="OTHER">Other</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-[#0A1931]">City / Town *</label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.city}
+                      onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                      className="w-full bg-white border border-[#e6e8ec] focus:border-[#0f2f63] focus:ring-2 focus:ring-[#0f2f63]/10 rounded-xl px-4 py-2.5 text-xs text-[#0A1931] font-semibold outline-none transition-all placeholder:text-slate-400"
+                      placeholder="e.g. Chennai, TN"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-[#0A1931]">Address / Locality</label>
+                  <input
+                    type="text"
+                    value={formData.address}
+                    onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                    className="w-full bg-white border border-[#e6e8ec] focus:border-[#0f2f63] focus:ring-2 focus:ring-[#0f2f63]/10 rounded-xl px-4 py-2.5 text-xs text-[#0A1931] font-semibold outline-none transition-all placeholder:text-slate-400"
+                    placeholder="e.g. Royapuram, Near High Court"
+                  />
+                </div>
+              </div>
+
+              {/* 3. Work Experience & Preferred Trades */}
+              <div className="space-y-3.5 pt-2 border-t border-[#e6e8ec]">
+                <div className="flex items-center justify-between pb-1 border-b border-[#e6e8ec]">
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-3.5 h-3.5 text-[#0f2f63]" />
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-[#0A1931]">Work Experience & Trades</h3>
+                  </div>
+                  <span className="text-xs font-bold text-[#0f2f63]">
+                    {formData.experienceYears === 0 ? "Fresher (0 yrs)" : `${formData.experienceYears} Years Experience`}
+                  </span>
+                </div>
+
+                {/* Experience Chip Selector */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-[#0A1931]">Total Work Experience *</label>
+                  <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+                    {[
+                      { val: 0, label: "Fresher" },
+                      { val: 1, label: "1 Yr" },
+                      { val: 2, label: "2 Yrs" },
+                      { val: 3, label: "3 Yrs" },
+                      { val: 4, label: "4 Yrs" },
+                      { val: 5, label: "5+ Yrs" },
+                    ].map((item) => (
+                      <button
+                        key={item.val}
+                        type="button"
+                        onClick={() => setFormData(prev => ({ ...prev, experienceYears: item.val }))}
+                        className={`py-2 px-1 text-xs font-bold rounded-xl border text-center transition-all cursor-pointer ${
+                          formData.experienceYears === item.val
+                            ? "bg-[#0f2f63] text-white border-[#0f2f63] shadow-xs"
+                            : "bg-[#f8f9fa] text-[#717784] border-[#e6e8ec] hover:border-slate-300 hover:text-[#0A1931]"
+                        }`}
+                      >
+                        {item.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Preferred Roles */}
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-[#0A1931]">Preferred Job Roles (comma-separated)</label>
+                  <input
+                    type="text"
+                    value={formData.preferredRoles}
+                    onChange={(e) => setFormData({ ...formData, preferredRoles: e.target.value })}
+                    className="w-full bg-white border border-[#e6e8ec] focus:border-[#0f2f63] focus:ring-2 focus:ring-[#0f2f63]/10 rounded-xl px-4 py-2.5 text-xs text-[#0A1931] font-semibold outline-none transition-all placeholder:text-slate-400"
+                    placeholder="e.g. Electrician, Customer Support, Retail Executive"
+                  />
+                  <div className="flex flex-wrap gap-1.5 pt-0.5 max-h-24 overflow-y-auto">
+                    {POPULAR_ROLES.map((role) => {
+                      const isSelected = rolesList.includes(role);
+                      return (
+                        <button
+                          key={role}
+                          type="button"
+                          onClick={() => handleToggleRole(role)}
+                          className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all cursor-pointer border ${
+                            isSelected
+                              ? "bg-[#0f2f63] text-white border-[#0f2f63]"
+                              : "bg-[#f8f9fa] text-[#717784] border-[#e6e8ec] hover:text-[#0A1931]"
+                          }`}
+                        >
+                          {role} {isSelected ? "✓" : "+"}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              {/* 4. Core Skills & Technical Strengths */}
+              <div className="space-y-3.5 pt-2 border-t border-[#e6e8ec]">
+                <div className="flex items-center justify-between pb-1 border-b border-[#e6e8ec]">
+                  <div className="flex items-center gap-2">
+                    <Wrench className="w-3.5 h-3.5 text-[#0f2f63]" />
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-[#0A1931]">Skills & Specialties</h3>
+                  </div>
+                  <span className="text-[11px] text-[#717784]">
+                    {skillsList.length} skills listed
+                  </span>
+                </div>
+
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={skillInput}
+                    onChange={(e) => setSkillInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleAddSkill();
+                      }
+                    }}
+                    placeholder="Add a skill (e.g. Three-Phase Wiring, Tally) & press Enter..."
+                    className="w-full bg-white border border-[#e6e8ec] focus:border-[#0f2f63] focus:ring-2 focus:ring-[#0f2f63]/10 rounded-xl px-4 py-2.5 text-xs text-[#0A1931] font-semibold outline-none transition-all placeholder:text-slate-400"
+                  />
                   <button
                     type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={isProcessingPhoto}
-                    className="px-3 py-1.5 bg-white hover:bg-slate-50 text-slate-800 border border-slate-200 rounded-xl text-xs font-bold shadow-2xs transition-all flex items-center gap-1 cursor-pointer"
+                    onClick={() => handleAddSkill()}
+                    disabled={!skillInput.trim()}
+                    className="px-4 py-2.5 bg-[#0f2f63] text-white text-xs font-bold rounded-xl disabled:opacity-40 hover:bg-[#0c244c] cursor-pointer shrink-0 transition-all"
                   >
-                    {isProcessingPhoto ? (
-                      <>
-                        <Loader2 className="w-3 h-3 animate-spin text-[#0066FF]" />
-                        <span>Processing...</span>
-                      </>
-                    ) : (
-                      <>
-                        <UploadCloud className="w-3 h-3 text-[#0066FF]" />
-                        <span>{profileImageUrl ? "Change Photo" : "Upload Photo"}</span>
-                      </>
-                    )}
+                    Add
                   </button>
-                  {profileImageUrl && (
-                    <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md flex items-center gap-1 border border-emerald-200">
-                      <CheckCircle2 className="w-3 h-3" /> Attached
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* Basic Info */}
-            <div className="space-y-4">
-              <h3 className="text-xs font-black uppercase tracking-wider text-slate-400">Personal Details</h3>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                    <User className="w-3.5 h-3.5 text-[#0066FF]" /> Full Name
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.fullName}
-                    onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                    className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#0066FF] focus:bg-white font-medium text-[#0A1931]"
-                    placeholder="e.g. Ramesh Kumar"
-                  />
                 </div>
 
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                    <Calendar className="w-3.5 h-3.5 text-[#0066FF]" /> Date of Birth
-                  </label>
-                  <input
-                    type="date"
-                    value={formData.dob}
-                    onChange={(e) => setFormData({ ...formData, dob: e.target.value })}
-                    className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#0066FF] focus:bg-white font-medium text-[#0A1931]"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700">Gender</label>
-                  <select
-                    value={formData.gender}
-                    onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
-                    className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#0066FF] focus:bg-white font-medium text-[#0A1931]"
-                  >
-                    <option value="MALE">Male</option>
-                    <option value="FEMALE">Female</option>
-                    <option value="OTHER">Other</option>
-                  </select>
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                    <MapPin className="w-3.5 h-3.5 text-[#0066FF]" /> City / Town
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.city}
-                    onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                    className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#0066FF] focus:bg-white font-medium text-[#0A1931]"
-                    placeholder="e.g. Chennai, Bangalore"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Education */}
-            <div className="space-y-4 pt-3 border-t border-slate-100">
-              <h3 className="text-xs font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                <GraduationCap className="w-4 h-4 text-[#0066FF]" /> Academic Background
-              </h3>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700">Highest Education</label>
-                  <select
-                    value={formData.highestEducation}
-                    onChange={(e) => setFormData({ ...formData, highestEducation: e.target.value })}
-                    className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#0066FF] focus:bg-white font-medium text-[#0A1931]"
-                  >
-                    {EDUCATION_OPTIONS.map((opt) => (
-                      <option key={opt} value={opt}>{opt}</option>
+                {/* Selected Skills Badges */}
+                {skillsList.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 pt-1">
+                    {skillsList.map((skill) => (
+                      <span
+                        key={skill}
+                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold bg-blue-50 text-[#0f2f63] border border-blue-200"
+                      >
+                        <span>{skill}</span>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveSkill(skill)}
+                          className="hover:text-rose-600 cursor-pointer"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </span>
                     ))}
-                  </select>
-                </div>
+                  </div>
+                )}
 
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700">College / Institution</label>
-                  <input
-                    type="text"
-                    value={formData.collegeName}
-                    onChange={(e) => setFormData({ ...formData, collegeName: e.target.value })}
-                    className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#0066FF] focus:bg-white font-medium text-[#0A1931]"
-                    placeholder="e.g. Loyola College / Govt Higher Secondary"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700">Degree / Certificate</label>
-                  <input
-                    type="text"
-                    value={formData.degree}
-                    onChange={(e) => setFormData({ ...formData, degree: e.target.value })}
-                    className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#0066FF] focus:bg-white font-medium text-[#0A1931]"
-                    placeholder="e.g. B.Com, B.Sc, ITI Electrical"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700">Specialization / Stream</label>
-                  <input
-                    type="text"
-                    value={formData.specialization}
-                    onChange={(e) => setFormData({ ...formData, specialization: e.target.value })}
-                    className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#0066FF] focus:bg-white font-medium text-[#0A1931]"
-                    placeholder="e.g. Computer Science, Accounting"
-                  />
+                {/* Suggested Trade Skills */}
+                <div className="space-y-1.5 pt-1">
+                  <p className="text-[11px] font-semibold text-[#717784]">Popular skills:</p>
+                  <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto">
+                    {POPULAR_SKILLS.map((sk) => {
+                      const isAdded = skillsList.includes(sk);
+                      return (
+                        <button
+                          key={sk}
+                          type="button"
+                          onClick={() => isAdded ? handleRemoveSkill(sk) : handleAddSkill(sk)}
+                          className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition-all cursor-pointer border ${
+                            isAdded
+                              ? "bg-[#0f2f63] text-white border-[#0f2f63]"
+                              : "bg-[#f8f9fa] text-[#717784] border-slate-200 hover:text-[#0A1931]"
+                          }`}
+                        >
+                          {sk} {isAdded ? "✓" : "+"}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Languages & Roles */}
-            <div className="space-y-4 pt-3 border-t border-slate-100">
-              <h3 className="text-xs font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                <Languages className="w-4 h-4 text-[#0066FF]" /> Languages & Preferences
-              </h3>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700">English Proficiency</label>
-                  <select
-                    value={formData.englishProficiency}
-                    onChange={(e) => setFormData({ ...formData, englishProficiency: e.target.value })}
-                    className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#0066FF] focus:bg-white font-medium text-[#0A1931]"
+              {/* 5. Professional Bio / Candidate Summary */}
+              <div className="space-y-2.5 pt-2 border-t border-[#e6e8ec]">
+                <div className="flex items-center justify-between pb-1 border-b border-[#e6e8ec]">
+                  <div className="flex items-center gap-2">
+                    <FileText className="w-3.5 h-3.5 text-[#0f2f63]" />
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-[#0A1931]">Candidate Bio & Summary *</h3>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleAutoGenerateBio}
+                    className="text-[11px] font-bold text-[#0f2f63] hover:text-[#0c244c] flex items-center gap-1 cursor-pointer bg-blue-50 hover:bg-blue-100 px-2.5 py-1 rounded-lg transition-all"
                   >
-                    {ENGLISH_LEVELS.map((lvl) => (
-                      <option key={lvl.id} value={lvl.id}>{lvl.label}</option>
-                    ))}
-                  </select>
+                    <Sparkles className="w-3 h-3 text-[#0f2f63]" />
+                    <span>Auto-Generate</span>
+                  </button>
+                </div>
+                <textarea
+                  rows={3}
+                  value={formData.bio}
+                  onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+                  placeholder="Introduce your work experience, strengths, and reliability to potential employers..."
+                  className="w-full bg-white border border-[#e6e8ec] focus:border-[#0f2f63] focus:ring-2 focus:ring-[#0f2f63]/10 rounded-xl p-3 text-xs text-[#0A1931] font-semibold outline-none resize-none leading-relaxed transition-all placeholder:text-slate-400"
+                />
+                <p className="text-[11px] text-[#717784]">
+                  This summary is visible on your profile and verified resume when applying for jobs.
+                </p>
+              </div>
+
+              {/* 6. Academic Background */}
+              <div className="space-y-3.5 pt-2 border-t border-[#e6e8ec]">
+                <div className="flex items-center gap-2 pb-1 border-b border-[#e6e8ec]">
+                  <GraduationCap className="w-3.5 h-3.5 text-[#0f2f63]" />
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-[#0A1931]">Academic Background</h3>
                 </div>
 
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700">Languages Known (comma separated)</label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-[#0A1931]">Highest Education</label>
+                    <select
+                      value={formData.highestEducation}
+                      onChange={(e) => setFormData({ ...formData, highestEducation: e.target.value })}
+                      className="w-full bg-white border border-[#e6e8ec] focus:border-[#0f2f63] focus:ring-2 focus:ring-[#0f2f63]/10 rounded-xl px-4 py-2.5 text-xs text-[#0A1931] font-semibold outline-none transition-all cursor-pointer"
+                    >
+                      {EDUCATION_OPTIONS.map((opt) => (
+                        <option key={opt} value={opt}>{opt}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-[#0A1931]">College / Institution</label>
+                    <input
+                      type="text"
+                      value={formData.collegeName}
+                      onChange={(e) => setFormData({ ...formData, collegeName: e.target.value })}
+                      className="w-full bg-white border border-[#e6e8ec] focus:border-[#0f2f63] focus:ring-2 focus:ring-[#0f2f63]/10 rounded-xl px-4 py-2.5 text-xs text-[#0A1931] font-semibold outline-none transition-all placeholder:text-slate-400"
+                      placeholder="e.g. Loyola College / Govt ITI"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-[#0A1931]">Degree / Certificate</label>
+                    <input
+                      type="text"
+                      value={formData.degree}
+                      onChange={(e) => setFormData({ ...formData, degree: e.target.value })}
+                      className="w-full bg-white border border-[#e6e8ec] focus:border-[#0f2f63] focus:ring-2 focus:ring-[#0f2f63]/10 rounded-xl px-4 py-2.5 text-xs text-[#0A1931] font-semibold outline-none transition-all placeholder:text-slate-400"
+                      placeholder="e.g. B.Sc, B.Com, ITI Electrician"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-[#0A1931]">Specialization / Stream</label>
+                    <input
+                      type="text"
+                      value={formData.specialization}
+                      onChange={(e) => setFormData({ ...formData, specialization: e.target.value })}
+                      className="w-full bg-white border border-[#e6e8ec] focus:border-[#0f2f63] focus:ring-2 focus:ring-[#0f2f63]/10 rounded-xl px-4 py-2.5 text-xs text-[#0A1931] font-semibold outline-none transition-all placeholder:text-slate-400"
+                      placeholder="e.g. Computer Science, Electrical"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* 7. Languages & Relocation */}
+              <div className="space-y-3.5 pt-2 border-t border-[#e6e8ec]">
+                <div className="flex items-center gap-2 pb-1 border-b border-[#e6e8ec]">
+                  <Languages className="w-3.5 h-3.5 text-[#0f2f63]" />
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-[#0A1931]">Languages & Relocation</h3>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-[#0A1931]">English Proficiency</label>
+                    <select
+                      value={formData.englishProficiency}
+                      onChange={(e) => setFormData({ ...formData, englishProficiency: e.target.value })}
+                      className="w-full bg-white border border-[#e6e8ec] focus:border-[#0f2f63] focus:ring-2 focus:ring-[#0f2f63]/10 rounded-xl px-4 py-2.5 text-xs text-[#0A1931] font-semibold outline-none transition-all cursor-pointer"
+                    >
+                      {ENGLISH_LEVELS.map((lvl) => (
+                        <option key={lvl.id} value={lvl.id}>{lvl.label}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-[#0A1931]">Languages Known (comma-separated)</label>
+                    <input
+                      type="text"
+                      value={formData.languagesKnown}
+                      onChange={(e) => setFormData({ ...formData, languagesKnown: e.target.value })}
+                      className="w-full bg-white border border-[#e6e8ec] focus:border-[#0f2f63] focus:ring-2 focus:ring-[#0f2f63]/10 rounded-xl px-4 py-2.5 text-xs text-[#0A1931] font-semibold outline-none transition-all placeholder:text-slate-400"
+                      placeholder="e.g. Tamil, English, Hindi"
+                    />
+                  </div>
+                </div>
+
+                <div className="pt-1 flex items-center justify-between p-3.5 bg-[#f8f9fa] rounded-2xl border border-[#e6e8ec]">
+                  <div>
+                    <p className="text-xs font-bold text-[#0A1931]">Willing to Relocate</p>
+                    <p className="text-[11px] text-[#717784]">Allow employers outside your current city to reach out</p>
+                  </div>
                   <input
-                    type="text"
-                    value={formData.languagesKnown}
-                    onChange={(e) => setFormData({ ...formData, languagesKnown: e.target.value })}
-                    className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#0066FF] focus:bg-white font-medium text-[#0A1931]"
-                    placeholder="e.g. English, Tamil, Hindi, Telugu"
+                    type="checkbox"
+                    checked={formData.willingToRelocate}
+                    onChange={(e) => setFormData({ ...formData, willingToRelocate: e.target.checked })}
+                    className="w-4 h-4 rounded text-[#0f2f63] focus:ring-[#0f2f63] cursor-pointer"
                   />
                 </div>
               </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                  <Briefcase className="w-3.5 h-3.5 text-[#0066FF]" /> Preferred Job Roles (comma separated)
-                </label>
-                <input
-                  type="text"
-                  value={formData.preferredRoles}
-                  onChange={(e) => setFormData({ ...formData, preferredRoles: e.target.value })}
-                  className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#0066FF] focus:bg-white font-medium text-[#0A1931]"
-                  placeholder="e.g. Electrician, Customer Support, Retail Executive"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                  <Award className="w-3.5 h-3.5 text-[#0066FF]" /> Technical Skills & Tools (comma separated)
-                </label>
-                <input
-                  type="text"
-                  value={formData.skills}
-                  onChange={(e) => setFormData({ ...formData, skills: e.target.value })}
-                  className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#0066FF] focus:bg-white font-medium text-[#0A1931]"
-                  placeholder="e.g. Three-Phase Wiring, Solar Installation, CRM Tools"
-                />
-              </div>
             </div>
 
-            {/* Actions */}
-            <div className="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
+            {/* PINNED FOOTER ACTIONS */}
+            <div className="px-6 py-4 border-t border-[#e6e8ec] flex items-center justify-end gap-3 shrink-0 bg-white">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition-all cursor-pointer"
+                className="px-5 py-2.5 text-xs font-bold text-slate-600 hover:text-[#0A1931] hover:bg-slate-100 rounded-full transition-all cursor-pointer uppercase tracking-wider"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={mutation.isPending}
-                className="px-5 py-2.5 bg-[#0066FF] hover:bg-[#0052cc] text-white text-xs font-bold rounded-xl shadow-xs transition-all flex items-center gap-1.5 disabled:opacity-50 cursor-pointer"
+                className="px-6 py-2.5 bg-[#0f2f63] hover:bg-[#0c244c] active:bg-[#081a38] text-white text-xs font-bold rounded-full shadow-sm hover:shadow-md transition-all flex items-center gap-2 disabled:opacity-50 cursor-pointer uppercase tracking-wider"
               >
                 {mutation.isPending ? (
                   <>
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" /> Saving...
+                    <Loader2 className="w-4 h-4 animate-spin text-white" />
+                    <span>Saving...</span>
                   </>
                 ) : (
                   <>
-                    <Save className="w-3.5 h-3.5" /> Save Changes
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>Save Changes</span>
                   </>
                 )}
               </button>
@@ -493,6 +839,7 @@ export const EditWorkerProfileModal: React.FC<EditWorkerProfileModalProps> = ({
           </form>
         </motion.div>
       </div>
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 };

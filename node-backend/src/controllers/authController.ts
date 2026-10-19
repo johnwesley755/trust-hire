@@ -8,6 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { sendEmail } from '../services/mailer';
 import { getOtpTemplate, getResetPasswordTemplate } from '../utils/emailTemplates';
 import { validatePasswordStrength } from '../utils/validators';
+import { SearchAlertService } from '../services/searchAlertService';
 
 export const register = async (c: Context) => {
   try {
@@ -343,7 +344,7 @@ export const syncUser = async (c: Context) => {
       if (rawData.hourlyRate || rawData.hourly_rate) workerPayload.hourly_rate = Number(rawData.hourlyRate || rawData.hourly_rate);
       if (rawData.experienceYears || rawData.experience_years) workerPayload.experience_years = Number(rawData.experienceYears || rawData.experience_years);
 
-      await prisma.worker_profiles.upsert({
+      const savedProfile = await prisma.worker_profiles.upsert({
         where: { user_id: c.get('user').sub },
         update: workerPayload,
         create: {
@@ -359,7 +360,10 @@ export const syncUser = async (c: Context) => {
           created_at: new Date(),
           updated_at: new Date()
         }
-      }).catch((e: any) => console.warn("Worker profile sync notice:", e.message));
+      }).catch((e: any) => {
+        console.warn("Worker profile sync notice:", e.message);
+        return null;
+      });
 
       // Also ensure worker_search_index is updated with latest profile image
       if (updatePayload.profile_image_url) {

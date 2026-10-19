@@ -16,7 +16,8 @@ import {
     ShieldCheck,
     ChevronRight,
     Settings,
-    ExternalLink
+    ExternalLink,
+    Users
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
@@ -98,9 +99,18 @@ export const NotificationCenter = () => {
         setIsOpen(false);
         markReadMutation.mutate(n.id);
 
-        // If target deep-link is provided, navigate directly to it
-        if (n.link) {
-            navigate(n.link);
+        let targetLink = n.link;
+        if (targetLink) {
+            // Map legacy dashboard employer links to canonical /jobs routes
+            if (targetLink.includes('/dashboard/employer/jobs')) {
+                const match = targetLink.match(/\/dashboard\/employer\/jobs\/([^\/]+)/);
+                if (match && match[1] && match[1] !== 'applicants') {
+                    targetLink = `/jobs/${match[1]}/applicants`;
+                } else {
+                    targetLink = '/jobs';
+                }
+            }
+            navigate(targetLink);
             return;
         }
 
@@ -108,9 +118,18 @@ export const NotificationCenter = () => {
         if (t === 'APPLICATION_SUBMITTED' || t === 'APPLICATION_UPDATE' || t === 'APPLICATION_ACCEPTED' || t === 'APPLICATION_SHORTLISTED') {
             navigate('/applied-jobs');
         } else if (t === 'NEW_APPLICATION') {
-            navigate('/dashboard/employer/jobs');
+            const dataJobId = (n.data as any)?.jobId || (n.data as any)?.job_id;
+            if (dataJobId) {
+                navigate(`/jobs/${dataJobId}/applicants`);
+            } else {
+                navigate('/jobs');
+            }
+        } else if (t === 'JOB_POSTED') {
+            navigate('/jobs');
         } else if (t === 'NEW_JOB' || t === 'JOB_MATCH' || t === 'JOB_MATCH_ALERT' || t === 'APPLICATION_REJECTED') {
             navigate('/search');
+        } else if (t === 'CANDIDATE_MATCH_ALERT' || t === 'CANDIDATE_ALERT' || t === 'NEW_CANDIDATE') {
+            navigate('/find-workers');
         } else if (t === 'WELCOME' || t === 'KYC_VERIFIED' || t === 'KYC_REJECTED' || t === 'SKILL_BADGE_EARNED') {
             navigate('/profile');
         } else if (t === 'SECURITY_ALERT') {
@@ -125,6 +144,9 @@ export const NotificationCenter = () => {
         }
         if (t === 'JOB_MATCH_ALERT' || t === 'JOB_POSTED' || t === 'NEW_JOB') {
             return <Briefcase className="w-4 h-4 text-blue-600" />;
+        }
+        if (t === 'CANDIDATE_MATCH_ALERT' || t === 'CANDIDATE_ALERT' || t === 'NEW_CANDIDATE') {
+            return <Users className="w-4 h-4 text-indigo-600" />;
         }
         if (t === 'SKILL_BADGE_EARNED') {
             return <Award className="w-4 h-4 text-amber-500" />;

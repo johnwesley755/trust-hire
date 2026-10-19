@@ -9,9 +9,13 @@ export function getMissingProfileFields(profile?: WorkerProfile | null): string[
 
   if (!profile.fullName?.trim()) missingFields.push('fullName');
   if (!profile.bio?.trim()) missingFields.push('bio');
-  if (!profile.skills || profile.skills.length === 0) missingFields.push('skills');
+  const hasSkills = Array.isArray(profile.skills) 
+    ? profile.skills.length > 0 
+    : Boolean(profile.skills && String(profile.skills).trim());
+  if (!hasSkills) missingFields.push('skills');
   if (!profile.location?.trim()) missingFields.push('location');
-  if (profile.experienceYears === null || profile.experienceYears === undefined) missingFields.push('experienceYears');
+  const exp = profile.experienceYears ?? (profile as any)?.experience_years;
+  if (exp === null || exp === undefined) missingFields.push('experienceYears');
 
   return missingFields;
 }

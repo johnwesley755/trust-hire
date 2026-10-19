@@ -39,6 +39,49 @@ export class SearchAlertService {
     const frequency = input.frequency || 'INSTANT';
 
     try {
+      // 1. Idempotency Check: Prevent duplicate alerts for the same user and search criteria
+      let existingAlert: any = null;
+      if ((prisma as any).user_search_alerts) {
+        existingAlert = await (prisma as any).user_search_alerts.findFirst({
+          where: {
+            user_id: input.userId,
+            alert_type: alertType,
+            city: city,
+            category: category,
+            query: query
+          }
+        });
+      } else {
+        const rows = await prisma.$queryRaw<any[]>`
+          SELECT * FROM user_search_alerts
+          WHERE user_id = ${input.userId}
+            AND alert_type = ${alertType}
+            AND city IS NOT DISTINCT FROM ${city}
+            AND category IS NOT DISTINCT FROM ${category}
+            AND query IS NOT DISTINCT FROM ${query}
+          LIMIT 1
+        `;
+        existingAlert = rows[0];
+      }
+
+      if (existingAlert) {
+        console.log(`[SearchAlertService] Idempotency: alert already exists for user ${input.userId} (ID: ${existingAlert.id}). Reactivating if needed.`);
+        if (!existingAlert.is_active) {
+          if ((prisma as any).user_search_alerts) {
+            return await (prisma as any).user_search_alerts.update({
+              where: { id: existingAlert.id },
+              data: { is_active: true, updated_at: new Date() }
+            });
+          } else {
+            await prisma.$executeRaw`
+              UPDATE user_search_alerts SET is_active = true, updated_at = NOW() WHERE id = ${existingAlert.id}::uuid
+            `;
+            existingAlert.is_active = true;
+          }
+        }
+        return existingAlert;
+      }
+
       if ((prisma as any).user_search_alerts) {
         return await (prisma as any).user_search_alerts.create({
           data: {
@@ -191,7 +234,7 @@ export class SearchAlertService {
       }
 
       const matchedAlertIds: string[] = [];
-      const notificationsToSend: { userId: string; alertTitle: string }[] = [];
+      const notificationsByUser = new Map<string, { userId: string; alertTitle: string }>();
 
       for (const alert of candidateAlerts) {
         // 1. City constraint check
@@ -233,11 +276,15 @@ export class SearchAlertService {
 
         // Passed all search intent filters!
         matchedAlertIds.push(alert.id);
-        notificationsToSend.push({
-          userId: alert.user_id,
-          alertTitle: alert.title || job.title
-        });
+        if (!notificationsByUser.has(alert.user_id)) {
+          notificationsByUser.set(alert.user_id, {
+            userId: alert.user_id,
+            alertTitle: alert.title || job.title
+          });
+        }
       }
+
+      const notificationsToSend = Array.from(notificationsByUser.values());
 
       if (notificationsToSend.length === 0) {
         return;
@@ -290,43 +337,76 @@ export class SearchAlertService {
    * REVERSE SEARCH MATCHING ENGINE FOR NEW/AVAILABLE CANDIDATES (Naukri Resdex Model)
    * Evaluates a newly registered or available verified worker against employer candidate alerts.
    */
-  public static async matchNewCandidateAgainstAlerts(worker: {
-    user_id: string;
-    full_name?: string | null;
-    skills?: string | null;
-    city?: string | null;
-    experience_years?: number | null;
-    is_available?: boolean | null;
-  }) {
+  public static async matchNewCandidateAgainstAlerts(
+    worker: {
+      user_id: string;
+      full_name?: string | null;
+      skills?: string | null;
+      city?: string | null;
+      location?: string | null;
+      specialization?: string | null;
+      preferred_roles?: string | null;
+      experience_years?: number | null;
+      is_available?: boolean | null;
+    },
+    options?: {
+      bypassCooldown?: boolean;
+      allowSameUser?: boolean;
+      targetUserId?: string;
+    }
+  ) {
     try {
       if (worker.is_available === false) return;
 
       const workerCity = (worker.city || '').trim().toLowerCase();
+      const workerLocation = (worker.location || '').trim().toLowerCase();
       const workerSkills = (worker.skills || '').toLowerCase();
+      const workerSpecialization = (worker.specialization || '').toLowerCase();
+      const workerRoles = (worker.preferred_roles || '').toLowerCase();
       const workerName = worker.full_name || 'Verified Specialist';
 
-      // Retrieve all active CANDIDATE_ALERT subscriptions where cooldown has expired (6 hours)
-      const employerAlerts = await prisma.$queryRaw<any[]>`
-        SELECT id, user_id, title, query, city, category, experience
-        FROM user_search_alerts
-        WHERE is_active = true
-          AND alert_type = 'CANDIDATE_ALERT'
-          AND user_id != ${worker.user_id}
-          AND (last_notified_at IS NULL OR last_notified_at < NOW() - INTERVAL '6 hours')
-      `;
+      // Retrieve candidate alert subscriptions based on filters/simulation mode
+      let employerAlerts: any[] = [];
+      if (options?.targetUserId) {
+        employerAlerts = await prisma.$queryRaw<any[]>`
+          SELECT id, user_id, title, query, city, category, experience
+          FROM user_search_alerts
+          WHERE is_active = true
+            AND alert_type = 'CANDIDATE_ALERT'
+            AND user_id = ${options.targetUserId}
+        `;
+      } else if (options?.allowSameUser) {
+        employerAlerts = await prisma.$queryRaw<any[]>`
+          SELECT id, user_id, title, query, city, category, experience
+          FROM user_search_alerts
+          WHERE is_active = true
+            AND alert_type = 'CANDIDATE_ALERT'
+        `;
+      } else {
+        employerAlerts = await prisma.$queryRaw<any[]>`
+          SELECT id, user_id, title, query, city, category, experience
+          FROM user_search_alerts
+          WHERE is_active = true
+            AND alert_type = 'CANDIDATE_ALERT'
+            AND user_id != ${worker.user_id}
+            AND (last_notified_at IS NULL OR last_notified_at < NOW() - INTERVAL '6 hours')
+        `;
+      }
 
       if (!employerAlerts || employerAlerts.length === 0) {
         return;
       }
 
       const matchedAlertIds: string[] = [];
-      const notificationsToSend: { userId: string }[] = [];
+      const notificationsByUser = new Map<string, { userId: string }>();
 
       for (const alert of employerAlerts) {
-        // 1. City constraint check
+        // 1. City constraint check: If alert.city is specified, ensure candidate matches. If alert.city is null/empty, matches Nationwide!
         if (alert.city && alert.city.trim() !== '') {
           const alertCity = alert.city.trim().toLowerCase();
-          if (workerCity && !workerCity.includes(alertCity) && !alertCity.includes(workerCity)) {
+          const matchesCity = (workerCity && (workerCity.includes(alertCity) || alertCity.includes(workerCity))) ||
+                              (workerLocation && (workerLocation.includes(alertCity) || alertCity.includes(workerLocation)));
+          if (!matchesCity) {
             continue;
           }
         }
@@ -334,7 +414,8 @@ export class SearchAlertService {
         // 2. Trade/Category or Skills constraint check
         if (alert.category && alert.category.trim() !== '' && alert.category.toLowerCase() !== 'all') {
           const alertTrade = alert.category.trim().toLowerCase();
-          if (workerSkills && !workerSkills.includes(alertTrade)) {
+          const candidateCombined = `${workerSkills} ${workerSpecialization} ${workerRoles}`.toLowerCase();
+          if (!candidateCombined.includes(alertTrade)) {
             continue;
           }
         }
@@ -342,15 +423,19 @@ export class SearchAlertService {
         // 3. Keyword Query check
         if (alert.query && alert.query.trim() !== '') {
           const q = alert.query.trim().toLowerCase();
-          const matchesKeyword = workerSkills.includes(q) || workerName.toLowerCase().includes(q);
-          if (!matchesKeyword) {
+          const candidateCombined = `${workerSkills} ${workerSpecialization} ${workerRoles} ${workerName}`.toLowerCase();
+          if (!candidateCombined.includes(q)) {
             continue;
           }
         }
 
         matchedAlertIds.push(alert.id);
-        notificationsToSend.push({ userId: alert.user_id });
+        if (!notificationsByUser.has(alert.user_id)) {
+          notificationsByUser.set(alert.user_id, { userId: alert.user_id });
+        }
       }
+
+      const notificationsToSend = Array.from(notificationsByUser.values());
 
       if (notificationsToSend.length === 0) {
         return;
@@ -365,7 +450,7 @@ export class SearchAlertService {
             title: `Candidate Alert: ${workerName}`,
             message: `A verified specialist with skills in "${worker.skills || 'your trade'}" in ${worker.city || 'your area'} is now available. Tap to view profile.`,
             type: 'CANDIDATE_MATCH_ALERT',
-            link: `/search/workers?workerId=${worker.user_id}`,
+            link: `/find-workers?q=${encodeURIComponent(worker.skills || '')}&city=${encodeURIComponent(worker.city || '')}`,
             data: {
               workerId: String(worker.user_id),
               city: String(worker.city || '')
@@ -387,4 +472,137 @@ export class SearchAlertService {
       console.warn('[SearchAlertService] Error during candidate reverse match evaluation:', err.message);
     }
   }
+
+  /**
+   * Diagnostic simulation endpoint: dispatches a verified candidate match notification to a specific employer
+   * to immediately test and prove the alert & notification pipeline end-to-end.
+   */
+  public static async simulateCandidateMatchForUser(userId: string) {
+    try {
+      const alerts = await this.getUserAlerts(userId, 'CANDIDATE_ALERT');
+      let targetAlert = alerts.find((a: any) => a.is_active);
+      if (!targetAlert) {
+        targetAlert = await this.createAlert({
+          userId,
+          alertType: 'CANDIDATE_ALERT',
+          title: 'All Verified Specialists',
+          frequency: 'INSTANT'
+        });
+      }
+
+      const mockCity = targetAlert.city || 'Chennai';
+      const mockCategory = (targetAlert.category && targetAlert.category !== 'All') ? targetAlert.category : 'Electrician';
+      const mockSkills = `${mockCategory}, Safety Certified, Industrial Wiring`;
+      const mockWorkerId = `test-specialist-${Date.now().toString(36)}`;
+      const mockName = 'Ramesh Kumar (Verified Specialist)';
+
+      console.log(`\n🧪 [SearchAlertService:SIMULATE] Simulating candidate match for user=${userId} with alertId=${targetAlert.id}`);
+
+      const dispatchResult = await NotificationDispatcher.dispatch({
+        userId,
+        title: `Candidate Match: ${mockName}`,
+        message: `A verified specialist with skills in "${mockSkills}" in ${mockCity} is now available for direct hire. Tap to view profile.`,
+        type: 'CANDIDATE_MATCH_ALERT',
+        link: `/search?q=${encodeURIComponent(mockCategory)}&city=${encodeURIComponent(mockCity)}`,
+        data: {
+          workerId: mockWorkerId,
+          city: mockCity,
+          category: mockCategory
+        }
+      });
+
+      if (targetAlert.id) {
+        await prisma.$executeRaw`
+          UPDATE user_search_alerts
+          SET last_notified_at = NOW(), match_count = match_count + 1, updated_at = NOW()
+          WHERE id = ${targetAlert.id}::uuid
+        `.catch(() => {});
+      }
+
+      return {
+        success: true,
+        alert: targetAlert,
+        mockCandidate: {
+          id: mockWorkerId,
+          name: mockName,
+          skills: mockSkills,
+          city: mockCity,
+          category: mockCategory
+        },
+        notification: dispatchResult
+      };
+    } catch (err: any) {
+      console.error('[SearchAlertService] Error simulating candidate match:', err.message);
+      throw err;
+    }
+  }
+
+  /**
+   * Diagnostic simulation endpoint: dispatches a verified job opening match notification to a candidate
+   * to immediately test and prove the candidate job alert & notification pipeline end-to-end.
+   */
+  public static async simulateJobMatchForUser(userId: string) {
+    try {
+      const alerts = await this.getUserAlerts(userId, 'JOB_ALERT');
+      let targetAlert = alerts.find((a: any) => a.is_active);
+      if (!targetAlert) {
+        targetAlert = await this.createAlert({
+          userId,
+          alertType: 'JOB_ALERT',
+          title: 'All New Jobs',
+          frequency: 'INSTANT'
+        });
+      }
+
+      const mockCity = targetAlert.city || 'Chennai';
+      const mockCategory = (targetAlert.category && targetAlert.category !== 'All') ? targetAlert.category : 'Construction';
+      const mockJobTitle = `${mockCategory} Specialist (Immediate Opening)`;
+      const mockSalary = targetAlert.min_salary ? `₹${Number(targetAlert.min_salary).toLocaleString('en-IN')}/mo+` : '₹28,000/mo';
+      const mockJobId = `test-job-${Date.now().toString(36)}`;
+      const mockCompany = 'L&T Infra Projects Ltd';
+
+      console.log(`\n🧪 [SearchAlertService:SIMULATE] Simulating job match for candidate user=${userId} with alertId=${targetAlert.id}`);
+
+      const dispatchResult = await NotificationDispatcher.dispatch({
+        userId,
+        title: `Job Match: ${mockJobTitle}`,
+        message: `${mockCompany} in ${mockCity} posted a verified job opening for "${mockCategory}" paying ${mockSalary}. Matches your job search alert!`,
+        type: 'JOB_MATCH_ALERT',
+        link: `/jobs?q=${encodeURIComponent(mockCategory)}&city=${encodeURIComponent(mockCity)}`,
+        data: {
+          jobId: mockJobId,
+          city: mockCity,
+          category: mockCategory,
+          title: mockJobTitle,
+          company: mockCompany
+        }
+      });
+
+      if (targetAlert.id) {
+        await prisma.$executeRaw`
+          UPDATE user_search_alerts
+          SET last_notified_at = NOW(), match_count = match_count + 1, updated_at = NOW()
+          WHERE id = ${targetAlert.id}::uuid
+        `.catch(() => {});
+      }
+
+      return {
+        success: true,
+        alert: targetAlert,
+        mockJob: {
+          id: mockJobId,
+          title: mockJobTitle,
+          company: mockCompany,
+          city: mockCity,
+          category: mockCategory,
+          salary: mockSalary
+        },
+        notification: dispatchResult
+      };
+    } catch (err: any) {
+      console.error('[SearchAlertService] Error simulating job match:', err.message);
+      throw err;
+    }
+  }
 }
+

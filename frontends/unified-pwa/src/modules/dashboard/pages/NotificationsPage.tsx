@@ -78,8 +78,18 @@ export const NotificationsPage: React.FC = () => {
   const handleNotificationClick = (n: AppNotification) => {
     markReadMutation.mutate(n.id);
 
-    if (n.link && n.link !== '/notifications') {
-      navigate(n.link);
+    let targetLink = n.link;
+    if (targetLink && targetLink !== '/notifications') {
+      // Map legacy or deep-linked dashboard employer paths to canonical active jobs routes
+      if (targetLink.includes('/dashboard/employer/jobs')) {
+        const match = targetLink.match(/\/dashboard\/employer\/jobs\/([^\/]+)/);
+        if (match && match[1] && match[1] !== 'applicants') {
+          targetLink = `/jobs/${match[1]}/applicants`;
+        } else {
+          targetLink = '/jobs';
+        }
+      }
+      navigate(targetLink);
       return;
     }
 
@@ -87,11 +97,22 @@ export const NotificationsPage: React.FC = () => {
     if (t === 'APPLICATION_SUBMITTED' || t === 'APPLICATION_UPDATE' || t === 'APPLICATION_ACCEPTED' || t === 'APPLICATION_SHORTLISTED') {
       navigate('/applied-jobs');
     } else if (t === 'NEW_APPLICATION') {
-      navigate('/dashboard/employer/jobs');
+      const dataJobId = (n.data as any)?.jobId || (n.data as any)?.job_id;
+      if (dataJobId) {
+        navigate(`/jobs/${dataJobId}/applicants`);
+      } else {
+        navigate('/jobs');
+      }
+    } else if (t === 'JOB_POSTED') {
+      navigate('/jobs');
     } else if (t === 'NEW_JOB' || t === 'JOB_MATCH' || t === 'JOB_MATCH_ALERT' || t === 'APPLICATION_REJECTED') {
       navigate('/search');
+    } else if (t === 'CANDIDATE_MATCH_ALERT' || t === 'CANDIDATE_ALERT' || t === 'NEW_CANDIDATE') {
+      navigate('/find-workers');
     } else if (t === 'WELCOME' || t === 'KYC_VERIFIED' || t === 'KYC_REJECTED' || t === 'SKILL_BADGE_EARNED') {
       navigate('/profile');
+    } else if (t === 'SECURITY_ALERT') {
+      navigate('/settings');
     }
   };
 

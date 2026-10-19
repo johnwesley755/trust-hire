@@ -76,3 +76,38 @@ export const deleteAlert = async (c: Context) => {
     return c.json(ApiResponse.error(err.message), 500 as any);
   }
 };
+
+export const testCandidateMatch = async (c: Context) => {
+  try {
+    const authUser = c.get('user');
+    const userId = authUser?.sub;
+    if (!userId) return c.json(ApiResponse.error("Unauthorized"), 401 as any);
+
+    let alertType = c.req.query('alertType');
+    if (!alertType) {
+      try {
+        const body = await c.req.json();
+        alertType = body?.alertType;
+      } catch {
+        // body may be empty
+      }
+    }
+
+    if (!alertType) {
+      alertType = authUser.role === 'EMPLOYER' ? 'CANDIDATE_ALERT' : 'JOB_ALERT';
+    }
+
+    let result;
+    if (alertType === 'JOB_ALERT') {
+      result = await SearchAlertService.simulateJobMatchForUser(userId);
+      return c.json(ApiResponse.ok("Test job match simulated successfully", result));
+    } else {
+      result = await SearchAlertService.simulateCandidateMatchForUser(userId);
+      return c.json(ApiResponse.ok("Test candidate match simulated successfully", result));
+    }
+  } catch (err: any) {
+    return c.json(ApiResponse.error(err.message), 500 as any);
+  }
+};
+
+

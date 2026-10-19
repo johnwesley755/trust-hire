@@ -657,7 +657,7 @@ export default function JobDetailPage() {
                             Accept Offer
                           </button>
                           <button
-                            onClick={() => statusMutation.mutate({ id: existingApplication.id, status: 'REJECTED' })}
+                            onClick={() => statusMutation.mutate({ id: existingApplication.id, status: 'DECLINED' })}
                             disabled={statusMutation.isPending}
                             className="flex-1 py-2 px-3 bg-white border border-[#e6e8ec] text-rose-600 hover:bg-rose-50 text-xs font-semibold rounded-full uppercase transition-all cursor-pointer"
                           >

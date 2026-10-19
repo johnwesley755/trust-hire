@@ -1,15 +1,12 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { workerService } from '../../../services/worker.service';
-import { jobService } from '../../../services/job.service';
-import { applicationService } from '../../../services/application.service';
 import { queryKeys } from '../../../lib/queryKeys';
 import { useSavedStore } from '../../../hooks/useSavedStore';
 import { toast } from 'sonner';
 import { 
   ShieldCheck, 
   ChevronLeft, 
-  Loader2, 
   Share2, 
   Bookmark, 
   CheckCircle2, 
@@ -19,7 +16,6 @@ import {
   Phone,
   Briefcase,
   FileText,
-  X,
   GraduationCap,
   Languages,
   Calendar,
@@ -29,11 +25,8 @@ import {
   Sparkles,
   Download,
   MessageSquare,
-  Check,
-  Send,
-  Building2
+  Check
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { UserAvatar } from '../../../components/common/UserAvatar';
 import { AppLoader } from '../../../components/common/AppLoader';
@@ -43,60 +36,9 @@ import type { ResumeData } from '../../profile/components/resume/CandidateResume
 export const WorkerProfilePage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isResumeModalOpen, setIsResumeModalOpen] = useState(false);
-  const [selectedJobId, setSelectedJobId] = useState('');
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const { isWorkerSaved, toggleSaveWorker } = useSavedStore();
-
-  const { data: employerStatusData } = useQuery({
-    queryKey: queryKeys.employer.workerStatus(id || ''),
-    queryFn: () => applicationService.getEmployerWorkerStatus(id || ''),
-    enabled: !!id,
-    staleTime: 1000 * 60 * 2, // 2 minutes
-  });
-
-  const existingApplications = employerStatusData?.applications || [];
-  const applicationsByJobId = new Map(existingApplications.map((app: any) => [app.jobId, app]));
-
-  const { data: myJobs = [], isLoading: isLoadingJobs } = useQuery({
-    queryKey: queryKeys.jobs.employerJobs,
-    queryFn: () => jobService.getMyJobs(),
-    enabled: isModalOpen,
-    staleTime: 1000 * 60 * 3,
-  });
-
-  const dispatchOfferMutation = useMutation({
-    mutationFn: (jobId: string) => applicationService.dispatchOffer({ jobId, workerId: id || '' }),
-    onSuccess: () => {
-      setErrorMessage(null);
-      setIsModalOpen(false);
-      setSelectedJobId('');
-      if (id) {
-        queryClient.invalidateQueries({ queryKey: queryKeys.employer.workerStatus(id) });
-        queryClient.invalidateQueries({ queryKey: queryKeys.workers.detail(id) });
-      }
-      queryClient.invalidateQueries({ queryKey: queryKeys.workers.all });
-      queryClient.invalidateQueries({ queryKey: queryKeys.jobs.all });
-      toast.success('Job offer sent successfully!');
-    },
-    onError: (err: any) => {
-      setErrorMessage(err?.response?.data?.message || err?.message || 'Failed to send offer.');
-    }
-  });
-
-  const handleDispatchOffer = () => {
-    setErrorMessage(null);
-    setIsModalOpen(true);
-  };
-
-  const handleConfirmOffer = () => {
-    if (selectedJobId) {
-      dispatchOfferMutation.mutate(selectedJobId);
-    }
-  };
 
   useEffect(() => {
     if (id) {
@@ -292,45 +234,13 @@ export const WorkerProfilePage = () => {
               </div>
             </div>
 
-            {/* Action Buttons Cluster (Responsive Grid on Mobile) */}
-            <div className="grid grid-cols-2 sm:flex sm:items-center gap-2.5 w-full lg:w-auto">
-              {(() => {
-                const hasApproved = existingApplications.some((a: any) => a.status === 'ACCEPTED' || a.status === 'APPROVED');
-                const hasOfferSent = existingApplications.some((a: any) => a.status === 'OFFER_SENT');
-                const hasDeclined = existingApplications.length > 0 && existingApplications.every((a: any) => a.status === 'REJECTED' || a.status === 'DECLINED');
-
-                return (
-                  <button 
-                    onClick={handleDispatchOffer}
-                    className={`col-span-2 sm:col-span-1 inline-flex items-center justify-center gap-2 px-6 py-2.5 text-white rounded-full font-medium text-xs shadow-xs transition-all whitespace-nowrap cursor-pointer active:scale-95 uppercase ${
-                      hasApproved
-                        ? 'bg-emerald-600 hover:bg-emerald-700'
-                        : hasOfferSent
-                        ? 'bg-amber-600 hover:bg-amber-700'
-                        : hasDeclined
-                        ? 'bg-rose-600 hover:bg-rose-700'
-                        : 'bg-[#0f2f63] hover:bg-[#2563c9]'
-                    }`}
-                  >
-                    <Send className="w-3.5 h-3.5" />
-                    <span>
-                      {hasApproved 
-                        ? 'Hired for Job' 
-                        : hasOfferSent 
-                        ? 'Offer Sent' 
-                        : hasDeclined 
-                        ? 'Offer Declined' 
-                        : 'Send Job Offer'}
-                    </span>
-                  </button>
-                );
-              })()}
-
+            {/* Action Buttons Cluster */}
+            <div className="flex items-center gap-2.5 w-full sm:w-auto">
               <button
                 onClick={() => setIsResumeModalOpen(true)}
-                className="col-span-2 sm:col-span-1 px-5 py-2.5 bg-white hover:bg-slate-50 border border-slate-200/80 text-[#0A1931] rounded-full font-medium text-xs shadow-2xs transition-all flex items-center justify-center gap-1.5 cursor-pointer uppercase active:scale-95"
+                className="w-full sm:w-auto px-6 py-2.5 bg-[#0f2f63] hover:bg-[#2563c9] text-white rounded-full font-medium text-xs shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer uppercase active:scale-95"
               >
-                <FileText className="w-3.5 h-3.5 text-slate-500" /> 
+                <FileText className="w-3.5 h-3.5 text-white" /> 
                 <span>View Digital CV</span>
               </button>
             </div>
@@ -625,151 +535,6 @@ export const WorkerProfilePage = () => {
         onClose={() => setIsResumeModalOpen(false)}
         data={resumeData}
       />
-
-      {/* Send Job Offer Modal */}
-      <AnimatePresence>
-        {isModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-xs">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-white rounded-[2rem] w-full max-w-md overflow-hidden shadow-2xl flex flex-col border border-slate-200 font-['Onest',system-ui,sans-serif]"
-            >
-              <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/80">
-                <div>
-                  <h2 className="text-lg font-extrabold text-[#0A1931]">Send Job Offer</h2>
-                  <p className="text-xs text-slate-500 font-medium">Select an open job to dispatch to {worker?.name || 'this specialist'}</p>
-                </div>
-                <button 
-                  onClick={() => setIsModalOpen(false)}
-                  className="p-2 text-slate-400 hover:text-[#0A1931] hover:bg-white rounded-full transition-colors cursor-pointer"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-              
-              <div className="p-6">
-                {errorMessage && (
-                  <div className="p-3 mb-4 bg-rose-50 border border-rose-200 rounded-xl text-xs font-bold text-rose-700">
-                    {errorMessage}
-                  </div>
-                )}
-
-                <p className="text-xs text-slate-500 font-bold uppercase mb-3">
-                  Your Active Job Openings:
-                </p>
-                
-                {isLoadingJobs ? (
-                  <div className="flex justify-center py-8">
-                    <Loader2 className="w-8 h-8 text-[#0f2f63] animate-spin" />
-                  </div>
-                ) : myJobs && myJobs.length > 0 ? (
-                  <div className="space-y-3 max-h-72 overflow-y-auto pr-1">
-                    {myJobs.map((job: any) => {
-                      const appForJob = applicationsByJobId.get(job.id);
-                      const isOfferSentForJob = appForJob?.status === 'OFFER_SENT';
-                      const isApprovedForJob = appForJob?.status === 'ACCEPTED' || appForJob?.status === 'APPROVED';
-                      const isDeclinedForJob = appForJob?.status === 'REJECTED' || appForJob?.status === 'DECLINED';
-                      const isPendingForJob = appForJob?.status === 'PENDING';
-                      const isBlocked = isOfferSentForJob || isApprovedForJob || isDeclinedForJob;
-
-                      return (
-                        <label 
-                          key={job.id}
-                          className={`flex items-start p-4 rounded-2xl border transition-all ${
-                            isBlocked
-                              ? 'border-slate-200 bg-slate-50/60 opacity-60 cursor-not-allowed'
-                              : selectedJobId === job.id 
-                              ? 'border-[#0f2f63] bg-[#0f2f63]/5 cursor-pointer shadow-xs' 
-                              : 'border-slate-200 hover:border-[#0f2f63]/40 hover:bg-slate-50/70 cursor-pointer'
-                          }`}
-                        >
-                          <input 
-                            type="radio" 
-                            name="jobSelection" 
-                            className="mt-1 sr-only"
-                            disabled={isBlocked}
-                            checked={selectedJobId === job.id}
-                            onChange={() => !isBlocked && setSelectedJobId(job.id)}
-                          />
-                          <div className="flex-1 ml-1">
-                            <div className="flex items-center justify-between gap-2">
-                              <h4 className={`font-bold text-xs ${selectedJobId === job.id ? 'text-[#0f2f63]' : 'text-[#0A1931]'}`}>
-                                {job.title}
-                              </h4>
-                              {isApprovedForJob && (
-                                <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full text-[10px] font-semibold">
-                                  Hired
-                                </span>
-                              )}
-                              {isOfferSentForJob && (
-                                <span className="px-2 py-0.5 bg-amber-50 text-amber-700 border border-amber-200 rounded-full text-[10px] font-semibold">
-                                  Offer Sent
-                                </span>
-                              )}
-                              {isDeclinedForJob && (
-                                <span className="px-2 py-0.5 bg-rose-50 text-rose-700 border border-rose-200 rounded-full text-[10px] font-semibold">
-                                  Declined
-                                </span>
-                              )}
-                              {isPendingForJob && (
-                                <span className="px-2 py-0.5 bg-blue-50 text-[#0f2f63] border border-blue-200 rounded-full text-[10px] font-semibold">
-                                  Applied
-                                </span>
-                              )}
-                            </div>
-                            <p className="text-xs text-slate-500 font-medium mt-1">
-                              {job.location || job.city || 'Location on file'} • ₹{job.budget?.toLocaleString() || '0'}
-                            </p>
-                            {isBlocked && (
-                              <p className="text-[11px] font-medium mt-1 text-slate-500">
-                                {isApprovedForJob 
-                                  ? 'Candidate is already hired for this position.' 
-                                  : isOfferSentForJob 
-                                  ? 'An offer has already been sent for this job.' 
-                                  : 'Offer for this position was previously declined.'}
-                              </p>
-                            )}
-                          </div>
-                          {!isBlocked && (
-                            <div className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 ml-2 ${
-                              selectedJobId === job.id ? 'border-[#0f2f63]' : 'border-slate-300'
-                            }`}>
-                              {selectedJobId === job.id && <div className="w-2 h-2 rounded-full bg-[#0f2f63]" />}
-                            </div>
-                          )}
-                        </label>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <div className="text-center py-8 bg-slate-50/80 rounded-2xl border border-slate-200/70">
-                    <p className="text-slate-500 font-medium text-xs">You don't have any active job openings to offer.</p>
-                  </div>
-                )}
-              </div>
-              
-              <div className="p-5 border-t border-slate-100 bg-slate-50/80 flex justify-end gap-2.5">
-                <button 
-                  onClick={() => setIsModalOpen(false)}
-                  className="px-5 py-2.5 font-medium text-slate-500 hover:bg-white rounded-full transition-colors cursor-pointer text-xs uppercase"
-                >
-                  Cancel
-                </button>
-                <button 
-                  onClick={handleConfirmOffer}
-                  disabled={!selectedJobId || dispatchOfferMutation.isPending}
-                  className="px-6 py-2.5 font-medium text-white bg-[#0f2f63] hover:bg-[#2563c9] rounded-full transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 cursor-pointer shadow-xs text-xs uppercase active:scale-95"
-                >
-                  {dispatchOfferMutation.isPending && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                  <span>Confirm & Send Offer</span>
-                </button>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
     </div>
   );
 };

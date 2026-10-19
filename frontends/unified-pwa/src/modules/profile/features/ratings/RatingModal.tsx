@@ -33,7 +33,7 @@ export const RatingModal = ({ isOpen, onClose, workerId, workerName, jobId }: Ra
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
       <div className="w-full max-w-md bg-slate-900 border border-white/10 rounded-3xl p-8 shadow-2xl space-y-6">
         <div className="flex justify-between items-center">
           <h2 className="text-2xl font-bold text-white">Rate {workerName}</h2>

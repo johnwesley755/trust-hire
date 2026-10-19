@@ -4,7 +4,7 @@ import { ApiResponse } from '../utils/ApiResponse';
 
 export const searchJobs = async (c: Context) => {
   try {
-    const { query, category, industry, location, city, jobType, minSalary, maxSalary, minExperience, maxExperience, sortBy, employerId } = c.req.query();
+    const { query, category, industry, location, city, jobType, minSalary, maxSalary, minExperience, maxExperience, sortBy, employerId, includeExpired } = c.req.query();
 
     // Proactively sync expired open jobs
     await prisma.jobs.updateMany({
@@ -16,16 +16,18 @@ export const searchJobs = async (c: Context) => {
     }).catch(() => {});
 
     let whereClause: any = {
-      status: 'OPEN',
-      AND: [
-        {
-          OR: [
-            { expires_at: null },
-            { expires_at: { gt: new Date() } }
-          ]
-        }
-      ]
+      AND: []
     };
+
+    if (includeExpired !== 'true') {
+      whereClause.status = 'OPEN';
+      whereClause.AND.push({
+        OR: [
+          { expires_at: null },
+          { expires_at: { gt: new Date() } }
+        ]
+      });
+    }
 
     if (query) {
       whereClause.AND.push({

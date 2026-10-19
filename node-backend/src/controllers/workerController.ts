@@ -58,6 +58,10 @@ const formatWorkerProfile = (profile: any, userMeta?: any, isVerified?: boolean,
     profile_image_url: profileImageUrl,
     profileImageUrl: profileImageUrl,
     profilePhoto: profileImageUrl,
+    skills: parseList(profile.skills),
+    experienceYears: profile.experience_years != null ? Number(profile.experience_years) : (profile.experienceYears != null ? Number(profile.experienceYears) : 0),
+    experience_years: profile.experience_years != null ? Number(profile.experience_years) : (profile.experienceYears != null ? Number(profile.experienceYears) : 0),
+    bio: profile.bio || '',
     is_verified: isVerified ?? (Boolean(userMeta?.email_verified) || Boolean(profile.is_verified)),
     isVerified: isVerified ?? (Boolean(userMeta?.email_verified) || Boolean(profile.is_verified)),
     
@@ -129,6 +133,10 @@ export const updateProfile = async (c: Context) => {
       ? JSON.stringify(data.preferredCities) 
       : (data.preferredCities ? String(data.preferredCities) : undefined);
 
+    const skillsStr = Array.isArray(data.skills)
+      ? data.skills.join(', ')
+      : (data.skills ? String(data.skills) : undefined);
+
     let parsedDob: Date | undefined = undefined;
     if (data.dob) {
       const d = new Date(data.dob);
@@ -149,9 +157,11 @@ export const updateProfile = async (c: Context) => {
       city: data.city,
       area: data.area,
       address: data.address,
-      bio: data.bio,
-      skills: data.skills,
-      experience_years: data.experienceYears !== undefined ? Number(data.experienceYears) : undefined,
+      bio: data.bio !== undefined ? String(data.bio) : undefined,
+      skills: skillsStr,
+      experience_years: data.experienceYears !== undefined 
+        ? Number(data.experienceYears) 
+        : (data.experience_years !== undefined ? Number(data.experience_years) : undefined),
       hourly_rate: data.hourlyRate !== undefined ? Number(data.hourlyRate) : undefined,
       level: isAdmin ? data.level : undefined,
       is_available: data.isAvailable !== undefined ? Boolean(data.isAvailable) : undefined,
@@ -271,6 +281,9 @@ export const updateProfile = async (c: Context) => {
         full_name: profile.full_name,
         skills: profile.skills,
         city: profile.city,
+        location: profile.location,
+        specialization: profile.specialization,
+        preferred_roles: profile.preferred_roles,
         experience_years: profile.experience_years,
         is_available: profile.is_available
       }).catch((e: any) => console.warn('[SearchAlertService] Candidate reverse match notice:', e.message));

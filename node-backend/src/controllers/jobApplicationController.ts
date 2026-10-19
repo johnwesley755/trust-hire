@@ -73,7 +73,7 @@ export const applyForJob = async (c: Context) => {
       title: "New Job Applicant! 📋",
       message: `A verified worker has applied for your job: "${job.title}". Tap to review candidate.`,
       type: "NEW_APPLICATION",
-      link: `/dashboard/employer/jobs/${jobId}/applicants`,
+      link: `/jobs/${jobId}/applicants`,
       data: { jobId: String(jobId), workerId: String(workerId) }
     });
 
@@ -145,6 +145,17 @@ export const dispatchOffer = async (c: Context) => {
           where: { id: existing.id },
           data: { status: 'OFFER_SENT' }
         });
+
+        // Dispatch Synchronized Notification for Worker (Job Offer)
+        await NotificationDispatcher.dispatch({
+          userId: canonicalWorkerId,
+          title: "Direct Job Offer Received 📜",
+          message: `You received a direct job offer for "${job.title}". Tap to review and accept.`,
+          type: "JOB_OFFER",
+          link: "/applied-jobs",
+          data: { jobId: String(jobId), applicationId: String(existing.id) }
+        }).catch(() => {});
+
         return c.json(ApiResponse.ok("Offer dispatched successfully by updating applicant status", formatApplication(updated)));
       }
       if (existing.status === 'OFFER_SENT') {
@@ -269,8 +280,18 @@ export const updateApplicationStatus = async (c: Context) => {
 
     if (!application) return c.json(ApiResponse.error("Application not found"), 404 as any);
 
-    // Defect fix 1.7: Authorization ownership validation
-    const isEmployerOwner = application.jobs?.employer_id === authUser.sub;
+    // Authorization ownership validation (supporting user ID and profile ID mappings)
+    const employerProfile = await prisma.employer_profiles.findFirst({
+      where: {
+        OR: [
+          { user_id: authUser.sub },
+          { id: authUser.sub }
+        ]
+      }
+    });
+
+    const isEmployerOwner = application.jobs?.employer_id === authUser.sub ||
+      Boolean(employerProfile && (application.jobs?.employer_id === employerProfile.id || application.jobs?.employer_id === employerProfile.user_id));
     const isApplicant = application.worker_id === authUser.sub;
     const isAdmin = authUser.role === 'ADMIN';
 
@@ -278,14 +299,17 @@ export const updateApplicationStatus = async (c: Context) => {
       return c.json(ApiResponse.error("Forbidden: You are not authorized to modify this application."), 403 as any);
     }
 
-    const normalizedStatus = status.toUpperCase();
+    let normalizedStatus = status.toUpperCase();
 
     // Security Gate: Restrict role-based status transitions
     if (!isAdmin) {
       if (isApplicant && !isEmployerOwner) {
         // Applicant transitions
         if (application.status === 'OFFER_SENT') {
-          // Applicant may only accept or decline an active offer
+          // Normalize candidate decline response (accept either DECLINED or REJECTED)
+          if (normalizedStatus === 'REJECTED') {
+            normalizedStatus = 'DECLINED';
+          }
           if (!['ACCEPTED', 'DECLINED'].includes(normalizedStatus)) {
             return c.json(ApiResponse.error("Invalid status: You may only accept or decline an active offer."), 400 as any);
           }
@@ -309,8 +333,36 @@ export const updateApplicationStatus = async (c: Context) => {
       data: { status: normalizedStatus }
     });
 
-    // Dispatch Synchronized Notification for target party (In-App + FCM Push)
-    const targetUserId = isEmployerOwner ? application.worker_id : application.jobs?.employer_id;
+    // Resolve canonical target user ID for notification delivery
+    let targetUserId = isEmployerOwner ? application.worker_id : (application.jobs?.employer_id || '');
+    if (isEmployerOwner) {
+      // Employer sent offer/update -> Target is candidate
+      const workerProfile = await prisma.worker_profiles.findFirst({
+        where: {
+          OR: [
+            { id: application.worker_id },
+            { user_id: application.worker_id }
+          ]
+        }
+      });
+      if (workerProfile?.user_id) {
+        targetUserId = workerProfile.user_id;
+      }
+    } else {
+      // Candidate responded -> Target is employer
+      const empProfile = await prisma.employer_profiles.findFirst({
+        where: {
+          OR: [
+            { id: application.jobs?.employer_id },
+            { user_id: application.jobs?.employer_id }
+          ]
+        }
+      });
+      if (empProfile?.user_id) {
+        targetUserId = empProfile.user_id;
+      }
+    }
+
     if (targetUserId) {
       const statusUpper = normalizedStatus.toUpperCase();
       const jobTitle = application.jobs?.title || 'Shift';
@@ -331,7 +383,7 @@ export const updateApplicationStatus = async (c: Context) => {
         } else if (statusUpper === 'OFFER_SENT') {
           title = "Direct Job Offer Received 📜";
           message = `You received a direct job offer for "${jobTitle}". Tap to review and accept.`;
-          type = "APPLICATION_ACCEPTED";
+          type = "JOB_OFFER";
         } else if (statusUpper === 'REVIEWING') {
           title = "Application Viewed 👁️";
           message = `The employer is currently reviewing your application for "${jobTitle}".`;
@@ -347,21 +399,23 @@ export const updateApplicationStatus = async (c: Context) => {
           title = "Job Offer Accepted! 🤝";
           message = `A candidate has accepted your job offer for "${jobTitle}". You can now coordinate start details.`;
           type = "APPLICATION_ACCEPTED";
-        } else if (statusUpper === 'DECLINED') {
+        } else if (statusUpper === 'DECLINED' || statusUpper === 'REJECTED') {
           title = "Job Offer Declined ❌";
           message = `A candidate has declined your offer for "${jobTitle}".`;
           type = "APPLICATION_UPDATE";
         }
       }
 
-      const targetLink = isEmployerOwner ? "/applied-jobs" : `/dashboard/employer/jobs/${application.job_id}/applicants`;
+      const targetLink = isEmployerOwner ? "/applied-jobs" : `/jobs/${application.job_id}/applicants`;
       await NotificationDispatcher.dispatch({
         userId: targetUserId,
         title,
         message,
         type,
         link: targetLink,
-        data: { applicationId: String(applicationId), status: statusUpper }
+        data: { applicationId: String(applicationId), status: statusUpper, jobId: String(application.job_id) }
+      }).catch((err: any) => {
+        console.warn('[updateApplicationStatus] Notification dispatch notice:', err?.message);
       });
     }
 

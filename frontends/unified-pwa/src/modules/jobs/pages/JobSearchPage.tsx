@@ -17,11 +17,13 @@ import { JobSearchHero } from '../components/JobSearchHero';
 import { JobFilterSidebar, type FilterCounts } from '../components/JobFilterSidebar';
 import { JobSearchResultCard, type JobCardData } from '../components/JobSearchResultCard';
 import { JobSearchRightSidebar } from '../components/JobSearchRightSidebar';
+import { DataTablePagination } from '../../../components/common/DataTablePagination';
 import { AppLoader } from '../../../components/common/AppLoader';
 import { detectCurrentCity } from '../../../utils/geolocation';
 import { useAuth } from '../../../providers/AuthContext';
 import { fcmService } from '../../../services/fcm.service';
-import { searchAlertService } from '../../../services/searchAlert.service';
+import { searchAlertService, type SearchAlert } from '../../../services/searchAlert.service';
+import { JobAlertModal } from '../components/JobAlertModal';
 import { ManageAlertsModal } from '../../dashboard/features/alerts/ManageAlertsModal';
 
 export default function JobSearchPage() {
@@ -38,38 +40,55 @@ export default function JobSearchPage() {
   const [sortBy, setSortBy] = useState<'date_desc' | 'salary_desc' | 'salary_asc'>('date_desc');
   const [isLocating, setIsLocating] = useState(false);
 
+  // Pagination & Display State
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(5);
+  const [hideExpired, setHideExpired] = useState(false);
+
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
-  const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
-  const [isAlertSaved, setIsAlertSaved] = useState(false);
+  const [isJobAlertModalOpen, setIsJobAlertModalOpen] = useState(false);
+  const [isManageAlertsOpen, setIsManageAlertsOpen] = useState(false);
 
   const { user } = useAuth();
 
-  const handleSaveSearchAlert = async () => {
+  // Numeric minimum salary computed from budgetRange
+  const numericMinSalary = useMemo(() => {
+    if (budgetRange === '1000to2500') return 25000;
+    if (budgetRange === '2500to5000') return 40000;
+    if (budgetRange === 'above5000') return 60000;
+    return undefined;
+  }, [budgetRange]);
+
+  // Query existing candidate job alerts
+  const { data: userAlerts = [] } = useQuery<SearchAlert[]>({
+    queryKey: ['searchAlerts', 'JOB_ALERT'],
+    queryFn: () => searchAlertService.getMyAlerts('JOB_ALERT'),
+    enabled: Boolean(user)
+  });
+
+  // Live match check: determines if an active alert matches current criteria or nationwide
+  const isMatchingAlertActive = useMemo(() => {
+    if (!user || userAlerts.length === 0) return false;
+    return userAlerts.some((alert) => {
+      if (!alert.is_active) return false;
+      const alertCity = alert.city?.trim().toLowerCase();
+      const currentCity = city?.trim().toLowerCase();
+      const alertCategory = alert.category?.trim().toLowerCase();
+      const currentCategory = (trade && trade !== 'All') ? trade.trim().toLowerCase() : null;
+
+      const cityMatches = !alertCity || (currentCity && alertCity === currentCity);
+      const categoryMatches = !alertCategory || (currentCategory && alertCategory === currentCategory);
+
+      return cityMatches && categoryMatches;
+    });
+  }, [user, userAlerts, city, trade]);
+
+  const handleOpenAlertModal = () => {
     if (!user) {
       alert("Please sign in or create an account to save job search alerts.");
       return;
     }
-
-    // Prompt native browser push notification permission if not yet granted
-    if (fcmService.isPushSupported() && Notification.permission !== 'granted') {
-      await fcmService.requestPushPermissionAndRegister().catch(() => {});
-    }
-
-    try {
-      await searchAlertService.createAlert({
-        alertType: 'JOB_ALERT',
-        city: city || undefined,
-        category: trade !== 'All' ? trade : undefined,
-        query: query || undefined,
-        minSalary: minSalary || undefined,
-        frequency: 'INSTANT'
-      });
-      setIsAlertSaved(true);
-      setTimeout(() => setIsAlertSaved(false), 4000);
-      queryClient.invalidateQueries({ queryKey: ['searchAlerts'] });
-    } catch (e: any) {
-      console.warn("Save alert error:", e);
-    }
+    setIsJobAlertModalOpen(true);
   };
 
   // Sync state if URL changes externally
@@ -135,7 +154,8 @@ export default function JobSearchPage() {
       maxSalary,
       minExperience,
       maxExperience,
-      sortBy
+      sortBy,
+      includeExpired: 'true'
     }),
     staleTime: 1000 * 60 * 2,
   });
@@ -250,23 +270,58 @@ export default function JobSearchPage() {
 
   // Format job data for rendering
   const formattedJobs: JobCardData[] = useMemo(() => {
-    return jobs.map((j: any) => ({
-      id: j.id,
-      title: j.title,
-      description: j.description,
-      industry: j.industry,
-      jobType: j.jobType || 'Full Time',
-      location: j.location,
-      city: j.city,
-      budget: j.budget,
-      experienceYearsRequired: j.experienceYearsRequired ?? j.experience_years_required ?? 0,
-      status: j.status,
-      createdAt: j.createdAt || j.created_at,
-      employerProfile: j.employerProfile,
-      hasApplied: appliedJobIdsMap.has(j.id),
-      applicationStatus: appliedJobIdsMap.get(j.id),
-    }));
+    return jobs.map((j: any) => {
+      const isExpired = Boolean(
+        j.isExpired ||
+        j.status === 'EXPIRED' ||
+        j.status === 'CLOSED' ||
+        (j.expires_at && new Date(j.expires_at).getTime() <= Date.now()) ||
+        (j.expiresAt && new Date(j.expiresAt).getTime() <= Date.now())
+      );
+
+      return {
+        id: j.id,
+        title: j.title,
+        description: j.description,
+        industry: j.industry,
+        jobType: j.jobType || 'Full Time',
+        location: j.location,
+        city: j.city,
+        budget: j.budget,
+        experienceYearsRequired: j.experienceYearsRequired ?? j.experience_years_required ?? 0,
+        status: isExpired ? 'EXPIRED' : (j.status || 'OPEN'),
+        createdAt: j.createdAt || j.created_at,
+        expiresAt: j.expiresAt || j.expires_at,
+        isExpired,
+        employerProfile: j.employerProfile,
+        hasApplied: appliedJobIdsMap.has(j.id),
+        applicationStatus: appliedJobIdsMap.get(j.id),
+      };
+    });
   }, [jobs, appliedJobIdsMap]);
+
+  // Filter based on hideExpired
+  const displayJobs = useMemo(() => {
+    if (hideExpired) {
+      return formattedJobs.filter(j => !j.isExpired);
+    }
+    return formattedJobs;
+  }, [formattedJobs, hideExpired]);
+
+  // Reset pagination on filter or search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [query, city, jobType, budgetRange, experience, trade, sortBy, hideExpired]);
+
+  // Safe pagination calculations
+  const totalItems = displayJobs.length;
+  const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+  const safeCurrentPage = Math.min(currentPage, totalPages);
+
+  const paginatedJobs = useMemo(() => {
+    const startIndex = (safeCurrentPage - 1) * pageSize;
+    return displayJobs.slice(startIndex, startIndex + pageSize);
+  }, [displayJobs, safeCurrentPage, pageSize]);
 
   return (
     <div className="w-full min-h-screen p-2 sm:p-3 bg-white font-['Onest',system-ui,sans-serif] text-[#0a0a0a]">
@@ -276,7 +331,7 @@ export default function JobSearchPage() {
         <JobSearchHero
           initialQuery={query}
           initialCity={city}
-          totalJobs={formattedJobs.length}
+          totalJobs={displayJobs.length}
           selectedTrade={trade}
           onTradeSelect={(t) => {
             setTrade(t);
@@ -291,7 +346,7 @@ export default function JobSearchPage() {
         <div className="lg:hidden px-1">
           <div className="flex items-center justify-between gap-3">
             <span className="text-xs font-medium text-[#717784]">
-              <strong className="text-[#0a0a0a] font-bold">{formattedJobs.length}</strong> verified openings
+              <strong className="text-[#0a0a0a] font-bold">{displayJobs.length}</strong> verified openings
             </span>
             <button
               onClick={() => setIsMobileFilterOpen(true)}
@@ -372,24 +427,41 @@ export default function JobSearchPage() {
             </div>
 
             {/* Results Count & Sort Row */}
-            <div className="flex items-center justify-between px-1 flex-wrap gap-2">
-              <div className="flex items-center gap-3">
+            <div className="flex items-center justify-between px-1 flex-wrap gap-2.5">
+              <div className="flex items-center gap-2.5 flex-wrap">
                 <span className="text-xs font-medium text-[#717784]">
-                  Showing <strong className="text-[#0a0a0a] font-bold">{formattedJobs.length}</strong> verified job postings
+                  Showing <strong className="text-[#0a0a0a] font-bold">{totalItems === 0 ? 0 : `${(safeCurrentPage - 1) * pageSize + 1}-${Math.min(safeCurrentPage * pageSize, totalItems)}`}</strong> of <strong className="text-[#0a0a0a] font-bold">{totalItems}</strong> verified job postings
                 </span>
+
+                {/* Hide / Show Expired Toggle */}
                 <button
                   type="button"
-                  onClick={handleSaveSearchAlert}
-                  className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold border transition-all cursor-pointer ${
-                    isAlertSaved
-                      ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
+                  onClick={() => setHideExpired(!hideExpired)}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-medium border transition-all cursor-pointer ${
+                    hideExpired
+                      ? 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100 shadow-2xs'
+                      : 'bg-[#f4f4f4] hover:bg-[#e6e8ec] text-[#0a0a0a] border-[#e6e8ec]'
+                  }`}
+                  title={hideExpired ? "Currently hiding expired jobs. Click to show all." : "Currently showing all jobs. Click to hide expired."}
+                >
+                  <span className={`w-1.5 h-1.5 rounded-full ${hideExpired ? 'bg-rose-500' : 'bg-emerald-500'}`} />
+                  <span>{hideExpired ? 'Hiding Expired' : 'Showing All'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleOpenAlertModal}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-semibold border transition-all cursor-pointer ${
+                    isMatchingAlertActive
+                      ? 'bg-emerald-50 text-emerald-800 border-emerald-300 shadow-2xs hover:bg-emerald-100'
                       : 'bg-white hover:bg-[#0f2f63] text-[#0f2f63] hover:text-white border-[#0f2f63]/30 shadow-2xs'
                   }`}
+                  title={isMatchingAlertActive ? "Job alert active! Tap to manage or modify criteria." : "Configure alert for new job postings"}
                 >
-                  {isAlertSaved ? (
+                  {isMatchingAlertActive ? (
                     <>
                       <Check className="w-3.5 h-3.5 text-emerald-600" />
-                      <span>Alert Saved!</span>
+                      <span>Job Alert Active</span>
                     </>
                   ) : (
                     <>
@@ -421,9 +493,9 @@ export default function JobSearchPage() {
             {/* Job List Feed */}
             {isLoading ? (
               <AppLoader variant="skeleton" />
-            ) : formattedJobs.length > 0 ? (
+            ) : paginatedJobs.length > 0 ? (
               <div className="space-y-4">
-                {formattedJobs.map((job) => (
+                {paginatedJobs.map((job) => (
                   <JobSearchResultCard
                     key={job.id}
                     job={job}
@@ -431,6 +503,25 @@ export default function JobSearchPage() {
                     isApplying={applyMutation.isPending && applyMutation.variables === job.id}
                   />
                 ))}
+
+                {/* Standardized Pagination Bar */}
+                <DataTablePagination
+                  currentPage={safeCurrentPage}
+                  totalPages={totalPages}
+                  totalItems={totalItems}
+                  pageSize={pageSize}
+                  pageSizeOptions={[5, 10, 20, 50]}
+                  onPageChange={(page) => {
+                    setCurrentPage(page);
+                    window.scrollTo({ top: 380, behavior: 'smooth' });
+                  }}
+                  onPageSizeChange={(size) => {
+                    setPageSize(size);
+                    setCurrentPage(1);
+                  }}
+                  itemName="job postings"
+                  className="rounded-[1.5rem] border border-[#e6e8ec] bg-white p-3 shadow-xs mt-6"
+                />
               </div>
             ) : (
               /* Empty State */
@@ -466,7 +557,8 @@ export default function JobSearchPage() {
               currentCity={city}
               currentTrade={trade}
               currentQuery={query}
-              minSalary={minSalary}
+              minSalary={numericMinSalary}
+              onOpenAlertModal={handleOpenAlertModal}
               onSelectCompany={(comp) => {
                 setQuery(comp);
                 updateUrlParams({ q: comp });
@@ -479,7 +571,7 @@ export default function JobSearchPage() {
 
       {/* 4. Mobile Filter Bottom-Sheet / Drawer Modal */}
       {isMobileFilterOpen && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-xs p-0 sm:p-4">
+        <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-xs p-0 sm:p-4">
           <div className="bg-white w-full max-w-lg rounded-t-[2rem] sm:rounded-[2rem] max-h-[88vh] flex flex-col shadow-2xl border border-[#e6e8ec] overflow-hidden animate-in slide-in-from-bottom duration-200">
             
             {/* Modal Header */}
@@ -654,10 +746,21 @@ export default function JobSearchPage() {
         </div>
       )}
 
-      {/* 5. Manage Alerts Modal */}
+      {/* 5. Candidate Job Alert Modal */}
+      <JobAlertModal
+        isOpen={isJobAlertModalOpen}
+        onClose={() => setIsJobAlertModalOpen(false)}
+        currentQuery={query}
+        currentCity={city}
+        currentTrade={trade}
+        currentMinSalary={numericMinSalary}
+        onOpenManageAlerts={() => setIsManageAlertsOpen(true)}
+      />
+
+      {/* 6. Manage Alerts Modal */}
       <ManageAlertsModal
-        isOpen={isAlertModalOpen}
-        onClose={() => setIsAlertModalOpen(false)}
+        isOpen={isManageAlertsOpen}
+        onClose={() => setIsManageAlertsOpen(false)}
         alertType="JOB_ALERT"
       />
 

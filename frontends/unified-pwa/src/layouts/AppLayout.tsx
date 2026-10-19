@@ -8,7 +8,7 @@ export default function AppLayout() {
       <AppTopNavbar />
       
       {/* Full Width Main App Content */}
-      <main className="flex-1 w-full relative overflow-x-clip z-0">
+      <main className="flex-1 w-full relative overflow-x-clip">
         <Outlet />
       </main>
     </div>

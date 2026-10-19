@@ -5,7 +5,7 @@ import apiClient from '../../../api/apiClient';
 import { useAuth } from '../../../providers/AuthContext';
 import { AppLoader } from '../../../components/common/AppLoader';
 import { fcmService } from '../../../services/fcm.service';
-import { searchAlertService } from '../../../services/searchAlert.service';
+import { searchAlertService, type SearchAlert } from '../../../services/searchAlert.service';
 import { ManageAlertsModal } from '../../dashboard/features/alerts/ManageAlertsModal';
 
 interface PopularEmployer {
@@ -22,6 +22,7 @@ interface JobSearchRightSidebarProps {
   currentTrade?: string;
   currentQuery?: string;
   minSalary?: number;
+  onOpenAlertModal?: () => void;
   onSelectCompany?: (companyName: string) => void;
 }
 
@@ -30,17 +31,23 @@ export const JobSearchRightSidebar: React.FC<JobSearchRightSidebarProps> = ({
   currentTrade = '',
   currentQuery = '',
   minSalary,
+  onOpenAlertModal,
   onSelectCompany,
 }) => {
   const { user } = useAuth();
-  const queryClient = useQueryClient();
-  const [email, setEmail] = useState(user?.email || '');
-  const [isSubscribed, setIsSubscribed] = useState(false);
   const [isDismissed, setIsDismissed] = useState(false);
   const [isManageModalOpen, setIsManageModalOpen] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const displayLocation = currentCity || 'your area';
+
+  // Live active candidate job alerts check
+  const { data: userAlerts = [] } = useQuery<SearchAlert[]>({
+    queryKey: ['searchAlerts', 'JOB_ALERT'],
+    queryFn: () => searchAlertService.getMyAlerts('JOB_ALERT'),
+    enabled: Boolean(user)
+  });
+
+  const activeAlert = userAlerts.find(a => a.is_active);
 
   // Fetch real popular hiring employers from backend
   const { data: popularEmployers = [], isLoading } = useQuery<PopularEmployer[]>({
@@ -58,39 +65,6 @@ export const JobSearchRightSidebar: React.FC<JobSearchRightSidebarProps> = ({
     staleTime: 1000 * 60 * 5,
   });
 
-  const handleSubscribe = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!user) {
-      alert("Please sign in or create an account to save job alerts and receive notifications.");
-      return;
-    }
-
-    // Prompt native browser push notification permission if not yet granted
-    if (fcmService.isPushSupported() && Notification.permission !== 'granted') {
-      await fcmService.requestPushPermissionAndRegister().catch(() => {});
-    }
-
-    try {
-      setIsSubmitting(true);
-      await searchAlertService.createAlert({
-        alertType: 'JOB_ALERT',
-        city: currentCity || undefined,
-        category: (currentTrade && currentTrade !== 'All') ? currentTrade : undefined,
-        query: currentQuery || undefined,
-        minSalary: minSalary || undefined,
-        frequency: 'INSTANT'
-      });
-      setIsSubscribed(true);
-      queryClient.invalidateQueries({ queryKey: ['searchAlerts'] });
-    } catch (err: any) {
-      console.warn('Job alert creation error:', err);
-      // Still show subscribed state gracefully
-      setIsSubscribed(true);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
   return (
     <aside className="w-full space-y-6 font-['Onest',system-ui,sans-serif]">
       
@@ -101,10 +75,13 @@ export const JobSearchRightSidebar: React.FC<JobSearchRightSidebarProps> = ({
           <div className="absolute -bottom-12 -left-12 w-48 h-48 bg-[#5790e6]/20 rounded-full blur-2xl pointer-events-none" />
 
           <div className="relative z-10 space-y-1.5">
-            <span className="inline-block px-2.5 py-0.5 rounded-full bg-white/10 text-white/90 text-[10px] font-medium uppercase border border-white/10">
-              Instant Alerts
-            </span>
-            <h3 className="text-base font-medium uppercase leading-tight text-white">
+            <div className="flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="inline-block px-2.5 py-0.5 rounded-full bg-white/10 text-white/90 text-[10px] font-bold uppercase tracking-wider border border-white/10">
+                Instant Job Radar
+              </span>
+            </div>
+            <h3 className="text-base font-bold uppercase leading-tight text-white">
               Get notified for jobs in <span className="text-[#5790e6]">{displayLocation}</span>
             </h3>
             <p className="text-white/80 text-xs font-normal leading-relaxed">
@@ -112,59 +89,60 @@ export const JobSearchRightSidebar: React.FC<JobSearchRightSidebarProps> = ({
             </p>
           </div>
 
-          {isSubscribed ? (
-            <div className="relative z-10 p-3.5 bg-white/15 border border-white/20 rounded-2xl space-y-2">
-              <div className="flex items-center gap-2 text-white text-xs font-medium">
+          {activeAlert ? (
+            <div className="relative z-10 p-3.5 bg-white/15 border border-white/20 rounded-2xl space-y-2.5">
+              <div className="flex items-center gap-2 text-white text-xs font-semibold">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
                 <span>Job alert active for {displayLocation}!</span>
               </div>
-              <button
-                type="button"
-                onClick={() => setIsManageModalOpen(true)}
-                className="w-full py-2 bg-white/20 hover:bg-white/30 text-white rounded-xl text-[11px] font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer"
-              >
-                <Settings className="w-3.5 h-3.5 text-white/80" />
-                <span>Manage My Alerts</span>
-              </button>
+              <p className="text-[11px] text-white/80 leading-snug">
+                {activeAlert.title || 'All New Jobs'} • {activeAlert.match_count || 0} match(es) so far
+              </p>
+              <div className="grid grid-cols-2 gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={onOpenAlertModal || (() => setIsManageModalOpen(true))}
+                  className="py-2 px-3 bg-white text-[#0f2f63] hover:bg-slate-100 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs active:scale-95 text-center"
+                >
+                  Configure
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsManageModalOpen(true)}
+                  className="py-2 px-3 bg-white/20 hover:bg-white/30 text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-all cursor-pointer text-center"
+                >
+                  <Settings className="w-3.5 h-3.5 text-white/80" />
+                  <span>Manage</span>
+                </button>
+              </div>
             </div>
           ) : (
-            <form onSubmit={handleSubscribe} className="relative z-10 space-y-3">
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email"
-                required
-                className="w-full bg-white/10 border border-white/20 rounded-xl px-3.5 py-2 text-xs text-white placeholder:text-white/60 font-medium focus:outline-hidden focus:border-white/50"
-              />
-
+            <div className="relative z-10 space-y-3">
               <button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full py-2.5 px-4 bg-white text-[#0f2f63] hover:bg-[#f4f4f4] rounded-full font-medium uppercase text-xs flex items-center justify-center gap-2 transition-all shadow-sm active:scale-95 cursor-pointer disabled:opacity-70"
+                type="button"
+                onClick={onOpenAlertModal || (() => setIsManageModalOpen(true))}
+                className="w-full py-2.5 px-4 bg-white text-[#0f2f63] hover:bg-[#f4f4f4] rounded-full font-bold uppercase text-xs flex items-center justify-center gap-2 transition-all shadow-sm active:scale-95 cursor-pointer"
               >
                 <BellRing className="w-3.5 h-3.5 text-[#0f2f63]" />
-                <span>{isSubmitting ? 'Activating...' : 'Subscribe to Alerts'}</span>
+                <span>Configure Job Alert</span>
               </button>
-            </form>
-          )}
 
-          {!isSubscribed && (
-            <div className="relative z-10 flex items-center justify-between text-[11px] text-white/60 pt-1">
-              <button
-                type="button"
-                onClick={() => setIsManageModalOpen(true)}
-                className="hover:text-white underline cursor-pointer"
-              >
-                Manage Alerts
-              </button>
-              <button
-                type="button"
-                onClick={() => setIsDismissed(true)}
-                className="hover:text-white/80 cursor-pointer"
-              >
-                Dismiss
-              </button>
+              <div className="flex items-center justify-between text-[11px] text-white/60 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setIsManageModalOpen(true)}
+                  className="hover:text-white underline cursor-pointer"
+                >
+                  Manage Alerts ({userAlerts.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsDismissed(true)}
+                  className="hover:text-white/80 cursor-pointer"
+                >
+                  Dismiss
+                </button>
+              </div>
             </div>
           )}
         </div>

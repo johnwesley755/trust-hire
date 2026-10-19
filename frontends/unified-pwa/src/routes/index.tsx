@@ -116,6 +116,26 @@ export const router = createBrowserRouter([
                 element: <ApplicationManagementPage />,
               },
               {
+                path: '/jobs/:jobId',
+                element: <ApplicationManagementPage />,
+              },
+              {
+                path: '/jobs/:jobId/applicants',
+                element: <ApplicationManagementPage />,
+              },
+              {
+                path: '/dashboard/employer/jobs',
+                element: <ApplicationManagementPage />,
+              },
+              {
+                path: '/dashboard/employer/jobs/:jobId',
+                element: <ApplicationManagementPage />,
+              },
+              {
+                path: '/dashboard/employer/jobs/:jobId/applicants',
+                element: <ApplicationManagementPage />,
+              },
+              {
                 path: '/find-workers',
                 element: <WorkerSearchPage />,
               },

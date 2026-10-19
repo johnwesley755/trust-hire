@@ -7,12 +7,11 @@ import {
   GraduationCap, 
   Languages, 
   Briefcase, 
-  CheckCircle2, 
   Download, 
   Printer,
-  Sparkles,
   Loader2,
-  Award
+  Award,
+  Globe
 } from 'lucide-react';
 import { pdf } from '@react-pdf/renderer';
 import { toast } from 'sonner';
@@ -53,6 +52,44 @@ interface CandidateResumeViewProps {
   showActions?: boolean;
 }
 
+/**
+ * Deduplicates and formats candidate location strings (e.g. avoids "Zone 14 Perungudi, Chennai, Chennai")
+ */
+export const formatLocation = (data: { area?: string; city?: string; location?: string }): string => {
+  const parts: string[] = [];
+
+  if (data.area) {
+    data.area.split(',').forEach(p => {
+      const clean = p.trim();
+      if (clean) parts.push(clean);
+    });
+  }
+
+  if (data.city) {
+    const cleanCity = data.city.trim();
+    if (cleanCity) parts.push(cleanCity);
+  } else if (!parts.length && data.location) {
+    data.location.split(',').forEach(p => {
+      const clean = p.trim();
+      if (clean) parts.push(clean);
+    });
+  }
+
+  // Deduplicate case-insensitively while preserving original casing
+  const uniqueParts: string[] = [];
+  const seen = new Set<string>();
+
+  for (const part of parts) {
+    const lower = part.toLowerCase();
+    if (!seen.has(lower)) {
+      seen.add(lower);
+      uniqueParts.push(part);
+    }
+  }
+
+  return uniqueParts.join(', ') || 'India';
+};
+
 export const CandidateResumeView: React.FC<CandidateResumeViewProps> = ({
   data,
   onPrint,
@@ -63,22 +100,22 @@ export const CandidateResumeView: React.FC<CandidateResumeViewProps> = ({
 
   const skillsList = Array.isArray(data.skills) 
     ? data.skills 
-    : (data.skills ? data.skills.split(',').map(s => s.trim()) : []);
+    : (data.skills ? data.skills.split(',').map(s => s.trim()).filter(Boolean) : []);
 
   const getEnglishLabel = (prof?: string) => {
     switch (prof) {
       case 'ADVANCED':
-      case 'FLUENT': return 'Fluent (Speak, Read & Write)';
+      case 'FLUENT': return 'Fluent (Speak, Read & Write comfortably)';
       case 'INTERMEDIATE':
-      case 'GOOD': return 'Good (Conversational)';
+      case 'GOOD': return 'Good (Conversational & functional)';
       case 'BASIC': return 'Basic';
       case 'NONE': return 'No English';
-      default: return prof || 'Basic';
+      default: return prof || 'Basic English';
     }
   };
 
   const handleDownloadPdf = async () => {
-    const toastId = toast.loading('Generating professional vector resume PDF...');
+    const toastId = toast.loading('Generating executive vector resume PDF...');
 
     try {
       setIsGeneratingPdf(true);
@@ -93,7 +130,7 @@ export const CandidateResumeView: React.FC<CandidateResumeViewProps> = ({
         .replace(/[^a-zA-Z0-9_-]/g, '_')
         .replace(/_+/g, '_');
 
-      link.download = `${sanitizedName}_TrustHyre_Resume.pdf`;
+      link.download = `${sanitizedName}_Executive_Resume.pdf`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -122,36 +159,40 @@ export const CandidateResumeView: React.FC<CandidateResumeViewProps> = ({
   };
 
   const hasPhoto = Boolean(data.profileImageUrl && !imageError);
+  const locationString = formatLocation(data);
+  const primaryHeadline = data.preferredRoles && data.preferredRoles.length > 0
+    ? data.preferredRoles.join('  •  ')
+    : (skillsList[0] || 'Professional Candidate');
 
   return (
     <div className="w-full max-w-4xl mx-auto font-sans">
-      {/* Action Header Bar (Hidden during Print) */}
+      {/* Action Header Bar (No-Print) */}
       {showActions && (
-        <div className="no-print flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
+        <div className="no-print flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-blue-50 text-[#0066FF] flex items-center justify-center font-bold shrink-0">
-              <ShieldCheck className="w-5 h-5 text-[#0066FF]" />
+            <div className="w-9 h-9 rounded-lg bg-slate-900 text-white flex items-center justify-center font-bold shrink-0">
+              <ShieldCheck className="w-5 h-5 text-white" />
             </div>
             <div>
-              <p className="text-sm font-extrabold text-[#0A1931]">TrustHyre Verified Candidate CV</p>
-              <p className="text-xs text-slate-500">Official verified format accepted by employers & recruiters</p>
+              <p className="text-sm font-bold text-slate-900">Verified Candidate Resume</p>
+              <p className="text-xs text-slate-500">Standard Executive ATS Format • Clean Printable Document</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={handleDirectPrint}
-              className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl flex items-center gap-1.5 transition-all cursor-pointer border border-slate-200"
+              className="px-3.5 py-2 bg-white hover:bg-slate-50 active:bg-slate-100 text-slate-700 text-xs font-semibold rounded-lg flex items-center gap-1.5 transition-colors cursor-pointer border border-slate-300 shadow-xs"
               title="Print standard A4 copy"
             >
-              <Printer className="w-3.5 h-3.5" />
-              <span>Print</span>
+              <Printer className="w-3.5 h-3.5 text-slate-600" />
+              <span>Print Resume</span>
             </button>
             <button
               type="button"
               disabled={isGeneratingPdf}
               onClick={handleDownloadPdf}
-              className="px-4 py-2 bg-[#0066FF] hover:bg-[#0052CC] active:bg-[#0040A8] text-white text-xs font-bold rounded-xl flex items-center gap-2 shadow-md shadow-blue-500/20 transition-all cursor-pointer disabled:opacity-50"
+              className="px-4 py-2 bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white text-xs font-semibold rounded-lg flex items-center gap-2 shadow-xs transition-colors cursor-pointer disabled:opacity-50"
             >
               {isGeneratingPdf ? (
                 <>
@@ -169,273 +210,247 @@ export const CandidateResumeView: React.FC<CandidateResumeViewProps> = ({
         </div>
       )}
 
-      {/* Main Live Preview Card (Matching the Generated PDF layout) */}
+      {/* Main Executive Resume Sheet (Standard ATS Layout) */}
       <div 
         id="printable-candidate-cv" 
-        className="bg-white rounded-2xl md:rounded-3xl border border-slate-200 shadow-xl p-6 sm:p-10 text-slate-900 relative overflow-hidden"
+        className="bg-white rounded-xl sm:rounded-2xl border border-slate-200 shadow-lg p-6 sm:p-12 text-[#111827] relative print:border-none print:shadow-none print:p-0"
       >
-        {/* Top Decorative Accent Bar */}
-        <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-[#0066FF] via-[#38BDF8] to-[#0A1931]" />
+        {/* RESUME HEADER */}
+        <header className="flex flex-col sm:flex-row items-start justify-between gap-5 pb-5 border-b-2 border-[#111827]">
+          <div className="flex-1 min-w-0">
+            {/* Candidate Full Name */}
+            <h1 className="text-2xl sm:text-3xl font-extrabold uppercase tracking-tight text-[#111827]">
+              {data.fullName || 'Candidate Name'}
+            </h1>
 
-        {/* CV Header */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 pb-6 border-b border-slate-200 mt-2">
-          <div className="flex items-center gap-5">
-            {/* Candidate Portrait Photo */}
-            <div className="relative shrink-0">
-              {hasPhoto ? (
-                <img 
-                  src={data.profileImageUrl} 
-                  alt={data.fullName}
-                  onError={() => setImageError(true)}
-                  className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl object-cover border-2 border-slate-200 shadow-sm bg-slate-50"
-                />
-              ) : (
-                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-br from-[#0066FF] to-[#38BDF8] text-white flex items-center justify-center text-3xl font-black shadow-md shadow-blue-500/15 border-2 border-slate-100">
-                  {data.fullName?.charAt(0)?.toUpperCase() || 'W'}
-                </div>
-              )}
-              <div className="absolute -bottom-2 -right-2 bg-emerald-500 text-white rounded-full p-1 border-2 border-white shadow-xs" title="TrustVerified Candidate">
-                <CheckCircle2 className="w-4 h-4" />
-              </div>
-            </div>
+            {/* Target Role Headline */}
+            <p className="text-xs sm:text-sm font-semibold text-[#374151] mt-1 tracking-normal">
+              {primaryHeadline}
+            </p>
 
-            <div>
-              <div className="flex flex-wrap items-center gap-2">
-                <h1 className="text-xl sm:text-2xl font-extrabold text-[#0A1931] tracking-tight">
-                  {data.fullName || 'Candidate Name'}
-                </h1>
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                  <ShieldCheck className="w-3 h-3 text-emerald-600" />
-                  Verified Candidate
-                </span>
-              </div>
-
-              {/* Primary Role / Title */}
-              <p className="text-sm font-bold text-[#0066FF] mt-1">
-                {data.preferredRoles && data.preferredRoles.length > 0 
-                  ? data.preferredRoles.join(' • ') 
-                  : (skillsList[0] || 'Skilled Professional')}
-              </p>
-
-              {/* Location Badge */}
-              <div className="flex items-center gap-1.5 text-xs text-slate-600 mt-2 font-medium">
-                <MapPin className="w-3.5 h-3.5 text-rose-500 shrink-0" />
-                <span>
-                  {data.area ? `${data.area}, ` : ''}{data.city || data.location || 'Location on request'}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Contact Details & TrustScore Card */}
-          <div className="w-full sm:w-auto flex flex-col sm:items-end gap-2.5 bg-slate-50 sm:bg-transparent p-3.5 sm:p-0 rounded-2xl border sm:border-none border-slate-100">
-            {/* TrustScore - Temporarily hidden until TrustScore engine is implemented */}
-            {/*
-            <div className="flex items-center gap-2 bg-blue-50/90 px-3.5 py-1.5 rounded-xl border border-blue-100">
-              <Sparkles className="w-3.5 h-3.5 text-[#0066FF]" />
-              <span className="text-xs font-bold text-slate-700">TrustScore:</span>
-              <span className="text-xs font-black text-[#0066FF]">{data.trustScore || 85} / 100</span>
-            </div>
-            */}
-
-            <div className="space-y-1.5 text-xs text-slate-600 font-medium">
+            {/* Single Unified Contact Strip with Bullet Separators */}
+            <div className="flex flex-wrap items-center gap-y-1 gap-x-2 text-xs text-[#4B5563] mt-2.5 font-medium">
               {data.phoneNumber && (
-                <div className="flex items-center gap-2 sm:justify-end">
-                  <Phone className="w-3.5 h-3.5 text-slate-400" />
-                  <span className="font-semibold">+91 {data.phoneNumber.slice(-10)}</span>
+                <div className="flex items-center gap-1">
+                  <Phone className="w-3.5 h-3.5 text-slate-700 shrink-0" />
+                  <span>+91 {data.phoneNumber.slice(-10)}</span>
                 </div>
               )}
+
+              {data.phoneNumber && (data.email || locationString) && (
+                <span className="text-slate-300">•</span>
+              )}
+
               {data.email && (
-                <div className="flex items-center gap-2 sm:justify-end">
-                  <Mail className="w-3.5 h-3.5 text-slate-400" />
+                <div className="flex items-center gap-1">
+                  <Mail className="w-3.5 h-3.5 text-slate-700 shrink-0" />
                   <span>{data.email}</span>
                 </div>
               )}
+
+              {data.email && locationString && (
+                <span className="text-slate-300">•</span>
+              )}
+
+              {locationString && (
+                <div className="flex items-center gap-1">
+                  <MapPin className="w-3.5 h-3.5 text-slate-700 shrink-0" />
+                  <span>{locationString}</span>
+                </div>
+              )}
             </div>
-          </div>
-        </div>
 
-        {/* CV Body Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 pt-6">
-          {/* Main Column (8 cols) */}
-          <div className="md:col-span-8 space-y-6">
-            {/* Professional Summary */}
-            {data.bio && (
-              <div>
-                <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-400 mb-2">
-                  Professional Summary
-                </h3>
-                <p className="text-xs sm:text-sm text-slate-700 leading-relaxed font-normal bg-slate-50/70 p-4 rounded-xl border border-slate-100">
-                  {data.bio}
-                </p>
-              </div>
-            )}
-
-            {/* Target Job Roles */}
-            {data.preferredRoles && data.preferredRoles.length > 0 && (
-              <div>
-                <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-400 mb-2.5 flex items-center gap-1.5">
-                  <Briefcase className="w-3.5 h-3.5 text-[#0066FF]" />
-                  Target Job Roles
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                  {data.preferredRoles.map((role, idx) => (
-                    <span 
-                      key={idx}
-                      className="px-3 py-1.5 bg-[#0066FF]/10 text-[#0066FF] text-xs font-bold rounded-lg border border-[#0066FF]/20"
-                    >
-                      {role}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Key Skills */}
-            {skillsList.length > 0 && (
-              <div>
-                <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-400 mb-2.5 flex items-center gap-1.5">
-                  <Award className="w-3.5 h-3.5 text-slate-500" />
-                  Key Technical & Professional Skills
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                  {skillsList.map((skill, idx) => (
-                    <span 
-                      key={idx}
-                      className="px-3 py-1 bg-slate-100 text-slate-700 text-xs font-semibold rounded-lg border border-slate-200"
-                    >
-                      ✓ {skill}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Education Profile */}
-            <div>
-              <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-1.5">
-                <GraduationCap className="w-3.5 h-3.5 text-slate-500" />
-                Education & Academic Qualification
-              </h3>
-              <div className="p-4 rounded-xl border border-slate-200/90 bg-slate-50/40 space-y-2">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="text-sm font-extrabold text-[#0A1931]">
-                      {data.degree || data.highestEducation || 'Graduate / Diploma'}
-                      {data.isPursuingEducation && ' (Currently Pursuing)'}
-                    </p>
-                    {data.collegeName && (
-                      <p className="text-xs font-medium text-slate-600 mt-0.5">
-                        {data.collegeName} {data.specialization ? `• ${data.specialization}` : ''}
-                      </p>
-                    )}
-                    {data.schoolMedium && (
-                      <p className="text-[11px] text-slate-500 mt-0.5">
-                        School Medium: <span className="font-semibold text-slate-700">{data.schoolMedium}</span>
-                      </p>
-                    )}
-                  </div>
-                  {data.isPursuingEducation && (
-                    <span className="px-2.5 py-0.5 text-[10px] font-bold uppercase bg-amber-50 text-amber-700 border border-amber-200 rounded-full">
-                      Currently Pursuing
-                    </span>
-                  )}
-                </div>
-              </div>
+            {/* Verification Status */}
+            <div className="mt-2 text-[11px] text-slate-500 font-medium flex items-center gap-2">
+              <span className="inline-flex items-center gap-1 text-slate-800 font-semibold">
+                <ShieldCheck className="w-3.5 h-3.5 text-slate-800" />
+                Verified Candidate Profile
+              </span>
+              <span className="text-slate-300">•</span>
+              <span>Available for Placement</span>
             </div>
           </div>
 
-          {/* Sidebar Column (4 cols) */}
-          <div className="md:col-span-4 space-y-6">
-            {/* Languages Spoken */}
-            <div className="p-4 rounded-2xl border border-slate-200 bg-slate-50/60 space-y-3">
-              <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
-                <Languages className="w-3.5 h-3.5 text-[#0066FF]" />
-                Languages Spoken
-              </h3>
-              
-              <div className="space-y-2.5">
-                <div>
-                  <span className="text-[11px] text-slate-400 block font-medium">English Proficiency</span>
-                  <span className="text-xs font-bold text-slate-800">
-                    {getEnglishLabel(data.englishProficiency)}
-                  </span>
-                </div>
-
-                {data.languagesKnown && data.languagesKnown.length > 0 && (
-                  <div className="pt-1 border-t border-slate-100">
-                    <span className="text-[11px] text-slate-400 block font-medium mb-1.5">Known Languages</span>
-                    <div className="flex flex-wrap gap-1.5">
-                      {data.languagesKnown.map((lang, idx) => (
-                        <span key={idx} className="px-2.5 py-0.5 bg-white text-slate-700 text-[11px] font-bold rounded-md border border-slate-200 shadow-2xs">
-                          {lang}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
+          {/* Optional Portrait Frame (Discreet, professional monochrome border) */}
+          {hasPhoto && (
+            <div className="shrink-0 self-center sm:self-start">
+              <img 
+                src={data.profileImageUrl} 
+                alt={data.fullName}
+                onError={() => setImageError(true)}
+                className="w-20 h-20 rounded-md object-cover border border-slate-300 shadow-2xs bg-slate-50"
+              />
             </div>
+          )}
+        </header>
 
-            {/* Mobility & Work Preferences */}
-            <div className="p-4 rounded-2xl border border-slate-200 bg-slate-50/60 space-y-3">
-              <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
-                <MapPin className="w-3.5 h-3.5 text-emerald-600" />
-                Work Location & Mobility
-              </h3>
+        {/* RESUME BODY CONTENT */}
+        <main className="space-y-6 pt-5">
+          {/* 1. PROFESSIONAL SUMMARY */}
+          {data.bio && (
+            <section>
+              <h2 className="text-xs font-bold uppercase tracking-wider text-[#111827] border-b border-[#111827] pb-1 mb-2.5">
+                Professional Summary
+              </h2>
+              <p className="text-xs sm:text-sm text-[#374151] leading-relaxed font-normal">
+                {data.bio}
+              </p>
+            </section>
+          )}
 
-              <div className="space-y-2 text-xs">
-                <div>
-                  <span className="text-[11px] text-slate-400 block font-medium">Primary Area</span>
-                  <span className="font-bold text-slate-800">
-                    {data.area ? `${data.area}, ` : ''}{data.city || data.location || 'Location on request'}
-                  </span>
-                </div>
-
-                <div>
-                  <span className="text-[11px] text-slate-400 block font-medium">Relocation Readiness</span>
-                  <span className={`font-bold ${data.willingToRelocate ? 'text-emerald-600' : 'text-slate-700'}`}>
-                    {data.willingToRelocate ? '✓ Open to relocate' : 'Local city only'}
-                  </span>
-                </div>
-
-                {data.preferredCities && data.preferredCities.length > 0 && (
-                  <div className="pt-1 border-t border-slate-100">
-                    <span className="text-[11px] text-slate-400 block font-medium mb-1">Preferred Cities</span>
-                    <p className="font-bold text-slate-700 text-[11px]">
-                      {data.preferredCities.join(', ')}
-                    </p>
+          {/* 2. CORE COMPETENCIES & TECHNICAL SKILLS */}
+          {skillsList.length > 0 && (
+            <section>
+              <h2 className="text-xs font-bold uppercase tracking-wider text-[#111827] border-b border-[#111827] pb-1 mb-2.5 flex items-center justify-between">
+                <span>Core Competencies & Technical Skills</span>
+                <span className="text-[10px] font-normal text-slate-500 lowercase">({skillsList.length} verified competencies)</span>
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-2 gap-x-6 text-xs text-[#374151] font-medium">
+                {skillsList.map((skill, idx) => (
+                  <div key={idx} className="flex items-start gap-2">
+                    <span className="text-slate-900 font-bold leading-none mt-0.5">•</span>
+                    <span className="leading-tight">{skill}</span>
                   </div>
-                )}
+                ))}
               </div>
-            </div>
+            </section>
+          )}
 
-            {/* TrustHyre Authenticity Guarantee Stamp */}
-            <div className="p-4 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50/70 border border-blue-100 text-center space-y-1.5 shadow-xs">
-              <div className="w-9 h-9 rounded-full bg-white shadow-xs mx-auto flex items-center justify-center text-[#0066FF]">
-                <ShieldCheck className="w-5 h-5" />
+          {/* 3. TARGET JOB ROLES & INDUSTRY SPECIALIZATIONS */}
+          {data.preferredRoles && data.preferredRoles.length > 0 && (
+            <section>
+              <h2 className="text-xs font-bold uppercase tracking-wider text-[#111827] border-b border-[#111827] pb-1 mb-2.5">
+                Target Roles & Career Domains
+              </h2>
+              <div className="flex flex-wrap gap-2 text-xs">
+                {data.preferredRoles.map((role, idx) => (
+                  <span 
+                    key={idx}
+                    className="px-2.5 py-1 bg-slate-50 border border-slate-300 rounded font-medium text-slate-800"
+                  >
+                    {role}
+                  </span>
+                ))}
               </div>
-              <p className="text-xs font-black text-[#0A1931]">TrustHyre Verified</p>
-              <p className="text-[10px] text-slate-500 leading-relaxed">
-                Candidate identity & phone credentials verified across TrustHyre candidate network.
+            </section>
+          )}
+
+          {/* 4. WORK EXPERIENCE & PROFESSIONAL HISTORY */}
+          <section>
+            <h2 className="text-xs font-bold uppercase tracking-wider text-[#111827] border-b border-[#111827] pb-1 mb-2.5">
+              Work Experience & Practical Training
+            </h2>
+            <div className="space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1">
+                <div>
+                  <h3 className="text-xs sm:text-sm font-bold text-[#111827]">
+                    {data.preferredRoles?.[0] || skillsList[0] || 'Technical Specialist'}
+                  </h3>
+                  <p className="text-xs text-[#4B5563] mt-0.5">
+                    {data.experienceYears && data.experienceYears > 0 
+                      ? `${data.experienceYears}+ Years Practical Industry Experience`
+                      : 'Entry-Level / Fresher — Trained & Prepared for Placement'}
+                  </p>
+                </div>
+                <span className="text-[11px] font-semibold text-slate-600 sm:text-right">
+                  TrustHyre Verified Profile
+                </span>
+              </div>
+              <p className="text-xs text-[#374151] leading-relaxed">
+                Demonstrated practical competence in trade operations, safety protocols, and daily task fulfillment. Background details and identity verified through TrustHyre candidate network.
               </p>
             </div>
-          </div>
-        </div>
+          </section>
 
-        {/* CV Footer */}
-        <div className="mt-8 pt-4 border-t border-slate-200 flex items-center justify-between text-[11px] text-slate-400">
-          <span>Generated via TrustHyre Candidate Network</span>
-          <span className="font-semibold text-slate-500">trusthyre.com/candidate</span>
-        </div>
+          {/* 5. EDUCATION & ACADEMIC CREDENTIALS */}
+          <section>
+            <h2 className="text-xs font-bold uppercase tracking-wider text-[#111827] border-b border-[#111827] pb-1 mb-2.5">
+              Education & Academic Background
+            </h2>
+            <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1 text-xs">
+              <div className="space-y-0.5">
+                <p className="text-xs sm:text-sm font-bold text-[#111827]">
+                  {data.degree || data.highestEducation || 'Graduate / Diploma / Secondary Education'}
+                  {data.isPursuingEducation && ' (Currently Pursuing)'}
+                </p>
+                {data.collegeName && (
+                  <p className="text-xs text-[#4B5563]">
+                    {data.collegeName} {data.specialization ? `• ${data.specialization}` : ''}
+                  </p>
+                )}
+                {data.schoolMedium && (
+                  <p className="text-[11px] text-slate-500">
+                    Medium of Instruction: <span className="font-semibold text-slate-700">{data.schoolMedium}</span>
+                  </p>
+                )}
+              </div>
+              <div className="text-[11px] font-semibold text-slate-600 sm:text-right">
+                {data.isPursuingEducation ? 'In Progress' : 'Completed'}
+              </div>
+            </div>
+          </section>
+
+          {/* 6. LANGUAGES & COMMUNICATION */}
+          <section>
+            <h2 className="text-xs font-bold uppercase tracking-wider text-[#111827] border-b border-[#111827] pb-1 mb-2.5">
+              Languages & Communication
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-[#374151]">
+              <div>
+                <span className="font-semibold text-slate-900 block">English Language Proficiency</span>
+                <span className="text-slate-600 mt-0.5 block">{getEnglishLabel(data.englishProficiency)}</span>
+              </div>
+
+              {data.languagesKnown && data.languagesKnown.length > 0 && (
+                <div>
+                  <span className="font-semibold text-slate-900 block">Additional Languages Known</span>
+                  <span className="text-slate-600 mt-0.5 block">{data.languagesKnown.join(', ')}</span>
+                </div>
+              )}
+            </div>
+          </section>
+
+          {/* 7. MOBILITY & WORK AVAILABILITY */}
+          <section>
+            <h2 className="text-xs font-bold uppercase tracking-wider text-[#111827] border-b border-[#111827] pb-1 mb-2.5">
+              Work Availability & Mobility
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs text-[#374151]">
+              <div>
+                <span className="font-semibold text-slate-900 block">Base Location</span>
+                <span className="text-slate-600 mt-0.5 block">{locationString}</span>
+              </div>
+
+              <div>
+                <span className="font-semibold text-slate-900 block">Relocation Readiness</span>
+                <span className="text-slate-600 mt-0.5 block">
+                  {data.willingToRelocate ? 'Open to Relocation' : 'Local City Commute Only'}
+                </span>
+              </div>
+
+              {data.preferredCities && data.preferredCities.length > 0 && (
+                <div>
+                  <span className="font-semibold text-slate-900 block">Preferred Cities</span>
+                  <span className="text-slate-600 mt-0.5 block">{data.preferredCities.join(', ')}</span>
+                </div>
+              )}
+            </div>
+          </section>
+        </main>
+
+        {/* RESUME FOOTER */}
+        <footer className="mt-10 pt-3 border-t border-slate-300 flex flex-col sm:flex-row items-center justify-between text-[11px] text-slate-500 font-medium">
+          <span>TrustHyre Candidate Network • Candidate Identity & Record Verified</span>
+          <span className="mt-1 sm:mt-0 font-semibold text-slate-600">trusthyre.com/candidate</span>
+        </footer>
       </div>
 
-      {/* Dedicated Print Stylesheet for A4 output */}
+      {/* Clean A4 Print Stylesheet */}
       <style>{`
         @media print {
           @page {
             size: A4 portrait;
-            margin: 0;
+            margin: 12mm 14mm;
           }
           body * {
             visibility: hidden !important;
@@ -447,14 +462,13 @@ export const CandidateResumeView: React.FC<CandidateResumeViewProps> = ({
             visibility: visible !important;
           }
           #printable-candidate-cv {
-            position: fixed !important;
+            position: absolute !important;
             left: 0 !important;
             top: 0 !important;
-            width: 100vw !important;
-            max-width: 100vw !important;
-            min-height: 100vh !important;
+            width: 100% !important;
+            max-width: 100% !important;
             margin: 0 !important;
-            padding: 14mm 16mm !important;
+            padding: 0 !important;
             background: #FFFFFF !important;
             box-shadow: none !important;
             border: none !important;

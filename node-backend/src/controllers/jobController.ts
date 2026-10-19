@@ -141,7 +141,7 @@ export const createJob = async (c: Context) => {
       title: "Job Published Successfully 🚀",
       message: `Your job posting "${job.title}" is now active and accepting verified applicants.`,
       type: "JOB_POSTED",
-      link: "/dashboard/employer/jobs",
+      link: "/jobs",
       data: { jobId: String(job.id) }
     }).catch(() => {});
 

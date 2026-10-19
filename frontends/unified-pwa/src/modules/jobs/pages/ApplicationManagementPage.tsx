@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { applicationService, type JobApplication } from '../../../services/application.service';
 import { jobService } from '../../../services/job.service';
@@ -25,7 +25,7 @@ import {
   Send,
   Sparkles
 } from 'lucide-react';
-import { useNavigate, Link, useSearchParams } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams, useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { UserAvatar } from '../../../components/common/UserAvatar';
 import { DataTablePagination } from '../../../components/common/DataTablePagination';
@@ -42,10 +42,17 @@ import { toast } from 'sonner';
 
 export default function ApplicationManagementPage() {
   const navigate = useNavigate();
+  const { jobId: routeJobId } = useParams<{ jobId?: string }>();
   const [searchParams] = useSearchParams();
   const queryClient = useQueryClient();
-  const urlJobId = searchParams.get('jobId');
+  const urlJobId = routeJobId || searchParams.get('jobId');
   const [selectedJobId, setSelectedJobId] = useState<string | null>(() => urlJobId || null);
+
+  useEffect(() => {
+    if (urlJobId) {
+      setSelectedJobId(urlJobId);
+    }
+  }, [urlJobId]);
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'PENDING' | 'OFFER_SENT' | 'ACCEPTED' | 'REJECTED'>('ALL');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -99,12 +106,23 @@ export default function ApplicationManagementPage() {
     mutationFn: ({ id, status }: { id: string, status: JobApplication['status'] }) => 
       applicationService.updateStatus(id, status),
     onSuccess: (_, variables) => {
+      // 1. Immediately update applications queries in local TanStack cache for zero-latency sync
+      queryClient.setQueriesData<JobApplication[]>(
+        { queryKey: ['jobs', 'allEmployerApplications'] },
+        (old = []) => (old || []).map(app => app.id === variables.id ? { ...app, status: variables.status } : app)
+      );
+      if (selectedJobId) {
+        queryClient.setQueriesData<JobApplication[]>(
+          { queryKey: ['jobs', 'applications', selectedJobId] },
+          (old = []) => (old || []).map(app => app.id === variables.id ? { ...app, status: variables.status } : app)
+        );
+      }
       queryClient.invalidateQueries({ queryKey: queryKeys.jobs.all });
       queryClient.invalidateQueries({ queryKey: queryKeys.employer.profile });
-      toast.success(`Applicant status updated to ${variables.status}`);
+      toast.success(variables.status === 'OFFER_SENT' ? 'Job offer dispatched to candidate!' : `Applicant status updated to ${variables.status}`);
     },
     onError: (err: any) => {
-      toast.error(err?.message || 'Failed to update applicant status.');
+      toast.error(err?.response?.data?.message || err?.message || 'Failed to update applicant status.');
     }
   });
 
@@ -116,7 +134,15 @@ export default function ApplicationManagementPage() {
     return allApplications.filter(app => app.jobId === jobId && app.status === 'PENDING').length;
   };
 
-  const selectedJob = useMemo(() => jobs.find((j: any) => j.id === selectedJobId), [jobs, selectedJobId]);
+  const { data: directJob } = useQuery({
+    queryKey: ['job', selectedJobId],
+    queryFn: () => jobService.getJobById(selectedJobId!),
+    enabled: Boolean(selectedJobId) && !jobs.some((j: any) => j.id === selectedJobId),
+  });
+
+  const selectedJob = useMemo(() => {
+    return jobs.find((j: any) => j.id === selectedJobId) || directJob;
+  }, [jobs, selectedJobId, directJob]);
 
   const filteredJobs = useMemo(() => {
     if (!jobSearchQuery.trim()) return jobs;
@@ -250,7 +276,10 @@ export default function ApplicationManagementPage() {
                   return (
                     <div
                       key={job.id}
-                        onClick={() => setSelectedJobId(job.id)}
+                        onClick={() => {
+                          setSelectedJobId(job.id);
+                          navigate(`/jobs/${job.id}/applicants`);
+                        }}
                         className={`bg-white rounded-2xl p-5 border transition-all space-y-4 shadow-2xs group cursor-pointer flex flex-col justify-between ${
                           isExpired 
                             ? 'border-rose-200 hover:border-rose-300 bg-rose-50/20' 
@@ -363,6 +392,7 @@ export default function ApplicationManagementPage() {
               onClick={() => {
                 setSelectedJobId(null);
                 setStatusFilter('ALL');
+                navigate('/jobs');
               }}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#f4f4f4] hover:bg-[#e6e8ec] text-[#0a0a0a] text-xs font-medium transition-all cursor-pointer"
             >
@@ -370,7 +400,30 @@ export default function ApplicationManagementPage() {
               <span>Back to All Openings</span>
             </button>
 
-            {/* Selected Job Overview Card */}
+            {!selectedJob && !isJobsLoading ? (
+              <div className="bg-[#f4f4f4] rounded-[2rem] p-10 border border-[#e6e8ec] text-center space-y-4">
+                <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center mx-auto text-[#717784] border border-[#e6e8ec] shadow-xs">
+                  <Briefcase className="w-7 h-7 text-[#0f2f63]" />
+                </div>
+                <h3 className="text-lg font-bold text-[#0a0a0a]">Opening Not Found</h3>
+                <p className="text-xs text-[#717784] max-w-md mx-auto">
+                  The requested job opening could not be located in your listings. It may have been archived or removed.
+                </p>
+                <button
+                  onClick={() => {
+                    setSelectedJobId(null);
+                    setStatusFilter('ALL');
+                    navigate('/jobs');
+                  }}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#0f2f63] hover:bg-[#2563c9] text-white rounded-full text-xs font-semibold uppercase tracking-wider shadow-xs transition-all cursor-pointer"
+                >
+                  <ArrowRight className="w-3.5 h-3.5" />
+                  <span>View All Active Openings</span>
+                </button>
+              </div>
+            ) : (
+              <>
+                {/* Selected Job Overview Card */}
             {(() => {
               const isSelectedJobExpired = Boolean(
                 selectedJob?.isExpired ||
@@ -609,16 +662,26 @@ export default function ApplicationManagementPage() {
                             <button
                               onClick={() => mutation.mutate({ id: app.id, status: 'OFFER_SENT' })}
                               disabled={mutation.isPending}
-                              className="px-4 py-2 bg-[#0f2f63] hover:bg-[#2563c9] text-white rounded-full text-xs font-semibold uppercase transition-all shadow-xs cursor-pointer"
+                              className="px-4 py-2 bg-[#0f2f63] hover:bg-[#2563c9] text-white rounded-full text-xs font-semibold uppercase transition-all shadow-xs cursor-pointer flex items-center gap-1.5 disabled:opacity-60"
                             >
-                              Send Offer
+                              {mutation.isPending && (mutation.variables as any)?.id === app.id && (mutation.variables as any)?.status === 'OFFER_SENT' ? (
+                                <>
+                                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                  <span>Sending Offer...</span>
+                                </>
+                              ) : (
+                                <span>Send Offer</span>
+                              )}
                             </button>
                             <button
-                              onClick={() => mutation.mutate({ id: app.id, status: 'REJECTED' })}
+                              onClick={() => mutation.mutate({ id: app.id, status: 'DECLINED' })}
                               disabled={mutation.isPending}
-                              className="px-3 py-2 bg-white border border-[#e6e8ec] text-rose-600 hover:bg-rose-50 rounded-full text-xs font-semibold uppercase transition-all cursor-pointer"
+                              className="px-3 py-2 bg-white border border-[#e6e8ec] text-rose-600 hover:bg-rose-50 rounded-full text-xs font-semibold uppercase transition-all cursor-pointer flex items-center gap-1 disabled:opacity-60"
                             >
-                              Decline
+                              {mutation.isPending && (mutation.variables as any)?.id === app.id && (mutation.variables as any)?.status === 'DECLINED' && (
+                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              )}
+                              <span>Decline</span>
                             </button>
                           </>
                         )}
@@ -635,15 +698,23 @@ export default function ApplicationManagementPage() {
                             <span>Confirmed for Shift</span>
                           </span>
                         )}
+
+                        {isDeclined && (
+                          <span className="text-xs font-bold text-rose-700 bg-rose-50 px-3 py-1.5 rounded-full border border-rose-200">
+                            Offer Declined
+                          </span>
+                        )}
                       </div>
                     </div>
                   );
                 })}
               </div>
             )}
-
-          </div>
+          </>
         )}
+
+      </div>
+    )}
 
       </main>
     </div>

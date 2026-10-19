@@ -28,6 +28,7 @@ export interface SearchParams {
   level?: string;
   lat?: number;
   lon?: number;
+  includeExpired?: boolean | string;
 }
 
 export interface WorkerSearch {

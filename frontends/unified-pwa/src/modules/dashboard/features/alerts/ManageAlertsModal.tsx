@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { searchAlertService, type SearchAlert } from '../../../../services/searchAlert.service';
 import { 
@@ -28,6 +29,16 @@ export const ManageAlertsModal: React.FC<ManageAlertsModalProps> = ({
 }) => {
   const queryClient = useQueryClient();
 
+  useEffect(() => {
+    if (isOpen) {
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = originalOverflow;
+      };
+    }
+  }, [isOpen]);
+
   const { data: alerts = [], isLoading, refetch } = useQuery<SearchAlert[]>({
     queryKey: ['searchAlerts', alertType],
     queryFn: () => searchAlertService.getMyAlerts(alertType),
@@ -53,14 +64,17 @@ export const ManageAlertsModal: React.FC<ManageAlertsModalProps> = ({
 
   const isJobAlert = alertType === 'JOB_ALERT';
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs font-['Onest',system-ui,sans-serif] animate-in fade-in duration-200">
+  return createPortal(
+    <div 
+      className="fixed inset-0 z-[99999] flex items-center justify-center p-3 sm:p-4 md:p-6 bg-black/60 backdrop-blur-xs font-['Onest',system-ui,sans-serif] overflow-hidden select-none animate-in fade-in duration-200"
+      onClick={onClose}
+    >
       <div 
-        className="relative w-full max-w-xl bg-white rounded-3xl shadow-2xl border border-[#e6e8ec] overflow-hidden flex flex-col max-h-[90vh]"
+        className="relative w-full max-w-xl bg-white rounded-3xl shadow-2xl border border-[#e6e8ec] overflow-hidden flex flex-col max-h-[85vh] sm:max-h-[88vh] select-text"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="p-6 bg-[#0f2f63] text-white flex items-center justify-between">
+        <div className="p-6 bg-[#0f2f63] text-white flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-white/10 border border-white/10 flex items-center justify-center text-white">
               <Bell className="w-5 h-5 text-[#5790e6]" />
@@ -84,8 +98,8 @@ export const ManageAlertsModal: React.FC<ManageAlertsModalProps> = ({
           </button>
         </div>
 
-        {/* Alerts List Body */}
-        <div className="p-6 overflow-y-auto space-y-4 flex-1">
+        {/* Alerts List Body - Single Scrollable Region */}
+        <div className="p-6 overflow-y-auto overscroll-contain space-y-4 flex-1 min-h-0 [scrollbar-width:thin] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-slate-300 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-slate-400">
           {isLoading ? (
             <div className="py-12 flex items-center justify-center">
               <AppLoader message="Loading your alerts..." />
@@ -192,7 +206,7 @@ export const ManageAlertsModal: React.FC<ManageAlertsModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="p-4 bg-[#f4f4f4] border-t border-[#e6e8ec] flex items-center justify-between text-xs text-[#717784]">
+        <div className="p-4 bg-[#f4f4f4] border-t border-[#e6e8ec] flex items-center justify-between text-xs text-[#717784] shrink-0">
           <span className="flex items-center gap-1.5">
             <Sparkles className="w-3.5 h-3.5 text-[#2563c9]" />
             Enterprise Reverse Search Alert System
@@ -205,6 +219,7 @@ export const ManageAlertsModal: React.FC<ManageAlertsModalProps> = ({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { Bell, CheckCircle2, Info, AlertTriangle, Briefcase, Award, ShieldCheck, X } from 'lucide-react';
+import { Bell, CheckCircle2, Info, AlertTriangle, Briefcase, Award, ShieldCheck, X, Users } from 'lucide-react';
 import { fcmService } from '../../../services/fcm.service';
 import { useAuth } from '../../../providers/AuthContext';
 
@@ -75,7 +75,16 @@ export const NotificationListener = () => {
         action: {
           label: 'View',
           onClick: () => {
-            navigate(link || '/notifications');
+            let targetLink = link || '/notifications';
+            if (targetLink.includes('/dashboard/employer/jobs')) {
+              const match = targetLink.match(/\/dashboard\/employer\/jobs\/([^\/]+)/);
+              if (match && match[1] && match[1] !== 'applicants') {
+                targetLink = `/jobs/${match[1]}/applicants`;
+              } else {
+                targetLink = '/jobs';
+              }
+            }
+            navigate(targetLink);
             queryClient.invalidateQueries({ queryKey: ['notifications'] });
             queryClient.invalidateQueries({ queryKey: ['unreadCount'] });
           }
@@ -174,6 +183,9 @@ const getNotificationIcon = (type?: string) => {
   }
   if (t === 'JOB_MATCH_ALERT' || t === 'JOB_POSTED') {
     return <Briefcase className="w-5 h-5 text-blue-500" />;
+  }
+  if (t === 'CANDIDATE_MATCH_ALERT' || t === 'CANDIDATE_ALERT') {
+    return <Users className="w-5 h-5 text-indigo-500" />;
   }
   if (t === 'SKILL_BADGE_EARNED') {
     return <Award className="w-5 h-5 text-amber-500" />;

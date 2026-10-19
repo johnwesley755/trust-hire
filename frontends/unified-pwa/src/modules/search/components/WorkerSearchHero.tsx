@@ -83,14 +83,9 @@ export const WorkerSearchHero: React.FC<WorkerSearchHeroProps> = ({
         
         {/* Title & Counter */}
         <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#0f2f63] animate-pulse" />
-            <span className="text-[10px] font-medium uppercase text-[#0f2f63]">
-              Verified Directory
-            </span>
-          </div>
+        
 
-          <h1 className="text-xl sm:text-2xl lg:text-3xl font-medium uppercase leading-tight text-[#0A1931]">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold leading-tight text-[#0A1931]">
             {resolvedTitle}
           </h1>
           
