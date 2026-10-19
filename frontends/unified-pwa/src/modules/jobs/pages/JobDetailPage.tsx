@@ -85,12 +85,18 @@ export default function JobDetailPage() {
 
   const employer = (job as any)?.employerProfile || (job as any)?.employer || null;
   const isEmployer = user?.role === 'EMPLOYER' || user?.id === (job as any)?.employerId || user?.id === (job as any)?.employer?.userId;
-  const expiryDate = (job as any)?.expiresAt || (job as any)?.expires_at;
+  const rawExpiry = (job as any)?.expiresAt || (job as any)?.expires_at;
+  const createdDate = (job as any)?.createdAt || (job as any)?.created_at;
+  const effectiveExpiry = rawExpiry
+    ? new Date(rawExpiry)
+    : (createdDate ? new Date(new Date(createdDate).getTime() + 30 * 24 * 60 * 60 * 1000) : null);
+
   const isExpired = Boolean(
     (job as any)?.isExpired || 
     (job as any)?.status === 'EXPIRED' || 
-    (expiryDate && new Date(expiryDate).getTime() <= Date.now())
+    (effectiveExpiry && effectiveExpiry.getTime() <= Date.now())
   );
+  const expiryDate = rawExpiry || effectiveExpiry?.toISOString();
 
   const { data: employerJobApps = [] } = useQuery({
     queryKey: queryKeys.jobs.allEmployerApplications(id ? [id] : []),

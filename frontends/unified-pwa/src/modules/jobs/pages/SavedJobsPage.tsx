@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useSavedStore } from '../../../hooks/useSavedStore';
+import { useSavedStore, type SavedJob } from '../../../hooks/useSavedStore';
 import { DataTablePagination } from '../../../components/common/DataTablePagination';
 import { 
   Bookmark, 
@@ -13,6 +13,17 @@ import {
   Search,
   IndianRupee
 } from 'lucide-react';
+
+const getEffectiveExpiryDate = (job: SavedJob): Date | null => {
+  if (job.expiresAt) {
+    return new Date(job.expiresAt);
+  }
+  const dateBase = job.createdAt || job.savedAt;
+  if (dateBase) {
+    return new Date(new Date(dateBase).getTime() + 30 * 24 * 60 * 60 * 1000);
+  }
+  return null;
+};
 
 export const SavedJobsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -134,7 +145,11 @@ export const SavedJobsPage: React.FC = () => {
                           const companyName = job.companyName || 'Verified Employer';
                           const companyInitial = companyName.charAt(0).toUpperCase();
                           const locationText = job.city || job.location || 'Local Area';
-                          const isExpired = Boolean(job.expiresAt && new Date(job.expiresAt).getTime() <= Date.now());
+                          const effectiveExpiry = getEffectiveExpiryDate(job);
+                          const isExpired = Boolean(
+                            job.status === 'EXPIRED' || 
+                            (effectiveExpiry && effectiveExpiry.getTime() <= Date.now())
+                          );
 
                           return (
                             <tr

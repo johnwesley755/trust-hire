@@ -15,6 +15,8 @@ export interface SavedJob {
   jobType?: string;
   experienceText?: string;
   experienceYearsRequired?: number;
+  status?: string;
+  createdAt?: string;
   expiresAt?: string;
   savedAt: string;
 }
@@ -162,6 +164,9 @@ export const useSavedStore = (options?: UseSavedStoreOptions) => {
         jobType: job.jobType || 'Full-Time',
         experienceText: job.experienceText,
         experienceYearsRequired: job.experienceYearsRequired,
+        status: job.status,
+        createdAt: job.createdAt,
+        expiresAt: job.expiresAt,
         savedAt: new Date().toISOString(),
       };
       updated = [newJob, ...current];

@@ -267,10 +267,12 @@ export default function ApplicationManagementPage() {
                 {paginatedJobs.map((job: any) => {
                   const totalCount = getApplicationCountForJob(job.id);
                   const pendingCount = getPendingCountForJob(job.id);
+                  const effectiveExpiry = job.expiresAt ? new Date(job.expiresAt) : (job.createdAt ? new Date(new Date(job.createdAt).getTime() + 30 * 24 * 60 * 60 * 1000) : null);
                   const isExpired = Boolean(
                     job.isExpired || 
                     job.status === 'EXPIRED' || 
-                    (job.expiresAt && new Date(job.expiresAt).getTime() <= Date.now())
+                    job.status === 'CLOSED' ||
+                    (effectiveExpiry && effectiveExpiry.getTime() <= Date.now())
                   );
 
                   return (

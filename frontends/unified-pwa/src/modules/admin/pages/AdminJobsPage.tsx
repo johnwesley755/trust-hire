@@ -94,10 +94,15 @@ export const AdminJobsPage: React.FC = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
           {jobs.map((job: any) => {
+            const rawExpiry = job.expiresAt || job.expires_at;
+            const createdDate = job.createdAt || job.created_at;
+            const effectiveExpiry = rawExpiry
+              ? new Date(rawExpiry)
+              : (createdDate ? new Date(new Date(createdDate).getTime() + 30 * 24 * 60 * 60 * 1000) : null);
             const isExpired = Boolean(
               job.status === 'EXPIRED' ||
-              (job.expires_at && new Date(job.expires_at).getTime() <= Date.now()) ||
-              (job.expiresAt && new Date(job.expiresAt).getTime() <= Date.now())
+              job.status === 'CLOSED' ||
+              (effectiveExpiry && effectiveExpiry.getTime() <= Date.now())
             );
 
             return (

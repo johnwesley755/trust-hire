@@ -9,7 +9,14 @@ const ALLOWED_JOB_STATUSES = ['OPEN', 'ACTIVE', 'IN_PROGRESS', 'COMPLETED', 'EXP
 
 const formatJob = (job: any) => {
   if (!job) return job;
-  const isExpired = Boolean(job.expires_at && new Date(job.expires_at).getTime() <= Date.now());
+  const effectiveExpiry = job.expires_at 
+    ? new Date(job.expires_at) 
+    : (job.created_at ? new Date(new Date(job.created_at).getTime() + 30 * 24 * 60 * 60 * 1000) : null);
+  const isExpired = Boolean(
+    job.status === 'EXPIRED' ||
+    job.status === 'CLOSED' ||
+    (effectiveExpiry && effectiveExpiry.getTime() <= Date.now())
+  );
   const effectiveStatus = isExpired && (job.status === 'OPEN' || job.status === 'ACTIVE')
     ? 'EXPIRED'
     : (job.status || 'OPEN');
@@ -37,7 +44,7 @@ const formatJob = (job: any) => {
     budget: job.budget != null ? Number(job.budget) : 0,
     createdAt: job.created_at,
     updatedAt: job.updated_at,
-    expiresAt: job.expires_at,
+    expiresAt: (job.expires_at || effectiveExpiry)?.toISOString(),
   };
 };
 
@@ -62,8 +69,8 @@ export const createJob = async (c: Context) => {
       ? data.requiredSkills.join(', ') 
       : (typeof data.requiredSkills === 'string' ? data.requiredSkills : '');
 
-    // Optional auto-expiry: Only persist date if provided and valid
-    let expiresAt: Date | null = null;
+    // Auto-expiry: Persist provided date or default to 30 days from now
+    let expiresAt: Date = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
     const rawExpiry = data.expiresAt || data.expires_at;
     if (rawExpiry && typeof rawExpiry === 'string' && rawExpiry.trim() !== '') {
       const parsed = new Date(rawExpiry);
@@ -171,11 +178,16 @@ export const getAllJobs = async (c: Context) => {
   try {
     const { query, category, industry, location, city } = c.req.query();
 
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+
     // Proactively mark passed jobs as EXPIRED
     await prisma.jobs.updateMany({
       where: {
         status: 'OPEN',
-        expires_at: { lte: new Date() }
+        OR: [
+          { expires_at: { lte: new Date() } },
+          { expires_at: null, created_at: { lte: thirtyDaysAgo } }
+        ]
       },
       data: { status: 'EXPIRED' }
     }).catch(() => {});
@@ -185,8 +197,8 @@ export const getAllJobs = async (c: Context) => {
       AND: [
         {
           OR: [
-            { expires_at: null },
-            { expires_at: { gt: new Date() } }
+            { expires_at: { gt: new Date() } },
+            { expires_at: null, created_at: { gt: thirtyDaysAgo } }
           ]
         }
       ]
@@ -238,8 +250,17 @@ export const getJobById = async (c: Context) => {
     });
     if (!job) return c.json(ApiResponse.error("Job not found"), 404 as any);
 
+    const effectiveExpiry = job.expires_at 
+      ? new Date(job.expires_at) 
+      : (job.created_at ? new Date(new Date(job.created_at).getTime() + 30 * 24 * 60 * 60 * 1000) : null);
+    const isJobExpired = Boolean(
+      job.status === 'EXPIRED' ||
+      job.status === 'CLOSED' ||
+      (effectiveExpiry && effectiveExpiry.getTime() <= Date.now())
+    );
+
     // If job has passed its expiration date and is still marked OPEN, sync status to EXPIRED
-    if (job.status === 'OPEN' && job.expires_at && new Date(job.expires_at).getTime() <= Date.now()) {
+    if (job.status === 'OPEN' && isJobExpired) {
       await prisma.jobs.update({
         where: { id },
         data: { status: 'EXPIRED', updated_at: new Date() }

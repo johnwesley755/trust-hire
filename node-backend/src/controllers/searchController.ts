@@ -6,11 +6,16 @@ export const searchJobs = async (c: Context) => {
   try {
     const { query, category, industry, location, city, jobType, minSalary, maxSalary, minExperience, maxExperience, sortBy, employerId, includeExpired } = c.req.query();
 
-    // Proactively sync expired open jobs
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+
+    // Proactively sync expired open jobs (by expires_at or 30-day default lifetime)
     await prisma.jobs.updateMany({
       where: {
         status: 'OPEN',
-        expires_at: { lte: new Date() }
+        OR: [
+          { expires_at: { lte: new Date() } },
+          { expires_at: null, created_at: { lte: thirtyDaysAgo } }
+        ]
       },
       data: { status: 'EXPIRED' }
     }).catch(() => {});
@@ -23,8 +28,8 @@ export const searchJobs = async (c: Context) => {
       whereClause.status = 'OPEN';
       whereClause.AND.push({
         OR: [
-          { expires_at: null },
-          { expires_at: { gt: new Date() } }
+          { expires_at: { gt: new Date() } },
+          { expires_at: null, created_at: { gt: thirtyDaysAgo } }
         ]
       });
     }
@@ -111,22 +116,31 @@ export const searchJobs = async (c: Context) => {
             ? 'Contract' 
             : 'Full Time');
 
-      return {
-        id: j.id,
-        title: j.title,
-        description: j.description || '',
-        industry: j.industry || 'General',
-        jobType: defaultJobType,
-        location: j.location || '',
-        city: j.city || '',
-        budget: j.budget ? Number(j.budget) : 0,
-        experienceYearsRequired: j.experience_years_required != null ? Number(j.experience_years_required) : 0,
-        experienceLevel: 'Standard',
-        status: (j.expires_at && new Date(j.expires_at).getTime() <= Date.now()) ? 'EXPIRED' : (j.status || 'OPEN'),
-        expiresAt: j.expires_at,
-        isExpired: Boolean(j.expires_at && new Date(j.expires_at).getTime() <= Date.now()),
-        createdAt: j.created_at,
-        updatedAt: j.updated_at,
+        const effectiveExpiry = j.expires_at 
+          ? new Date(j.expires_at) 
+          : (j.created_at ? new Date(new Date(j.created_at).getTime() + 30 * 24 * 60 * 60 * 1000) : null);
+        const isJobExpired = Boolean(
+          j.status === 'EXPIRED' ||
+          j.status === 'CLOSED' ||
+          (effectiveExpiry && effectiveExpiry.getTime() <= Date.now())
+        );
+
+        return {
+          id: j.id,
+          title: j.title,
+          description: j.description || '',
+          industry: j.industry || 'General',
+          jobType: defaultJobType,
+          location: j.location || '',
+          city: j.city || '',
+          budget: j.budget ? Number(j.budget) : 0,
+          experienceYearsRequired: j.experience_years_required != null ? Number(j.experience_years_required) : 0,
+          experienceLevel: 'Standard',
+          status: isJobExpired ? 'EXPIRED' : (j.status || 'OPEN'),
+          expiresAt: (j.expires_at || effectiveExpiry)?.toISOString(),
+          isExpired: isJobExpired,
+          createdAt: j.created_at,
+          updatedAt: j.updated_at,
         requiredSkills: sIndex?.required_skills
           ? sIndex.required_skills.split(',').map((s: string) => s.trim()).filter(Boolean)
           : [],

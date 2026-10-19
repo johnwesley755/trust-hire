@@ -43,7 +43,7 @@ export default function JobSearchPage() {
   // Pagination & Display State
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
-  const [hideExpired, setHideExpired] = useState(false);
+  const [hideExpired, setHideExpired] = useState(true);
 
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [isJobAlertModalOpen, setIsJobAlertModalOpen] = useState(false);
@@ -271,12 +271,17 @@ export default function JobSearchPage() {
   // Format job data for rendering
   const formattedJobs: JobCardData[] = useMemo(() => {
     return jobs.map((j: any) => {
+      const rawExpiry = j.expiresAt || j.expires_at;
+      const createdDate = j.createdAt || j.created_at;
+      const effectiveExpiry = rawExpiry
+        ? new Date(rawExpiry)
+        : (createdDate ? new Date(new Date(createdDate).getTime() + 30 * 24 * 60 * 60 * 1000) : null);
+
       const isExpired = Boolean(
         j.isExpired ||
         j.status === 'EXPIRED' ||
         j.status === 'CLOSED' ||
-        (j.expires_at && new Date(j.expires_at).getTime() <= Date.now()) ||
-        (j.expiresAt && new Date(j.expiresAt).getTime() <= Date.now())
+        (effectiveExpiry && effectiveExpiry.getTime() <= Date.now())
       );
 
       return {
@@ -290,8 +295,8 @@ export default function JobSearchPage() {
         budget: j.budget,
         experienceYearsRequired: j.experienceYearsRequired ?? j.experience_years_required ?? 0,
         status: isExpired ? 'EXPIRED' : (j.status || 'OPEN'),
-        createdAt: j.createdAt || j.created_at,
-        expiresAt: j.expiresAt || j.expires_at,
+        createdAt: createdDate,
+        expiresAt: rawExpiry || effectiveExpiry?.toISOString(),
         isExpired,
         employerProfile: j.employerProfile,
         hasApplied: appliedJobIdsMap.has(j.id),

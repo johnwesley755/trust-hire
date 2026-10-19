@@ -33,7 +33,16 @@ export const applyForJob = async (c: Context) => {
     if (!job) return c.json(ApiResponse.error("Job not found"), 404 as any);
 
     // Validate that job is not expired
-    if (job.status === 'EXPIRED' || (job.expires_at && new Date(job.expires_at).getTime() <= Date.now())) {
+    const effectiveExpiry = job.expires_at 
+      ? new Date(job.expires_at) 
+      : (job.created_at ? new Date(new Date(job.created_at).getTime() + 30 * 24 * 60 * 60 * 1000) : null);
+    const isJobExpired = Boolean(
+      job.status === 'EXPIRED' ||
+      job.status === 'CLOSED' ||
+      (effectiveExpiry && effectiveExpiry.getTime() <= Date.now())
+    );
+
+    if (isJobExpired) {
       if (job.status === 'OPEN') {
         await prisma.jobs.update({
           where: { id: jobId },

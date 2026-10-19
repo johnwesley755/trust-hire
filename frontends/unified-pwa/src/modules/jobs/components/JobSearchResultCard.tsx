@@ -43,11 +43,15 @@ export const JobSearchResultCard: React.FC<JobSearchResultCardProps> = ({
   const { isJobSaved, toggleSaveJob } = useSavedStore();
   const isSaved = isJobSaved(job.id);
 
+  const effectiveExpiry = job.expiresAt
+    ? new Date(job.expiresAt)
+    : (job.createdAt ? new Date(new Date(job.createdAt).getTime() + 30 * 24 * 60 * 60 * 1000) : null);
+
   const isExpired = Boolean(
     job.isExpired || 
     job.status === 'EXPIRED' || 
     job.status === 'CLOSED' ||
-    (job.expiresAt && new Date(job.expiresAt).getTime() <= Date.now())
+    (effectiveExpiry && effectiveExpiry.getTime() <= Date.now())
   );
 
   const companyName = job.employerProfile?.companyName || 'Verified Employer';
@@ -167,6 +171,8 @@ export const JobSearchResultCard: React.FC<JobSearchResultCardProps> = ({
               jobType: job.jobType,
               experienceText,
               experienceYearsRequired: job.experienceYearsRequired,
+              status: job.status,
+              createdAt: job.createdAt,
               expiresAt: job.expiresAt,
             });
           }}
@@ -216,13 +222,13 @@ export const JobSearchResultCard: React.FC<JobSearchResultCardProps> = ({
               <span className="text-[#0a0a0a] font-medium">{postedInfo.formattedDate}</span>
             </>
           )}
-          {job.expiresAt && (
+          {effectiveExpiry && (
             <>
               <span className="text-[#d1d5db]">•</span>
               <span className={`text-[11px] font-medium ${isExpired ? 'text-rose-600 font-semibold' : 'text-[#717784]'}`}>
                 {isExpired 
-                  ? `Expired on ${new Date(job.expiresAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}` 
-                  : `Closes ${new Date(job.expiresAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}`}
+                  ? `Expired on ${effectiveExpiry.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}` 
+                  : `Closes ${effectiveExpiry.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}`}
               </span>
             </>
           )}
