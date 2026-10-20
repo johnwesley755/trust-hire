@@ -24,7 +24,7 @@ export function LandingProcess() {
               <span className="material-symbols-outlined text-3xl font-bold">badge</span>
             </div>
             <span className="text-sm font-bold text-primary/40 uppercase tracking-widest mb-4 block">Step 02</span>
-            <h3 className="text-2xl font-extrabold text-primary mb-4">Aadhaar</h3>
+            <h3 className="text-2xl font-extrabold text-primary mb-4">Identity Verification</h3>
             <p className="text-primary/70 leading-relaxed">Securely verify your identity. We keep your data safe and private always.</p>
           </div>
           

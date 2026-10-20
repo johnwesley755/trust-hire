@@ -9,6 +9,7 @@ import {
 } from '@react-pdf/renderer';
 import type { ResumeData } from './CandidateResumeView';
 import { formatLocation } from './CandidateResumeView';
+import { normalizeSkills } from '../../../../utils/skills';
 
 // Standard A4 Layout Styles (Strict Monochrome Executive ATS Standard)
 const styles = StyleSheet.create({
@@ -194,9 +195,7 @@ interface CandidateResumePDFDocumentProps {
 }
 
 export const CandidateResumePDFDocument: React.FC<CandidateResumePDFDocumentProps> = ({ data }) => {
-  const skillsList = Array.isArray(data.skills) 
-    ? data.skills 
-    : (data.skills ? data.skills.split(',').map(s => s.trim()).filter(Boolean) : []);
+  const skillsList = normalizeSkills(data.skills);
 
   const getEnglishLabel = (prof?: string) => {
     switch (prof) {

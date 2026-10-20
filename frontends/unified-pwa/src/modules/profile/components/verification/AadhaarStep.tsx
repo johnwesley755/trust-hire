@@ -26,8 +26,8 @@ export default function AadhaarStep({ onUpload, preview, isPending }: AadhaarSte
             <div className="max-w-xl mx-auto md:mx-0 w-full text-left">
                 <div className="mb-10">
                     <span className="inline-block px-4 py-1.5 rounded-full bg-[#ffe081] text-[#231b00] font-bold text-[0.75rem] uppercase tracking-wider mb-6">Identity Verification</span>
-                    <h1 className="font-headline font-extrabold text-4xl md:text-5xl text-[#1b1c19] tracking-tighter leading-[1.1] mb-4">Verify Your Aadhaar</h1>
-                    <p className="text-[#414845] text-lg opacity-80 leading-relaxed font-body">To maintain a high-trust community, we verify the identity of every member. Please provide a clear photo of your Aadhaar card.</p>
+                    <h1 className="font-headline font-extrabold text-4xl md:text-5xl text-[#1b1c19] tracking-tighter leading-[1.1] mb-4">Verify Your Government ID</h1>
+                    <p className="text-[#414845] text-lg opacity-80 leading-relaxed font-body">To maintain a high-trust community, we verify the identity of every member. Please provide a clear photo of your government-issued ID card.</p>
                 </div>
 
                 {/* Drag & Drop Area */}
@@ -41,7 +41,7 @@ export default function AadhaarStep({ onUpload, preview, isPending }: AadhaarSte
                         {isPending ? 'Processing...' : 'Browse Files'}
                     </button>
                     <input 
-                        aria-label="Upload Aadhaar card" 
+                        aria-label="Upload Government ID card" 
                         className="absolute inset-0 opacity-0 cursor-pointer" 
                         type="file" 
                         onChange={handleFileChange}
@@ -55,7 +55,7 @@ export default function AadhaarStep({ onUpload, preview, isPending }: AadhaarSte
                             <img src={preview} alt="ID Preview" className="w-full h-full object-cover" />
                         </div>
                         <div className="flex-1 text-left">
-                            <p className="text-xs font-bold text-[#0A1931] uppercase tracking-widest">Aadhaar Preview</p>
+                            <p className="text-xs font-bold text-[#0A1931] uppercase tracking-widest">Document Preview</p>
                             <p className="text-[10px] text-[#414845]">Ready for verification analysis</p>
                         </div>
                     </div>
@@ -68,7 +68,7 @@ export default function AadhaarStep({ onUpload, preview, isPending }: AadhaarSte
                     </div>
                     <div className="flex-1 text-left">
                         <p className="text-sm text-[#1b1c19] font-bold mb-1 font-headline">Privacy Guarantee</p>
-                        <p className="text-xs text-[#414845] leading-normal font-body">Your Aadhaar is encrypted and deleted immediately after verification. We never store your sensitive details on our permanent servers.</p>
+                        <p className="text-xs text-[#414845] leading-normal font-body">Your ID document is encrypted and verified securely. We never share your sensitive personal credentials.</p>
                     </div>
                 </div>
             </div>

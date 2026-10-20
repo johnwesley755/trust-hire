@@ -2,11 +2,13 @@ import React from 'react';
 import { motion } from 'framer-motion';
 
 interface ExpertiseMatrixProps {
-  skills: string;
+  skills: string | string[];
 }
 
 export const ExpertiseMatrix: React.FC<ExpertiseMatrixProps> = ({ skills }) => {
-  const skillList = skills ? skills.split(',').map(s => s.trim()).filter(s => s) : [];
+  const skillList = Array.isArray(skills)
+    ? skills.map(s => String(s).trim()).filter(Boolean)
+    : (typeof skills === 'string' ? skills.split(',').map(s => s.trim()).filter(Boolean) : []);
 
   return (
     <section className="bg-[#e2e8f0] rounded-[2rem] p-8 lg:p-10 shadow-inner relative overflow-hidden group">

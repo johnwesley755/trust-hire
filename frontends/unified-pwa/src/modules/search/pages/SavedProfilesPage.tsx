@@ -20,8 +20,11 @@ import {
   Briefcase
 } from 'lucide-react';
 
+import { useTranslation } from '../../../providers/TranslationContext';
+
 export const SavedProfilesPage: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { savedWorkers, removeSavedWorker } = useSavedStore();
 
   // Search, View Mode & Pagination State
@@ -72,40 +75,19 @@ export const SavedProfilesPage: React.FC = () => {
           <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-[#0f2f63]/5 to-transparent rounded-full blur-3xl pointer-events-none" />
           
           <div className="relative z-10 space-y-4">
-            {/* 4-Point Hallmark Trust Ribbon */}
-            <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs font-medium text-slate-500 border-b border-slate-100 pb-4">
-              <span className="flex items-center gap-1.5 text-[#0A1931]">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                Verified Talent
-              </span>
-              <span className="text-slate-300">•</span>
-              <span className="flex items-center gap-1.5 text-[#0A1931]">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                Payment Protected
-              </span>
-              <span className="text-slate-300">•</span>
-              <span className="flex items-center gap-1.5 text-[#0A1931]">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                Direct Offer Dispatch
-              </span>
-              <span className="text-slate-300">•</span>
-              <span className="flex items-center gap-1.5 text-[#0A1931]">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                Zero Ghosting Policy
-              </span>
-            </div>
+           
 
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pt-2">
               <div className="space-y-2 max-w-2xl">
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0f2f63]/10 text-[#0f2f63] text-xs font-semibold">
                   <Bookmark className="w-3.5 h-3.5 fill-current" />
-                  <span>SHORTLISTED SPECIALISTS</span>
+                  <span>{t("SHORTLISTED SPECIALISTS", "SHORTLISTED SPECIALISTS")}</span>
                 </div>
                 <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#0A1931] tracking-tight">
-                  Saved Candidate Profiles
+                  {t("Saved Candidate Profiles", "Saved Candidate Profiles")}
                 </h1>
                 <p className="text-slate-500 text-sm leading-relaxed">
-                  Review and manage your bookmarked specialists. Compare skills, track verification status, and extend direct shift offers instantly.
+                  {t("Review and manage your bookmarked specialists. Compare skills, track verification status, and extend direct shift offers instantly.", "Review and manage your bookmarked specialists. Compare skills, track verification status, and extend direct shift offers instantly.")}
                 </p>
               </div>
 
@@ -115,7 +97,7 @@ export const SavedProfilesPage: React.FC = () => {
                   className="rounded-full bg-[#0f2f63] hover:bg-[#2563c9] text-white text-xs sm:text-sm font-medium uppercase px-5 py-3 transition-all flex items-center gap-2 shadow-sm active:scale-95 cursor-pointer"
                 >
                   <Users className="w-4 h-4" />
-                  <span>Browse Talent Directory</span>
+                  <span>{t("Browse Talent Directory", "Browse Talent Directory")}</span>
                 </Link>
               </div>
             </div>
@@ -136,7 +118,7 @@ export const SavedProfilesPage: React.FC = () => {
                     setSearchQuery(e.target.value);
                     setCurrentPage(1);
                   }}
-                  placeholder="Filter by candidate name, skill, or location..."
+                  placeholder={t("Filter by candidate name, skill, or location...", "Filter by candidate name, skill, or location...")}
                   className="w-full pl-9 pr-4 py-2 bg-white border border-slate-200/80 rounded-full text-xs font-medium text-[#0A1931] placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0f2f63]/20 focus:border-[#0f2f63] transition-all"
                 />
               </div>
@@ -144,8 +126,8 @@ export const SavedProfilesPage: React.FC = () => {
               <div className="flex items-center justify-between sm:justify-end gap-3">
                 <span className="text-xs font-medium text-slate-500 px-1">
                   {filteredWorkers.length}{' '}
-                  {filteredWorkers.length === 1 ? 'specialist' : 'specialists'}{' '}
-                  {searchQuery ? 'matching' : 'saved'}
+                  {filteredWorkers.length === 1 ? t("specialist", "specialist") : t("specialists", "specialists")}{' '}
+                  {searchQuery ? t("matching", "matching") : t("saved", "saved")}
                 </span>
 
                 {/* View Mode Toggle */}
@@ -158,7 +140,7 @@ export const SavedProfilesPage: React.FC = () => {
                         ? 'bg-[#0f2f63] text-white shadow-xs'
                         : 'text-slate-500 hover:text-[#0A1931]'
                     }`}
-                    title="Grid View"
+                    title={t("Grid View", "Grid View")}
                   >
                     <LayoutGrid className="w-3.5 h-3.5" />
                   </button>
@@ -170,7 +152,7 @@ export const SavedProfilesPage: React.FC = () => {
                         ? 'bg-[#0f2f63] text-white shadow-xs'
                         : 'text-slate-500 hover:text-[#0A1931]'
                     }`}
-                    title="Table View"
+                    title={t("Table View", "Table View")}
                   >
                     <List className="w-3.5 h-3.5" />
                   </button>
@@ -225,7 +207,7 @@ export const SavedProfilesPage: React.FC = () => {
                               removeSavedWorker(worker.userId);
                             }}
                             className="p-2 rounded-full text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer border border-transparent hover:border-rose-200"
-                            title="Remove from saved profiles"
+                            title={t("Remove from saved profiles", "Remove from saved profiles")}
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -234,10 +216,10 @@ export const SavedProfilesPage: React.FC = () => {
                         {/* Experience & Role Capsule */}
                         <div className="flex items-center gap-2">
                           <span className="px-3 py-1 rounded-full bg-[#0f2f63]/10 text-[#0f2f63] text-xs font-semibold">
-                            {skillList[0] || 'Technical Specialist'}
+                            {skillList[0] ? t(skillList[0], skillList[0]) : t("Technical Specialist", "Technical Specialist")}
                           </span>
                           <span className="px-3 py-1 rounded-full bg-slate-50 border border-slate-200/80 text-[#0A1931] text-xs font-medium">
-                            {worker.experience ? `${worker.experience}+ Yrs Experience` : 'Certified'}
+                            {worker.experience ? `${worker.experience}+ ${t("Yrs Experience", "Yrs Experience")}` : t("Certified", "Certified")}
                           </span>
                         </div>
 
@@ -249,12 +231,12 @@ export const SavedProfilesPage: React.FC = () => {
                                 key={idx}
                                 className="px-2.5 py-0.5 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-medium rounded-full border border-slate-200/60 transition-colors"
                               >
-                                {skill}
+                                {t(skill, skill)}
                               </span>
                             ))}
                             {skillList.length > 4 && (
                               <span className="px-2 py-0.5 text-slate-500 text-xs font-medium self-center">
-                                +{skillList.length - 4} more
+                                +{skillList.length - 4} {t("more", "more")}
                               </span>
                             )}
                           </div>
@@ -264,15 +246,15 @@ export const SavedProfilesPage: React.FC = () => {
                         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-2 text-[11px] text-slate-500 font-medium border-t border-slate-100">
                           <span className="inline-flex items-center gap-1.5 text-[#0A1931]">
                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                            Biometric Checked
+                            {t("Biometric Checked", "Biometric Checked")}
                           </span>
                           <span className="inline-flex items-center gap-1.5 text-[#0A1931]">
                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                            Skill Verified
+                            {t("Skill Verified", "Skill Verified")}
                           </span>
                           <span className="inline-flex items-center gap-1.5 text-[#0A1931]">
                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                            Payment Protected
+                            {t("Payment Protected", "Payment Protected")}
                           </span>
                         </div>
 
@@ -280,7 +262,7 @@ export const SavedProfilesPage: React.FC = () => {
                         <div className="flex items-center justify-between pt-3 border-t border-slate-100 text-xs">
                           <span className="flex items-center gap-1 text-slate-500 text-[11px]">
                             <Clock className="w-3 h-3" />
-                            <span>Saved {new Date(worker.savedAt).toLocaleDateString()}</span>
+                            <span>{t("Saved", "Saved")} {new Date(worker.savedAt).toLocaleDateString()}</span>
                           </span>
 
                           <button
@@ -291,7 +273,7 @@ export const SavedProfilesPage: React.FC = () => {
                             }}
                             className="rounded-full bg-[#0f2f63] hover:bg-[#2563c9] text-white text-xs font-medium uppercase px-4 py-2 transition-all flex items-center gap-1.5 shadow-sm active:scale-95 cursor-pointer"
                           >
-                            <span>View Profile</span>
+                            <span>{t("View Profile", "View Profile")}</span>
                             <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
                           </button>
                         </div>
@@ -300,12 +282,12 @@ export const SavedProfilesPage: React.FC = () => {
                   })
                 ) : (
                   <div className="col-span-full py-12 text-center text-slate-500 bg-white rounded-[2rem] border border-slate-200/80 shadow-xs">
-                    <p className="font-semibold text-sm text-[#0A1931]">No specialists match your filter criteria.</p>
+                    <p className="font-semibold text-sm text-[#0A1931]">{t("No specialists match your filter criteria.", "No specialists match your filter criteria.")}</p>
                     <button
                       onClick={() => setSearchQuery('')}
                       className="mt-2 text-xs font-bold text-[#0f2f63] hover:underline"
                     >
-                      Clear search query
+                      {t("Clear search query", "Clear search query")}
                     </button>
                   </div>
                 )}
@@ -319,12 +301,12 @@ export const SavedProfilesPage: React.FC = () => {
                   <table className="w-full text-left text-xs text-[#0A1931]">
                     <thead className="bg-slate-50/80 text-slate-500 text-xs font-bold border-b border-slate-200/80">
                       <tr>
-                        <th className="px-5 py-4">Specialist</th>
-                        <th className="px-5 py-4">Role & Experience</th>
-                        <th className="px-5 py-4">Location</th>
-                        <th className="px-5 py-4">Key Skills</th>
-                        <th className="px-5 py-4">Saved Date</th>
-                        <th className="px-5 py-4 text-right">Actions</th>
+                        <th className="px-5 py-4">{t("Specialist", "Specialist")}</th>
+                        <th className="px-5 py-4">{t("Role & Experience", "Role & Experience")}</th>
+                        <th className="px-5 py-4">{t("Location", "Location")}</th>
+                        <th className="px-5 py-4">{t("Key Skills", "Key Skills")}</th>
+                        <th className="px-5 py-4">{t("Saved Date", "Saved Date")}</th>
+                        <th className="px-5 py-4 text-right">{t("Actions", "Actions")}</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-200/70">
@@ -351,7 +333,7 @@ export const SavedProfilesPage: React.FC = () => {
                                       {worker.name}
                                     </button>
                                     {worker.isVerified && (
-                                      <span title="Identity Verified" className="inline-flex shrink-0">
+                                      <span title={t("Identity Verified", "Identity Verified")} className="inline-flex shrink-0">
                                         <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
                                       </span>
                                     )}
@@ -368,10 +350,10 @@ export const SavedProfilesPage: React.FC = () => {
                             <td className="px-5 py-4 whitespace-nowrap">
                               <div className="space-y-1">
                                 <span className="font-semibold text-[#0A1931] text-xs block">
-                                  {worker.skills?.[0] || 'Technical Specialist'}
+                                  {worker.skills?.[0] ? t(worker.skills[0], worker.skills[0]) : t("Technical Specialist", "Technical Specialist")}
                                 </span>
                                 <span className="inline-block px-2.5 py-0.5 bg-blue-50 text-[#0f2f63] border border-blue-100/60 rounded-full font-semibold text-[11px]">
-                                  {worker.experience ? `${worker.experience}+ Yrs Exp` : 'Verified'}
+                                  {worker.experience ? `${worker.experience}+ ${t("Yrs Exp", "Yrs Exp")}` : t("Verified", "Verified")}
                                 </span>
                               </div>
                             </td>
@@ -396,7 +378,7 @@ export const SavedProfilesPage: React.FC = () => {
                                         key={idx}
                                         className="px-2 py-0.5 bg-slate-100/90 text-slate-700 text-[10px] font-medium rounded-full border border-slate-200/60 whitespace-nowrap"
                                       >
-                                        {skill}
+                                        {t(skill, skill)}
                                       </span>
                                     ))}
                                     {worker.skills.length > 3 && (
@@ -406,7 +388,7 @@ export const SavedProfilesPage: React.FC = () => {
                                     )}
                                   </>
                                 ) : (
-                                  <span className="text-slate-500 italic text-[11px]">Verified Skills</span>
+                                  <span className="text-slate-500 italic text-[11px]">{t("Verified Skills", "Verified Skills")}</span>
                                 )}
                               </div>
                             </td>
@@ -424,7 +406,7 @@ export const SavedProfilesPage: React.FC = () => {
                                   onClick={() => navigate(`/worker/${worker.userId}`)}
                                   className="rounded-full bg-[#0f2f63] hover:bg-[#2563c9] text-white text-xs font-medium uppercase px-3 py-1.5 transition-all flex items-center gap-1 cursor-pointer"
                                 >
-                                  <span>View</span>
+                                  <span>{t("View", "View")}</span>
                                   <ChevronRight className="w-3.5 h-3.5" />
                                 </button>
 
@@ -432,7 +414,7 @@ export const SavedProfilesPage: React.FC = () => {
                                   type="button"
                                   onClick={() => removeSavedWorker(worker.userId)}
                                   className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-full transition-colors cursor-pointer"
-                                  title="Remove from Saved"
+                                  title={t("Remove from Saved", "Remove from Saved")}
                                 >
                                   <Trash2 className="w-4 h-4" />
                                 </button>
@@ -443,12 +425,12 @@ export const SavedProfilesPage: React.FC = () => {
                       ) : (
                         <tr>
                           <td colSpan={6} className="px-6 py-12 text-center text-slate-500">
-                            <p className="font-semibold text-sm">No specialists match your filter criteria.</p>
+                            <p className="font-semibold text-sm">{t("No specialists match your filter criteria.", "No specialists match your filter criteria.")}</p>
                             <button
                               onClick={() => setSearchQuery('')}
                               className="mt-2 text-xs font-bold text-[#0f2f63] hover:underline"
                             >
-                              Clear search query
+                              {t("Clear search query", "Clear search query")}
                             </button>
                           </td>
                         </tr>
@@ -468,7 +450,7 @@ export const SavedProfilesPage: React.FC = () => {
               pageSizeOptions={[5, 10, 20, 50]}
               onPageChange={handlePageChange}
               onPageSizeChange={handlePageSizeChange}
-              itemName="saved specialists"
+              itemName={t("saved specialists", "saved specialists")}
               className="rounded-[1.5rem] border border-slate-200/80 bg-white p-3 shadow-xs"
             />
           </div>

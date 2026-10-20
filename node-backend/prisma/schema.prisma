@@ -460,4 +460,19 @@ model lead_outreach_logs {
   @@index([lead_id], map: "idx_outreach_lead_id")
 }
 
+model translation_cache {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  content_hash    String   @unique @db.VarChar(64)
+  source_lang     String   @default("en") @db.VarChar(10)
+  target_lang     String   @db.VarChar(10)
+  source_text     String
+  translated_text String
+  hit_count       Int      @default(1)
+  created_at      DateTime @default(now()) @db.Timestamp(6)
+  updated_at      DateTime @default(now()) @db.Timestamp(6)
+
+  @@index([content_hash], map: "idx_trans_content_hash")
+  @@index([target_lang], map: "idx_trans_target_lang")
+}
+
 

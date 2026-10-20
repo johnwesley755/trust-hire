@@ -37,7 +37,7 @@ export interface WorkerProfile {
   longitude?: number;
   level: string;
   bio: string;
-  skills: string;
+  skills: string | string[];
   experienceYears: number;
   hourlyRate: number;
   isAvailable: boolean;

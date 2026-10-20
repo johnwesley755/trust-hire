@@ -201,11 +201,11 @@ export default function WorkerOnboardingPage() {
   const [languagesKnown, setLanguagesKnown] = useState<string[]>(["Tamil", "English", "Hindi"]);
 
   // Step 6: Preferred Job Roles, Skills, Experience & Bio
-  const [preferredRoles, setPreferredRoles] = useState<string[]>(["Cook / Chef / Kitchen Help", "Retail Sales & Operations"]);
+  const [preferredRoles, setPreferredRoles] = useState<string[]>([]);
   const [roleSearchInput, setRoleSearchInput] = useState<string>("");
-  const [skills, setSkills] = useState<string[]>(["Electrician", "Customer Support"]);
+  const [skills, setSkills] = useState<string[]>([]);
   const [skillInput, setSkillInput] = useState<string>("");
-  const [experienceYears, setExperienceYears] = useState<number>(2);
+  const [experienceYears, setExperienceYears] = useState<number>(0);
   const [bio, setBio] = useState<string>("");
 
   // Global Submission & Resume Preview
@@ -560,7 +560,6 @@ export default function WorkerOnboardingPage() {
       // Invalidate worker query caches across the app
       queryClient.invalidateQueries({ queryKey: queryKeys.workers.all });
       queryClient.invalidateQueries({ queryKey: queryKeys.workers.detail('me') });
-      queryClient.invalidateQueries({ queryKey: queryKeys.workers.me });
 
       localStorage.setItem('onboarded', 'true');
       updateUser({

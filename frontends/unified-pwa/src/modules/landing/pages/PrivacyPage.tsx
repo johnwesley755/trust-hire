@@ -189,7 +189,7 @@ export const PrivacyPage: React.FC = () => {
                 </li>
                 <li className="flex items-start gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span><strong>Masked Aadhaar Verification:</strong> Original 12-digit Aadhaar numbers are never stored in clear text.</span>
+                  <span><strong>Secure Identity Verification:</strong> Government identity numbers and document images are never stored in clear text.</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
@@ -234,7 +234,7 @@ export const PrivacyPage: React.FC = () => {
               </p>
               <ul className="list-disc pl-5 space-y-2 text-sm text-slate-600">
                 <li>Connecting qualified workers with employers with matching hiring requirements.</li>
-                <li>Conducting automated Aadhaar and document authenticity checks via certified UIDAI verification partners.</li>
+                <li>Conducting automated document authenticity and KYC checks via certified identity verification partners.</li>
                 <li>Safeguarding advance wage deposits and verifying shift completion for prompt payout.</li>
                 <li>Preventing impersonation, duplicate applications, and fraudulent employer solicitations.</li>
               </ul>
@@ -273,7 +273,7 @@ export const PrivacyPage: React.FC = () => {
                 <li><strong>Cloud Infrastructure:</strong> Cloudflare (Workers, CDN, and DDoS protection) and Neon PostgreSQL (database storage).</li>
                 <li><strong>Media & Document Storage:</strong> Cloudinary (secure encrypted CDN for portfolio and profile pictures).</li>
                 <li><strong>Communications & OTP:</strong> Brevo / Twilio (transactional SMS notifications and password resets).</li>
-                <li><strong>Verification Partners:</strong> Authorized KYC gateways conducting one-time Aadhaar OTP verification.</li>
+                <li><strong>Verification Partners:</strong> Authorized KYC gateways conducting secure document and identity verification.</li>
               </ul>
             </section>
 

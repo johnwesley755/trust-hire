@@ -120,7 +120,7 @@ export const AuthVisualHero: React.FC<AuthVisualHeroProps> = ({ role, className 
                 {isCandidate ? <UserCheck className="w-4 h-4 text-[#5790e6]" /> : <Building2 className="w-4 h-4 text-[#5790e6]" />}
               </div>
               <p className="text-sm font-medium text-white">
-                {isCandidate ? 'Biometric Geofence Verified' : 'Aadhaar & Face-Verified Crews'}
+                {isCandidate ? 'Skill & Identity Verified' : 'Screened & Verified Crews'}
               </p>
             </div>
             <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />

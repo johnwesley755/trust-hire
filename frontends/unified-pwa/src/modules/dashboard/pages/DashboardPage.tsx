@@ -351,7 +351,7 @@ export default function DashboardPage() {
                 <li className="flex items-start gap-2.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0 mt-1.5" />
                   <span className="text-[#717784]">
-                    <strong className="text-[#0a0a0a]">100% Background Check:</strong> Aadhaar & physical skill verification before candidate dispatch.
+                    <strong className="text-[#0a0a0a]">100% Background Check:</strong> Government ID & physical skill verification before candidate dispatch.
                   </span>
                 </li>
                 <li className="flex items-start gap-2.5">

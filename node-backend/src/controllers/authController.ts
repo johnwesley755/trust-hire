@@ -356,7 +356,7 @@ export const syncUser = async (c: Context) => {
           city: workerPayload.city || 'Mumbai',
           level: 'L1',
           level_number: 1,
-          experience_years: workerPayload.experience_years || 1,
+          experience_years: workerPayload.experience_years ?? 0,
           created_at: new Date(),
           updated_at: new Date()
         }
@@ -496,7 +496,7 @@ export const oauthSync = async (c: Context) => {
             level: 'L1',
             level_number: 1,
             level_score: 100,
-            experience_years: 1,
+            experience_years: 0,
             created_at: new Date(),
             updated_at: new Date(),
           }

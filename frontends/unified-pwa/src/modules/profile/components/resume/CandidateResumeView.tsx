@@ -16,6 +16,7 @@ import {
 import { pdf } from '@react-pdf/renderer';
 import { toast } from 'sonner';
 import { CandidateResumePDFDocument } from './CandidateResumePDFDocument';
+import { normalizeSkills } from '../../../../utils/skills';
 
 export interface ResumeData {
   fullName: string;
@@ -98,9 +99,7 @@ export const CandidateResumeView: React.FC<CandidateResumeViewProps> = ({
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const [imageError, setImageError] = useState(false);
 
-  const skillsList = Array.isArray(data.skills) 
-    ? data.skills 
-    : (data.skills ? data.skills.split(',').map(s => s.trim()).filter(Boolean) : []);
+  const skillsList = normalizeSkills(data.skills);
 
   const getEnglishLabel = (prof?: string) => {
     switch (prof) {

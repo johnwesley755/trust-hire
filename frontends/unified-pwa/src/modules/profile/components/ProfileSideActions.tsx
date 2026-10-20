@@ -68,7 +68,7 @@ export const ProfileSideActions: React.FC<ProfileSideActionsProps> = ({ onLogout
             </div>
           </div>
           <p className="text-sm text-amber-700 font-medium leading-relaxed mb-6">
-            Your identity has not been verified yet. Complete the Aadhaar and Biometric steps to get verified and unlocked for top jobs.
+            Your identity has not been verified yet. Complete the identity verification steps to get verified and unlocked for top jobs.
           </p>
           <Link 
             to="/verify-identity" 

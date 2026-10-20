@@ -2,6 +2,7 @@ import { Bookmark, MapPin, CheckCircle2, ArrowRight, ShieldCheck, Clock, Calenda
 import { useNavigate } from 'react-router-dom';
 import { AppLoader } from '../../../components/common/AppLoader';
 import { useSavedStore } from '../../../hooks/useSavedStore';
+import { TranslateText } from '../../../components/common/TranslateText';
 
 export interface JobCardData {
   id: string;
@@ -130,7 +131,7 @@ export const JobSearchResultCard: React.FC<JobSearchResultCardProps> = ({
           {/* Job Title & Company Line */}
           <div className="min-w-0 space-y-0.5">
             <h3 className="text-base sm:text-lg font-semibold text-[#0a0a0a] group-hover:text-[#0f2f63] transition-colors truncate">
-              {job.title}
+              <TranslateText text={job.title} />
             </h3>
             <div className="flex items-center gap-1.5 text-xs text-[#717784] font-medium truncate flex-wrap">
               <span className="text-[#0a0a0a] font-medium">{companyName}</span>
@@ -148,7 +149,7 @@ export const JobSearchResultCard: React.FC<JobSearchResultCardProps> = ({
               <span className="text-[#e6e8ec]">•</span>
               <span className="inline-flex items-center gap-1 text-[#717784] truncate">
                 <MapPin className="w-3 h-3 text-[#2563c9]" />
-                <span className="truncate">{locationText}</span>
+                <span className="truncate"><TranslateText text={locationText} /></span>
               </span>
             </div>
           </div>
@@ -198,7 +199,7 @@ export const JobSearchResultCard: React.FC<JobSearchResultCardProps> = ({
         <div>
           <span className="block text-[10px] font-medium uppercase text-[#717784]">Job Type</span>
           <span className="text-xs sm:text-sm font-semibold text-[#0a0a0a]">
-            {job.jobType || 'Full-Time'}
+            <TranslateText text={job.jobType || 'Full-Time'} />
           </span>
         </div>
         <div>
