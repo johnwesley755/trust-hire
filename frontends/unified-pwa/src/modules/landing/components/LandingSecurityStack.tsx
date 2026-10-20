@@ -11,7 +11,7 @@ export function LandingSecurityStack() {
         <div className="glass-card p-8 rounded-lg hover:bg-white/10 transition-colors">
           <span className="material-symbols-outlined text-brand-amber text-3xl mb-6">fingerprint</span>
           <h3 className="text-xl font-bold text-white mb-3">Biometric Verification</h3>
-          <p className="text-emerald-100/60 text-sm">Every profile is matched against Aadhaar biometrics to prevent identity theft.</p>
+          <p className="text-emerald-100/60 text-sm">Every profile is verified with government ID to prevent identity theft.</p>
         </div>
         <div className="glass-card p-8 rounded-lg hover:bg-white/10 transition-colors">
           <span className="material-symbols-outlined text-brand-amber text-3xl mb-6">history</span>

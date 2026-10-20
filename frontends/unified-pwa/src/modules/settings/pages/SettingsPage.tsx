@@ -4,6 +4,7 @@ import apiClient from '../../../api/apiClient';
 import { useAuth } from '../../../providers/AuthContext';
 import { queryKeys } from '../../../lib/queryKeys';
 import { notificationService } from '../../../services/notification.service';
+import { useTranslation } from '../../../providers/TranslationContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Building2, 
@@ -67,6 +68,7 @@ export const SettingsPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const queryClient = useQueryClient();
+  const { language: activeLanguage, setLanguage: setAppLanguage } = useTranslation();
 
   const isEmployer = user?.role === 'EMPLOYER';
 
@@ -388,7 +390,7 @@ export const SettingsPage: React.FC = () => {
   const emailNotifs = settings?.email_notifications ?? settings?.emailNotifications ?? true;
   const pushNotifs = settings?.push_notifications ?? settings?.pushNotifications ?? true;
   const marketingNotifs = settings?.marketing_emails ?? settings?.marketingEmails ?? false;
-  const currentLanguage = settings?.language || 'en';
+  const currentLanguage = activeLanguage || settings?.language || 'en';
 
   const tabItems = [
     { 
@@ -433,7 +435,7 @@ export const SettingsPage: React.FC = () => {
             <h1 className="text-2xl sm:text-3xl font-black text-[#0A1931] tracking-tight">
               Settings & Preferences
             </h1>
-            <p className="text-slate-500 font-medium text-xs sm:text-sm max-w-2xl">
+            <p className="text-slate-500 font-medium text-xs sm:text-sm max-w-2xl leading-relaxed">
               Configure your profile identity, security credentials, real-time push alerts, and regional marketplace preferences.
             </p>
           </div>
@@ -620,7 +622,7 @@ export const SettingsPage: React.FC = () => {
                 <span>Need Assistance?</span>
               </div>
               <p className="text-[11px] text-slate-500 font-medium leading-relaxed">
-                Have questions about billing, Aadhaar verification, or enterprise accounts? Our team is available 24/7.
+                Have questions about billing, account verification, or enterprise accounts? Our team is available 24/7.
               </p>
               <div className="pt-1">
                 <a
@@ -889,7 +891,7 @@ export const SettingsPage: React.FC = () => {
                         </span>
                       </div>
                       <p className="text-xs text-slate-500 font-medium leading-relaxed">
-                        Your account is linked to verified Aadhaar / business registration under TrustHyre compliance standards. To request updates to legal names or certificates, please contact compliance support.
+                        Your account is linked to verified business registration under TrustHyre compliance standards. To request updates to legal names or certificates, please contact compliance support.
                       </p>
                     </div>
                   </div>
@@ -1317,7 +1319,7 @@ export const SettingsPage: React.FC = () => {
                   <div className="bg-white rounded-[2rem] p-6 sm:p-7 border border-slate-200/90 shadow-xs space-y-4">
                     <div className="pb-3 border-b border-slate-100">
                       <h3 className="text-base font-bold text-[#0A1931]">Language & Regional Localization</h3>
-                      <p className="text-xs text-slate-500 font-medium mt-0.5">
+                      <p className="text-xs text-slate-500 font-medium mt-0.5 leading-relaxed">
                         Choose your primary display language for job posts, messages, and platform notifications.
                       </p>
                     </div>
@@ -1334,14 +1336,17 @@ export const SettingsPage: React.FC = () => {
                           <button
                             key={lang.code}
                             type="button"
-                            onClick={() => updateSettingsMutation.mutate({ language: lang.code })}
+                            onClick={() => {
+                              setAppLanguage(lang.code as any);
+                              updateSettingsMutation.mutate({ language: lang.code });
+                            }}
                             className={`p-4 rounded-2xl border text-left transition-all flex items-center justify-between cursor-pointer active:scale-[0.99] ${
                               isSelected
                                 ? 'bg-[#0f2f63]/5 border-[#0f2f63] shadow-2xs ring-1 ring-[#0f2f63]'
                                 : 'bg-slate-50/50 hover:bg-slate-100/60 border-slate-200'
                             }`}
                           >
-                            <div className="space-y-0.5">
+                            <div className="space-y-0.5" translate="no">
                               <p className={`text-xs font-bold ${isSelected ? 'text-[#0f2f63]' : 'text-[#0A1931]'}`}>
                                 {lang.name}
                               </p>
@@ -1363,7 +1368,7 @@ export const SettingsPage: React.FC = () => {
                   <div className="bg-white rounded-[2rem] p-6 sm:p-7 border border-slate-200/90 shadow-xs space-y-4">
                     <div className="pb-3 border-b border-slate-100">
                       <h3 className="text-base font-bold text-[#0A1931]">Marketplace Regional Configuration</h3>
-                      <p className="text-xs text-slate-500 font-medium mt-0.5">
+                      <p className="text-xs text-slate-500 font-medium mt-0.5 leading-relaxed">
                         Default currency and timezone applied to job wage rates, payment releases, and shift schedules.
                       </p>
                     </div>
@@ -1388,8 +1393,8 @@ export const SettingsPage: React.FC = () => {
                   <div className="bg-white rounded-[2rem] p-6 sm:p-7 border border-slate-200/90 shadow-xs space-y-4">
                     <div className="pb-3 border-b border-slate-100">
                       <h3 className="text-base font-bold text-[#0A1931]">Compliance, Privacy & Payment Policy</h3>
-                      <p className="text-xs text-slate-500 font-medium mt-0.5">
-                        TrustHyre operates under rigorous Aadhaar KYC verification and milestone payment safety standards.
+                      <p className="text-xs text-slate-500 font-medium mt-0.5 leading-relaxed">
+                        TrustHyre operates under rigorous verification and milestone payment safety standards.
                       </p>
                     </div>
 

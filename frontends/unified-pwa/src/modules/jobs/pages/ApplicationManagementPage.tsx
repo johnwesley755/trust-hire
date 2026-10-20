@@ -589,7 +589,8 @@ export default function ApplicationManagementPage() {
                 {selectedJobApplications.map((app) => {
                   const worker = workersById.get(app.workerId);
                   const candidateName = worker?.fullName || worker?.name || 'Candidate';
-                  const candidateRole = worker?.preferredRoles?.[0] || worker?.skills?.split(',')?.[0] || 'Technical Specialist';
+                  const firstSkill = Array.isArray(worker?.skills) ? worker.skills[0] : (typeof worker?.skills === 'string' ? worker.skills.split(',')[0] : undefined);
+                  const candidateRole = worker?.preferredRoles?.[0] || firstSkill || 'Technical Specialist';
                   const isVerified = Boolean(worker?.identityVerified || worker?.isVerified);
                   const isApproved = app.status === 'ACCEPTED' || app.status === 'APPROVED';
                   const isOfferSent = app.status === 'OFFER_SENT';
@@ -639,7 +640,7 @@ export default function ApplicationManagementPage() {
                               <span>{worker?.city || worker?.location || 'Local Zone'}</span>
                             </span>
                             <span>•</span>
-                            <span>{worker?.experienceYears || 1}+ Years Exp</span>
+                            <span>{worker?.experienceYears ? `${worker.experienceYears}+ Years Exp` : 'Entry Level'}</span>
                           </div>
 
                           {app.coverLetter && (

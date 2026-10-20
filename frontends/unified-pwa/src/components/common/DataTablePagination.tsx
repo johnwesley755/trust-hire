@@ -1,5 +1,6 @@
 import React from 'react';
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import { useTranslation } from '../../providers/TranslationContext';
 
 export interface DataTablePaginationProps {
   currentPage: number;
@@ -24,6 +25,7 @@ export const DataTablePagination: React.FC<DataTablePaginationProps> = ({
   itemName = 'items',
   className = '',
 }) => {
+  const { t } = useTranslation();
   if (totalItems === 0) return null;
 
   const startItem = (currentPage - 1) * pageSize + 1;
@@ -58,14 +60,18 @@ export const DataTablePagination: React.FC<DataTablePaginationProps> = ({
       {/* Left: Items Counter & Optional Page Size */}
       <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
         <span className="font-medium text-slate-500">
-          Showing <span className="font-bold text-[#0A1931]">{startItem}</span> to{' '}
-          <span className="font-bold text-[#0A1931]">{endItem}</span> of{' '}
-          <span className="font-bold text-[#0A1931]">{totalItems}</span> {itemName}
+          {t("Showing", "Showing")}{' '}
+          <span className="font-bold text-[#0A1931]">{startItem}</span>{' '}
+          {t("to", "to")}{' '}
+          <span className="font-bold text-[#0A1931]">{endItem}</span>{' '}
+          {t("of", "of")}{' '}
+          <span className="font-bold text-[#0A1931]">{totalItems}</span>{' '}
+          {t(itemName, itemName)}
         </span>
 
         {onPageSizeChange && (
           <div className="flex items-center gap-1.5 ml-2">
-            <span className="text-[11px] text-slate-400 font-medium">Per page:</span>
+            <span className="text-[11px] text-slate-400 font-medium">{t("Per page:", "Per page:")}</span>
             <select
               value={pageSize}
               onChange={(e) => onPageSizeChange(Number(e.target.value))}

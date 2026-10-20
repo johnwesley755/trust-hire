@@ -235,7 +235,7 @@ export const TermsPage: React.FC = () => {
                 <li>Provide accurate, current, and complete registration data during onboarding.</li>
                 <li>Maintain the strict confidentiality of your account credentials and one-time passcodes (OTP).</li>
                 <li>Promptly notify TrustHyre Support of any unauthorized security breach or compromise.</li>
-                <li>Submit authentic government-issued identity documentation (e.g. Aadhaar, PAN, Corporate GSTIN) when undergoing verification tier assessment.</li>
+                <li>Submit authentic government-issued identity documentation (e.g. Voter ID, PAN, Driving License, Corporate GSTIN) when undergoing verification tier assessment.</li>
               </ul>
               <div className="p-4 bg-amber-50 rounded-xl border border-amber-200/80 text-xs text-amber-900 leading-relaxed">
                 <strong>Identity Integrity Guarantee:</strong> Accounts submitting forged documents, synthetic profiles, or impersonating other individuals will be immediately terminated, and documented incidents will be escalated to statutory authorities.

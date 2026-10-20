@@ -39,7 +39,7 @@ export const ProfileStatsCard: React.FC<ProfileStatsCardProps> = ({ level, exper
           <div className="flex justify-between items-center bg-white/10 p-3 rounded-2xl">
             <div>
               <p className="text-[9px] text-blue-200 font-bold uppercase tracking-widest">Industry Experience</p>
-              <p className="text-sm font-extrabold text-white">{experienceYears || 2} Years Active</p>
+              <p className="text-sm font-extrabold text-white">{experienceYears ? `${experienceYears} Years Active` : 'Fresher / Entry'}</p>
             </div>
             <div className="w-9 h-9 bg-white/20 rounded-xl flex items-center justify-center">
               <Award className="w-5 h-5 text-amber-300" />

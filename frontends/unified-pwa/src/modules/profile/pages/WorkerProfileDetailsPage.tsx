@@ -40,6 +40,7 @@ import {
 import { EditWorkerProfileModal } from "../components/EditWorkerProfileModal";
 import { CandidateResumeModal } from "../components/resume/CandidateResumeModal";
 import type { ResumeData } from "../components/resume/CandidateResumeView";
+import { normalizeSkills } from "../../../utils/skills";
 
 export default function WorkerProfileDetailsPage() {
   const { user } = useUser();
@@ -275,8 +276,8 @@ export default function WorkerProfileDetailsPage() {
     schoolMedium: profile?.schoolMedium || '',
     englishProficiency: englishLevelLabel,
     languagesKnown: profile?.languagesKnown && profile.languagesKnown.length > 0 ? profile.languagesKnown : [],
-    preferredRoles: profile?.preferredRoles && profile.preferredRoles.length > 0 ? profile.preferredRoles : (profile?.skills ? profile.skills.split(',').filter(Boolean) : []),
-    skills: profile?.skills ? profile.skills.split(',').filter(Boolean) : [],
+    preferredRoles: profile?.preferredRoles && profile.preferredRoles.length > 0 ? profile.preferredRoles : normalizeSkills(profile?.skills),
+    skills: normalizeSkills(profile?.skills),
     experienceYears: profile?.experienceYears || 0,
     bio: profile?.bio || undefined,
     dob: profile?.dob || '',
@@ -284,7 +285,8 @@ export default function WorkerProfileDetailsPage() {
     isVerified: isVerified
   };
 
-  const currentTrade = profile?.preferredRoles?.[0] || (profile?.skills ? profile.skills.split(',')[0] : 'Specialist Candidate');
+  const normalizedSkills = normalizeSkills(profile?.skills);
+  const currentTrade = profile?.preferredRoles?.[0] || normalizedSkills[0] || 'Specialist Candidate';
 
   return (
     <div className="w-full min-h-screen p-2 sm:p-3 bg-white font-['Onest',system-ui,sans-serif] text-[#0a0a0a]">
@@ -349,7 +351,7 @@ export default function WorkerProfileDetailsPage() {
                     <span>{profile?.city || profile?.location || 'Local Matching Area'}</span>
                   </span>
                   <span>•</span>
-                  <span>{profile?.experienceYears || 1}+ Years Experience</span>
+                  <span>{profile?.experienceYears ? `${profile.experienceYears}+ Years Experience` : 'Entry Level / Fresher'}</span>
                 </div>
 
                 {photoFeedback && (
@@ -712,15 +714,17 @@ export default function WorkerProfileDetailsPage() {
                   <div className="space-y-2">
                     <span className="text-xs font-bold text-slate-500 uppercase">Verified Competencies:</span>
                     <div className="flex flex-wrap gap-2">
-                      {profile?.skills?.split(',').filter(Boolean).map((skill, idx) => (
-                        <div 
-                          key={idx} 
-                          className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-50/80 border border-slate-200/60 text-slate-700 font-semibold text-xs shadow-2xs hover:border-[#0f2f63]/40 transition-colors"
-                        >
-                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                          <span>{skill.trim()}</span>
-                        </div>
-                      )) || (
+                      {normalizedSkills.length > 0 ? (
+                        normalizedSkills.map((skill, idx) => (
+                          <div 
+                            key={idx} 
+                            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-50/80 border border-slate-200/60 text-slate-700 font-semibold text-xs shadow-2xs hover:border-[#0f2f63]/40 transition-colors"
+                          >
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                            <span>{skill}</span>
+                          </div>
+                        ))
+                      ) : (
                         <div className="text-slate-500 text-xs font-medium">
                           No competencies registered. Update your profile to add skills.
                         </div>

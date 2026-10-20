@@ -122,7 +122,7 @@ export const EditWorkerProfileModal: React.FC<EditWorkerProfileModalProps> = ({
       
       const rolesStr = Array.isArray(profile.preferredRoles)
         ? profile.preferredRoles.join(', ')
-        : (profile.preferredRoles || profile.skills || 'Electrician, Customer Support');
+        : (typeof profile.preferredRoles === 'string' ? profile.preferredRoles : (skillsStr || 'Electrician, Customer Support'));
 
       const exp = Number(profile.experienceYears ?? (profile as any).experience_years) || 0;
 
@@ -160,9 +160,9 @@ export const EditWorkerProfileModal: React.FC<EditWorkerProfileModalProps> = ({
   }, [profile, isOpen, user]);
 
   // Skill Helpers
-  const skillsList = formData.skills
+  const skillsList = typeof formData.skills === 'string'
     ? formData.skills.split(',').map(s => s.trim()).filter(Boolean)
-    : [];
+    : (Array.isArray(formData.skills) ? (formData.skills as string[]).map(s => String(s).trim()).filter(Boolean) : []);
 
   const handleAddSkill = (skillToAdd?: string) => {
     const val = (skillToAdd || skillInput).trim();
@@ -274,24 +274,24 @@ export const EditWorkerProfileModal: React.FC<EditWorkerProfileModalProps> = ({
           profile_image_url: profileImageUrl
         });
       }
-      queryClient.setQueryData(queryKeys.workers.detail('me'), (old: any) => ({
-        ...(old || {}),
-        ...formData,
-        profileImageUrl,
-        profile_image_url: profileImageUrl,
-        profilePhoto: profileImageUrl,
-        skills: formData.skills,
-        experienceYears: Number(formData.experienceYears) || 0,
-        experience_years: Number(formData.experienceYears) || 0,
-        bio: formData.bio,
-        languagesKnown: formData.languagesKnown.split(',').map(s => s.trim()).filter(Boolean),
-        preferredRoles: formData.preferredRoles.split(',').map(s => s.trim()).filter(Boolean),
-        preferredCities: formData.preferredCities.split(',').map(s => s.trim()).filter(Boolean),
-        ...(updatedData || {})
-      }));
+      queryClient.setQueryData(queryKeys.workers.detail('me'), (old: any) => {
+        const result: Record<string, any> = {
+          ...(old || {}),
+          ...formData,
+          profileImageUrl,
+          profile_image_url: profileImageUrl,
+          profilePhoto: profileImageUrl,
+          languagesKnown: formData.languagesKnown.split(',').map(s => s.trim()).filter(Boolean),
+          preferredRoles: formData.preferredRoles.split(',').map(s => s.trim()).filter(Boolean),
+          preferredCities: formData.preferredCities.split(',').map(s => s.trim()).filter(Boolean),
+          ...(updatedData || {})
+        };
+        result.experienceYears = Number(formData.experienceYears) || 0;
+        result.experience_years = Number(formData.experienceYears) || 0;
+        return result;
+      });
       queryClient.invalidateQueries({ queryKey: queryKeys.workers.all });
       queryClient.invalidateQueries({ queryKey: queryKeys.workers.detail('me') });
-      queryClient.invalidateQueries({ queryKey: queryKeys.workers.me });
       onClose();
     },
     onError: (err: any) => {
@@ -309,7 +309,6 @@ export const EditWorkerProfileModal: React.FC<EditWorkerProfileModalProps> = ({
       profilePhoto: profileImageUrl || undefined,
       skills: formData.skills,
       experienceYears: Number(formData.experienceYears) || 0,
-      experience_years: Number(formData.experienceYears) || 0,
       hourlyRate: Number(formData.hourlyRate) || 0,
       city: formData.city.trim(),
       location: `${formData.address ? formData.address + ', ' : ''}${formData.city}`,

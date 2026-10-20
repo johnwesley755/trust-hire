@@ -226,7 +226,7 @@ export const OnboardingVisualHero: React.FC<OnboardingVisualHeroProps> = ({
                     <Building2 className="w-4 h-4 text-[#5790e6]" />
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-white">Aadhaar & Face-Verified Crews</p>
+                    <p className="text-xs font-bold text-white">Screened & Verified Crews</p>
                     <p className="text-[11px] text-white/70">Zero fake profiles or proxy candidates</p>
                   </div>
                 </div>

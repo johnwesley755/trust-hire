@@ -5,7 +5,7 @@ const LEVELS = [
     { lv: "Lead", title: "Lead Master", desc: "Project Leaders & Supervisors", color: "bg-brand-primary" },
     { lv: "Expert", title: "Senior Expert", desc: "Top Performance Specialists", color: "bg-brand-secondary" },
     { lv: "Pro", title: "Verified Pro", desc: "Proven Quality Execution", color: "bg-blue-600" },
-    { lv: "Ready", title: "Foundational", desc: "Aadhaar & Background Verified", color: "bg-slate-700" }
+    { lv: "Ready", title: "Foundational", desc: "Identity & Background Verified", color: "bg-slate-700" }
 ];
 
 export function LandingTalentCloud() {

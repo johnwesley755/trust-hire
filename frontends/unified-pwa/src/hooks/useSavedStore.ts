@@ -272,19 +272,29 @@ export const useSavedStore = (options?: UseSavedStoreOptions) => {
       if (w.isSaved && existsIndex === -1) {
         updated.push({
           userId: wid,
-          name: w.name || 'Specialist',
+          name: w.name || 'Candidate',
           profilePhoto: w.profileImageUrl || w.profilePhoto || '',
           profileImageUrl: w.profileImageUrl || w.profilePhoto || '',
           skills: Array.isArray(w.skills) ? w.skills : (typeof w.skills === 'string' ? w.skills.split(',').map((s: string) => s.trim()).filter(Boolean) : []),
           city: w.city || w.location || 'Local Area',
           location: w.location || w.city || 'Local Area',
-          experience: w.experienceYears || w.experience || 0,
+          experience: w.experienceYears ?? w.experience ?? 0,
           trustScore: w.trustScore ? `${w.trustScore}%` : '98%',
           isVerified: w.isVerified ?? true,
           bio: w.bio,
           savedAt: new Date().toISOString(),
         });
         changed = true;
+      } else if (existsIndex !== -1) {
+        const existing = updated[existsIndex];
+        if ((!existing.name || existing.name === 'Specialist Candidate' || existing.name === 'Specialist') && w.name && w.name !== 'Specialist Candidate') {
+          existing.name = w.name;
+          changed = true;
+        }
+        if (w.experienceYears !== undefined && existing.experience !== w.experienceYears) {
+          existing.experience = w.experienceYears;
+          changed = true;
+        }
       }
     });
 

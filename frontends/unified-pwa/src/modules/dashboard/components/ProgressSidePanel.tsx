@@ -63,7 +63,7 @@ export const ProgressSidePanel: React.FC<ProgressSidePanelProps> = ({ progress =
             <p className="text-[9px] font-bold text-blue-200 uppercase tracking-widest">To reach 100%:</p>
             <div className="flex items-center gap-2 bg-white/10 p-2.5 rounded-xl text-xs">
               <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-              <span className="font-medium text-slate-100">Complete Aadhaar / KYC verification</span>
+              <span className="font-medium text-slate-100">Complete KYC & Identity verification</span>
             </div>
             <div className="flex items-center gap-2 bg-white/10 p-2.5 rounded-xl text-xs">
               <Circle className="w-4 h-4 text-blue-300 shrink-0" />

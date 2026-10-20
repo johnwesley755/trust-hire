@@ -22,12 +22,14 @@ import { WorkerSearchHero } from '../components/WorkerSearchHero';
 import { AppLoader } from '../../../components/common/AppLoader';
 import { useSavedStore } from '../../../hooks/useSavedStore';
 import { DataTablePagination } from '../../../components/common/DataTablePagination';
+import { useTranslation } from '../../../providers/TranslationContext';
 import { useAuth } from '../../../providers/AuthContext';
 import { useQueryClient } from '@tanstack/react-query';
 import { fcmService } from '../../../services/fcm.service';
 import { searchAlertService, type SearchAlert } from '../../../services/searchAlert.service';
 import { ManageAlertsModal } from '../../dashboard/features/alerts/ManageAlertsModal';
 import { TalentAlertModal } from '../components/TalentAlertModal';
+import { normalizeSkills } from '../../../utils/skills';
 
 const JOB_CATEGORIES = [
   "All",
@@ -63,6 +65,7 @@ export const WorkerSearchPage = () => {
   const [isTalentAlertModalOpen, setIsTalentAlertModalOpen] = useState(false);
 
   const { user } = useAuth();
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
 
   // Fetch employer's active candidate alerts to reflect live subscription state
@@ -176,14 +179,14 @@ export const WorkerSearchPage = () => {
         <div className="lg:hidden px-1">
           <div className="flex items-center justify-between gap-3">
             <span className="text-xs font-medium text-slate-500">
-              <strong className="text-[#0A1931] font-bold">{results.length}</strong> verified specialists
+              <strong className="text-[#0A1931] font-bold">{results.length}</strong> {t("verified specialists", "verified specialists")}
             </span>
             <button
               onClick={() => setIsMobileFilterOpen(true)}
               className="flex items-center gap-2 px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200/80 rounded-full text-xs font-medium uppercase text-slate-700 shadow-xs active:scale-95 transition-all cursor-pointer"
             >
               <SlidersHorizontal className="w-3.5 h-3.5 text-[#0f2f63]" />
-              <span>Filters</span>
+              <span>{t("Filters", "Filters")}</span>
               {activeFilterCount > 0 && (
                 <span className="w-4 h-4 rounded-full bg-[#0f2f63] text-white text-[10px] font-bold flex items-center justify-center">
                   {activeFilterCount}
@@ -202,7 +205,7 @@ export const WorkerSearchPage = () => {
               <div className="flex items-center gap-2">
                 <SlidersHorizontal className="w-4 h-4 text-[#0f2f63]" />
                 <h2 className="text-sm font-medium uppercase text-[#0A1931]">
-                  Talent Filters
+                  {t("Talent Filters", "Talent Filters")}
                 </h2>
               </div>
               {hasActiveFilters && (
@@ -211,7 +214,7 @@ export const WorkerSearchPage = () => {
                   className="text-xs font-medium text-[#2563c9] hover:underline flex items-center gap-1 cursor-pointer"
                 >
                   <RotateCcw className="w-3 h-3" />
-                  Clear
+                  {t("Clear", "Clear")}
                 </button>
               )}
             </div>
@@ -219,7 +222,7 @@ export const WorkerSearchPage = () => {
             {/* Job Category */}
             <div className="space-y-2">
               <span className="text-[10px] font-medium uppercase text-slate-500">
-                Industry & Category
+                {t("Industry & Category", "Industry & Category")}
               </span>
               <div className="space-y-1">
                 {JOB_CATEGORIES.map((cat) => {
@@ -237,7 +240,7 @@ export const WorkerSearchPage = () => {
                           : 'bg-slate-50/80 hover:bg-slate-100/80 text-slate-700 border border-slate-200/60 hover:border-slate-300'
                       }`}
                     >
-                      <span>{cat}</span>
+                      <span>{t(cat, cat)}</span>
                       {isSelected && <Check className="w-3.5 h-3.5 text-white" />}
                     </button>
                   );
@@ -248,7 +251,7 @@ export const WorkerSearchPage = () => {
             {/* Experience Level Filter */}
             <div className="space-y-2 pt-4 border-t border-slate-100">
               <span className="text-[10px] font-medium uppercase text-slate-500">
-                Experience Level
+                {t("Experience Level", "Experience Level")}
               </span>
               <div className="space-y-1">
                 {EXPERIENCE_LEVELS.map((el) => {
@@ -266,7 +269,7 @@ export const WorkerSearchPage = () => {
                           : 'bg-slate-50/80 hover:bg-slate-100/80 text-slate-700 border border-slate-200/60 hover:border-slate-300'
                       }`}
                     >
-                      <span>{el.label}</span>
+                      <span>{t(el.label, el.label)}</span>
                       {isSelected && <Check className="w-3.5 h-3.5 text-white" />}
                     </button>
                   );
@@ -283,7 +286,7 @@ export const WorkerSearchPage = () => {
             <div className="flex items-center justify-between px-1 gap-2 flex-wrap">
               <div className="flex items-center gap-3">
                 <span className="text-xs font-medium text-slate-500">
-                  <strong className="text-[#0A1931] font-bold">{results.length}</strong> verified specialists available
+                  <strong className="text-[#0A1931] font-bold">{results.length}</strong> {t("verified specialists available", "verified specialists available")}
                 </span>
                 <button
                   type="button"
@@ -293,17 +296,17 @@ export const WorkerSearchPage = () => {
                       ? 'bg-emerald-50 text-emerald-800 border-emerald-300 shadow-2xs hover:bg-emerald-100/70'
                       : 'bg-white hover:bg-[#0f2f63] text-[#0f2f63] hover:text-white border-[#0f2f63]/30 shadow-2xs'
                   }`}
-                  title={isMatchingAlertActive ? 'Talent Alert Active - Click to view or manage' : 'Configure talent alert'}
+                  title={isMatchingAlertActive ? t('Talent Alert Active - Click to view or manage', 'Talent Alert Active - Click to view or manage') : t('Configure talent alert', 'Configure talent alert')}
                 >
                   {isMatchingAlertActive ? (
                     <>
                       <Check className="w-3.5 h-3.5 text-emerald-600" />
-                      <span>Talent Alert Active</span>
+                      <span>{t("Talent Alert Active", "Talent Alert Active")}</span>
                     </>
                   ) : (
                     <>
                       <Bell className="w-3.5 h-3.5 text-[#2563c9]" />
-                      <span>Alert Me on New Talent</span>
+                      <span>{t("Alert Me on New Talent", "Alert Me on New Talent")}</span>
                     </>
                   )}
                 </button>
@@ -314,7 +317,7 @@ export const WorkerSearchPage = () => {
                   className="text-xs font-medium text-[#2563c9] hover:underline flex items-center gap-1 cursor-pointer"
                 >
                   <RotateCcw className="w-3 h-3" />
-                  Reset filters
+                  {t("Reset filters", "Reset filters")}
                 </button>
               )}
             </div>
@@ -328,15 +331,13 @@ export const WorkerSearchPage = () => {
                 {results
                   .slice((Math.min(currentPage, Math.max(1, Math.ceil(results.length / pageSize))) - 1) * pageSize, Math.min(currentPage, Math.max(1, Math.ceil(results.length / pageSize))) * pageSize)
                   .map((worker: any) => {
-                    const skillList = worker.skills 
-                      ? worker.skills.split(',').map((s: string) => s.trim()).filter(Boolean) 
-                      : [];
+                    const skillList = normalizeSkills(worker.skills);
 
                     const displayRole = worker.level && !worker.level.startsWith('L')
-                      ? worker.level
+                      ? t(worker.level, worker.level)
                       : worker.experienceYears
-                        ? `${worker.experienceYears}+ Yrs Exp`
-                        : 'Verified Specialist';
+                        ? `${worker.experienceYears}+ ${t("Yrs Exp", "Yrs Exp")}`
+                        : t('Verified Specialist', 'Verified Specialist');
 
                     return (
                       <div
@@ -354,7 +355,7 @@ export const WorkerSearchPage = () => {
                                 size="lg"
                               />
                               {worker.isVerified && (
-                                <span className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 border-2 border-white flex items-center justify-center text-white text-[8px]" title="ID & Skills Verified">
+                                <span className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 border-2 border-white flex items-center justify-center text-white text-[8px]" title={t("ID & Skills Verified", "ID & Skills Verified")}>
                                   ✓
                                 </span>
                               )}
@@ -368,7 +369,7 @@ export const WorkerSearchPage = () => {
                                 {worker.isVerified && (
                                   <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-medium border border-emerald-100">
                                     <ShieldCheck className="w-3 h-3 text-emerald-600" />
-                                    <span>Verified</span>
+                                    <span>{t("Verified", "Verified")}</span>
                                   </span>
                                 )}
                               </div>
@@ -411,7 +412,7 @@ export const WorkerSearchPage = () => {
                                   ? 'bg-[#0f2f63] border-[#0f2f63] text-white shadow-xs'
                                   : 'bg-slate-50 border-slate-200/80 text-slate-400 hover:text-slate-700 hover:bg-slate-100'
                               }`}
-                              title={(isWorkerSaved(worker.userId) || worker.isSaved) ? 'Remove from Saved' : 'Save Profile'}
+                              title={(isWorkerSaved(worker.userId) || worker.isSaved) ? t('Remove from Saved', 'Remove from Saved') : t('Save Profile', 'Save Profile')}
                             >
                               <Bookmark className={`w-4 h-4 ${(isWorkerSaved(worker.userId) || worker.isSaved) ? 'fill-current' : ''}`} />
                             </button>
@@ -433,24 +434,22 @@ export const WorkerSearchPage = () => {
                                 key={idx}
                                 className="px-3 py-1 bg-slate-100/90 hover:bg-slate-200/80 text-slate-700 text-xs font-medium rounded-full border border-slate-200/60 transition-colors"
                               >
-                                {skill}
+                                {t(skill, skill)}
                               </span>
                             ))}
                             {skillList.length > 5 && (
                               <span className="px-2.5 py-1 text-slate-500 text-xs font-medium">
-                                +{skillList.length - 5} more
+                                +{skillList.length - 5} {t("more", "more")}
                               </span>
                             )}
                           </div>
                         )}
 
-                     
-
                         {/* Card Footer: Live Status & View Profile CTA */}
                         <div className="flex items-center justify-between pt-3 border-t border-slate-100 text-xs">
                           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-medium border border-emerald-100/60">
                             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                            <span>Available for Direct Hire</span>
+                            <span>{t("Available for Direct Hire", "Available for Direct Hire")}</span>
                           </span>
                           <button
                             type="button"
@@ -460,7 +459,7 @@ export const WorkerSearchPage = () => {
                             }}
                             className="rounded-full bg-[#0f2f63] hover:bg-[#2563c9] text-white text-xs font-medium uppercase px-4 py-2 transition-all flex items-center gap-1.5 shadow-sm active:scale-95 cursor-pointer"
                           >
-                            <span>View Profile</span>
+                            <span>{t("View Profile", "View Profile")}</span>
                             <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
                           </button>
                         </div>
@@ -480,7 +479,7 @@ export const WorkerSearchPage = () => {
                     setPageSize(size);
                     setCurrentPage(1);
                   }}
-                  itemName="specialists"
+                  itemName={t("specialists", "specialists")}
                   className="rounded-[1.5rem] border border-slate-200/80 bg-white p-3 shadow-xs"
                 />
               </div>
@@ -491,10 +490,10 @@ export const WorkerSearchPage = () => {
                 </div>
                 <div className="space-y-1">
                   <h3 className="text-base font-medium uppercase text-[#0A1931]">
-                    No verified workers found
+                    {t("No verified workers found", "No verified workers found")}
                   </h3>
                   <p className="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
-                    Try loosening your criteria or search across different cities to see available technicians.
+                    {t("Try loosening your criteria or search across different cities to see available technicians.", "Try loosening your criteria or search across different cities to see available technicians.")}
                   </p>
                 </div>
                 {hasActiveFilters && (
@@ -503,7 +502,7 @@ export const WorkerSearchPage = () => {
                     className="px-5 py-2.5 bg-[#0f2f63] hover:bg-[#2563c9] text-white rounded-full font-medium text-xs uppercase transition-all cursor-pointer inline-flex items-center gap-2 shadow-sm"
                   >
                     <RotateCcw className="w-3.5 h-3.5" />
-                    <span>Reset All Filters</span>
+                    <span>{t("Reset All Filters", "Reset All Filters")}</span>
                   </button>
                 )}
               </div>
@@ -521,13 +520,13 @@ export const WorkerSearchPage = () => {
               
               <div className="relative z-10 space-y-2">
                 <span className="inline-block px-2.5 py-0.5 rounded-full bg-white/10 text-white/90 text-[10px] font-medium uppercase border border-white/10">
-                  Direct Hire
+                  {t("Direct Hire", "Direct Hire")}
                 </span>
                 <h3 className="text-base sm:text-lg font-medium uppercase leading-tight text-white">
-                  Need Multiple Specialists Fast?
+                  {t("Need Multiple Specialists Fast?", "Need Multiple Specialists Fast?")}
                 </h3>
                 <p className="text-white/80 text-xs font-normal leading-relaxed">
-                  Post your requirements and let our matching engine notify verified workers within your municipal radius.
+                  {t("Post your requirements and let our matching engine notify verified workers within your municipal radius.", "Post your requirements and let our matching engine notify verified workers within your municipal radius.")}
                 </p>
               </div>
 
@@ -536,7 +535,7 @@ export const WorkerSearchPage = () => {
                 className="relative z-10 w-full py-2.5 px-4 bg-white text-[#0f2f63] hover:bg-slate-100 rounded-full font-medium uppercase text-xs flex items-center justify-center gap-2 transition-all shadow-sm active:scale-95 cursor-pointer"
               >
                 <PlusCircle className="w-4 h-4 text-[#0f2f63]" />
-                <span>Post a Job Opening</span>
+                <span>{t("Post a Job Opening", "Post a Job Opening")}</span>
               </Link>
             </div>
 
@@ -544,24 +543,24 @@ export const WorkerSearchPage = () => {
             <div className="rounded-[1.5rem] bg-white p-5 sm:p-6 border border-slate-200/80 space-y-4 shadow-xs">
               <div className="flex items-center gap-2 text-[#0A1931] font-medium text-xs uppercase">
                 <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                <span>TrustHyre Verification Standard</span>
+                <span>{t("TrustHyre Verification Standard", "TrustHyre Verification Standard")}</span>
               </div>
               <ul className="text-xs text-slate-500 space-y-2.5 font-medium">
                 <li className="flex items-center gap-2.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 shrink-0" />
-                  <span>Aadhaar & biometric ID verified</span>
+                  <span>{t("Government ID & background verified", "Government ID & background verified")}</span>
                 </li>
                 <li className="flex items-center gap-2.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 shrink-0" />
-                  <span>Practical skill assessment validated</span>
+                  <span>{t("Practical skill assessment validated", "Practical skill assessment validated")}</span>
                 </li>
                 <li className="flex items-center gap-2.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 shrink-0" />
-                  <span>Protected daily wage payouts</span>
+                  <span>{t("Protected daily wage payouts", "Protected daily wage payouts")}</span>
                 </li>
                 <li className="flex items-center gap-2.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 shrink-0" />
-                  <span>Geofenced on-site attendance tracking</span>
+                  <span>{t("Geofenced on-site attendance tracking", "Geofenced on-site attendance tracking")}</span>
                 </li>
               </ul>
             </div>

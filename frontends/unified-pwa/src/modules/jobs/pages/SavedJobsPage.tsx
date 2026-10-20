@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useSavedStore, type SavedJob } from '../../../hooks/useSavedStore';
 import { DataTablePagination } from '../../../components/common/DataTablePagination';
+import { TranslateText } from '../../../components/common/TranslateText';
 import { 
   Bookmark, 
   Building2, 
@@ -25,8 +26,11 @@ const getEffectiveExpiryDate = (job: SavedJob): Date | null => {
   return null;
 };
 
+import { useTranslation } from '../../../providers/TranslationContext';
+
 export const SavedJobsPage: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { savedJobs, removeSavedJob } = useSavedStore();
 
   // Search & Pagination State
@@ -76,13 +80,13 @@ export const SavedJobsPage: React.FC = () => {
             <div>
               <div className="flex items-center gap-2 text-xs font-bold text-[#0f2f63] uppercase mb-1">
                 <Bookmark className="w-4 h-4 fill-current" />
-                <span>My Bookmarks</span>
+                <span>{t("My Bookmarks", "My Bookmarks")}</span>
               </div>
               <h1 className="text-2xl sm:text-3xl font-bold text-[#0a0a0a]">
-                Saved Jobs
+                {t("Saved Jobs", "Saved Jobs")}
               </h1>
               <p className="text-[#717784] text-xs sm:text-sm mt-1 font-medium">
-                Review opportunities you have bookmarked and submit your applications.
+                {t("Review opportunities you have bookmarked and submit your applications.", "Review opportunities you have bookmarked and submit your applications.")}
               </p>
             </div>
 
@@ -91,7 +95,7 @@ export const SavedJobsPage: React.FC = () => {
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#0f2f63] hover:bg-[#1a4487] text-white text-xs sm:text-sm font-medium shadow-xs transition-all cursor-pointer self-start sm:self-auto uppercase active:scale-95"
             >
               <Briefcase className="w-4 h-4" />
-              <span>Browse All Jobs</span>
+              <span>{t("Browse All Jobs", "Browse All Jobs")}</span>
             </Link>
           </div>
         </div>
@@ -110,7 +114,7 @@ export const SavedJobsPage: React.FC = () => {
                       setSearchQuery(e.target.value);
                       setCurrentPage(1);
                     }}
-                    placeholder="Filter by job title, company, or city..."
+                    placeholder={t("Filter by job title, company, or city...", "Filter by job title, company, or city...")}
                     className="w-full pl-9 pr-4 py-2 bg-white hover:bg-slate-50 focus:bg-white border border-[#e6e8ec] rounded-full text-xs font-medium text-[#0a0a0a] placeholder:text-[#717784] focus:outline-none focus:border-[#0f2f63] transition-all"
                   />
                 </div>
@@ -118,8 +122,8 @@ export const SavedJobsPage: React.FC = () => {
                 <div className="flex items-center gap-2 text-xs font-medium text-[#717784] px-1">
                   <span>
                     <strong className="text-[#0a0a0a] font-bold">{filteredJobs.length}</strong>{' '}
-                    {filteredJobs.length === 1 ? 'job' : 'jobs'}{' '}
-                    {searchQuery ? 'matching' : 'saved'}
+                    {filteredJobs.length === 1 ? t("job", "job") : t("jobs", "jobs")}{' '}
+                    {searchQuery ? t("matching", "matching") : t("saved", "saved")}
                   </span>
                 </div>
               </div>
@@ -130,13 +134,13 @@ export const SavedJobsPage: React.FC = () => {
                   <table className="w-full text-left text-xs text-[#0a0a0a]">
                     <thead className="bg-[#fbfbfb] text-[#717784] uppercase text-[10px] font-bold border-b border-[#e6e8ec]">
                       <tr>
-                        <th className="px-5 py-4">Job & Company</th>
-                        <th className="px-5 py-4">Location</th>
-                        <th className="px-5 py-4">Job Type</th>
-                        <th className="px-5 py-4">Compensation</th>
-                        <th className="px-5 py-4">Experience</th>
-                        <th className="px-5 py-4">Saved Date</th>
-                        <th className="px-5 py-4 text-right">Actions</th>
+                        <th className="px-5 py-4">{t("Job & Company", "Job & Company")}</th>
+                        <th className="px-5 py-4">{t("Location", "Location")}</th>
+                        <th className="px-5 py-4">{t("Job Type", "Job Type")}</th>
+                        <th className="px-5 py-4">{t("Compensation", "Compensation")}</th>
+                        <th className="px-5 py-4">{t("Experience", "Experience")}</th>
+                        <th className="px-5 py-4">{t("Saved Date", "Saved Date")}</th>
+                        <th className="px-5 py-4 text-right">{t("Actions", "Actions")}</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-[#e6e8ec]">
@@ -175,7 +179,7 @@ export const SavedJobsPage: React.FC = () => {
                                       onClick={() => navigate(`/jobs/${job.id}`)}
                                       className="font-bold text-[#0a0a0a] group-hover:text-[#0f2f63] transition-colors truncate hover:underline text-left cursor-pointer block max-w-xs"
                                     >
-                                      {job.title}
+                                      <TranslateText text={job.title} />
                                     </button>
                                     <div className="flex items-center gap-1.5 text-[11px] text-[#717784] font-medium mt-0.5">
                                       <span className="text-[#0a0a0a] font-semibold truncate">
@@ -183,7 +187,7 @@ export const SavedJobsPage: React.FC = () => {
                                       </span>
                                       {isExpired ? (
                                         <span className="px-1.5 py-0.2 rounded-full bg-rose-50 text-rose-700 text-[9px] font-bold border border-rose-200">
-                                          Expired
+                                          {t("Expired", "Expired")}
                                         </span>
                                       ) : (
                                         <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
@@ -197,7 +201,7 @@ export const SavedJobsPage: React.FC = () => {
                               <td className="px-5 py-4 whitespace-nowrap">
                                 <div className="flex items-center gap-1.5 text-[#717784] font-medium">
                                   <MapPin className="w-3.5 h-3.5 text-[#0f2f63] shrink-0" />
-                                  <span className="truncate max-w-[140px]">{locationText}</span>
+                                  <span className="truncate max-w-[140px]"><TranslateText text={locationText} /></span>
                                 </div>
                               </td>
 
@@ -205,11 +209,11 @@ export const SavedJobsPage: React.FC = () => {
                               <td className="px-5 py-4 whitespace-nowrap">
                                 {isExpired ? (
                                   <span className="px-2.5 py-1 bg-rose-50 border border-rose-200 text-rose-800 text-[10px] font-bold rounded-full uppercase">
-                                    Expired
+                                    {t("Expired", "Expired")}
                                   </span>
                                 ) : (
                                   <span className="px-2.5 py-1 bg-[#f4f4f4] border border-[#e6e8ec] text-[#0a0a0a] text-[11px] font-medium rounded-full uppercase">
-                                    {job.jobType || 'Full-Time'}
+                                    <TranslateText text={job.jobType || 'Full-Time'} />
                                   </span>
                                 )}
                               </td>
@@ -217,13 +221,13 @@ export const SavedJobsPage: React.FC = () => {
                               {/* Compensation */}
                               <td className="px-5 py-4 whitespace-nowrap">
                                 <span className="font-bold text-emerald-700 text-xs">
-                                  {job.salaryText || (job.budget ? `₹${job.budget.toLocaleString()}` : 'Competitive')}
+                                  {job.salaryText || (job.budget ? `₹${job.budget.toLocaleString()}` : t("Competitive", "Competitive"))}
                                 </span>
                               </td>
 
                               {/* Experience */}
                               <td className="px-5 py-4 whitespace-nowrap text-[#0a0a0a] font-medium">
-                                {job.experienceText || `${job.experienceYearsRequired || 0}+ Yrs`}
+                                {job.experienceText || `${job.experienceYearsRequired || 0}+ ${t("Yrs", "Yrs")}`}
                               </td>
 
                               {/* Saved Date */}
@@ -243,7 +247,7 @@ export const SavedJobsPage: React.FC = () => {
                                         : 'bg-[#0f2f63] hover:bg-[#1a4487] text-white'
                                     }`}
                                   >
-                                    <span>{isExpired ? 'View Details' : 'View & Apply'}</span>
+                                    <span>{isExpired ? t("View Details", "View Details") : t("View & Apply", "View & Apply")}</span>
                                     <ChevronRight className="w-3.5 h-3.5" />
                                   </button>
 
@@ -251,7 +255,7 @@ export const SavedJobsPage: React.FC = () => {
                                     type="button"
                                     onClick={() => removeSavedJob(job.id)}
                                     className="p-1.5 text-[#717784] hover:text-rose-600 hover:bg-rose-50 rounded-full transition-colors cursor-pointer"
-                                    title="Remove from Saved"
+                                    title={t("Remove from Saved", "Remove from Saved")}
                                   >
                                     <Trash2 className="w-4 h-4" />
                                   </button>
@@ -263,12 +267,12 @@ export const SavedJobsPage: React.FC = () => {
                       ) : (
                         <tr>
                           <td colSpan={7} className="px-6 py-12 text-center text-[#717784]">
-                            <p className="font-medium text-sm">No jobs match your filter criteria.</p>
+                            <p className="font-medium text-sm">{t("No jobs match your filter criteria.", "No jobs match your filter criteria.")}</p>
                             <button
                               onClick={() => setSearchQuery('')}
                               className="mt-2 text-xs font-bold text-[#0f2f63] hover:underline"
                             >
-                              Clear search filter
+                              {t("Clear search query", "Clear search query")}
                             </button>
                           </td>
                         </tr>
@@ -286,7 +290,7 @@ export const SavedJobsPage: React.FC = () => {
                   pageSizeOptions={[5, 10, 20, 50]}
                   onPageChange={handlePageChange}
                   onPageSizeChange={handlePageSizeChange}
-                  itemName="saved jobs"
+                  itemName={t("saved jobs", "saved jobs")}
                 />
               </div>
             </div>
@@ -297,17 +301,17 @@ export const SavedJobsPage: React.FC = () => {
                 <Bookmark className="w-8 h-8" />
               </div>
               <h2 className="text-xl font-bold text-[#0a0a0a]">
-                No Saved Jobs Yet
+                {t("No Saved Jobs Yet", "No Saved Jobs Yet")}
               </h2>
               <p className="text-[#717784] text-xs sm:text-sm max-w-md mx-auto leading-relaxed">
-                When searching jobs, bookmark opportunities you are interested in to review and apply to them later.
+                {t("When searching jobs, bookmark opportunities you are interested in to review and apply to them later.", "When searching jobs, bookmark opportunities you are interested in to review and apply to them later.")}
               </p>
               <div className="pt-2">
                 <Link
                   to="/search"
                   className="inline-flex items-center gap-2 px-6 py-3 bg-[#0f2f63] hover:bg-[#1a4487] text-white rounded-full text-xs sm:text-sm font-medium shadow-xs transition-all cursor-pointer uppercase active:scale-95"
                 >
-                  <span>Find Jobs Now</span>
+                  <span>{t("Find Jobs Now", "Find Jobs Now")}</span>
                   <ChevronRight className="w-4 h-4" />
                 </Link>
               </div>

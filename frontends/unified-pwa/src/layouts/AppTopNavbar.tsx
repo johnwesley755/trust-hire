@@ -25,13 +25,16 @@ import {
   LayoutDashboard,
   FileText,
   Users,
-  Bell
+  Bell,
+  Globe
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslation, SUPPORTED_LANGUAGES } from '../providers/TranslationContext';
 
 export const AppTopNavbar = () => {
   const { user } = useUser();
   const { logout } = useAuth();
+  const { language, setLanguage } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -81,7 +84,7 @@ export const AppTopNavbar = () => {
     ? employerNavLinks
     : workerNavLinks;
 
-  // Close profile menu when clicking outside
+  // Close menus when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (profileMenuRef.current && !profileMenuRef.current.contains(event.target as Node)) {
@@ -104,50 +107,31 @@ export const AppTopNavbar = () => {
 
   return (
     <header className="sticky top-0 z-50 w-full bg-white/90 backdrop-blur-md border-b border-[#e6e8ec] shadow-xs text-[#0a0a0a] select-none font-['Onest',system-ui,sans-serif]">
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-18 flex items-center justify-between gap-3 sm:gap-4">
+      <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-16 sm:h-18 flex items-center justify-between gap-2 sm:gap-4 overflow-visible">
         
         {/* Left: Brand Logo */}
-        <div className="flex items-center gap-3 sm:gap-5 shrink-0">
-          <Link to="/" className="flex items-center group py-1" aria-label="TrustHyre Home">
+        <div className="flex items-center gap-4 shrink-0">
+          <Link to="/" className="flex items-center group py-1 shrink-0" aria-label="TrustHyre Home">
             <img 
               src={trustHyreLogo} 
               alt="TrustHyre" 
-              className="h-10 sm:h-12 md:h-14 w-auto object-contain block select-none mix-blend-multiply group-hover:opacity-90 transition-opacity" 
+              className="h-9 sm:h-10 md:h-12 w-auto object-contain block select-none mix-blend-multiply group-hover:opacity-90 transition-opacity" 
             />
           </Link>
-
-          {/* Desktop Nav Links - Complete List without Truncation */}
-          <nav className="hidden lg:flex items-center gap-0.5 xl:gap-1 shrink-0">
-            {navLinks.map((link) => {
-              const isActive = location.pathname === link.path || (link.path === '/search' && location.pathname === '/');
-              return (
-                <Link
-                  key={link.path}
-                  to={link.path}
-                  className={`px-2.5 xl:px-3 py-1.5 text-xs font-medium rounded-full transition-all whitespace-nowrap ${
-                    isActive 
-                      ? 'bg-[#0f2f63] text-white shadow-xs' 
-                      : 'text-[#717784] hover:text-[#0a0a0a] hover:bg-[#f4f4f4]'
-                  }`}
-                >
-                  {link.name}
-                </Link>
-              );
-            })}
-          </nav>
         </div>
 
-        {/* Center: Hallmark N13 Inline Capsule Search Bar (Reduced & Compact) */}
-        <div className="hidden md:flex items-center flex-1 max-w-[240px] lg:max-w-[280px] xl:max-w-[320px] mx-2 lg:mx-3">
+        {/* Center: Hallmark N13 Inline Capsule Search Bar */}
+        <div className="hidden md:flex items-center flex-1 max-w-sm lg:max-w-md mx-2 sm:mx-4">
           <NavbarSearchInput 
             className="w-full" 
             placeholder={isEmployer ? "Search specialists..." : "Search jobs..."} 
           />
         </div>
 
-        {/* Right Actions: CTA + Notifications + Profile Menu / Guest Buttons */}
-        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+        {/* Right Actions: CTA + Notifications + Profile Menu / Guest Buttons (Guaranteed Unclipped) */}
+        <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0 ml-auto">
           
+
           {/* Mobile Search Toggle Button */}
           <button
             type="button"
@@ -165,7 +149,7 @@ export const AppTopNavbar = () => {
               {isEmployer ? (
                 <Link
                   to="/post-job"
-                  className="hidden sm:inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-full bg-[#0f2f63] hover:bg-[#2563c9] text-white text-xs font-semibold uppercase tracking-wider shadow-xs transition-all active:scale-95 cursor-pointer shrink-0 whitespace-nowrap h-9 leading-none"
+                  className="hidden xl:inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-full bg-[#0f2f63] hover:bg-[#2563c9] text-white text-xs font-semibold uppercase tracking-wider shadow-xs transition-all active:scale-95 cursor-pointer shrink-0 whitespace-nowrap h-9 leading-none"
                 >
                   <PlusCircle className="w-3.5 h-3.5 shrink-0" />
                   <span className="whitespace-nowrap">Post a Job</span>
@@ -173,7 +157,7 @@ export const AppTopNavbar = () => {
               ) : (
                 <Link
                   to="/profile"
-                  className="hidden sm:inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-full bg-[#f4f4f4] hover:bg-[#e6e8ec] text-[#0f2f63] border border-[#e6e8ec] text-xs font-semibold uppercase tracking-wider transition-all active:scale-95 cursor-pointer shrink-0 whitespace-nowrap h-9 leading-none"
+                  className="hidden xl:inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-full bg-[#f4f4f4] hover:bg-[#e6e8ec] text-[#0f2f63] border border-[#e6e8ec] text-xs font-semibold uppercase tracking-wider transition-all active:scale-95 cursor-pointer shrink-0 whitespace-nowrap h-9 leading-none"
                 >
                   <Upload className="w-3.5 h-3.5 shrink-0" />
                   <span className="whitespace-nowrap">Upload Resume</span>
@@ -417,6 +401,33 @@ export const AppTopNavbar = () => {
             exit={{ opacity: 0, height: 0 }}
             className="lg:hidden bg-white border-t border-[#e6e8ec] px-4 py-4 space-y-3 shadow-xl max-h-[calc(100vh-4.5rem)] overflow-y-auto"
           >
+            {/* Mobile Regional Language Quick-Switch Bar */}
+            <div className="p-2.5 bg-slate-50 rounded-2xl border border-slate-200/80 space-y-1.5">
+              <div className="flex items-center gap-1.5 px-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                <Globe className="w-3.5 h-3.5 text-[#0f2f63]" />
+                <span>Language / மொழி / भाषा</span>
+              </div>
+              <div className="grid grid-cols-4 gap-1.5">
+                {SUPPORTED_LANGUAGES.map((lang) => {
+                  const isSelected = language === lang.code;
+                  return (
+                    <button
+                      key={lang.code}
+                      type="button"
+                      onClick={() => setLanguage(lang.code)}
+                      className={`py-1.5 px-2 rounded-xl text-center text-xs font-bold transition-all ${
+                        isSelected
+                          ? 'bg-[#0f2f63] text-white shadow-2xs'
+                          : 'bg-white hover:bg-slate-100 text-slate-700 border border-slate-200'
+                      }`}
+                    >
+                      <div className="truncate text-[11px]">{lang.native}</div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
             <div className="space-y-1">
               <span className="text-[10px] font-bold uppercase text-[#717784] px-3.5">
                 Navigation

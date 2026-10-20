@@ -3,7 +3,7 @@ export function LandingMarquee() {
     { text: "Success Story: Suresh (Guard) 40% Hike", type: "story" },
     { text: "Certified Cook", type: "badge" },
     { text: "Priya (Helper) Joined Level 2", type: "story" },
-    { text: "Verified Aadhaar", type: "badge" },
+    { text: "Verified Government ID", type: "badge" },
   ];
 
   const content = (

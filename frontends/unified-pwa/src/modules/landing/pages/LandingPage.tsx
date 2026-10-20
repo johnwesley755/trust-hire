@@ -14,9 +14,12 @@ import {
   ArrowRight,
   ChevronRight,
   Clock,
-  Sparkles
+  Sparkles,
+  Globe,
+  ChevronDown
 } from "lucide-react";
 
+import { useTranslation, SUPPORTED_LANGUAGES } from "../../../providers/TranslationContext";
 import { LANDING_IMAGES } from "../constants/landingAssets";
 import trustHyreLogo from "../../../assets/TrustHyre Skills and Opportunities Logo.png";
 import trustHyreLightLogo from "../../../assets/TrustHyre Logo with Skills Tagline.png";
@@ -107,6 +110,7 @@ const HERO_MODES = [
   {
     role: "COMMON",
     modeLabel: "Platform Overview",
+    title: "CONNECT & WORK",
     titleWords: ["CONNECT", "&", "WORK"],
     tagline: ["ZERO BROKERS,", "DIRECT JOBS."],
     badge: "Open Workforce Platform",
@@ -114,6 +118,7 @@ const HERO_MODES = [
   {
     role: "WORKER",
     modeLabel: "For Workers",
+    title: "FIND LOCAL JOBS",
     titleWords: ["FIND", "LOCAL", "JOBS"],
     tagline: ["SHOW UP,", "GET PAID."],
     badge: "Workers: Guaranteed Daily Safe Pay",
@@ -121,6 +126,7 @@ const HERO_MODES = [
   {
     role: "EMPLOYER",
     modeLabel: "For Employers",
+    title: "HIRE SKILLED TALENT",
     titleWords: ["HIRE", "SKILLED", "TALENT"],
     tagline: ["VERIFIED,", "ON DEMAND."],
     badge: "Employers: Direct Hiring & Zero Middle-Men",
@@ -198,8 +204,21 @@ export default function LandingPage() {
   const [ready, setReady] = useState(false);
   const [loaderExited, setLoaderExited] = useState(false);
 
-  // Overlays
+  // Overlays & Language
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { language, setLanguage, t } = useTranslation();
+  const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
+  const langMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (langMenuRef.current && !langMenuRef.current.contains(event.target as Node)) {
+        setIsLangMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   // Hero Mode Switcher (Rotates every 5.5s or via role pills)
   const [heroModeIdx, setHeroModeIdx] = useState(0);
@@ -459,10 +478,33 @@ export default function LandingPage() {
                   style={{ animationDelay: `${120 + idx * 70}ms` }}
                   className="text-5xl sm:text-7xl font-medium tracking-tight text-white hover:text-[#5790e6] transition-colors leading-[1.05] block py-1"
                 >
-                  {item.label}
+                  {t(item.label, item.label)}
                 </a>
               ))}
             </nav>
+
+            {/* Language Switcher Bar in Fullscreen Menu */}
+            <div className="py-4 border-t border-white/15 flex flex-wrap items-center gap-2">
+              <span className="text-xs text-white/60 font-semibold uppercase tracking-wider flex items-center gap-1.5 mr-2">
+                <Globe className="w-3.5 h-3.5 text-white/70" />
+                Language / மொழி / भाषा:
+              </span>
+              {SUPPORTED_LANGUAGES.map((lang) => (
+                <button
+                  key={lang.code}
+                  type="button"
+                  onClick={() => setLanguage(lang.code)}
+                  className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                    language === lang.code
+                      ? "bg-white text-[#0f2f63] shadow-xs"
+                      : "bg-white/10 text-white/80 hover:bg-white/20"
+                  }`}
+                >
+                  <span>{lang.native}</span>
+                  <span className="text-[10px] opacity-70 ml-1">({lang.name})</span>
+                </button>
+              ))}
+            </div>
 
             {/* Bottom Row */}
             <div className="border-t border-white/15 pt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -471,15 +513,15 @@ export default function LandingPage() {
                 onClick={() => setIsMenuOpen(false)}
                 className="px-7 py-3.5 rounded-full bg-white text-[#0f2f63] font-medium text-sm tracking-wide uppercase hover:bg-[#5790e6] hover:text-white transition-all cursor-pointer flex items-center gap-2"
               >
-                <span>Explore Candidates</span>
+                <span>{t("Explore Candidates", "Explore Candidates")}</span>
                 <ArrowRight className="w-4 h-4" />
               </Link>
 
               <div className="flex items-center gap-6 text-sm text-white/70">
-                <Link to="/sign-in?role=worker" className="hover:text-white transition-colors">Candidate Login</Link>
-                <Link to="/sign-in?role=employer" className="hover:text-white transition-colors">Employer Login</Link>
-                <Link to="/privacy" className="hover:text-white transition-colors">Privacy</Link>
-                <Link to="/terms" className="hover:text-white transition-colors">Terms</Link>
+                <Link to="/sign-in?role=worker" className="hover:text-white transition-colors">{t("Candidate Login", "Candidate Login")}</Link>
+                <Link to="/sign-in?role=employer" className="hover:text-white transition-colors">{t("Employer Login", "Employer Login")}</Link>
+                <Link to="/privacy" className="hover:text-white transition-colors">{t("Privacy", "Privacy")}</Link>
+                <Link to="/terms" className="hover:text-white transition-colors">{t("Terms", "Terms")}</Link>
               </div>
             </div>
           </div>
@@ -521,16 +563,16 @@ export default function LandingPage() {
             {/* Left Navigation (Desktop) */}
             <nav className="hidden lg:flex items-center gap-8 flex-1">
               <a href="#categories" className="text-white/85 hover:text-white transition-colors tracking-wide text-sm">
-                Job Categories
+                {t("Job Categories", "Job Categories")}
               </a>
               <a href="#technology" className="text-white/85 hover:text-white transition-colors tracking-wide text-sm">
-                How It Works
+                {t("How It Works", "How It Works")}
               </a>
               <a href="#standards" className="text-white/85 hover:text-white transition-colors tracking-wide text-sm">
-                Standards
+                {t("Standards", "Standards")}
               </a>
               <a href="#commitments" className="text-white/85 hover:text-white transition-colors tracking-wide text-sm">
-                Protections
+                {t("Protections", "Protections")}
               </a>
             </nav>
 
@@ -553,7 +595,7 @@ export default function LandingPage() {
                       className="px-4 py-2 rounded-full text-xs font-medium bg-white text-[#0f2f63] hover:bg-[#5790e6] hover:text-white transition-colors flex items-center gap-1.5"
                     >
                       <ShieldCheck className="w-3.5 h-3.5" />
-                      <span>Admin Hub</span>
+                      <span>{t("Admin Hub", "Admin Hub")}</span>
                     </Link>
                   ) : isEmployer ? (
                     <>
@@ -561,13 +603,13 @@ export default function LandingPage() {
                         to="/find-workers"
                         className="px-3.5 py-2 rounded-full text-xs font-medium text-white/90 hover:text-white transition-colors"
                       >
-                        Find Candidates
+                        {t("Find Candidates", "Find Candidates")}
                       </Link>
                       <Link
                         to="/dashboard"
                         className="px-4 py-2 rounded-full text-xs font-medium bg-white text-[#0f2f63] hover:bg-[#5790e6] hover:text-white transition-colors"
                       >
-                        Dashboard
+                        {t("Dashboard", "Dashboard")}
                       </Link>
                     </>
                   ) : (
@@ -576,13 +618,13 @@ export default function LandingPage() {
                         to="/search"
                         className="px-3.5 py-2 rounded-full text-xs font-medium text-white/90 hover:text-white transition-colors"
                       >
-                        Find Jobs
+                        {t("Find Jobs", "Find Jobs")}
                       </Link>
                       <Link
                         to="/applied-jobs"
                         className="px-4 py-2 rounded-full text-xs font-medium bg-white text-[#0f2f63] hover:bg-[#5790e6] hover:text-white transition-colors"
                       >
-                        My Jobs
+                        {t("My Jobs", "My Jobs")}
                       </Link>
                     </>
                   )}
@@ -593,22 +635,68 @@ export default function LandingPage() {
                     to="/sign-in?role=worker"
                     className="hidden md:inline-flex text-white/80 hover:text-white uppercase tracking-wider text-xs transition-colors"
                   >
-                    Worker Login
+                    {t("Worker Login", "Worker Login")}
                   </Link>
                   <Link
                     to="/sign-in?role=employer"
                     className="hidden sm:inline-flex text-white/80 hover:text-white uppercase tracking-wider text-xs transition-colors"
                   >
-                    Employer Login
+                    {t("Employer Login", "Employer Login")}
                   </Link>
                   <Link
                     to="/find-workers"
                     className="hidden sm:inline-flex px-3.5 py-1.5 rounded-full bg-white/15 hover:bg-white/25 border border-white/20 text-white text-xs font-medium transition-colors cursor-pointer"
                   >
-                    Explore Workers
+                    {t("Explore Workers", "Explore Workers")}
                   </Link>
                 </>
               )}
+
+              {/* Language Switcher Pill */}
+              <div className="relative shrink-0" ref={langMenuRef}>
+                <button
+                  type="button"
+                  onClick={() => setIsLangMenuOpen(!isLangMenuOpen)}
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-white/15 backdrop-blur-xs hover:bg-white/25 border border-white/20 text-white text-xs font-semibold transition-all cursor-pointer select-none"
+                  aria-label="Select Language"
+                >
+                  <Globe className="w-3.5 h-3.5 text-white shrink-0" />
+                  <span className="font-bold text-[11px] uppercase tracking-wider text-white">
+                    {language}
+                  </span>
+                  <ChevronDown className={`w-3 h-3 text-white/70 shrink-0 transition-transform duration-200 ${isLangMenuOpen ? "rotate-180" : ""}`} />
+                </button>
+
+                {isLangMenuOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white text-[#0a0a0a] rounded-2xl shadow-2xl border border-slate-200 py-1.5 z-50 overflow-hidden font-['Onest',system-ui,sans-serif]">
+                    <div className="px-3.5 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100">
+                      Language / மொழி / भाषा
+                    </div>
+                    {SUPPORTED_LANGUAGES.map((lang) => {
+                      const isSelected = language === lang.code;
+                      return (
+                        <button
+                          key={lang.code}
+                          type="button"
+                          onClick={() => {
+                            setLanguage(lang.code);
+                            setIsLangMenuOpen(false);
+                          }}
+                          className={`w-full px-3.5 py-2 text-left flex items-center justify-between text-xs transition-colors cursor-pointer ${
+                            isSelected ? "bg-[#0f2f63]/10 text-[#0f2f63] font-bold" : "text-slate-700 hover:bg-slate-50"
+                          }`}
+                        >
+                          <div>
+                            <div className="font-semibold text-xs text-[#0A1931]">{lang.native}</div>
+                            <div className="text-[10px] text-slate-400">{lang.name}</div>
+                          </div>
+                          {isSelected && <CheckCircle2 className="w-4 h-4 text-[#0f2f63] shrink-0" />}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
 
               {/* Hamburger Button */}
               <button
@@ -626,20 +714,22 @@ export default function LandingPage() {
           {/* DYNAMIC TITLE BLOCK FOR BOTH CANDIDATES & EMPLOYERS */}
           <div className="px-6 sm:px-10 pt-4 sm:pt-6">
             <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-[6.8rem] font-medium uppercase leading-[0.92] tracking-tight text-white max-w-5xl">
-              {HERO_MODES[heroModeIdx].titleWords.map((word, wIdx) => (
-                <span 
-                  key={`${heroModeIdx}-${word}`} 
-                  className="inline-block overflow-hidden pb-[0.08em] mr-[0.25em] last:mr-0 align-bottom"
-                >
+              {t(HERO_MODES[heroModeIdx].title, HERO_MODES[heroModeIdx].title)
+                .split(' ')
+                .map((word, wIdx) => (
                   <span 
-                    className={`inline-block transition-all duration-[800ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${
-                      ready ? "translate-y-0 opacity-100" : "translate-y-[115%] opacity-0"
-                    }`}
-                    style={{ transitionDelay: `${wIdx * 120}ms` }}
+                    key={`${heroModeIdx}-${word}-${wIdx}`} 
+                    className="inline-block overflow-hidden pb-[0.08em] mr-[0.25em] last:mr-0 align-bottom"
                   >
-                    {word}
+                    <span 
+                      className={`inline-block transition-all duration-[800ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                        ready ? "translate-y-0 opacity-100" : "translate-y-[115%] opacity-0"
+                      }`}
+                      style={{ transitionDelay: `${wIdx * 120}ms` }}
+                    >
+                      {word}
+                    </span>
                   </span>
-                </span>
               ))}
             </h1>
 
@@ -649,14 +739,14 @@ export default function LandingPage() {
                 to="/search"
                 className="px-5 py-2.5 rounded-full bg-white text-[#0f2f63] font-medium text-xs uppercase hover:bg-[#5790e6] hover:text-white transition-colors flex items-center gap-1.5 shadow-md cursor-pointer"
               >
-                <span>Find Jobs</span>
+                <span>{t("Find Jobs", "Find Jobs")}</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </Link>
               <Link
                 to="/find-workers"
                 className="px-5 py-2.5 rounded-full bg-white/15 backdrop-blur-md border border-white/25 text-white font-medium text-xs uppercase hover:bg-white/25 transition-colors flex items-center gap-1.5 cursor-pointer"
               >
-                <span>Hire Talent</span>
+                <span>{t("Hire Talent", "Hire Talent")}</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </div>
@@ -676,7 +766,7 @@ export default function LandingPage() {
                       }`}
                       style={{ transitionDelay: `${250 + lIdx * 100}ms` }}
                     >
-                      {line}
+                      {t(line, line)}
                     </p>
                   </div>
                 ))}
@@ -689,9 +779,9 @@ export default function LandingPage() {
                 }`}
               >
                 <span className="w-1.5 h-1.5 rounded-full bg-[#5790e6] animate-pulse" />
-                <span className="font-medium uppercase tracking-wider">{HERO_MODES[heroModeIdx].badge}</span>
+                <span className="font-medium uppercase tracking-wider">{t(HERO_MODES[heroModeIdx].badge, HERO_MODES[heroModeIdx].badge)}</span>
                 <span className="text-white/40">•</span>
-                <span className="text-white/70">{LANDING_IMAGES.heroBackgrounds[activeHeroBgIdx].label}</span>
+                <span className="text-white/70">{t(LANDING_IMAGES.heroBackgrounds[activeHeroBgIdx].label, LANDING_IMAGES.heroBackgrounds[activeHeroBgIdx].label)}</span>
                 <div className="flex items-center gap-1 ml-1">
                   {LANDING_IMAGES.heroBackgrounds.map((_, dotIdx) => (
                     <span 
@@ -724,16 +814,16 @@ export default function LandingPage() {
                   </div>
                   <div className="flex flex-col text-left overflow-hidden">
                     <span className="text-[0.7rem] font-medium uppercase tracking-wider text-white">
-                      {HERO_COLLECTIONS[activeHeroCollection].brand}
+                      {t(HERO_COLLECTIONS[activeHeroCollection].brand, HERO_COLLECTIONS[activeHeroCollection].brand)}
                     </span>
                     <span className="text-[0.7rem] uppercase text-white/80 truncate">
-                      {HERO_COLLECTIONS[activeHeroCollection].title}
+                      {t(HERO_COLLECTIONS[activeHeroCollection].title, HERO_COLLECTIONS[activeHeroCollection].title)}
                     </span>
                     <Link 
                       to="/sign-up?role=employer" 
                       className="text-[0.65rem] underline text-[#5790e6] hover:text-white mt-1 transition-colors"
                     >
-                      {HERO_COLLECTIONS[activeHeroCollection].cta} →
+                      {t(HERO_COLLECTIONS[activeHeroCollection].cta, HERO_COLLECTIONS[activeHeroCollection].cta)} →
                     </Link>
                   </div>
                 </div>
@@ -772,9 +862,9 @@ export default function LandingPage() {
             {/* Direct Verification Seal */}
             <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-[#f4f4f4] border border-[#e6e8ec] flex flex-col items-center justify-center p-2.5 text-center shrink-0 shadow-xs">
               <ShieldCheck className="w-6 h-6 text-[#2563c9] mb-1" />
-              <span className="text-xs font-semibold tracking-tight text-[#0a0a0a] uppercase">Direct</span>
+              <span className="text-xs font-semibold tracking-tight text-[#0a0a0a] uppercase">{t("Direct", "Direct")}</span>
               <span className="text-[0.65rem] text-[#717784] max-w-[9em] leading-tight uppercase tracking-wider">
-                Verified Pay
+                {t("Verified Pay", "Verified Pay")}
               </span>
             </div>
 
@@ -785,11 +875,11 @@ export default function LandingPage() {
                   #01
                 </span>
                 <h3 className="text-base sm:text-lg font-medium text-[#0a0a0a] tracking-tight">
-                  Direct Work & Hiring
+                  {t("Direct Work & Hiring", "Direct Work & Hiring")}
                 </h3>
               </div>
               <p className="text-sm text-[#717784] leading-relaxed">
-                Built for cooks, electricians, drivers, helpers, and local businesses. Daily photo check-ins and safe advance payments ensure reliable attendance and direct, guaranteed payouts.
+                {t("Built for cooks, electricians, drivers, helpers, and local businesses. Daily photo check-ins and safe advance payments ensure reliable attendance and direct, guaranteed payouts.", "Built for cooks, electricians, drivers, helpers, and local businesses. Daily photo check-ins and safe advance payments ensure reliable attendance and direct, guaranteed payouts.")}
               </p>
             </article>
           </div>
@@ -805,12 +895,12 @@ export default function LandingPage() {
               >
                 <span className="overflow-hidden inline-block pb-[0.08em]">
                   <span className="inline-block text-[#d7dae1] animate-[ghostSlideUp_700ms_cubic-bezier(0.16,1,0.3,1)_forwards]">
-                    {currentSlide.headline[0]}
+                    {t(currentSlide.headline[0], currentSlide.headline[0])}
                   </span>
                 </span>
                 <span className="overflow-hidden inline-block pb-[0.08em]">
                   <span className="inline-block text-[#d7dae1] animate-[ghostSlideUp_700ms_cubic-bezier(0.16,1,0.3,1)_forwards]">
-                    {currentSlide.headline[1]}
+                    {t(currentSlide.headline[1], currentSlide.headline[1])}
                   </span>
                 </span>
               </div>
@@ -822,12 +912,12 @@ export default function LandingPage() {
               >
                 <span className="overflow-hidden inline-block pb-[0.08em]">
                   <span className="inline-block text-[#0a0a0a] animate-[ghostSlideUp_700ms_cubic-bezier(0.16,1,0.3,1)_forwards]">
-                    {currentSlide.headline[2]}
+                    {t(currentSlide.headline[2], currentSlide.headline[2])}
                   </span>
                 </span>
                 <span className="overflow-hidden inline-block pb-[0.08em]">
                   <span className="inline-block text-[#d7dae1] animate-[ghostSlideUp_700ms_cubic-bezier(0.16,1,0.3,1)_forwards]">
-                    {currentSlide.headline[3]}
+                    {t(currentSlide.headline[3], currentSlide.headline[3])}
                   </span>
                 </span>
               </div>
@@ -847,7 +937,7 @@ export default function LandingPage() {
               {/* Glass Caption */}
               <figcaption className="absolute inset-x-2.5 bottom-2.5 rounded-xl bg-[#0f2f63]/60 backdrop-blur-md p-2.5 text-white text-left shadow-lg">
                 <p className="text-sm sm:text-base font-medium tracking-tight truncate">{currentSlide.name}</p>
-                <p className="text-xs text-white/90 uppercase tracking-wide mt-0.5 truncate">{currentSlide.role}</p>
+                <p className="text-xs text-white/90 uppercase tracking-wide mt-0.5 truncate">{t(currentSlide.role, currentSlide.role)}</p>
               </figcaption>
             </figure>
           </div>
@@ -901,10 +991,10 @@ export default function LandingPage() {
             <div>
               <div className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.22em] text-[#717784] mb-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#2563c9]" />
-                <span>Enterprise Sectors</span>
+                <span>{t("Enterprise Sectors", "Enterprise Sectors")}</span>
               </div>
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-medium tracking-tight text-[#0a0a0a] leading-[0.96]">
-                Every industry <br /> on demand
+                {t("Every industry", "Every industry")} <br /> {t("on demand", "on demand")}
               </h2>
             </div>
 
@@ -922,10 +1012,10 @@ export default function LandingPage() {
                       </span>
                       <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-6 flex-1">
                         <h3 className="text-xl sm:text-2xl font-medium tracking-tight text-[#0a0a0a] min-w-[16rem]">
-                          {track.name}
+                          {t(track.name, track.name)}
                         </h3>
                         <p className="text-sm sm:text-[15px] text-[#717784] max-w-lg leading-relaxed">
-                          {track.description}
+                          {t(track.description, track.description)}
                         </p>
                       </div>
                     </div>
@@ -961,11 +1051,11 @@ export default function LandingPage() {
               </div>
 
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-medium tracking-tight text-[#0a0a0a] leading-[0.96]">
-                Real Attendance & <br /> Safe Advance Pay
+                {t("Real Attendance & Safe Advance Pay", "Real Attendance & Safe Advance Pay")}
               </h2>
 
               <p className="text-sm sm:text-base text-[#717784] mt-4 leading-relaxed max-w-md">
-                Every worker does a quick photo and location check-in on arrival, and pay is held safely in advance so workers always get paid on time.
+                {t("Every worker does a quick photo and location check-in on arrival, and pay is held safely in advance so workers always get paid on time.", "Every worker does a quick photo and location check-in on arrival, and pay is held safely in advance so workers always get paid on time.")}
               </p>
             </div>
 
@@ -980,9 +1070,9 @@ export default function LandingPage() {
                   className="w-full h-full object-cover" 
                 />
                 <figcaption className="absolute inset-x-2.5 bottom-2.5 rounded-xl bg-[#0f2f63]/60 backdrop-blur-md p-2.5 text-white text-left shadow-lg">
-                  <p className="text-sm sm:text-base font-medium tracking-tight">Photo & Location Check-in</p>
+                  <p className="text-sm sm:text-base font-medium tracking-tight">{t("Photo & Location Check-in", "Photo & Location Check-in")}</p>
                   <p className="text-xs text-white/90 leading-normal mt-1">
-                    Quick photo check-in confirms the right worker arrived at the site.
+                    {t("Quick photo check-in confirms the right worker arrived at the site.", "Quick photo check-in confirms the right worker arrived at the site.")}
                   </p>
                 </figcaption>
               </figure>
@@ -992,12 +1082,12 @@ export default function LandingPage() {
                 <img 
                   src={LANDING_IMAGES.digitalEscrowVault.src} 
                   alt={LANDING_IMAGES.digitalEscrowVault.alt}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover" 
                 />
                 <figcaption className="absolute inset-x-2.5 bottom-2.5 rounded-xl bg-[#0b6e97]/60 backdrop-blur-md p-2.5 text-white text-left shadow-lg">
-                  <p className="text-sm sm:text-base font-medium tracking-tight">Protected Advance Pay</p>
+                  <p className="text-sm sm:text-base font-medium tracking-tight">{t("Protected Advance Pay", "Protected Advance Pay")}</p>
                   <p className="text-xs text-white/90 leading-normal mt-1">
-                    Pay is deposited safely before work starts and paid directly to bank or UPI upon approval.
+                    {t("Pay is deposited safely before work starts and paid directly to bank or UPI upon approval.", "Pay is deposited safely before work starts and paid directly to bank or UPI upon approval.")}
                   </p>
                 </figcaption>
               </figure>
@@ -1018,10 +1108,10 @@ export default function LandingPage() {
             <div>
               <div className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.22em] text-white/70 mb-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#5790e6]" />
-                <span>Operating Principles</span>
+                <span>{t("Operating Principles", "Operating Principles")}</span>
               </div>
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-medium tracking-tight text-white leading-[0.96]">
-                Architected for <br /> accountability
+                {t("Architected for accountability", "Architected for accountability")}
               </h2>
             </div>
 
@@ -1029,21 +1119,21 @@ export default function LandingPage() {
             <dl className="mt-8 sm:mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-8">
               {OPERATING_STANDARDS.map((std) => (
                 <div key={std.number} className="border-t border-white/20 pt-4 text-left">
-                  <dt className="sr-only">{std.title}</dt>
+                  <dt className="sr-only">{t(std.title, std.title)}</dt>
                   <dd>
                     <div className="flex items-center justify-between mb-3">
                       <span className="text-xs font-semibold uppercase tracking-widest text-[#5790e6]">
                         {std.number}
                       </span>
                       <span className="text-[11px] font-medium uppercase tracking-wider text-white/50">
-                        {std.subtitle}
+                        {t(std.subtitle, std.subtitle)}
                       </span>
                     </div>
                     <div className="text-lg sm:text-xl font-medium text-white tracking-tight leading-snug">
-                      {std.title}
+                      {t(std.title, std.title)}
                     </div>
                     <p className="text-sm text-white/75 mt-2 leading-relaxed">
-                      {std.desc}
+                      {t(std.desc, std.desc)}
                     </p>
                   </dd>
                 </div>
@@ -1061,13 +1151,13 @@ export default function LandingPage() {
             <div>
               <div className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.22em] text-[#717784] mb-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#2563c9]" />
-                <span>Platform Commitments</span>
+                <span>{t("Platform Commitments", "Platform Commitments")}</span>
               </div>
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-medium tracking-tight text-[#0a0a0a] leading-[0.96]">
-                Clear rules for <br /> both sides
+                {t("Clear rules for both sides", "Clear rules for both sides")}
               </h2>
               <p className="text-sm sm:text-base text-[#717784] mt-3 max-w-xl leading-relaxed">
-                TrustHyre replaces verbal agreements and contractor middle-men with transparent hiring protections for employers and workers alike.
+                {t("TrustHyre replaces verbal agreements and contractor middle-men with transparent hiring protections for employers and workers alike.", "TrustHyre replaces verbal agreements and contractor middle-men with transparent hiring protections for employers and workers alike.")}
               </p>
             </div>
 
@@ -1078,13 +1168,13 @@ export default function LandingPage() {
                   <div className="flex flex-col justify-between h-full rounded-[1.5rem] bg-[#f4f4f4] p-6 sm:p-7 transition-transform duration-300 hover:-translate-y-1.5 shadow-xs">
                     <div>
                       <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider mb-4 ${card.badgeColor}`}>
-                        {card.badge}
+                        {t(card.badge, card.badge)}
                       </span>
                       <h3 className="text-xl sm:text-2xl font-medium text-[#0a0a0a] tracking-tight leading-snug">
-                        {card.title}
+                        {t(card.title, card.title)}
                       </h3>
                       <p className="text-sm text-[#717784] mt-2 leading-relaxed">
-                        {card.desc}
+                        {t(card.desc, card.desc)}
                       </p>
                     </div>
 
@@ -1092,7 +1182,7 @@ export default function LandingPage() {
                       {card.points.map((pt, pIdx) => (
                         <li key={pIdx} className="flex items-start gap-2.5 text-sm text-[#0a0a0a] leading-relaxed">
                           <CheckCircle2 className="w-4 h-4 text-[#2563c9] shrink-0 mt-0.5" />
-                          <span>{pt}</span>
+                          <span>{t(pt, pt)}</span>
                         </li>
                       ))}
                     </ul>
@@ -1116,7 +1206,7 @@ export default function LandingPage() {
                   <span className="w-1.5 h-1.5 rounded-full bg-[#5790e6]" />
                 </div>
                 <h3 className="text-4xl sm:text-5xl font-medium tracking-tight text-white leading-[0.94]">
-                  Explore the TrustHyre <br /> application
+                  {t("Explore the TrustHyre application", "Explore the TrustHyre application")}
                 </h3>
               </div>
 
@@ -1125,7 +1215,7 @@ export default function LandingPage() {
                   to="/search"
                   className="w-full sm:w-auto px-6 py-3 rounded-full bg-white text-[#0f2f63] font-medium text-xs uppercase hover:bg-[#5790e6] hover:text-white transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-lg"
                 >
-                  <span>Browse Jobs</span>
+                  <span>{t("Browse Jobs", "Browse Jobs")}</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </Link>
 
@@ -1133,7 +1223,7 @@ export default function LandingPage() {
                   to="/find-workers"
                   className="w-full sm:w-auto px-6 py-3 rounded-full border border-white/30 text-white font-medium text-xs uppercase hover:bg-white/10 transition-colors flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  <span>Explore Candidates</span>
+                  <span>{t("Explore Candidates", "Explore Candidates")}</span>
                 </Link>
               </div>
             </div>
@@ -1154,53 +1244,75 @@ export default function LandingPage() {
                 </div>
 
                 <p className="text-sm text-white/80 leading-relaxed">
-                  A simple, trusted platform connecting skilled workers with verified local employers. Safe advance payments, daily photo check-ins, and direct payouts with zero middle-men fees.
+                  {t("A simple, trusted platform connecting skilled workers with verified local employers. Safe advance payments, daily photo check-ins, and direct payouts with zero middle-men fees.", "A simple, trusted platform connecting skilled workers with verified local employers. Safe advance payments, daily photo check-ins, and direct payouts with zero middle-men fees.")}
                 </p>
               </div>
 
               {/* Column: For Employers */}
               <div>
                 <h4 className="text-xs font-semibold uppercase tracking-[0.2em] text-white/50 mb-3">
-                  For Employers
+                  {t("For Employers", "For Employers")}
                 </h4>
                 <ul className="space-y-3 text-sm text-white/80">
-                  <li><Link to="/find-workers" className="hover:text-white transition-colors">Browse Candidates</Link></li>
-                  <li><Link to="/post-job" className="hover:text-white transition-colors">Post a Job</Link></li>
+                  <li><Link to="/find-workers" className="hover:text-white transition-colors">{t("Browse Candidates", "Browse Candidates")}</Link></li>
+                  <li><Link to="/post-job" className="hover:text-white transition-colors">{t("Post a Job", "Post a Job")}</Link></li>
                 </ul>
               </div>
 
               {/* Column: For Workers */}
               <div>
                 <h4 className="text-xs font-semibold uppercase tracking-[0.2em] text-white/50 mb-3">
-                  For Workers
+                  {t("For Workers", "For Workers")}
                 </h4>
                 <ul className="space-y-3 text-sm text-white/80">
-                  <li><Link to="/search" className="hover:text-white transition-colors">Find Jobs</Link></li>
-                  <li><Link to="/sign-up?role=worker" className="hover:text-white transition-colors">Worker Registration</Link></li>
+                  <li><Link to="/search" className="hover:text-white transition-colors">{t("Find Jobs", "Find Jobs")}</Link></li>
+                  <li><Link to="/sign-up?role=worker" className="hover:text-white transition-colors">{t("Worker Registration", "Worker Registration")}</Link></li>
                 </ul>
               </div>
 
               {/* Column: Access & Legal */}
               <div>
                 <h4 className="text-xs font-semibold uppercase tracking-[0.2em] text-white/50 mb-3">
-                  Access & Legal
+                  {t("Access & Legal", "Access & Legal")}
                 </h4>
                 <ul className="space-y-3 text-sm text-white/80">
-                  <li><Link to="/sign-in" className="hover:text-white transition-colors">Sign In</Link></li>
-                  <li><Link to="/terms" className="hover:text-white transition-colors">Terms of Service</Link></li>
-                  <li><Link to="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
+                  <li><Link to="/sign-in" className="hover:text-white transition-colors">{t("Sign In", "Sign In")}</Link></li>
+                  <li><Link to="/terms" className="hover:text-white transition-colors">{t("Terms of Service", "Terms of Service")}</Link></li>
+                  <li><Link to="/privacy" className="hover:text-white transition-colors">{t("Privacy Policy", "Privacy Policy")}</Link></li>
                 </ul>
               </div>
 
             </div>
 
-            {/* Bottom Bar: Clean Production Attribution */}
-            <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-white/70">
+            {/* Bottom Bar: Clean Production Attribution & Accessible Language Selector */}
+            <div className="pt-6 border-t border-white/10 flex flex-col lg:flex-row items-center justify-between gap-4 text-xs sm:text-sm text-white/70">
               <p>© 2026 TrustHyre. Safe, guaranteed hiring for verified workers and businesses.</p>
               
-              <div className="flex items-center gap-6">
-                <Link to="/privacy" className="hover:text-white transition-colors">Privacy</Link>
-                <Link to="/terms" className="hover:text-white transition-colors">Terms</Link>
+              <div className="flex flex-wrap items-center gap-4 sm:gap-6">
+                {/* Direct Language Switcher Bar in Footer */}
+                <div className="flex items-center gap-1.5 bg-white/10 px-3 py-1.5 rounded-full border border-white/15">
+                  <Globe className="w-3.5 h-3.5 text-white/70" />
+                  <span className="text-[11px] font-semibold text-white/70 mr-1">Language:</span>
+                  {SUPPORTED_LANGUAGES.map((lang) => (
+                    <button
+                      key={lang.code}
+                      type="button"
+                      onClick={() => setLanguage(lang.code)}
+                      className={`px-2 py-0.5 rounded-md text-[11px] font-bold transition-all cursor-pointer ${
+                        language === lang.code
+                          ? "bg-white text-[#0f2f63] shadow-xs"
+                          : "text-white/80 hover:text-white hover:bg-white/10"
+                      }`}
+                    >
+                      {lang.native}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="flex items-center gap-4">
+                  <Link to="/privacy" className="hover:text-white transition-colors">Privacy</Link>
+                  <Link to="/terms" className="hover:text-white transition-colors">Terms</Link>
+                </div>
               </div>
             </div>
 

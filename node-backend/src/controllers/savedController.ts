@@ -168,7 +168,7 @@ export const getSavedWorkers = async (c: Context) => {
       const meta = metaMap.get(wid);
       const prof = profileMap.get(wid);
 
-      const name = idx?.name || (meta ? `${meta.first_name || ''} ${meta.last_name || ''}`.trim() : 'Specialist Candidate') || 'Candidate';
+      const name = prof?.full_name || (meta ? `${meta.first_name || ''} ${meta.last_name || ''}`.trim() : '') || idx?.name || 'Candidate';
       const skillString = idx?.skills || prof?.trade_skills || '';
       const skills = skillString ? skillString.split(',').map((s: string) => s.trim()).filter(Boolean) : [];
 

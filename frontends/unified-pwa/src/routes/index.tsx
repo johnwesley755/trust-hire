@@ -39,10 +39,12 @@ import RootLayout from '../layouts/RootLayout';
 import ProtectedRoute from '../layouts/ProtectedRoute';
 
 import RoleGuard from '../layouts/RoleGuard';
+import { RouteErrorBoundary } from '../components/common/RouteErrorBoundary';
 
 export const router = createBrowserRouter([
   {
     element: <RootLayout />,
+    errorElement: <RouteErrorBoundary />,
     children: [
       {
         path: '/',

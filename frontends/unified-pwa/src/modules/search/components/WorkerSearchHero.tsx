@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { MapPin, LocateFixed, Loader2, AlertCircle, X } from 'lucide-react';
 import { detectCurrentCity } from '../../../utils/geolocation';
 import { useUser } from '../../../providers/AuthContext';
+import { useTranslation } from '../../../providers/TranslationContext';
 
 interface WorkerSearchHeroProps {
   title?: string;
@@ -41,11 +42,12 @@ export const WorkerSearchHero: React.FC<WorkerSearchHeroProps> = ({
   isLocating = false,
 }) => {
   const { user } = useUser();
+  const { t } = useTranslation();
   const employerName = user?.companyName || user?.firstName || 'Partner';
-  const resolvedTitle = title || (user ? `Welcome back, ${employerName}! 👋` : "Verified Specialist Directory");
+  const resolvedTitle = title || (user ? `${t("Welcome back,", "Welcome back,")} ${employerName}! 👋` : t("Verified Specialist Directory", "Verified Specialist Directory"));
   const resolvedSubtitle = subtitle || (user 
-    ? "Explore pre-screened specialists ready for immediate dispatch with direct payment protections."
-    : "Browse pre-evaluated candidates with biometric attendance records, practical skill validation, and guaranteed payment protection.");
+    ? t("Explore pre-screened specialists ready for immediate dispatch with direct payment protections.", "Explore pre-screened specialists ready for immediate dispatch with direct payment protections.")
+    : t("Browse pre-evaluated candidates with biometric attendance records, practical skill validation, and guaranteed payment protection.", "Browse pre-evaluated candidates with biometric attendance records, practical skill validation, and guaranteed payment protection."));
   const [internalLocating, setInternalLocating] = useState(false);
   const [locationNotice, setLocationNotice] = useState<string | null>(null);
 
@@ -63,7 +65,7 @@ export const WorkerSearchHero: React.FC<WorkerSearchHeroProps> = ({
       }
     } catch (err: any) {
       console.error('Location detection error:', err);
-      setLocationNotice(err.message || 'Location unavailable. Enter city in the search bar above.');
+      setLocationNotice(err.message || t('Location unavailable. Enter city in the search bar above.', 'Location unavailable. Enter city in the search bar above.'));
     } finally {
       setInternalLocating(false);
     }
@@ -100,7 +102,7 @@ export const WorkerSearchHero: React.FC<WorkerSearchHeroProps> = ({
           {/* Active Total Specialists Badge */}
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-50 border border-slate-200/80 text-xs font-medium text-slate-700 shadow-xs">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span><strong className="font-semibold text-[#0A1931]">{totalWorkers}</strong> Specialists Available</span>
+            <span><strong className="font-semibold text-[#0A1931]">{totalWorkers}</strong> {t("Specialists Available", "Specialists Available")}</span>
           </div>
 
           {/* Quick Location Chip / Detector */}
@@ -112,7 +114,7 @@ export const WorkerSearchHero: React.FC<WorkerSearchHeroProps> = ({
                 type="button"
                 onClick={handleClearCity}
                 className="p-0.5 hover:bg-white/20 rounded-full transition-colors cursor-pointer ml-1"
-                title="Clear city filter"
+                title={t("Clear city filter", "Clear city filter")}
               >
                 <X className="w-3 h-3" />
               </button>
@@ -129,7 +131,7 @@ export const WorkerSearchHero: React.FC<WorkerSearchHeroProps> = ({
               ) : (
                 <LocateFixed className="w-3.5 h-3.5 text-[#2563c9]" />
               )}
-              <span>{isDetecting ? 'Detecting City...' : 'Detect Near Me'}</span>
+              <span>{isDetecting ? t('Detecting City...', 'Detecting City...') : t('Detect Near Me', 'Detect Near Me')}</span>
             </button>
           )}
 
@@ -147,7 +149,7 @@ export const WorkerSearchHero: React.FC<WorkerSearchHeroProps> = ({
             onClick={() => setLocationNotice(null)}
             className="ml-auto text-amber-600 hover:text-amber-800 text-xs font-medium cursor-pointer"
           >
-            Dismiss
+            {t("Dismiss", "Dismiss")}
           </button>
         </div>
       )}
@@ -155,7 +157,7 @@ export const WorkerSearchHero: React.FC<WorkerSearchHeroProps> = ({
       {/* Horizontal Trade Filter Pills */}
       <div className="pt-2 border-t border-slate-100 flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
         <span className="text-[10px] font-medium uppercase text-slate-500 shrink-0 mr-1 hidden sm:inline-block">
-          Categories:
+          {t("Categories:", "Categories:")}
         </span>
         {FEATURED_TRADES.map((trade) => {
           const isSelected = selectedTrade === trade;
@@ -169,7 +171,7 @@ export const WorkerSearchHero: React.FC<WorkerSearchHeroProps> = ({
                   : 'bg-slate-50 hover:bg-slate-100 border border-slate-200/80 text-slate-700 hover:border-slate-300'
               }`}
             >
-              {trade}
+              {t(trade, trade)}
             </button>
           );
         })}

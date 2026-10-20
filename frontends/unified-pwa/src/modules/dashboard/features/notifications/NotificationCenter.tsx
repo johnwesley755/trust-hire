@@ -118,7 +118,7 @@ export const NotificationCenter = () => {
         if (t === 'APPLICATION_SUBMITTED' || t === 'APPLICATION_UPDATE' || t === 'APPLICATION_ACCEPTED' || t === 'APPLICATION_SHORTLISTED') {
             navigate('/applied-jobs');
         } else if (t === 'NEW_APPLICATION') {
-            const dataJobId = (n.data as any)?.jobId || (n.data as any)?.job_id;
+            const dataJobId = (n as any).data?.jobId || (n as any).data?.job_id;
             if (dataJobId) {
                 navigate(`/jobs/${dataJobId}/applicants`);
             } else {

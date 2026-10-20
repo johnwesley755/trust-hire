@@ -17,8 +17,8 @@ export function LandingTrust() {
                 <span className="material-symbols-outlined">verified_user</span>
               </div>
               <div>
-                <h4 className="text-white text-xl font-bold mb-2 font-headline">Aadhaar Protection</h4>
-                <p className="text-white/60 font-body">We only use Aadhaar to confirm who you are. The scan is deleted immediately after verification for your privacy.</p>
+                <h4 className="text-white text-xl font-bold mb-2 font-headline">Identity Protection</h4>
+                <p className="text-white/60 font-body">We only verify documents to confirm who you are. Your sensitive documents are encrypted and protected for your privacy.</p>
               </div>
             </div>
             

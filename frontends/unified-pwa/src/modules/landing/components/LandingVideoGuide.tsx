@@ -10,7 +10,7 @@ export function LandingVideoGuide() {
         <div className="flex flex-col lg:flex-row gap-16 items-center">
           <div className="lg:w-1/2">
             <h2 className="text-[42px] md:text-[52px] font-extrabold text-white text-heavy mb-6 leading-tight">Watch How to Get Hired</h2>
-            <p className="text-xl text-white/70 mb-8 max-w-lg">In just 2 minutes, see how simple it is to create your profile, get verified with Aadhaar, and receive your first job offer.</p>
+            <p className="text-xl text-white/70 mb-8 max-w-lg">In just 2 minutes, see how simple it is to create your profile, get verified with government ID, and receive your first job offer.</p>
             
             <ul className="space-y-6">
               <li className="flex items-center gap-4">
@@ -19,7 +19,7 @@ export function LandingVideoGuide() {
               </li>
               <li className="flex items-center gap-4">
                 <span className="w-10 h-10 rounded-full bg-primary-fixed text-primary flex items-center justify-center font-bold text-lg flex-shrink-0">2</span>
-                <span className="text-lg">Fast 30-second Aadhaar check</span>
+                <span className="text-lg">Fast 30-second identity check</span>
               </li>
               <li className="flex items-center gap-4">
                 <span className="w-10 h-10 rounded-full bg-primary-fixed text-primary flex items-center justify-center font-bold text-lg flex-shrink-0">3</span>
