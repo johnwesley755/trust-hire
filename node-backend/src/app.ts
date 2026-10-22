@@ -80,6 +80,10 @@ const ALLOWED_ORIGINS = [
   'http://localhost:4173',
   'http://localhost:8787',
   'http://127.0.0.1:5173',
+  'https://trusthyre.com',
+  'https://www.trusthyre.com',
+  'https://app.trusthyre.com',
+  'https://api.trusthyre.com',
   'https://trusthire.in',
   'https://www.trusthire.in',
   'https://app.trusthire.in',
@@ -102,6 +106,9 @@ app.use('*', cors({
     if (!origin) return ALLOWED_ORIGINS[0];
     if (
       ALLOWED_ORIGINS.includes(origin) ||
+      origin === 'https://trusthyre.com' ||
+      origin.endsWith('.trusthyre.com') ||
+      origin === 'https://trusthire.in' ||
       origin.endsWith('.trusthire.in') ||
       origin.endsWith('.vercel.app') ||
       origin.endsWith('.web.app') ||
