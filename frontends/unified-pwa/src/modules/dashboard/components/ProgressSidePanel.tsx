@@ -63,7 +63,7 @@ export const ProgressSidePanel: React.FC<ProgressSidePanelProps> = ({ progress =
             <p className="text-[9px] font-bold text-blue-200 uppercase tracking-widest">To reach 100%:</p>
             <div className="flex items-center gap-2 bg-white/10 p-2.5 rounded-xl text-xs">
               <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-              <span className="font-medium text-slate-100">Complete KYC & Identity verification</span>
+              <span className="font-medium text-slate-100">Complete Identity verification</span>
             </div>
             <div className="flex items-center gap-2 bg-white/10 p-2.5 rounded-xl text-xs">
               <Circle className="w-4 h-4 text-blue-300 shrink-0" />
@@ -77,7 +77,7 @@ export const ProgressSidePanel: React.FC<ProgressSidePanelProps> = ({ progress =
         <h4 className="text-xs font-black uppercase tracking-wider text-slate-400 px-1">Quick Partner Actions</h4>
         <div className="space-y-2.5">
           <ActionCard 
-            title="Complete Identity KYC" 
+            title="Complete Identity Verification" 
             description="Unlock direct bank withdrawals" 
             icon={<ShieldCheck className="w-5 h-5 text-[#0066FF]" />} 
             containerColor="bg-blue-50"

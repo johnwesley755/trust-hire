@@ -73,6 +73,59 @@ export interface GetLeadsParams {
   limit?: number;
 }
 
+export interface DiscoverySourceItem {
+  id: string;
+  name: string;
+  type: string;
+  status: string;
+  active: boolean;
+  complianceNote: string;
+  lastScan: string | null;
+}
+
+export interface CrawledJobData {
+  companyName: string;
+  companyWebsite: string | null;
+  industry: string | null;
+  city: string | null;
+  officialEmail: string | null;
+  officialPhone: string | null;
+  contactPageUrl: string | null;
+  title: string;
+  category: string;
+  workersNeeded: number | null;
+  salaryRange: string | null;
+  sourceName: string;
+  sourceUrl: string;
+  description: string;
+}
+
+export interface CrawlUrlResult {
+  success: boolean;
+  data: CrawledJobData;
+  lead: CrawledJobData;
+  logs: any[];
+  session: any;
+}
+
+export interface AutoDiscoveryResponse {
+  success: boolean;
+  totalScanned: number;
+  newLeadsCount: number;
+  updatedLeadsCount: number;
+  duplicatesIgnored: number;
+  rejectedCount: number;
+  results: any[];
+  sourceBreakdown?: Array<{
+    sourceId: string;
+    sourceName: string;
+    status: string;
+    leadsFound: number;
+    requirementsFound: number;
+    error?: string;
+  }>;
+}
+
 export const leadService = {
   getLeads: async (params?: GetLeadsParams): Promise<{ total: number; page: number; limit: number; totalPages: number; leads: EmployerLeadItem[] }> => {
     const response = await apiClient.get('/api/admin/leads', { params });
@@ -115,17 +168,17 @@ export const leadService = {
     return response.data;
   },
 
-  runAutoDiscovery: async (): Promise<{ totalScanned: number; newLeadsCount: number; updatedLeadsCount: number }> => {
+  runAutoDiscovery: async (): Promise<AutoDiscoveryResponse> => {
     const response = await apiClient.post('/api/admin/leads/run-discovery');
     return response.data;
   },
 
-  crawlUrl: async (url: string): Promise<any> => {
+  crawlUrl: async (url: string): Promise<CrawlUrlResult> => {
     const response = await apiClient.post('/api/admin/leads/crawl-url', { url });
     return response.data;
   },
 
-  getSources: async (): Promise<any[]> => {
+  getSources: async (): Promise<DiscoverySourceItem[]> => {
     const response = await apiClient.get('/api/admin/leads/sources');
     return response.data.sources || [];
   }

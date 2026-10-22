@@ -68,7 +68,7 @@ export const SettingsPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const queryClient = useQueryClient();
-  const { language: activeLanguage, setLanguage: setAppLanguage } = useTranslation();
+  const { language: activeLanguage, setLanguage: setAppLanguage, t } = useTranslation();
 
   const isEmployer = user?.role === 'EMPLOYER';
 
@@ -885,7 +885,7 @@ export const SettingsPage: React.FC = () => {
                     </div>
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <h3 className="text-xs font-bold text-[#0A1931]">Identity & KYC Verification</h3>
+                        <h3 className="text-xs font-bold text-[#0A1931]">{t('Identity Verification')}</h3>
                         <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold border border-emerald-200">
                           Verified Partner
                         </span>

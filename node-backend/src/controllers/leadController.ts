@@ -34,7 +34,7 @@ export class LeadController {
   static async getLeadStats(c: Context) {
     try {
       const stats = await LeadService.getLeadStats();
-      return c.json({ success: true, stats });
+      return c.json({ success: true, stats, data: stats });
     } catch (error: any) {
       console.error('Error fetching lead stats:', error);
       return c.json({ success: false, error: error.message || 'Failed to fetch lead stats' }, 500);
@@ -49,7 +49,7 @@ export class LeadController {
       }
 
       const result = await LeadService.ingestLead(body);
-      return c.json({ success: true, ...result }, 201);
+      return c.json({ success: true, ...result, data: result }, 201);
     } catch (error: any) {
       console.error('Error ingesting lead:', error);
       return c.json({ success: false, error: error.message || 'Failed to ingest lead' }, 500);
@@ -140,7 +140,12 @@ export class LeadController {
     try {
       const { LeadCrawlerService } = await import('../services/leadCrawlerService');
       const results = await LeadCrawlerService.runAutoDiscovery();
-      return c.json({ success: true, ...results });
+      return c.json({
+        success: true,
+        sourcesScanned: results.sourceBreakdown?.length || results.totalScanned,
+        durationMs: results.session?.totalDurationMs,
+        ...results
+      });
     } catch (error: any) {
       console.error('Error running auto-discovery:', error);
       return c.json({ success: false, error: error.message || 'Failed to run discovery scan' }, 500);
@@ -156,22 +161,28 @@ export class LeadController {
 
       const { LeadCrawlerService } = await import('../services/leadCrawlerService');
       const crawled = await LeadCrawlerService.crawlUrl(url);
-      return c.json({ success: true, lead: crawled });
+      return c.json({
+        success: true,
+        data: crawled.lead,
+        lead: crawled.lead, // For backwards compatibility
+        logs: crawled.logs,
+        session: crawled.session
+      });
     } catch (error: any) {
       console.error('Error crawling URL:', error);
-      return c.json({ success: false, error: error.message || 'Failed to scrape target URL' }, 500);
+      return c.json({
+        success: false,
+        error: error.message || 'Failed to scrape target URL',
+        message: error.message || 'Failed to scrape target URL'
+      }, 400);
     }
   }
 
   static async getSources(c: Context) {
     try {
-      const sources = [
-        { name: 'Direct Corporate Career Pages', type: 'JSON-LD / Schema.org', status: 'ACTIVE', lastScan: new Date().toISOString() },
-        { name: 'Public ATS Job Feeds (Lever / Greenhouse)', type: 'API Feed', status: 'ACTIVE', lastScan: new Date().toISOString() },
-        { name: 'Regional Logistics & Warehousing Hubs', type: 'Feed Connector', status: 'ACTIVE', lastScan: new Date().toISOString() },
-        { name: 'Hospitality & Commercial Kitchen Portals', type: 'Feed Connector', status: 'ACTIVE', lastScan: new Date().toISOString() },
-      ];
-      return c.json({ success: true, sources });
+      const { SourceAdapterRegistry } = await import('../services/discovery/sourceAdapterRegistry');
+      const sources = SourceAdapterRegistry.getSourceList();
+      return c.json({ success: true, data: sources, sources });
     } catch (error: any) {
       console.error('Error fetching sources:', error);
       return c.json({ success: false, error: error.message || 'Failed to fetch sources' }, 500);

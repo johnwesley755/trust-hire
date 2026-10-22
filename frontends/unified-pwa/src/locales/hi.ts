@@ -387,7 +387,7 @@ export const hi: Record<string, string> = {
   "Professional Summary & Bio": "व्यावसायिक सारांश और बायो",
   "Save Profile Changes": "प्रोफ़ाइल परिवर्तन सहेजें",
   "Saving Changes...": "परिवर्तन सहेजे जा रहे हैं...",
-  "Identity & KYC Verification": "पहचान और केवाईसी सत्यापन",
+  "Identity Verification": "पहचान सत्यापन",
   "Change Account Password": "खाता पासवर्ड बदलें",
   "Protect your credentials with a strong, multi-factor compliant password.": "एक मजबूत, बहु-कारक अनुपालक पासवर्ड के साथ अपने क्रेडेंशियल सुरक्षित करें।",
   "Current Password": "वर्तमान पासवर्ड",

@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { setupInterceptors } from '../api/apiClient';
-import { ShieldAlert, LogOut, Clock } from 'lucide-react';
 import type { User, UserRole } from '../types';
 import { auth, googleProvider, signInWithPopup, signOut as firebaseSignOut } from '../lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
@@ -11,7 +10,6 @@ interface AuthContextType {
   user: User | null;
   isSignedIn: boolean;
   isLoaded: boolean;
-  sessionExpired: boolean;
   role: UserRole | null;
   getToken: () => Promise<string | null>;
   updateUser: (data: Partial<User>) => void;
@@ -51,7 +49,6 @@ export const SignedOut = ({ children }: { children: ReactNode }) => {
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
-  const [sessionExpired, setSessionExpired] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
 
   const clearAuthError = () => setAuthError(null);
@@ -147,17 +144,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return () => {
       unsubscribe();
     };
-  }, []);
-
-  useEffect(() => {
-    const handleAuthExpired = () => {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      setUser(null);
-      setSessionExpired(true);
-    };
-    window.addEventListener('auth:expired', handleAuthExpired);
-    return () => window.removeEventListener('auth:expired', handleAuthExpired);
   }, []);
 
   const getToken = async () => localStorage.getItem('token');
@@ -261,7 +247,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         user,
         isSignedIn: !!user,
         isLoaded,
-        sessionExpired,
         role: user?.role || null,
         getToken,
         updateUser,
@@ -276,37 +261,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }}
     >
       {children}
-
-      {sessionExpired && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-[#0A1931]/60 backdrop-blur-md" />
-          <div className="bg-white w-full max-w-sm rounded-2xl shadow-2xl relative z-10 overflow-hidden animate-in fade-in zoom-in duration-300">
-            <div className="p-6 text-center space-y-4">
-              <div className="w-14 h-14 bg-[#FACD15]/10 rounded-2xl flex items-center justify-center mx-auto relative">
-                <ShieldAlert className="w-8 h-8 text-[#FACD15]" />
-                <Clock className="w-5 h-5 text-[#0A1931] absolute -bottom-1 -right-1" />
-              </div>
-
-              <div className="space-y-1">
-                <h3 className="text-xl font-black text-[#0A1931] tracking-tight">
-                  Session Expired
-                </h3>
-                <p className="text-xs font-medium text-[#0A1931]/60 leading-relaxed px-2">
-                  Your session has timed out. Please sign in again.
-                </p>
-              </div>
-
-              <button
-                onClick={logout}
-                className="w-full bg-[#0A1931] text-[#FACD15] py-3 rounded-xl font-bold uppercase text-xs tracking-wider hover:brightness-110 active:scale-98 transition-all flex items-center justify-center gap-2 shadow-lg"
-              >
-                <LogOut className="w-4 h-4" />
-                Return to Login
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </AuthContext.Provider>
   );
 };

@@ -1,638 +1,412 @@
-import { prisma } from '../config/prisma';
 import { ContactEnrichmentService } from './contactEnrichmentService';
 import { LeadService, type IngestLeadInput } from './leadService';
+import { ScrapeLogger, type ScrapeStepLog, type ScrapeSessionSummary } from './scrapeLogger';
+import { UrlSecurityValidator } from './discovery/urlSecurityValidator';
+import { SourceAdapterRegistry } from './discovery/sourceAdapterRegistry';
+import { DiscoveredEmployerLead } from './discovery/types';
 
 export interface CrawledJobResult {
   companyName: string;
-  companyWebsite: string;
-  industry: string;
-  city: string;
+  companyWebsite: string | null;
+  industry: string | null;
+  city: string | null;
   officialEmail: string | null;
   officialPhone: string | null;
   contactPageUrl: string | null;
   title: string;
   category: string;
-  workersNeeded: number;
-  salaryRange: string;
+  workersNeeded: number | null;
+  salaryRange: string | null;
   sourceName: string;
   sourceUrl: string;
   description: string;
 }
 
-// Known job aggregator and employment portals in India
-const JOB_PORTAL_MAP: Record<string, string> = {
-  'naukri.com': 'Naukri.com',
-  'indeed.com': 'Indeed India',
-  'in.indeed.com': 'Indeed India',
-  'workindia.in': 'WorkIndia',
-  'apna.co': 'Apna.co',
-  'foundit.in': 'Foundit (Monster)',
-  'monsterindia.com': 'Foundit (Monster)',
-  'timesjobs.com': 'TimesJobs',
-  'linkedin.com': 'LinkedIn Jobs',
-  'shine.com': 'Shine.com',
-  'quikr.com': 'QuikrJobs',
-  'olx.in': 'OLX Jobs',
-  'freshersworld.com': 'Freshersworld',
-  'internshala.com': 'Internshala',
-};
+export interface CrawlUrlResponse {
+  lead: CrawledJobResult;
+  logs: ScrapeStepLog[];
+  session: ScrapeSessionSummary;
+}
 
-// Known corporate domain mappings for popular enterprise employers
-const KNOWN_EMPLOYER_DOMAINS: Record<string, string> = {
-  swiggy: 'https://www.swiggy.com',
-  zomato: 'https://www.zomato.com',
-  shadowfax: 'https://www.shadowfax.in',
-  bigbasket: 'https://www.bigbasket.com',
-  'urban company': 'https://www.urbancompany.com',
-  'blue dart': 'https://www.bluedart.com',
-  bluedart: 'https://www.bluedart.com',
-  'tvs supply chain': 'https://www.tvsscs.com',
-  tvsscs: 'https://www.tvsscs.com',
-  'eureka forbes': 'https://www.eurekaforbes.com',
-  zepto: 'https://www.zeptonow.com',
-  rapido: 'https://www.rapido.bike',
-  dunzo: 'https://www.dunzo.com',
-  voltas: 'https://www.myvoltas.com',
-  'blue star': 'https://www.bluestarindia.com',
-  'apollo hospitals': 'https://www.apollohospitals.com',
-  'larsen & toubro': 'https://www.larsentoubro.com',
-  'l&t': 'https://www.larsentoubro.com',
-  'reliance retail': 'https://www.relianceretail.com',
-  'dhl express': 'https://www.dhl.com',
-};
+export interface AutoDiscoveryResult {
+  totalScanned: number;
+  newLeadsCount: number;
+  updatedLeadsCount: number;
+  duplicatesIgnored: number;
+  rejectedCount: number;
+  results: any[];
+  logs: ScrapeStepLog[];
+  session: ScrapeSessionSummary;
+  sourceBreakdown: Array<{
+    sourceId: string;
+    sourceName: string;
+    status: string;
+    leadsFound: number;
+    requirementsFound: number;
+    error?: string;
+  }>;
+}
 
 export class LeadCrawlerService {
   /**
-   * Scrapes and extracts structured employer requirement and contact info from any URL.
-   * Distinguishes between third-party job aggregators (Naukri, Indeed, WorkIndia, Apna)
-   * and direct company career portals, preserving the EXACT job post URL as provenance.
+   * Scrapes and extracts structured employer requirements and contact info from any verified URL.
+   * Employs strict SSRF validation, anti-bot challenge detection, and zero data fabrication.
    */
-  static async crawlUrl(targetUrl: string): Promise<CrawledJobResult> {
-    const sanitizedUrl = targetUrl.trim().startsWith('http') ? targetUrl.trim() : `https://${targetUrl.trim()}`;
-    const parsedUrl = new URL(sanitizedUrl);
-    const hostname = parsedUrl.hostname.toLowerCase().replace(/^www\./, '');
+  static async crawlUrl(targetUrl: string): Promise<CrawlUrlResponse> {
+    const session = ScrapeLogger.startSession(targetUrl, 'SINGLE_URL_CRAWL');
+    const trimmed = (targetUrl || '').trim();
+    if (trimmed.includes('://') && !trimmed.startsWith('http://') && !trimmed.startsWith('https://')) {
+      const scheme = trimmed.split('://')[0];
+      session.finish('FAILED', undefined, `Unsupported protocol "${scheme}". Only HTTPS endpoints are permitted.`);
+      throw new Error(`Security validation failed: Insecure or unsupported protocol "${scheme}". Only HTTPS endpoints are permitted.`);
+    }
+    const sanitizedUrl = trimmed.startsWith('http://') || trimmed.startsWith('https://')
+      ? trimmed
+      : `https://${trimmed}`;
 
-    // Check if the source is a known job portal
-    const isPortal = Object.keys(JOB_PORTAL_MAP).some((portal) => hostname.includes(portal));
-    const portalName = Object.entries(JOB_PORTAL_MAP).find(([domain]) => hostname.includes(domain))?.[1] || 'Web Career Source';
+    // ----------------------------------------------------
+    // STEP 1: SSRF Defense & URL Syntax Validation (Strict HTTPS only)
+    // ----------------------------------------------------
+    const validation = UrlSecurityValidator.validateUrl(sanitizedUrl, false);
+    if (!validation.isValid || !validation.parsedUrl) {
+      session.logStep(
+        'URL_PARSE',
+        'URL Security Rejection (SSRF Defense)',
+        'ERROR',
+        validation.error || 'Invalid or prohibited target URL',
+        { targetUrl, error: validation.error }
+      );
+      session.finish('FAILED', undefined, validation.error);
+      throw new Error(`Security validation failed: ${validation.error}`);
+    }
 
-    let html = '';
+    const parsedUrl = validation.parsedUrl;
+    session.logStep(
+      'URL_PARSE',
+      'URL Parse & Host Validation',
+      'SUCCESS',
+      `Validated URL: ${parsedUrl.protocol}//${parsedUrl.hostname} (Safe for outbound crawler fetch)`,
+      { hostname: parsedUrl.hostname, pathname: parsedUrl.pathname }
+    );
+
+    // ----------------------------------------------------
+    // STEP 2: Adapter Selection & Parsing
+    // ----------------------------------------------------
+    const adapter = SourceAdapterRegistry.getAdapterForUrl(parsedUrl);
+    session.logStep(
+      'URL_PARSE',
+      'Source Adapter Selected',
+      'INFO',
+      `Routing request to adapter: "${adapter.name}" [${adapter.type}]`,
+      { adapterId: adapter.id, status: adapter.status }
+    );
+
+    let parsedLead: DiscoveredEmployerLead | null = null;
+    const fetchStart = Date.now();
+
     try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 6000);
-
-      const response = await fetch(sanitizedUrl, {
-        signal: controller.signal,
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-          Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-        },
-      });
-      clearTimeout(timeoutId);
-
-      if (response.ok) {
-        html = await response.text();
+      if (typeof adapter.parseJobPage === 'function') {
+        parsedLead = await adapter.parseJobPage(sanitizedUrl);
+      } else {
+        throw new Error(`Adapter "${adapter.name}" does not support single-page direct parsing.`);
       }
-    } catch (e: any) {
-      console.warn(`[LeadCrawler] Failed to fetch targetUrl: ${sanitizedUrl}`, e?.message);
+    } catch (parseErr: any) {
+      const duration = Date.now() - fetchStart;
+      session.logStep(
+        'BOT_DETECTION',
+        'Extraction / Access Error',
+        'ERROR',
+        parseErr.message || 'Failed to extract structured data from target page.',
+        { error: parseErr.message },
+        duration
+      );
+      session.finish('FAILED', undefined, parseErr.message);
+      throw parseErr;
     }
 
-    // 1. Try to extract JSON-LD (Schema.org/JobPosting)
-    let extractedJob: any = null;
-    const jsonLdMatches = html.match(/<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi) || [];
+    if (!parsedLead || parsedLead.requirements.length === 0) {
+      const duration = Date.now() - fetchStart;
+      session.logStep(
+        'EXTRACTION_DOM',
+        'No Valid Job Requisitions Found',
+        'WARNING',
+        'Page was fetched successfully, but did not contain recognizable job openings or Schema.org metadata.',
+        {},
+        duration
+      );
+      session.finish('FAILED', undefined, 'No valid job requisitions found on page');
+      throw new Error('No valid job requisitions or employer hiring signals found at this URL.');
+    }
 
-    for (const match of jsonLdMatches) {
+    const primaryReq = parsedLead.requirements[0];
+    session.logStep(
+      'EXTRACTION_JSONLD',
+      'Requisition Successfully Extracted',
+      'SUCCESS',
+      `Identified role: "${primaryReq.title}" at "${parsedLead.companyName}"`,
+      {
+        companyName: parsedLead.companyName,
+        title: primaryReq.title,
+        city: primaryReq.city || 'Not specified',
+        salary: primaryReq.salaryRange || 'Competitive (not specified)',
+      },
+      Date.now() - fetchStart
+    );
+
+    // ----------------------------------------------------
+    // STEP 3: Corporate Contact Channel Enrichment
+    // ----------------------------------------------------
+    let officialEmail = parsedLead.officialEmail || null;
+    let officialPhone = parsedLead.officialPhone || null;
+    let contactPageUrl = parsedLead.contactPageUrl || null;
+
+    if ((!officialEmail || !officialPhone) && parsedLead.companyWebsite) {
+      const enrichStart = Date.now();
       try {
-        const rawJson = match.replace(/<script[^>]*>/i, '').replace(/<\/script>/i, '').trim();
-        const parsed = JSON.parse(rawJson);
-        const candidates = Array.isArray(parsed) ? parsed : (parsed['@graph'] || [parsed]);
-        for (const item of candidates) {
-          if (item['@type'] === 'JobPosting' || item['@type']?.includes('JobPosting')) {
-            extractedJob = item;
-            break;
-          }
-        }
-        if (extractedJob) break;
+        const enriched = await ContactEnrichmentService.enrichFromDomain(parsedLead.companyWebsite);
+        officialEmail = officialEmail || enriched.officialEmail;
+        officialPhone = officialPhone || enriched.officialPhone;
+        contactPageUrl = contactPageUrl || enriched.contactPageUrl;
+
+        session.logStep(
+          'CONTACT_ENRICH',
+          'Domain Contact Enrichment Probe',
+          officialEmail || officialPhone ? 'SUCCESS' : 'INFO',
+          officialEmail || officialPhone
+            ? `Discovered verified contacts: Email: ${officialEmail || 'None'} | Phone: ${officialPhone || 'None'}`
+            : `Scanned ${parsedLead.companyWebsite} contact pages; no public direct contacts exposed.`,
+          { officialEmail, officialPhone, contactPageUrl },
+          Date.now() - enrichStart
+        );
       } catch {
-        // Skip malformed JSON-LD
+        // Enrichment error is non-fatal
       }
     }
 
-    // 2. Extract job title, hiring employer name, salary and location
-    let title = extractedJob?.title || '';
-    let companyName = extractedJob?.hiringOrganization?.name || '';
-    let description = extractedJob?.description || '';
-    let city = extractedJob?.jobLocation?.address?.addressLocality || '';
-    let salaryRange = '';
+    const leadResult: CrawledJobResult = {
+      companyName: parsedLead.companyName,
+      companyWebsite: parsedLead.companyWebsite || null,
+      industry: parsedLead.industry || primaryReq.category || null,
+      city: primaryReq.city || parsedLead.city || null,
+      officialEmail,
+      officialPhone,
+      contactPageUrl,
+      title: primaryReq.title,
+      category: primaryReq.category || 'General Operations',
+      workersNeeded: primaryReq.workersNeeded || null,
+      salaryRange: primaryReq.salaryRange || null,
+      sourceName: primaryReq.sourceName,
+      sourceUrl: primaryReq.sourceUrl,
+      description: primaryReq.description || '',
+    };
 
-    if (extractedJob?.baseSalary?.value?.value) {
-      salaryRange = `₹${extractedJob.baseSalary.value.value} ${extractedJob.baseSalary.currency || 'INR'}`;
-    }
-
-    // Fallback extraction from meta tags & title
-    if (!title) {
-      const ogTitle = html.match(/<meta[^>]+property=["']og:title["'][^>]+content=["']([^"']+)["']/i) ||
-                      html.match(/<title>([^<]+)<\/title>/i);
-      if (ogTitle) {
-        const parts = ogTitle[1].split(/[-–|]/);
-        title = parts[0].trim();
-        if (!companyName && parts.length > 1) {
-          // If title is "Delivery Executive - Swiggy - Chennai"
-          const candidateComp = parts[1].trim();
-          if (!candidateComp.toLowerCase().includes('job') && !candidateComp.toLowerCase().includes('naukri')) {
-            companyName = candidateComp;
-          }
-        }
-      }
-    }
-
-    // Extract company name if from job portal or meta tags
-    if (!companyName) {
-      const siteMatch = html.match(/<meta[^>]+property=["']og:site_name["'][^>]+content=["']([^"']+)["']/i);
-      if (siteMatch && !isPortal) {
-        companyName = siteMatch[1].trim();
-      } else {
-        // Try parsing from URL path (e.g. /jobs/tvs-delivery-driver-chennai)
-        const pathSegments = parsedUrl.pathname.split('/').filter(Boolean);
-        if (pathSegments.length > 0) {
-          const lastSegment = pathSegments[pathSegments.length - 1];
-          const words = lastSegment.replace(/[-_]/g, ' ').split(' ');
-          const firstWord = words[0];
-          if (firstWord && firstWord.length > 2) {
-            companyName = firstWord.charAt(0).toUpperCase() + firstWord.slice(1);
-          }
-        }
-        if (!companyName) {
-          companyName = isPortal ? 'Hiring Enterprise Employer' : (hostname.split('.')[0].toUpperCase());
-        }
-      }
-    }
-
-    if (!description) {
-      const descMatch = html.match(/<meta[^>]+(?:name|property)=["'](?:description|og:description)["'][^>]+content=["']([^"']+)["']/i);
-      if (descMatch) {
-        description = descMatch[1].trim();
-      } else {
-        description = `Active worker hiring requirement identified on ${portalName}.`;
-      }
-    }
-
-    if (!city) {
-      const lowerAll = (sanitizedUrl + ' ' + title + ' ' + description).toLowerCase();
-      if (lowerAll.includes('chennai')) city = 'Chennai';
-      else if (lowerAll.includes('coimbatore')) city = 'Coimbatore';
-      else if (lowerAll.includes('bangalore') || lowerAll.includes('bengaluru')) city = 'Bengaluru';
-      else if (lowerAll.includes('hyderabad')) city = 'Hyderabad';
-      else city = 'Chennai';
-    }
-
-    // Categorize trade
-    const lowerTitle = (title || description).toLowerCase();
-    let category = 'General Trade';
-    if (lowerTitle.includes('driver') || lowerTitle.includes('delivery') || lowerTitle.includes('rider') || lowerTitle.includes('courier')) {
-      category = 'Logistics & Delivery';
-    } else if (lowerTitle.includes('electrician') || lowerTitle.includes('wireman') || lowerTitle.includes('wiring') || lowerTitle.includes('hvac') || lowerTitle.includes('ac techn')) {
-      category = 'Electrical & Wiring';
-    } else if (lowerTitle.includes('cook') || lowerTitle.includes('chef') || lowerTitle.includes('steward') || lowerTitle.includes('kitchen') || lowerTitle.includes('hotel')) {
-      category = 'Hospitality & Food';
-    } else if (lowerTitle.includes('welder') || lowerTitle.includes('fitter') || lowerTitle.includes('fabricator') || lowerTitle.includes('turner') || lowerTitle.includes('machinist')) {
-      category = 'Manufacturing & Welding';
-    } else if (lowerTitle.includes('warehouse') || lowerTitle.includes('helper') || lowerTitle.includes('picker') || lowerTitle.includes('packer') || lowerTitle.includes('loader')) {
-      category = 'Warehousing & Packing';
-    } else if (lowerTitle.includes('plumber') || lowerTitle.includes('pipe') || lowerTitle.includes('sanitation')) {
-      category = 'Plumbing & Sanitation';
-    }
-
-    // 3. Resolve genuine employer website & domain
-    let companyWebsite = '';
-    const cleanCompName = companyName.toLowerCase().trim();
-
-    // Check if we know this employer's genuine website
-    for (const [key, domainUrl] of Object.entries(KNOWN_EMPLOYER_DOMAINS)) {
-      if (cleanCompName.includes(key)) {
-        companyWebsite = domainUrl;
-        break;
-      }
-    }
-
-    // If still not resolved and it's not a portal, use parsedUrl.origin
-    if (!companyWebsite) {
-      if (!isPortal) {
-        companyWebsite = parsedUrl.origin;
-      } else {
-        // Build legitimate employer root from company name (e.g. Swiggy -> swiggy.com)
-        const simpleName = cleanCompName.replace(/[^a-z0-9]/g, '');
-        companyWebsite = `https://www.${simpleName || 'employer'}.in`;
-      }
-    }
-
-    // 4. Enrich corporate contact channels of the hiring employer (NOT the job portal)
-    const contactInfo = await ContactEnrichmentService.enrichFromDomain(companyWebsite);
+    session.finish('COMPLETED', {
+      companyName: leadResult.companyName,
+      companyWebsite: leadResult.companyWebsite || undefined,
+      jobTitle: leadResult.title,
+      city: leadResult.city || undefined,
+      officialEmail: leadResult.officialEmail,
+      officialPhone: leadResult.officialPhone,
+      workersNeeded: leadResult.workersNeeded || undefined,
+      salaryRange: leadResult.salaryRange || undefined,
+    });
 
     return {
-      companyName: companyName || 'Verified Hiring Business',
-      companyWebsite,
-      industry: category,
-      city: city || 'Chennai',
-      officialEmail: contactInfo.officialEmail,
-      officialPhone: contactInfo.officialPhone,
-      contactPageUrl: contactInfo.contactPageUrl,
-      title: title || `${category} Workers Required`,
-      category,
-      workersNeeded: 5,
-      salaryRange: salaryRange || '₹16,000 - ₹26,000 / month',
-      sourceName: isPortal ? portalName : hostname,
-      sourceUrl: sanitizedUrl, // The EXACT live job post link on the portal!
-      description,
+      lead: leadResult,
+      logs: session.getSteps(),
+      session: session.getSummary(),
     };
   }
 
   /**
-   * Multi-Portal Auto-Discovery Scanner:
-   * Aggregates live job postings across diverse employment portals in India:
-   * WorkIndia, Apna, Indeed India, Naukri, Foundit, LinkedIn Jobs, and Direct ATS portals.
-   * Every job requirement retains its EXACT deep-link job post URL for full verification.
+   * Multi-Portal & Live ATS Auto-Discovery Scanner:
+   * Discovers fresh hiring signals across authorized active source adapters.
+   * Completely eliminates fake static records, destructive deletions, and data fabrication.
    */
-  static async runAutoDiscovery(): Promise<{
-    totalScanned: number;
-    newLeadsCount: number;
-    updatedLeadsCount: number;
-    results: any[];
-  }> {
-    // 1. Clean up legacy dead mock non-resolving domains if any exist
-    try {
-      const deadDomains = ['southcoastweld.in', 'metroinfra.in', 'apexfacility.in', 'expresslogistics.in'];
-      await prisma.employer_leads.deleteMany({
-        where: {
-          company_domain: { in: deadDomains }
-        }
-      });
-    } catch {
-      // Ignore if already cleaned
-    }
+  static async runAutoDiscovery(): Promise<AutoDiscoveryResult> {
+    const session = ScrapeLogger.startSession('MULTI_FEED_DISCOVERY', 'AUTO_DISCOVERY_SCAN');
 
-    // 2. Expansive, diverse multi-portal discovery feed with EXACT job post deep links
-    const discoveryFeed: IngestLeadInput[] = [
-      // --- Portal 1: WorkIndia Jobs (Blue-Collar & Trade) ---
-      {
-        companyName: 'Rapido Bike & Auto Fleet',
-        companyWebsite: 'https://www.rapido.bike',
-        industry: 'Logistics & Delivery',
-        city: 'Chennai',
-        state: 'Tamil Nadu',
-        address: 'T. Nagar & Vadapalani Hub, Chennai',
-        officialEmail: 'partners@rapido.bike',
-        officialPhone: '080-68172700',
-        contactPageUrl: 'https://www.rapido.bike/contact',
-        requirements: [
-          {
-            title: 'Captain Delivery Riders & Two-Wheeler Drivers',
-            category: 'Logistics & Delivery',
-            description: 'Urgently hiring 30 captain drivers with valid DL and two-wheeler for city transport and parcel runs.',
-            city: 'Chennai',
-            location: 'T. Nagar, Kodambakkam & Tambaram',
-            workersNeeded: 30,
-            salaryRange: '₹18,000 - ₹28,000 / month',
-            sourceName: 'WorkIndia',
-            sourceUrl: 'https://www.workindia.in/jobs/chennai/delivery-driver/rapido-fleet-chennai-48201',
-          },
-        ],
-      },
-      {
-        companyName: 'Blue Star Industrial Cooling',
-        companyWebsite: 'https://www.bluestarindia.com',
-        industry: 'Electrical & Wiring',
-        city: 'Chennai',
-        state: 'Tamil Nadu',
-        address: 'Guindy Industrial Estate, Chennai',
-        officialEmail: 'info@bluestarindia.com',
-        officialPhone: '044-42444000',
-        contactPageUrl: 'https://www.bluestarindia.com/contact-us',
-        requirements: [
-          {
-            title: 'Commercial HVAC & Central AC Maintenance Technicians',
-            category: 'Electrical & Wiring',
-            description: 'Need 12 certified HVAC technicians with experience in chiller plants and commercial ducting.',
-            city: 'Chennai',
-            location: 'Guindy & Sriperumbudur',
-            workersNeeded: 12,
-            salaryRange: '₹22,000 - ₹34,000 / month',
-            sourceName: 'WorkIndia',
-            sourceUrl: 'https://www.workindia.in/jobs/chennai/ac-technician/blue-star-facilities-89102',
-          },
-        ],
-      },
+    session.logStep(
+      'URL_PARSE',
+      'Auto-Discovery Feeds Initialized',
+      'INFO',
+      'Querying registered, active source adapters with zero mock data and strict compliance rules.'
+    );
 
-      // --- Portal 2: Apna.co (Trade, Services & Field Roles) ---
-      {
-        companyName: 'Zepto Quick Commerce Operations',
-        companyWebsite: 'https://www.zeptonow.com',
-        industry: 'Warehousing & Packing',
-        city: 'Chennai',
-        state: 'Tamil Nadu',
-        address: 'Nungambakkam & Velachery Dark Stores, Chennai',
-        officialEmail: 'support@zeptonow.com',
-        officialPhone: '022-50645600',
-        contactPageUrl: 'https://www.zeptonow.com/contact-us',
-        requirements: [
-          {
-            title: 'Dark Store Picker, Packer & Grocery Dispatchers',
-            category: 'Warehousing & Packing',
-            description: 'Hiring 20 fast packers and store assistants for 10-minute grocery fulfillment hubs.',
-            city: 'Chennai',
-            location: 'Velachery, Adyar & Anna Nagar',
-            workersNeeded: 20,
-            salaryRange: '₹16,000 - ₹22,000 / month',
-            sourceName: 'Apna.co',
-            sourceUrl: 'https://apna.co/job/chennai/warehouse-packer-zepto-darkstore-91823',
-          },
-          {
-            title: 'EV Scooter Delivery Executives',
-            category: 'Logistics & Delivery',
-            description: 'Require 25 delivery partners with electric scooter charging allowance.',
-            city: 'Chennai',
-            location: 'OMR & Thoraipakkam',
-            workersNeeded: 25,
-            salaryRange: '₹19,000 - ₹26,000 / month',
-            sourceName: 'Apna.co',
-            sourceUrl: 'https://apna.co/job/chennai/delivery-partner-zepto-quick-commerce-91824',
-          },
-        ],
-      },
-      {
-        companyName: 'Eureka Forbes Facility Services',
-        companyWebsite: 'https://www.eurekaforbes.com',
-        industry: 'Home Services & Trade',
-        city: 'Chennai',
-        state: 'Tamil Nadu',
-        address: 'Mount Road, Thousand Lights, Chennai',
-        officialEmail: 'customercare@eurekaforbes.com',
-        officialPhone: '1860-266-1177',
-        contactPageUrl: 'https://www.eurekaforbes.com/contact-us',
-        requirements: [
-          {
-            title: 'Water Purifier & Vacuum Service Technicians (Plumbing/Electrical)',
-            category: 'Plumbing & Sanitation',
-            description: 'Looking for 15 home service technicians with basic pipe fitting and electrical knowledge.',
-            city: 'Chennai',
-            location: 'Chennai Central & South Zones',
-            workersNeeded: 15,
-            salaryRange: '₹18,000 - ₹25,000 / month',
-            sourceName: 'Apna.co',
-            sourceUrl: 'https://apna.co/job/chennai/service-technician-eureka-forbes-84910',
-          },
-        ],
-      },
+    const activeAdapters = SourceAdapterRegistry.getActiveAdapters();
+    const allAdapters = SourceAdapterRegistry.getAllAdapters();
+    const sourceBreakdown: AutoDiscoveryResult['sourceBreakdown'] = [];
 
-      // --- Portal 3: Naukri India (Enterprise Trade & Logistics) ---
-      {
-        companyName: 'TVS Supply Chain Solutions',
-        companyWebsite: 'https://www.tvsscs.com',
-        industry: 'Logistics & Warehousing',
-        city: 'Chennai',
-        state: 'Tamil Nadu',
-        address: 'TVS Building, 58 Eldams Road, Teynampet, Chennai',
-        officialEmail: 'careers@tvsscs.com',
-        officialPhone: '044-66857777',
-        contactPageUrl: 'https://www.tvsscs.com/contact-us/',
-        requirements: [
-          {
-            title: 'Heavy Commercial Vehicle & Trailer Drivers (HCV)',
-            category: 'Logistics & Delivery',
-            description: 'Looking for 10 licensed heavy trailer drivers with minimum 3 years inter-state container experience.',
-            city: 'Chennai',
-            location: 'Ennore Port & Sriperumbudur Hub',
-            workersNeeded: 10,
-            salaryRange: '₹25,000 - ₹38,000 / month',
-            sourceName: 'Naukri.com',
-            sourceUrl: 'https://www.naukri.com/job-listings-heavy-trailer-driver-tvs-supply-chain-chennai-10928374',
-          },
-          {
-            title: 'Forklift Operators & Warehouse Material Handlers',
-            category: 'Warehousing & Packing',
-            description: 'Urgent requirement for 8 certified reach-truck and forklift drivers for high-bay auto warehouse.',
-            city: 'Chennai',
-            location: 'Oragadam Industrial Corridor',
-            workersNeeded: 8,
-            salaryRange: '₹18,000 - ₹26,000 / month',
-            sourceName: 'Naukri.com',
-            sourceUrl: 'https://www.naukri.com/job-listings-forklift-operator-tvs-scs-chennai-10928375',
-          },
-        ],
-      },
-      {
-        companyName: 'Shadowfax Logistics Network',
-        companyWebsite: 'https://www.shadowfax.in',
-        industry: 'Logistics & Delivery',
-        city: 'Chennai',
-        state: 'Tamil Nadu',
-        address: 'Mount Road & Guindy Industrial Estate, Chennai',
-        officialEmail: 'partners@shadowfax.in',
-        officialPhone: '080-68172500',
-        contactPageUrl: 'https://www.shadowfax.in/contact-us',
-        requirements: [
-          {
-            title: 'Last-Mile Delivery Riders & Van Drivers',
-            category: 'Logistics & Delivery',
-            description: 'Urgent requirement for 25 bike & 3-wheeler delivery riders for daily distribution in Chennai.',
-            city: 'Chennai',
-            location: 'Guindy, T. Nagar & Velachery',
-            workersNeeded: 25,
-            salaryRange: '₹18,000 - ₹28,000 / month',
-            sourceName: 'Naukri.com',
-            sourceUrl: 'https://www.naukri.com/job-listings-delivery-riders-shadowfax-chennai-7739102',
-          },
-          {
-            title: 'Hub Sorting Staff & Warehouse Packers',
-            category: 'Warehousing & Packing',
-            description: 'Looking for 12 warehouse parcel sorters and package handlers for night & morning shifts.',
-            city: 'Chennai',
-            location: 'Ambattur Logistics Hub',
-            workersNeeded: 12,
-            salaryRange: '₹15,000 - ₹20,000 / month',
-            sourceName: 'Naukri.com',
-            sourceUrl: 'https://www.naukri.com/job-listings-warehouse-sorter-shadowfax-chennai-7739103',
-          },
-        ],
-      },
-
-      // --- Portal 4: Indeed India ---
-      {
-        companyName: 'BigBasket Grocery Distribution',
-        companyWebsite: 'https://www.bigbasket.com',
-        industry: 'Logistics & Warehousing',
-        city: 'Chennai',
-        state: 'Tamil Nadu',
-        address: 'Redhills & Madhavaram Distribution Center, Chennai',
-        officialEmail: 'customerservice@bigbasket.com',
-        officialPhone: '1860-123-1000',
-        contactPageUrl: 'https://www.bigbasket.com/contact-us/',
-        requirements: [
-          {
-            title: 'Electric Vehicle Delivery Executives',
-            category: 'Logistics & Delivery',
-            description: 'Hiring 15 fresh & experienced grocery delivery partners with 2-wheeler license.',
-            city: 'Chennai',
-            location: 'Anna Nagar, OMR & Porur',
-            workersNeeded: 15,
-            salaryRange: '₹17,000 - ₹25,000 / month',
-            sourceName: 'Indeed India',
-            sourceUrl: 'https://in.indeed.com/viewjob?jk=bb9a8e7f6d5c4b3a1',
-          },
-          {
-            title: 'Cold Storage & Fresh Food Handlers',
-            category: 'Warehousing & Packing',
-            description: 'Require 8 inventory assistants for temperature-controlled warehouse handling.',
-            city: 'Chennai',
-            location: 'Madhavaram Cold Facility',
-            workersNeeded: 8,
-            salaryRange: '₹14,500 - ₹19,000 / month',
-            sourceName: 'Indeed India',
-            sourceUrl: 'https://in.indeed.com/viewjob?jk=bb2f4d6e8a0c1b3e5',
-          },
-        ],
-      },
-      {
-        companyName: 'Urban Company Service Partners',
-        companyWebsite: 'https://www.urbancompany.com',
-        industry: 'Home Services & Trade',
-        city: 'Chennai',
-        state: 'Tamil Nadu',
-        address: 'Nungambakkam High Road, Chennai',
-        officialEmail: 'help@urbancompany.com',
-        officialPhone: '0124-4570100',
-        contactPageUrl: 'https://www.urbancompany.com/contact-us',
-        requirements: [
-          {
-            title: 'Licensed Electricians & Wiring Technicians',
-            category: 'Electrical & Wiring',
-            description: 'Onboarding 10 certified residential electricians for home repair and switchboard installations.',
-            city: 'Chennai',
-            location: 'Across Chennai Metro Area',
-            workersNeeded: 10,
-            salaryRange: '₹22,000 - ₹35,000 / month',
-            sourceName: 'Indeed India',
-            sourceUrl: 'https://in.indeed.com/viewjob?jk=uc8a7b6c5d4e3f210',
-          },
-          {
-            title: 'HVAC & AC Service Technicians',
-            category: 'Electrical & Wiring',
-            description: 'Urgently onboarding 8 split & window AC repair technicians with copper tubing tools.',
-            city: 'Chennai',
-            location: 'Adyar, OMR & Kodambakkam',
-            workersNeeded: 8,
-            salaryRange: '₹25,000 - ₹40,000 / month',
-            sourceName: 'Indeed India',
-            sourceUrl: 'https://in.indeed.com/viewjob?jk=uc5e4d3c2b1a9f870',
-          },
-        ],
-      },
-      {
-        companyName: 'Hotel Saravana Bhavan Hospitality',
-        companyWebsite: 'https://saravanabhavan.com',
-        industry: 'Hospitality & Food',
-        city: 'Chennai',
-        state: 'Tamil Nadu',
-        address: 'Dr Radhakrishnan Salai, Mylapore, Chennai',
-        officialEmail: 'customercare@saravanabhavan.com',
-        officialPhone: '044-28115599',
-        contactPageUrl: 'https://saravanabhavan.com/contact-us',
-        requirements: [
-          {
-            title: 'Commercial Kitchen Stewards & Helpers',
-            category: 'Hospitality & Food',
-            description: 'Urgently hiring 8 kitchen assistants and food prep stewards for morning & evening shifts.',
-            city: 'Chennai',
-            location: 'Mylapore & T. Nagar',
-            workersNeeded: 8,
-            salaryRange: '₹14,000 - ₹18,000 / month',
-            sourceName: 'Indeed India',
-            sourceUrl: 'https://in.indeed.com/viewjob?jk=hsb3a2b1c0d9e8f7',
-          },
-        ],
-      },
-
-      // --- Portal 5: Direct Career Portals / ATS ---
-      {
-        companyName: 'Blue Dart Express Limited',
-        companyWebsite: 'https://www.bluedart.com',
-        industry: 'Courier & Freight Logistics',
-        city: 'Chennai',
-        state: 'Tamil Nadu',
-        address: 'GST Road, Meenambakkam, Chennai',
-        officialEmail: 'customerservice@bluedart.com',
-        officialPhone: '1860-233-1234',
-        contactPageUrl: 'https://www.bluedart.com/contact-us',
-        requirements: [
-          {
-            title: 'Commercial Van & LCV Courier Drivers',
-            category: 'Logistics & Delivery',
-            description: 'Looking for 6 commercial badge drivers for express air freight transit lines.',
-            city: 'Chennai',
-            location: 'Airport Cargo Hub, Meenambakkam',
-            workersNeeded: 6,
-            salaryRange: '₹21,000 - ₹29,000 / month',
-            sourceName: 'Direct Career Portal',
-            sourceUrl: 'https://www.bluedart.com/careers/commercial-driver-opening-9918',
-          },
-        ],
-      },
-      {
-        companyName: 'Apollo Hospitals Healthcare Facility',
-        companyWebsite: 'https://www.apollohospitals.com',
-        industry: 'Healthcare & Facilities',
-        city: 'Chennai',
-        state: 'Tamil Nadu',
-        address: 'Greams Road, Thousand Lights, Chennai',
-        officialEmail: 'info@apollohospitals.com',
-        officialPhone: '044-28290200',
-        contactPageUrl: 'https://www.apollohospitals.com/contact-us/',
-        requirements: [
-          {
-            title: 'Hospital Facility Maintenance Technicians & Plumbers',
-            category: 'Plumbing & Sanitation',
-            description: 'Require 5 plumbing and sanitization technicians for inpatient building operations.',
-            city: 'Chennai',
-            location: 'Greams Road & Vanagaram',
-            workersNeeded: 5,
-            salaryRange: '₹18,000 - ₹24,000 / month',
-            sourceName: 'Direct Career Portal',
-            sourceUrl: 'https://www.apollohospitals.com/careers/chennai-facility-technician-3819',
-          },
-        ],
-      },
-    ];
-
-    const results = [];
+    let totalScanned = 0;
     let newLeadsCount = 0;
     let updatedLeadsCount = 0;
+    let duplicatesIgnored = 0;
+    let rejectedCount = 0;
+    const ingestedResults = [];
 
-    for (const item of discoveryFeed) {
-      // Run contact enrichment to ensure verified phone and emails
-      const enriched = await ContactEnrichmentService.enrichFromDomain(item.companyWebsite);
-      const mergedInput: IngestLeadInput = {
-        ...item,
-        officialEmail: item.officialEmail || enriched.officialEmail || undefined,
-        officialPhone: item.officialPhone || enriched.officialPhone || undefined,
-        contactPageUrl: item.contactPageUrl || enriched.contactPageUrl || undefined,
-      };
+    // ----------------------------------------------------
+    // Execute Discovery Across Active Adapters
+    // ----------------------------------------------------
+    for (const adapter of activeAdapters) {
+      session.logStep(
+        'HTTP_FETCH',
+        `Querying Source: ${adapter.name}`,
+        'INFO',
+        `Connecting to authorized feed for ${adapter.name} [Type: ${adapter.type}].`
+      );
 
-      const res = await LeadService.ingestLead(mergedInput);
-      results.push(res);
+      try {
+        const scanResult = await adapter.discoverJobs();
+        SourceAdapterRegistry.recordScan(adapter.id);
+        totalScanned += scanResult.scannedCount;
 
-      if (res.lead.created_at.getTime() === res.lead.updated_at.getTime()) {
-        newLeadsCount++;
-      } else {
-        updatedLeadsCount++;
+        const totalReqsInSource = scanResult.leads.reduce(
+          (acc, l) => acc + (l.requirements?.length || 0),
+          0
+        );
+
+        sourceBreakdown.push({
+          sourceId: adapter.id,
+          sourceName: adapter.name,
+          status: scanResult.status,
+          leadsFound: scanResult.leads.length,
+          requirementsFound: totalReqsInSource,
+          error: scanResult.errorMessage,
+        });
+
+        session.logStep(
+          'EXTRACTION_DOM',
+          `Source Complete: ${adapter.name}`,
+          scanResult.status === 'SUCCESS' ? 'SUCCESS' : 'WARNING',
+          `Retrieved ${scanResult.leads.length} employers and ${totalReqsInSource} requisitions in ${scanResult.durationMs}ms.`,
+          {
+            leadsFound: scanResult.leads.length,
+            requirementsFound: totalReqsInSource,
+            error: scanResult.errorMessage,
+          },
+          scanResult.durationMs
+        );
+
+        // ----------------------------------------------------
+        // Ingestion & Deduplication
+        // ----------------------------------------------------
+        for (const item of scanResult.leads) {
+          const enrichStart = Date.now();
+          let enrichedEmail = item.officialEmail || undefined;
+          let enrichedPhone = item.officialPhone || undefined;
+          let enrichedContactPage = item.contactPageUrl || undefined;
+
+          // Probe corporate domain for verified contacts if absent
+          if ((!enrichedEmail || !enrichedPhone) && item.companyWebsite) {
+            try {
+              const enriched = await ContactEnrichmentService.enrichFromDomain(item.companyWebsite);
+              enrichedEmail = enrichedEmail || enriched.officialEmail || undefined;
+              enrichedPhone = enrichedPhone || enriched.officialPhone || undefined;
+              enrichedContactPage = enrichedContactPage || enriched.contactPageUrl || undefined;
+            } catch {
+              // Ignore enrichment error
+            }
+          }
+          const enrichDuration = Date.now() - enrichStart;
+
+          const ingestInput: IngestLeadInput = {
+            companyName: item.companyName,
+            companyWebsite: item.companyWebsite || undefined,
+            industry: item.industry || undefined,
+            city: item.city || undefined,
+            state: item.state || undefined,
+            address: item.address || undefined,
+            officialEmail: enrichedEmail,
+            officialPhone: enrichedPhone,
+            contactPageUrl: enrichedContactPage,
+            requirements: item.requirements.map((r) => ({
+              title: r.title,
+              category: r.category,
+              description: r.description,
+              city: r.city || undefined,
+              location: r.location || undefined,
+              workersNeeded: r.workersNeeded || undefined,
+              salaryRange: r.salaryRange || undefined,
+              sourceName: r.sourceName,
+              sourceUrl: r.sourceUrl,
+              externalListingId: r.externalListingId,
+            })),
+          };
+
+          const res = await LeadService.ingestLead(ingestInput);
+          ingestedResults.push(res);
+
+          const isNew = res.lead.created_at.getTime() === res.lead.updated_at.getTime();
+          if (isNew) {
+            newLeadsCount++;
+          } else {
+            updatedLeadsCount++;
+          }
+
+          session.logStep(
+            'DB_INGEST',
+            `Lead Ingestion: ${item.companyName}`,
+            'SUCCESS',
+            `${isNew ? 'Created new lead' : 'Refreshed existing lead'} with ${item.requirements.length} requirement(s).`,
+            {
+              leadId: res.lead.id,
+              isNew,
+              domain: res.lead.company_domain,
+              requirementsCount: item.requirements.length,
+            },
+            enrichDuration
+          );
+        }
+      } catch (adapterErr: any) {
+        sourceBreakdown.push({
+          sourceId: adapter.id,
+          sourceName: adapter.name,
+          status: 'FAILED',
+          leadsFound: 0,
+          requirementsFound: 0,
+          error: adapterErr.message,
+        });
+
+        session.logStep(
+          'HTTP_FETCH',
+          `Source Execution Error: ${adapter.name}`,
+          'ERROR',
+          `Adapter failed during execution: ${adapterErr.message}`,
+          { error: adapterErr.message }
+        );
       }
     }
 
+    // ----------------------------------------------------
+    // Record Restricted Sources in Breakdown for Transparency
+    // ----------------------------------------------------
+    for (const adapter of allAdapters) {
+      if (adapter.status !== 'ACTIVE') {
+        sourceBreakdown.push({
+          sourceId: adapter.id,
+          sourceName: adapter.name,
+          status: adapter.status,
+          leadsFound: 0,
+          requirementsFound: 0,
+          error: adapter.complianceNote,
+        });
+      }
+    }
+
+    session.finish('COMPLETED', {
+      workersNeeded: ingestedResults.reduce((sum, r) => sum + (r.requirements?.length || 0), 0),
+    });
+
     return {
-      totalScanned: discoveryFeed.length,
+      totalScanned,
       newLeadsCount,
       updatedLeadsCount,
-      results,
+      duplicatesIgnored,
+      rejectedCount,
+      results: ingestedResults,
+      logs: session.getSteps(),
+      session: session.getSummary(),
+      sourceBreakdown,
     };
   }
 }
-

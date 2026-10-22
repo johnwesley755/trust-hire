@@ -13,11 +13,13 @@ export interface IngestRequirementInput {
   salaryRange?: string;
   sourceName: string;
   sourceUrl: string;
+  externalListingId?: string;
 }
 
 export interface IngestLeadInput {
   companyName: string;
   companyWebsite?: string;
+  companyDomain?: string;
   industry?: string;
   city?: string;
   state?: string;
@@ -45,7 +47,7 @@ export class LeadService {
   /**
    * Safely formats and normalizes URLs to ensure they are valid and clickable.
    */
-  static normalizeUrl(urlOrDomain?: string): string | null {
+  static normalizeUrl(urlOrDomain?: string | null): string | null {
     if (!urlOrDomain) return null;
     const trimmed = urlOrDomain.trim();
     if (!trimmed || trimmed === '#' || trimmed === 'null' || trimmed === 'undefined') return null;
@@ -58,7 +60,7 @@ export class LeadService {
   /**
    * Extracts root apex domain from any URL or domain string.
    */
-  static extractApexDomain(urlOrDomain?: string): string | null {
+  static extractApexDomain(urlOrDomain?: string | null): string | null {
     if (!urlOrDomain) return null;
     try {
       const sanitized = this.normalizeUrl(urlOrDomain) || urlOrDomain;
@@ -102,12 +104,32 @@ export class LeadService {
 
   /**
    * Generates deterministic hash signature for requirement deduplication.
+   * Prioritizes external listing ID or normalized canonical URL; fallbacks to leadId + normalizedTitle + city.
+   * Volatile fields (like changing salary) do NOT invalidate requirement identity.
    */
-  static generateRequirementHash(leadId: string, title: string, city?: string, salaryRange?: string): string {
+  static generateRequirementHash(
+    leadId: string,
+    title: string,
+    sourceUrl?: string | null,
+    externalListingId?: string | null,
+    city?: string | null
+  ): string {
+    if (externalListingId && externalListingId.trim()) {
+      return crypto.createHash('sha256').update(`EXT:${externalListingId.trim()}`).digest('hex');
+    }
+    const normUrl = this.normalizeUrl(sourceUrl || '');
+    if (normUrl && normUrl !== 'https://trusthyre.com' && !normUrl.includes('example.com')) {
+      try {
+        const parsed = new URL(normUrl);
+        const canonical = `${parsed.origin}${parsed.pathname}`.toLowerCase();
+        return crypto.createHash('sha256').update(`URL:${canonical}`).digest('hex');
+      } catch {
+        return crypto.createHash('sha256').update(`URL:${normUrl.toLowerCase()}`).digest('hex');
+      }
+    }
     const normTitle = title.toLowerCase().replace(/[^a-z0-9]/g, '');
     const normCity = (city || '').toLowerCase().replace(/[^a-z0-9]/g, '');
-    const normSalary = (salaryRange || '').toLowerCase().replace(/[^a-z0-9]/g, '');
-    const payload = `${leadId}:${normTitle}:${normCity}:${normSalary}`;
+    const payload = `${leadId}:${normTitle}:${normCity}`;
     return crypto.createHash('sha256').update(payload).digest('hex');
   }
 
@@ -125,18 +147,21 @@ export class LeadService {
       contactPageUrl: normalizedContactPage,
     });
 
-    // 1. Check for existing employer lead by domain OR normalized name + city
-    let lead = await prisma.employer_leads.findFirst({
-      where: {
-        OR: [
-          ...(domain ? [{ company_domain: domain }] : []),
-          {
-            normalized_name: normalizedName,
-            ...(input.city ? { city: input.city } : {})
-          }
-        ]
-      }
-    });
+    // 1. Check for existing employer lead by domain first; fallback to normalized name + city
+    let lead = null;
+    if (domain) {
+      lead = await prisma.employer_leads.findFirst({
+        where: { company_domain: domain }
+      });
+    }
+    if (!lead && normalizedName && input.city) {
+      lead = await prisma.employer_leads.findFirst({
+        where: {
+          normalized_name: normalizedName,
+          city: { equals: input.city, mode: 'insensitive' }
+        }
+      });
+    }
 
     if (lead) {
       // Update existing lead with newly discovered info or refreshed valid URLs
@@ -162,20 +187,20 @@ export class LeadService {
         }
       });
     } else {
-      // Create fresh employer lead
+      // Create fresh employer lead without fabricating missing information
       lead = await prisma.employer_leads.create({
         data: {
           company_name: input.companyName,
           normalized_name: normalizedName,
           company_domain: domain,
           company_website: normalizedWebsite,
-          industry: input.industry,
-          city: input.city,
-          state: input.state,
-          address: input.address,
-          official_email: input.officialEmail,
-          official_phone: input.officialPhone,
-          contact_page_url: normalizedContactPage,
+          industry: input.industry || null,
+          city: input.city || null,
+          state: input.state || null,
+          address: input.address || null,
+          official_email: input.officialEmail || null,
+          official_phone: input.officialPhone || null,
+          contact_page_url: normalizedContactPage || null,
           contactability_score: contactability,
           status: 'DISCOVERED',
         }
@@ -187,7 +212,13 @@ export class LeadService {
     for (const req of input.requirements) {
       const normalizedSourceUrl = this.normalizeUrl(req.sourceUrl) || normalizedWebsite || 'https://trusthyre.com';
       const normTitle = req.title.toLowerCase().trim();
-      const hash = this.generateRequirementHash(lead.id, req.title, req.city || input.city, req.salaryRange);
+      const hash = this.generateRequirementHash(
+        lead.id,
+        req.title,
+        req.sourceUrl,
+        req.externalListingId,
+        req.city || input.city
+      );
 
       const existingReq = await prisma.employer_lead_requirements.findFirst({
         where: {
@@ -197,7 +228,7 @@ export class LeadService {
       });
 
       if (existingReq) {
-        // Update freshness and valid source URL
+        // Update freshness and valid source URL without deleting historical records
         const updated = await prisma.employer_lead_requirements.update({
           where: { id: existingReq.id },
           data: {
@@ -217,12 +248,12 @@ export class LeadService {
             lead_id: lead.id,
             title: req.title,
             normalized_title: normTitle,
-            category: req.category || input.industry,
-            description: req.description,
-            city: req.city || input.city,
-            location: req.location || input.address,
-            workers_needed: req.workersNeeded || 1,
-            salary_range: req.salaryRange,
+            category: req.category || input.industry || null,
+            description: req.description || null,
+            city: req.city || input.city || null,
+            location: req.location || input.address || null,
+            workers_needed: req.workersNeeded ?? 1,
+            salary_range: req.salaryRange || null,
             source_name: req.sourceName,
             source_url: normalizedSourceUrl,
             source_hash: hash,
@@ -465,11 +496,84 @@ export class LeadService {
       }
     });
 
+    // Copy active requirements into live jobs table & sync to search index
+    const publishedJobs = [];
+    if (lead.requirements && Array.isArray(lead.requirements)) {
+      for (const req of lead.requirements) {
+        if (req.status === 'OPEN') {
+          // Parse budget from salary_range if present
+          let budget = null;
+          if (req.salary_range) {
+            const match = req.salary_range.replace(/,/g, '').match(/\d+/g);
+            if (match && match[0]) {
+              budget = parseFloat(match[0]);
+            }
+          }
+
+          const job = await prisma.jobs.create({
+            data: {
+              employer_id: user.id,
+              employer_name: lead.company_name,
+              title: req.title,
+              description: req.description || `Active hiring opening for ${req.title} at ${lead.company_name}.`,
+              industry: req.category || lead.industry || 'General Trade',
+              city: req.city || lead.city,
+              location: req.location || req.city || lead.city,
+              budget: budget ? budget : null,
+              experience_years_required: 1,
+              status: 'OPEN',
+              is_external: false,
+              source_name: req.source_name,
+              source_url: req.source_url,
+              source_hash: req.source_hash,
+              date_posted: new Date(),
+              last_verified_at: new Date(),
+              expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 day validity
+            }
+          });
+
+          await prisma.job_search_index.upsert({
+            where: { job_id: job.id },
+            update: {
+              title: job.title,
+              description: job.description,
+              category: job.industry,
+              city: job.city,
+              location: job.location,
+              status: 'OPEN',
+              budget: budget ? budget : undefined,
+              employer_name: job.employer_name,
+              last_updated_at: new Date(),
+            },
+            create: {
+              job_id: job.id,
+              title: job.title,
+              description: job.description,
+              category: job.industry,
+              city: job.city,
+              location: job.location,
+              status: 'OPEN',
+              budget: budget ? budget : undefined,
+              employer_name: job.employer_name,
+            }
+          });
+
+          await prisma.employer_lead_requirements.update({
+            where: { id: req.id },
+            data: { status: 'FILLED' }
+          });
+
+          publishedJobs.push(job.id);
+        }
+      }
+    }
+
     return {
       message: 'Employer converted successfully',
       employerId: employerProfile.id,
       userId: user.id,
-      email: user.email
+      email: user.email,
+      publishedJobsCount: publishedJobs.length
     };
   }
 }

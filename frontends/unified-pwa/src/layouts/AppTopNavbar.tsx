@@ -34,7 +34,7 @@ import { useTranslation, SUPPORTED_LANGUAGES } from '../providers/TranslationCon
 export const AppTopNavbar = () => {
   const { user } = useUser();
   const { logout } = useAuth();
-  const { language, setLanguage } = useTranslation();
+  const { language, setLanguage, t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -212,7 +212,7 @@ export const AppTopNavbar = () => {
                               {user?.email}
                             </p>
                             <span className="inline-block mt-1 px-2 py-0.5 bg-[#e6eefc] text-[#0f2f63] text-[9px] font-medium rounded-full uppercase">
-                              {isEmployer ? 'Verified Employer' : 'Specialist Candidate'}
+                              {isEmployer ? t('Verified Employer', 'Verified Employer') : t('Specialist Candidate', 'Specialist Candidate')}
                             </span>
                           </div>
                         </div>
@@ -228,7 +228,7 @@ export const AppTopNavbar = () => {
                           className="w-full px-4 py-2 text-xs font-medium text-[#0a0a0a] hover:bg-[#f4f4f4] flex items-center gap-3 transition-colors cursor-pointer text-left"
                         >
                           <User className="w-4 h-4 text-[#717784]" />
-                          <span>{isEmployer ? 'Company Profile' : 'My Profile & CV'}</span>
+                          <span>{isEmployer ? t('Company Profile') : t('My Profile & CV')}</span>
                         </button>
 
                         {isEmployer ? (
@@ -241,7 +241,27 @@ export const AppTopNavbar = () => {
                               className="w-full px-4 py-2 text-xs font-medium text-[#0a0a0a] hover:bg-[#f4f4f4] flex items-center gap-3 transition-colors cursor-pointer text-left"
                             >
                               <LayoutDashboard className="w-4 h-4 text-[#717784]" />
-                              <span>Employer Dashboard</span>
+                              <span>{t('Employer Dashboard')}</span>
+                            </button>
+                            <button
+                              onClick={() => {
+                                setIsProfileMenuOpen(false);
+                                navigate('/find-workers');
+                              }}
+                              className="w-full px-4 py-2 text-xs font-medium text-[#0a0a0a] hover:bg-[#f4f4f4] flex items-center gap-3 transition-colors cursor-pointer text-left"
+                            >
+                              <Users className="w-4 h-4 text-[#717784]" />
+                              <span>{t('Find Workers')}</span>
+                            </button>
+                            <button
+                              onClick={() => {
+                                setIsProfileMenuOpen(false);
+                                navigate('/post-job');
+                              }}
+                              className="w-full px-4 py-2 text-xs font-medium text-[#0a0a0a] hover:bg-[#f4f4f4] flex items-center gap-3 transition-colors cursor-pointer text-left"
+                            >
+                              <PlusCircle className="w-4 h-4 text-[#717784]" />
+                              <span>{t('Post a Job')}</span>
                             </button>
                             <button
                               onClick={() => {
@@ -251,7 +271,7 @@ export const AppTopNavbar = () => {
                               className="w-full px-4 py-2 text-xs font-medium text-[#0a0a0a] hover:bg-[#f4f4f4] flex items-center gap-3 transition-colors cursor-pointer text-left"
                             >
                               <Briefcase className="w-4 h-4 text-[#717784]" />
-                              <span>Active Jobs & Applicants</span>
+                              <span>{t('Active Jobs & Applicants')}</span>
                             </button>
                             <button
                               onClick={() => {
@@ -261,11 +281,21 @@ export const AppTopNavbar = () => {
                               className="w-full px-4 py-2 text-xs font-medium text-[#0a0a0a] hover:bg-[#f4f4f4] flex items-center gap-3 transition-colors cursor-pointer text-left"
                             >
                               <Bookmark className="w-4 h-4 text-[#717784]" />
-                              <span>Saved Talent Profiles</span>
+                              <span>{t('Saved Talent Profiles')}</span>
                             </button>
                           </>
                         ) : (
                           <>
+                            <button
+                              onClick={() => {
+                                setIsProfileMenuOpen(false);
+                                navigate('/search');
+                              }}
+                              className="w-full px-4 py-2 text-xs font-medium text-[#0a0a0a] hover:bg-[#f4f4f4] flex items-center gap-3 transition-colors cursor-pointer text-left"
+                            >
+                              <Briefcase className="w-4 h-4 text-[#717784]" />
+                              <span>{t('Find Jobs')}</span>
+                            </button>
                             <button
                               onClick={() => {
                                 setIsProfileMenuOpen(false);
@@ -274,7 +304,7 @@ export const AppTopNavbar = () => {
                               className="w-full px-4 py-2 text-xs font-medium text-[#0a0a0a] hover:bg-[#f4f4f4] flex items-center gap-3 transition-colors cursor-pointer text-left"
                             >
                               <CheckCircle2 className="w-4 h-4 text-[#717784]" />
-                              <span>Applied Jobs</span>
+                              <span>{t('Applied Jobs')}</span>
                             </button>
                             <button
                               onClick={() => {
@@ -284,7 +314,7 @@ export const AppTopNavbar = () => {
                               className="w-full px-4 py-2 text-xs font-medium text-[#0a0a0a] hover:bg-[#f4f4f4] flex items-center gap-3 transition-colors cursor-pointer text-left"
                             >
                               <Bookmark className="w-4 h-4 text-[#717784]" />
-                              <span>Saved Jobs</span>
+                              <span>{t('Saved Jobs')}</span>
                             </button>
                             <button
                               onClick={() => {
@@ -294,7 +324,7 @@ export const AppTopNavbar = () => {
                               className="w-full px-4 py-2 text-xs font-medium text-[#0a0a0a] hover:bg-[#f4f4f4] flex items-center gap-3 transition-colors cursor-pointer text-left"
                             >
                               <Activity className="w-4 h-4 text-[#717784]" />
-                              <span>Activity Tracker</span>
+                              <span>{t('Activity Tracker')}</span>
                             </button>
                           </>
                         )}
@@ -308,7 +338,7 @@ export const AppTopNavbar = () => {
                         >
                           <div className="flex items-center gap-3">
                             <Bell className="w-4 h-4 text-slate-500" />
-                            <span>Notifications</span>
+                            <span>{t('Notifications')}</span>
                           </div>
                           {unreadCount > 0 && (
                             <span className="px-1.5 py-0.5 bg-blue-50 text-[#0066FF] text-[10px] font-bold rounded-full border border-blue-100">
@@ -325,7 +355,7 @@ export const AppTopNavbar = () => {
                           className="w-full px-4 py-2 text-xs font-medium text-slate-800 hover:bg-slate-100 flex items-center gap-3 transition-colors cursor-pointer text-left"
                         >
                           <Settings className="w-4 h-4 text-slate-500" />
-                          <span>Account Settings</span>
+                          <span>{t('Account Settings')}</span>
                         </button>
                       </div>
 
@@ -336,7 +366,7 @@ export const AppTopNavbar = () => {
                           className="w-full px-4 py-2 text-xs font-medium text-rose-600 hover:bg-rose-50 flex items-center gap-3 transition-colors cursor-pointer text-left"
                         >
                           <LogOut className="w-4 h-4 text-rose-500" />
-                          <span>Sign Out</span>
+                          <span>{t('Sign Out')}</span>
                         </button>
                       </div>
                     </motion.div>

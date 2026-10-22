@@ -387,7 +387,7 @@ export const en: Record<string, string> = {
   "Professional Summary & Bio": "Professional Summary & Bio",
   "Save Profile Changes": "Save Profile Changes",
   "Saving Changes...": "Saving Changes...",
-  "Identity & KYC Verification": "Identity & KYC Verification",
+  "Identity Verification": "Identity Verification",
   "Change Account Password": "Change Account Password",
   "Protect your credentials with a strong, multi-factor compliant password.": "Protect your credentials with a strong, multi-factor compliant password.",
   "Current Password": "Current Password",

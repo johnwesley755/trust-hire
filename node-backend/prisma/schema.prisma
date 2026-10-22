@@ -116,12 +116,21 @@ model jobs {
   updated_at                DateTime?             @default(now()) @db.Timestamp(6)
   employer_name             String?               @db.VarChar(255)
   expires_at                DateTime?             @db.Timestamp(6)
+  is_external               Boolean?              @default(false)
+  source_name               String?               @db.VarChar(100)
+  source_url                String?
+  source_hash               String?               @db.VarChar(64)
+  alternate_sources         Json?
+  date_posted               DateTime?             @db.Timestamp(6)
+  last_verified_at          DateTime?             @db.Timestamp(6)
   job_applications          job_applications[]
   job_required_skills       job_required_skills[] @ignore
   saved_jobs                saved_jobs[]
 
   @@index([employer_id], map: "idx_jobs_employer_id")
   @@index([status], map: "idx_jobs_status")
+  @@index([is_external, status], map: "idx_jobs_external_status")
+  @@index([source_hash], map: "idx_jobs_source_hash")
 }
 
 model media_assets {

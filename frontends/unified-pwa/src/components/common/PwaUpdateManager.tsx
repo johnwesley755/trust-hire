@@ -24,6 +24,7 @@ export const PwaUpdateManager: React.FC = () => {
 
   // Check version.json on server and compare strictly with APP_VERSION
   const checkVersionJson = useCallback(async () => {
+    if (import.meta.env.DEV) return;
     try {
       const res = await fetch(`/version.json?t=${Date.now()}`, {
         cache: 'no-store',
