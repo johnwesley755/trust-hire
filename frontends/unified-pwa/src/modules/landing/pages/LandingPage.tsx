@@ -23,6 +23,7 @@ import { useTranslation, SUPPORTED_LANGUAGES } from "../../../providers/Translat
 import { LANDING_IMAGES } from "../constants/landingAssets";
 import trustHyreLogo from "../../../assets/TrustHyre Skills and Opportunities Logo.png";
 import trustHyreLightLogo from "../../../assets/TrustHyre Logo with Skills Tagline.png";
+import { SeoHead } from "../../../components/common/SeoHead";
 
 // Trust Carousel Slide Data (Sourced from LANDING_IMAGES.specialists)
 const TRUST_SLIDES = LANDING_IMAGES.specialists;
@@ -396,6 +397,11 @@ export default function LandingPage() {
 
   return (
     <div className="baseline-root bg-white text-[#0a0a0a] min-h-screen selection:bg-[#2563c9] selection:text-white font-['Onest',system-ui,sans-serif]">
+      <SeoHead
+        title="India's #1 Verified Workforce & Employer Network"
+        description="Connect verified blue-collar and skilled workers with top employers through smart escrow, verified skill passports, and instant hiring on TrustHyre."
+        canonicalPath="/"
+      />
       
       {/* ===================================================================== */}
       {/* 0. INTRO CURTAIN LOADER */}

@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { Bell, CheckCircle2, Info, AlertTriangle, Briefcase, Award, ShieldCheck, X, Users } from 'lucide-react';
+import { Bell, CheckCircle2, Info, AlertTriangle, Briefcase, Award, ShieldCheck, Users } from 'lucide-react';
 import { fcmService } from '../../../services/fcm.service';
 import { useAuth } from '../../../providers/AuthContext';
 
@@ -10,8 +10,6 @@ export const NotificationListener = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [showPromptBanner, setShowPromptBanner] = useState(false);
-  const [isRequesting, setIsRequesting] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -23,27 +21,10 @@ export const NotificationListener = () => {
       if (currentPerm === 'granted') {
         // Token refresh and keep alive with active user ID
         fcmService.requestPushPermissionAndRegister(user.id).catch(() => {});
-      } else if (currentPerm === 'default') {
-        // 1. Attempt non-blocking auto-request after user has landed
-        const autoTimer = setTimeout(() => {
-          fcmService.requestPushPermissionAndRegister(user.id).then(res => {
-            if (res.status === 'granted') {
-              setShowPromptBanner(false);
-            }
-          }).catch(() => {});
-        }, 1200);
-
-        // 2. If not granted, display soft-ask banner unless dismissed in session
-        const isDismissed = sessionStorage.getItem('trusthyre_push_prompt_dismissed') === 'true';
-        if (!isDismissed) {
-          setShowPromptBanner(true);
-        }
-
-        return () => clearTimeout(autoTimer);
       }
     }
 
-    // 3. Attach real-time foreground listener for FCM push notifications
+    // Attach real-time foreground listener for FCM push notifications
     let cleanupListener: (() => void) | null = null;
 
     fcmService.listenToForegroundMessages((payload) => {
@@ -101,79 +82,7 @@ export const NotificationListener = () => {
     };
   }, [user, queryClient, navigate]);
 
-  const handleEnablePush = async () => {
-    setIsRequesting(true);
-    try {
-      const result = await fcmService.requestPushPermissionAndRegister(user?.id);
-      if (result.status === 'granted') {
-        toast.success("Push notifications enabled! You will receive real-time updates.", {
-          icon: <CheckCircle2 className="w-5 h-5 text-emerald-500" />
-        });
-        setShowPromptBanner(false);
-      } else if (result.status === 'denied') {
-        toast.error("Notification permission was denied. You can re-enable it in browser settings.");
-        setShowPromptBanner(false);
-      }
-    } catch (err: any) {
-      console.warn("Push permission request error:", err);
-    } finally {
-      setIsRequesting(false);
-    }
-  };
-
-  const handleDismissBanner = () => {
-    sessionStorage.setItem('trusthyre_push_prompt_dismissed', 'true');
-    setShowPromptBanner(false);
-  };
-
-  return (
-    <>
-      {showPromptBanner && (
-        <aside 
-          aria-label="Notification Permission Prompt"
-          className="fixed bottom-5 right-5 z-[9999] max-w-sm w-[calc(100vw-2.5rem)] bg-[#0f2f63] text-white p-4 sm:p-5 rounded-2xl shadow-2xl border border-white/10 font-['Onest',system-ui,sans-serif] animate-in slide-in-from-bottom duration-300"
-        >
-          <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-xl bg-white/15 border border-white/20 flex items-center justify-center shrink-0">
-              <Bell className="w-5 h-5 text-[#5790e6] animate-bounce" />
-            </div>
-            <div className="flex-1 min-w-0 space-y-1">
-              <h4 className="text-sm font-bold text-white leading-tight">
-                Turn on Push Notifications
-              </h4>
-              <p className="text-xs text-white/80 leading-relaxed">
-                Get notified instantly about job applications, direct offers, and instant shift alerts even when away.
-              </p>
-              <div className="flex items-center gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={handleEnablePush}
-                  disabled={isRequesting}
-                  className="px-3.5 py-1.5 bg-white text-[#0f2f63] hover:bg-[#f4f4f4] rounded-full text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-95 disabled:opacity-70"
-                >
-                  {isRequesting ? 'Enabling...' : 'Allow Notifications'}
-                </button>
-                <button
-                  type="button"
-                  onClick={handleDismissBanner}
-                  className="px-3 py-1.5 text-white/70 hover:text-white text-xs font-medium cursor-pointer"
-                >
-                  Not now
-                </button>
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={handleDismissBanner}
-              className="text-white/50 hover:text-white p-1 cursor-pointer"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        </aside>
-      )}
-    </>
-  );
+  return null;
 };
 
 const getNotificationIcon = (type?: string) => {

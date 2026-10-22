@@ -8,4 +8,4 @@ Disallow: /verify-identity
 Disallow: /onboarding
 Disallow: /api/
 
-Sitemap: https://trusthire.in/sitemap.xml
+Sitemap: https://trusthyre.com/sitemap.xml

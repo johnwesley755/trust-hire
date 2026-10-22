@@ -17,6 +17,7 @@ import {
   ShieldAlert
 } from 'lucide-react';
 import trustHyreLogo from '../../../assets/TrustHyre Skills and Opportunities Logo.png';
+import { SeoHead } from '../../../components/common/SeoHead';
 
 export const PrivacyPage: React.FC = () => {
   const [activeSection, setActiveSection] = useState('collection');
@@ -44,6 +45,11 @@ export const PrivacyPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-[#0A1931] font-sans antialiased selection:bg-[#0f2f63] selection:text-white flex flex-col justify-between">
+      <SeoHead
+        title="Privacy Policy"
+        description="Learn how TrustHyre collects, encrypts, and protects your personal data in accordance with DPDP compliance."
+        canonicalPath="/privacy"
+      />
       {/* Sticky Navigation Header */}
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-18 flex items-center justify-between gap-4">

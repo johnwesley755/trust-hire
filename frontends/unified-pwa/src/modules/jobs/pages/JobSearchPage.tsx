@@ -25,6 +25,7 @@ import { fcmService } from '../../../services/fcm.service';
 import { searchAlertService, type SearchAlert } from '../../../services/searchAlert.service';
 import { JobAlertModal } from '../components/JobAlertModal';
 import { ManageAlertsModal } from '../../dashboard/features/alerts/ManageAlertsModal';
+import { SeoHead } from '../../../components/common/SeoHead';
 
 export default function JobSearchPage() {
   const queryClient = useQueryClient();
@@ -339,6 +340,11 @@ export default function JobSearchPage() {
 
   return (
     <div className="w-full min-h-screen p-2 sm:p-3 bg-white font-['Onest',system-ui,sans-serif] text-[#0a0a0a]">
+      <SeoHead
+        title="Browse Verified Job Openings"
+        description="Find top verified trade, technician, and skilled blue-collar job openings with direct employer hiring on TrustHyre."
+        canonicalPath="/search"
+      />
       <div className="max-w-7xl mx-auto space-y-6">
         
         {/* 1. Header Hero Banner Replicating Landing Page Navy Editorial Aesthetic */}

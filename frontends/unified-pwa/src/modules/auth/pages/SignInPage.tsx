@@ -15,6 +15,7 @@ import {
   ShieldCheck, 
   ArrowRight 
 } from 'lucide-react';
+import { SeoHead } from '../../../components/common/SeoHead';
 
 export const SignInPage = () => {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -106,7 +107,11 @@ export const SignInPage = () => {
 
     return (
         <div className="w-full min-h-screen p-2 sm:p-3 bg-white font-['Onest',system-ui,sans-serif] selection:bg-[#2563c9] selection:text-white flex flex-col">
-            
+            <SeoHead
+                title="Sign In to Your Account"
+                description="Sign in to TrustHyre to access verified skilled candidates, track hiring applications, and manage projects."
+                canonicalPath="/login"
+            />
             {/* Framed Full-Screen Canvas matching Landing Page Architecture */}
             <div className="relative w-full flex-1 min-h-[calc(100svh-1rem)] sm:min-h-[calc(100svh-1.5rem)] lg:h-[calc(100svh-1.5rem)] rounded-2xl sm:rounded-[2rem] overflow-hidden border border-[#e6e8ec] bg-white shadow-xl grid grid-cols-1 lg:grid-cols-12 transition-all">
                 

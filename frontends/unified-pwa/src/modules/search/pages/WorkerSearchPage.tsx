@@ -30,6 +30,7 @@ import { searchAlertService, type SearchAlert } from '../../../services/searchAl
 import { ManageAlertsModal } from '../../dashboard/features/alerts/ManageAlertsModal';
 import { TalentAlertModal } from '../components/TalentAlertModal';
 import { normalizeSkills } from '../../../utils/skills';
+import { SeoHead } from '../../../components/common/SeoHead';
 
 const JOB_CATEGORIES = [
   "All",
@@ -156,6 +157,11 @@ export const WorkerSearchPage = () => {
 
   return (
     <div className="w-full min-h-screen p-2 sm:p-3 bg-white font-['Onest',system-ui,sans-serif] text-[#0A1931]">
+      <SeoHead
+        title="Find Verified Skilled Workers"
+        description="Search and hire verified electricians, plumbers, drivers, logistics workers, and tradespeople across India on TrustHyre."
+        canonicalPath="/find-workers"
+      />
       <div className="max-w-7xl mx-auto space-y-6">
         
         {/* 1. Header Hero Banner Replicating Landing Page Navy Aesthetic */}
