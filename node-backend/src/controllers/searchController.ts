@@ -4,7 +4,7 @@ import { ApiResponse } from '../utils/ApiResponse';
 
 export const searchJobs = async (c: Context) => {
   try {
-    const { query, category, industry, location, city, jobType, minSalary, maxSalary, minExperience, maxExperience, sortBy, employerId, includeExpired } = c.req.query();
+    const { query, category, industry, location, city, jobType, minSalary, maxSalary, minExperience, maxExperience, sortBy, employerId, includeExpired, source } = c.req.query();
 
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
@@ -53,6 +53,12 @@ export const searchJobs = async (c: Context) => {
     if (location) whereClause.location = { contains: location as string, mode: 'insensitive' };
     if (city) whereClause.city = { contains: city as string, mode: 'insensitive' };
     if (employerId) whereClause.employer_id = employerId;
+
+    if (source === 'internal') {
+      whereClause.is_external = false;
+    } else if (source === 'external') {
+      whereClause.is_external = true;
+    }
 
     if (minSalary || maxSalary) {
       const budgetFilter: any = {};
@@ -139,6 +145,11 @@ export const searchJobs = async (c: Context) => {
           status: isJobExpired ? 'EXPIRED' : (j.status || 'OPEN'),
           expiresAt: (j.expires_at || effectiveExpiry)?.toISOString(),
           isExpired: isJobExpired,
+          isExternal: Boolean(j.is_external),
+          sourceName: j.source_name || (j.is_external ? 'Verified Partner' : 'TrustHyre Direct'),
+          sourceUrl: j.source_url || null,
+          alternateSources: Array.isArray(j.alternate_sources) ? j.alternate_sources : [],
+          datePosted: j.date_posted || j.created_at,
           createdAt: j.created_at,
           updatedAt: j.updated_at,
         requiredSkills: sIndex?.required_skills
@@ -146,12 +157,19 @@ export const searchJobs = async (c: Context) => {
           : [],
         employerProfile: emp ? {
           id: emp.id,
-          companyName: emp.company_name || 'Employer',
+          companyName: emp.company_name || j.employer_name || 'Employer',
           businessTier: emp.business_tier || 'STARTER',
           isVerified: emp.is_verified || false,
-          city: emp.city || '',
+          city: emp.city || j.city || '',
           logoUrl: ''
-        } : null
+        } : (j.is_external ? {
+          id: 'EXTERNAL',
+          companyName: j.employer_name || 'Verified Employer',
+          businessTier: 'VERIFIED_PARTNER',
+          isVerified: true,
+          city: j.city || '',
+          logoUrl: ''
+        } : null)
       };
     });
 

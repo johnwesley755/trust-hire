@@ -24,10 +24,19 @@ interface JobFilterSidebarProps {
   selectedExperience: string;
   onSelectExperience: (exp: string) => void;
 
+  selectedSource?: string;
+  onSelectSource?: (source: string) => void;
+
   counts?: FilterCounts;
   onClearAll: () => void;
   hasActiveFilters: boolean;
 }
+
+export const JOB_SOURCE_OPTIONS = [
+  { label: 'All Opportunities', value: 'all' },
+  { label: 'TrustHyre Direct', value: 'internal' },
+  { label: 'Verified Partners', value: 'external' }
+];
 
 export const JOB_TYPE_OPTIONS = [
   'All',
@@ -78,6 +87,8 @@ export const JobFilterSidebar: React.FC<JobFilterSidebarProps> = ({
   onSelectTrade,
   selectedExperience,
   onSelectExperience,
+  selectedSource = 'all',
+  onSelectSource,
   counts,
   onClearAll,
   hasActiveFilters,
@@ -103,6 +114,35 @@ export const JobFilterSidebar: React.FC<JobFilterSidebarProps> = ({
           </button>
         )}
       </div>
+
+      {/* 0. OPPORTUNITY SOURCE SECTION */}
+      {onSelectSource && (
+        <div className="space-y-2">
+          <span className="text-[10px] font-medium uppercase text-[#717784]">
+            Hiring Channel
+          </span>
+          <div className="grid grid-cols-1 gap-1">
+            {JOB_SOURCE_OPTIONS.map((opt) => {
+              const isSelected = selectedSource === opt.value;
+              return (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => onSelectSource(opt.value)}
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all text-left cursor-pointer ${
+                    isSelected
+                      ? 'bg-[#0f2f63] text-white shadow-xs'
+                      : 'bg-white/80 hover:bg-white text-[#0a0a0a] border border-[#e6e8ec]/80 hover:border-[#0f2f63]/30'
+                  }`}
+                >
+                  <span>{opt.label}</span>
+                  {isSelected && <Check className="w-3.5 h-3.5 text-white" />}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* 1. JOB TYPE SECTION */}
       <div className="space-y-2">

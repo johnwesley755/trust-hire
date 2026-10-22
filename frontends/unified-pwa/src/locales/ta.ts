@@ -387,7 +387,7 @@ export const ta: Record<string, string> = {
   "Professional Summary & Bio": "தொழில்முறை சுருக்கம் & பயோ",
   "Save Profile Changes": "சுயவிவர மாற்றங்களைச் சேமிக்கவும்",
   "Saving Changes...": "மாற்றங்கள் சேமிக்கப்படுகின்றன...",
-  "Identity & KYC Verification": "அடையாளம் & KYC சரிபார்ப்பு",
+  "Identity Verification": "அடையாள சரிபார்ப்பு",
   "Change Account Password": "கணக்கு கடவுச்சொல்லை மாற்றவும்",
   "Protect your credentials with a strong, multi-factor compliant password.": "வலுவான, பல காரணி இணக்கமான கடவுச்சொல் மூலம் உங்கள் நற்சான்றிதழ்களைப் பாதுகாக்கவும்.",
   "Current Password": "தற்போதைய கடவுச்சொல்",

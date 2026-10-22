@@ -37,6 +37,7 @@ export default function JobSearchPage() {
   const [budgetRange, setBudgetRange] = useState(searchParams.get('budget') || 'all');
   const [experience, setExperience] = useState(searchParams.get('exp') || 'all');
   const [trade, setTrade] = useState(searchParams.get('trade') || 'All');
+  const [source, setSource] = useState(searchParams.get('source') || 'all');
   const [sortBy, setSortBy] = useState<'date_desc' | 'salary_desc' | 'salary_asc'>('date_desc');
   const [isLocating, setIsLocating] = useState(false);
 
@@ -99,6 +100,7 @@ export default function JobSearchPage() {
     const b = searchParams.get('budget') || 'all';
     const exp = searchParams.get('exp') || 'all';
     const tr = searchParams.get('trade') || 'All';
+    const s = searchParams.get('source') || 'all';
 
     if (q !== query) setQuery(q);
     if (c !== city) setCity(c);
@@ -106,6 +108,7 @@ export default function JobSearchPage() {
     if (b !== budgetRange) setBudgetRange(b);
     if (exp !== experience) setExperience(exp);
     if (tr !== trade) setTrade(tr);
+    if (s !== source) setSource(s);
   }, [searchParams]);
 
   // Helper to sync to URL
@@ -145,7 +148,7 @@ export default function JobSearchPage() {
 
   // Fetch Jobs via Search API
   const { data: jobs = [], isLoading } = useQuery({
-    queryKey: ['jobs', 'search', { query, city, trade, jobType, minSalary, maxSalary, minExperience, maxExperience, sortBy }],
+    queryKey: ['jobs', 'search', { query, city, trade, jobType, minSalary, maxSalary, minExperience, maxExperience, sortBy, source }],
     queryFn: () => searchService.searchJobs({
       query: query || undefined,
       city: city || undefined,
@@ -155,6 +158,7 @@ export default function JobSearchPage() {
       minExperience,
       maxExperience,
       sortBy,
+      source: source !== 'all' ? source : undefined,
       includeExpired: 'true'
     }),
     staleTime: 1000 * 60 * 2,
@@ -250,11 +254,12 @@ export default function JobSearchPage() {
     setBudgetRange('all');
     setExperience('all');
     setTrade('All');
+    setSource('all');
     setSearchParams(new URLSearchParams());
   };
 
-  const activeFilterCount = (jobType !== 'All' ? 1 : 0) + (budgetRange !== 'all' ? 1 : 0) + (experience !== 'all' ? 1 : 0) + (trade !== 'All' ? 1 : 0) + (city ? 1 : 0);
-  const hasActiveFilters = Boolean(query || city || jobType !== 'All' || budgetRange !== 'all' || experience !== 'all' || trade !== 'All');
+  const activeFilterCount = (jobType !== 'All' ? 1 : 0) + (budgetRange !== 'all' ? 1 : 0) + (experience !== 'all' ? 1 : 0) + (trade !== 'All' ? 1 : 0) + (city ? 1 : 0) + (source !== 'all' ? 1 : 0);
+  const hasActiveFilters = Boolean(query || city || jobType !== 'All' || budgetRange !== 'all' || experience !== 'all' || trade !== 'All' || source !== 'all');
 
   const TRADE_CATEGORIES = [
     'All',
@@ -298,6 +303,10 @@ export default function JobSearchPage() {
         createdAt: createdDate,
         expiresAt: rawExpiry || effectiveExpiry?.toISOString(),
         isExpired,
+        isExternal: Boolean(j.isExternal || j.is_external),
+        sourceName: j.sourceName || j.source_name,
+        sourceUrl: j.sourceUrl || j.source_url,
+        alternateSources: j.alternateSources || j.alternate_sources,
         employerProfile: j.employerProfile,
         hasApplied: appliedJobIdsMap.has(j.id),
         applicationStatus: appliedJobIdsMap.get(j.id),
@@ -316,7 +325,7 @@ export default function JobSearchPage() {
   // Reset pagination on filter or search changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [query, city, jobType, budgetRange, experience, trade, sortBy, hideExpired]);
+  }, [query, city, jobType, budgetRange, experience, trade, sortBy, hideExpired, source]);
 
   // Safe pagination calculations
   const totalItems = displayJobs.length;
@@ -398,6 +407,11 @@ export default function JobSearchPage() {
               onSelectTrade={(tr) => {
                 setTrade(tr);
                 updateUrlParams({ trade: tr });
+              }}
+              selectedSource={source}
+              onSelectSource={(s) => {
+                setSource(s);
+                updateUrlParams({ source: s });
               }}
               counts={filterCounts}
               onClearAll={handleClearAll}
@@ -609,6 +623,39 @@ export default function JobSearchPage() {
             {/* Modal Body: Scrollable Filters */}
             <div className="px-6 py-5 overflow-y-auto space-y-6">
               
+              {/* Hiring Channel Source Filter */}
+              <div className="space-y-2.5">
+                <label className="text-[11px] font-bold uppercase text-[#717784]">
+                  Hiring Channel
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    { label: 'All Opportunities', val: 'all' },
+                    { label: 'TrustHyre Direct', val: 'internal' },
+                    { label: 'Verified Partners', val: 'external' }
+                  ].map((s) => {
+                    const isSelected = source === s.val;
+                    return (
+                      <button
+                        key={s.val}
+                        type="button"
+                        onClick={() => {
+                          setSource(s.val);
+                          updateUrlParams({ source: s.val });
+                        }}
+                        className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
+                          isSelected
+                            ? 'bg-[#0f2f63] text-white shadow-xs'
+                            : 'bg-[#f4f4f4] hover:bg-[#e6e8ec] border border-[#e6e8ec] text-[#0a0a0a]'
+                        }`}
+                      >
+                        {s.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
               {/* Job Type Filter */}
               <div className="space-y-2.5">
                 <label className="text-[11px] font-bold uppercase text-[#717784]">

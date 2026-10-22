@@ -14,6 +14,8 @@ router.patch('/verifications/:id/status', adminController.updateVerificationStat
 router.get('/users', adminController.getAllUsers);
 router.post('/users/create-admin', adminController.createAdminUser);
 router.get('/jobs', adminController.getAllJobs);
+router.post('/jobs/sync-external', adminController.syncExternalJobs);
+router.post('/jobs/freshness-cycle', adminController.runJobFreshnessCycle);
 router.delete('/jobs/:id', adminController.deleteJobByAdmin);
 
 export default router;

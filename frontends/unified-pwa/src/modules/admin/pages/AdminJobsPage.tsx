@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { adminService, type AdminJobItem } from '../../../services/admin.service';
-import { Briefcase, Search, Trash2, MapPin, IndianRupee, Users, Loader2 } from 'lucide-react';
+import { Briefcase, Search, Trash2, MapPin, IndianRupee, Users, Loader2, Globe, RefreshCw, ShieldCheck } from 'lucide-react';
 import { toast } from 'sonner';
 import { AppLoader } from '../../../components/common/AppLoader';
 
@@ -24,6 +24,32 @@ export const AdminJobsPage: React.FC = () => {
     }
   });
 
+  const syncExternalMutation = useMutation({
+    mutationFn: () => adminService.syncExternalJobs({ limit: 25 }),
+    onSuccess: (data: any) => {
+      const res = data?.data || data;
+      toast.success(`External sync complete: ${res?.insertedCount || 0} inserted, ${res?.duplicatesMerged || 0} duplicates merged.`);
+      queryClient.invalidateQueries({ queryKey: ['adminJobs'] });
+      queryClient.invalidateQueries({ queryKey: ['adminStats'] });
+    },
+    onError: (err: any) => {
+      toast.error(err.message || 'Failed to sync external jobs');
+    }
+  });
+
+  const freshnessMutation = useMutation({
+    mutationFn: () => adminService.runFreshnessCycle(),
+    onSuccess: (data: any) => {
+      const res = data?.data || data;
+      toast.success(`Freshness check finished: scanned ${res?.scannedCount || 0}, expired ${res?.expiredCount || 0} dead postings.`);
+      queryClient.invalidateQueries({ queryKey: ['adminJobs'] });
+      queryClient.invalidateQueries({ queryKey: ['adminStats'] });
+    },
+    onError: (err: any) => {
+      toast.error(err.message || 'Failed to run freshness check');
+    }
+  });
+
   const handleDelete = (id: string, title: string) => {
     if (window.confirm(`Are you sure you want to delete the job posting "${title}"?`)) {
       deleteMutation.mutate(id);
@@ -39,17 +65,52 @@ export const AdminJobsPage: React.FC = () => {
   return (
     <div className="space-y-6 font-['Onest',system-ui,sans-serif]">
       {/* Header */}
-      <div>
-        <div className="inline-flex items-center gap-2 text-xs font-medium uppercase text-[#717784] mb-1.5">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#2563c9]" />
-          <span>Marketplace Quality</span>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <div className="inline-flex items-center gap-2 text-xs font-medium uppercase text-[#717784] mb-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#2563c9]" />
+            <span>Marketplace Quality</span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-medium text-[#0a0a0a] tracking-tight">
+            Job Postings & Moderation
+          </h1>
+          <p className="text-xs sm:text-sm text-[#717784] mt-1 leading-relaxed">
+            Review active job openings, remove spam listings, and aggregate verified partner vacancies.
+          </p>
         </div>
-        <h1 className="text-2xl sm:text-3xl font-medium text-[#0a0a0a] tracking-tight">
-          Job Postings & Moderation
-        </h1>
-        <p className="text-xs sm:text-sm text-[#717784] mt-1 leading-relaxed">
-          Review active job openings, remove spam listings, and maintain employer hiring standards.
-        </p>
+
+        {/* Action Controls */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <button
+            type="button"
+            onClick={() => syncExternalMutation.mutate()}
+            disabled={syncExternalMutation.isPending}
+            className="px-3.5 py-2 rounded-full bg-[#0f2f63] hover:bg-[#1a4487] text-white text-xs font-medium uppercase tracking-wider transition-all flex items-center gap-1.5 shadow-xs active:scale-95 cursor-pointer disabled:opacity-60"
+            title="Fetch and ingest fresh verified jobs from partner portals"
+          >
+            {syncExternalMutation.isPending ? (
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            ) : (
+              <Globe className="w-3.5 h-3.5 text-blue-300" />
+            )}
+            <span>{syncExternalMutation.isPending ? 'Syncing...' : 'Sync Partner Jobs'}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => freshnessMutation.mutate()}
+            disabled={freshnessMutation.isPending}
+            className="px-3.5 py-2 rounded-full bg-white hover:bg-[#f4f4f4] border border-[#e6e8ec] text-[#0a0a0a] text-xs font-medium uppercase tracking-wider transition-all flex items-center gap-1.5 shadow-xs active:scale-95 cursor-pointer disabled:opacity-60"
+            title="Scan existing external postings for expired/dead vacancy links"
+          >
+            {freshnessMutation.isPending ? (
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            ) : (
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+            )}
+            <span>{freshnessMutation.isPending ? 'Checking...' : 'Check Freshness'}</span>
+          </button>
+        </div>
       </div>
 
       {/* Filter and Search Bar */}
@@ -114,15 +175,22 @@ export const AdminJobsPage: React.FC = () => {
               >
                 <div>
                   <div className="flex items-start justify-between gap-2 mb-2">
-                    <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider ${
-                      isExpired
-                        ? 'bg-rose-50 text-rose-800 border border-rose-200'
-                        : job.status === 'OPEN' 
-                        ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' 
-                        : 'bg-[#f4f4f4] text-[#717784] border border-[#e6e8ec]'
-                    }`}>
-                      {isExpired ? 'EXPIRED' : job.status}
-                    </span>
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider ${
+                        isExpired
+                          ? 'bg-rose-50 text-rose-800 border border-rose-200'
+                          : job.status === 'OPEN' 
+                          ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' 
+                          : 'bg-[#f4f4f4] text-[#717784] border border-[#e6e8ec]'
+                      }`}>
+                        {isExpired ? 'EXPIRED' : job.status}
+                      </span>
+                      {(job.is_external || job.isExternal) && (
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+                          {job.source_name || job.sourceName || 'External Partner'}
+                        </span>
+                      )}
+                    </div>
                     <span className="text-[10px] text-[#717784] font-mono">
                       {job.created_at ? new Date(job.created_at).toLocaleDateString() : ''}
                     </span>

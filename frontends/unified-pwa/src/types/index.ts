@@ -86,6 +86,20 @@ export interface Job {
   isExpired?: boolean;
   applicationCount?: number;
   applicantCount?: number;
+  isExternal?: boolean;
+  sourceName?: string;
+  sourceUrl?: string;
+  alternateSources?: Array<{ sourceName: string; sourceUrl: string; dateSeen?: string }>;
+  datePosted?: string;
+  jobType?: string;
+  employerProfile?: {
+    id?: string;
+    companyName: string;
+    businessTier?: string;
+    isVerified?: boolean;
+    city?: string;
+    logoUrl?: string;
+  } | null;
 }
 
 export interface JobApplication {

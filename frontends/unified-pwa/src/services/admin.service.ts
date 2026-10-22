@@ -107,5 +107,15 @@ export const adminService = {
   }): Promise<any> => {
     const res = await apiClient.post('/api/admin/users/create-admin', data);
     return res.data;
+  },
+
+  syncExternalJobs: async (data?: { query?: string; city?: string; category?: string; limit?: number }): Promise<any> => {
+    const res = await apiClient.post('/api/admin/jobs/sync-external', data || {});
+    return res.data;
+  },
+
+  runFreshnessCycle: async (): Promise<any> => {
+    const res = await apiClient.post('/api/admin/jobs/freshness-cycle', {});
+    return res.data;
   }
 };

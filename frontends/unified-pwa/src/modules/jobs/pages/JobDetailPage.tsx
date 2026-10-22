@@ -752,7 +752,7 @@ export default function JobDetailPage() {
                   About the Employer
                 </h3>
                 <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-                  Verified KYC
+                  Verified Identity
                 </span>
               </div>
 

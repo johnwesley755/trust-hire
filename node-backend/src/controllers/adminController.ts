@@ -324,3 +324,32 @@ export const createAdminUser = async (c: Context) => {
   }
 };
 
+export const syncExternalJobs = async (c: Context) => {
+  try {
+    const body = await c.req.json().catch(() => ({}));
+    const { JobAggregatorService } = await import('../services/jobAggregatorService');
+    const result = await JobAggregatorService.syncFreshJobs({
+      query: body.query,
+      city: body.city,
+      category: body.category,
+      limit: Number(body.limit) || 20,
+    });
+    return c.json(ApiResponse.ok("External jobs synchronized successfully", result));
+  } catch (err: any) {
+    console.error("syncExternalJobs error:", err);
+    return c.json(ApiResponse.error(err.message), 500 as any);
+  }
+};
+
+export const runJobFreshnessCycle = async (c: Context) => {
+  try {
+    const { JobFreshnessWorker } = await import('../services/jobFreshnessWorker');
+    const result = await JobFreshnessWorker.runCycle();
+    return c.json(ApiResponse.ok("Job freshness cycle completed", result));
+  } catch (err: any) {
+    console.error("runJobFreshnessCycle error:", err);
+    return c.json(ApiResponse.error(err.message), 500 as any);
+  }
+};
+
+

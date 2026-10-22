@@ -24,12 +24,16 @@ export const AdminDashboardPage: React.FC = () => {
   const { data: stats, isLoading: isLoadingStats } = useQuery({
     queryKey: ['adminStats'],
     queryFn: adminService.getStats,
-    refetchInterval: 30000,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    refetchInterval: false,
   });
 
   const { data: pendingVerifications = [], isLoading: isLoadingVerifications } = useQuery({
     queryKey: ['adminVerifications', 'PENDING'],
     queryFn: () => adminService.getVerifications('PENDING'),
+    staleTime: 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 
   const verifyMutation = useMutation({

@@ -342,7 +342,7 @@ export default function EmployerProfileDetailsPage() {
               <ShieldCheck className="w-5 h-5 text-emerald-700" />
             </div>
             <div className="min-w-0">
-              <p className="text-[10px] font-bold uppercase text-slate-500 tracking-wider">KYC Standing</p>
+              <p className="text-[10px] font-bold uppercase text-slate-500 tracking-wider">Verification Standing</p>
               <div className="flex items-center gap-1 mt-0.5">
                 <p className="text-base sm:text-lg font-bold text-emerald-700">Verified</p>
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
@@ -657,7 +657,7 @@ export default function EmployerProfileDetailsPage() {
                           </span>
                         </div>
                         <p className="text-[11px] text-slate-500 leading-relaxed">
-                          Business identity, official address, and authorized contact person verified under TrustHire standard KYC protocol.
+                          Business identity, official address, and authorized contact person verified under TrustHire standard identity protocol.
                         </p>
                       </div>
                     </div>

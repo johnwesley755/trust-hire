@@ -58,15 +58,6 @@ apiClient.interceptors.response.use(
       }
     }
 
-    const isAuthEndpoint = error.config?.url && (
-      error.config.url.includes('/api/auth/login') ||
-      error.config.url.includes('/api/auth/register') ||
-      error.config.url.includes('/api/auth/oauth-sync')
-    );
-
-    if (!isAuthEndpoint && (error.response?.status === 401 || error.response?.status === 403)) {
-      window.dispatchEvent(new CustomEvent('auth:expired'));
-    }
     return Promise.reject(error);
   }
 );

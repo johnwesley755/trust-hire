@@ -387,7 +387,7 @@ export const te: Record<string, string> = {
   "Professional Summary & Bio": "వృత్తిపరమైన సారాంశం & బయో",
   "Save Profile Changes": "ప్రొఫైల్ మార్పులను సేవ్ చేయండి",
   "Saving Changes...": "మార్పులు సేవ్ చేయబడుతున్నాయి...",
-  "Identity & KYC Verification": "గుర్తింపు & KYC ధృవీకరణ",
+  "Identity Verification": "గుర్తింపు ధృవీకరణ",
   "Change Account Password": "ఖాతా పాస్‌వర్డ్‌ను మార్చండి",
   "Protect your credentials with a strong, multi-factor compliant password.": "బలమైన, బహుళ-కారకాల కంప్లైంట్ పాస్‌వర్డ్‌తో మీ ఆధారాలను రక్షించండి.",
   "Current Password": "ప్రస్తుత పాస్‌వర్డ్",

@@ -97,17 +97,23 @@ export const AdminLeadsPage: React.FC = () => {
       page,
       limit
     }),
+    staleTime: 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 
   const { data: stats } = useQuery({
     queryKey: ['adminLeadStats'],
     queryFn: leadService.getStats,
-    refetchInterval: 30000,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    refetchInterval: false,
   });
 
   const { data: sourcesData } = useQuery({
     queryKey: ['adminLeadSources'],
     queryFn: leadService.getSources,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 
   const leads = leadData?.leads || [];
@@ -117,13 +123,19 @@ export const AdminLeadsPage: React.FC = () => {
   // Auto-Discovery Scanner Mutation
   const autoDiscoveryMutation = useMutation({
     mutationFn: () => leadService.runAutoDiscovery(),
-    onSuccess: (res) => {
+    onSuccess: (res: any) => {
+      const activeFound = res?.sourceBreakdown
+        ?.filter((s: any) => s.status === 'SUCCESS' && s.requirementsFound > 0)
+        ?.map((s: any) => `${s.sourceName} (${s.requirementsFound})`)
+        ?.join(', ');
+
       toast.success(
-        `Auto-Discovery Complete: ${res.newLeadsCount} new hiring companies found, ${res.totalScanned} worker requirements scanned!`,
-        { duration: 5000 }
+        `Auto-Discovery Complete: ${res.newLeadsCount} new hiring companies created, ${res.updatedLeadsCount || 0} refreshed across ${res.totalScanned} scanned sources.${activeFound ? ` Active feeds: ${activeFound}` : ''}`,
+        { duration: 6000 }
       );
       queryClient.invalidateQueries({ queryKey: ['adminLeads'] });
       queryClient.invalidateQueries({ queryKey: ['adminLeadStats'] });
+      queryClient.invalidateQueries({ queryKey: ['adminLeadSources'] });
     },
     onError: (err: any) => toast.error(err?.response?.data?.error || 'Auto-discovery scan failed'),
   });
@@ -131,9 +143,10 @@ export const AdminLeadsPage: React.FC = () => {
   // Single URL Scrape & Parse Mutation
   const crawlUrlMutation = useMutation({
     mutationFn: (url: string) => leadService.crawlUrl(url),
-    onSuccess: (res) => {
-      setCrawledDataPreview(res.data);
-      toast.success('Website parsed & business contact channels extracted!');
+    onSuccess: (res: any) => {
+      const extracted = res?.data || res?.lead || res;
+      setCrawledDataPreview(extracted);
+      toast.success(`Parsed ${extracted?.companyName || 'Employer'}: Requisition & contact channels extracted!`);
     },
     onError: (err: any) => toast.error(err?.response?.data?.error || 'Failed to crawl and extract URL data'),
   });
@@ -355,12 +368,15 @@ export const AdminLeadsPage: React.FC = () => {
           <div className="flex flex-wrap items-center gap-2">
             {sourcesData.map((s: any) => (
               <span
-                key={s.id}
-                className="px-2 py-0.5 bg-white border border-slate-200 rounded-lg text-[10px] font-semibold text-slate-600 flex items-center gap-1"
+                key={s.id || s.name}
+                title={s.complianceNote || (s.active ? 'Active automated feed' : 'Requires official partner API')}
+                className="px-2 py-0.5 bg-white border border-slate-200 rounded-lg text-[10px] font-semibold text-slate-600 flex items-center gap-1 cursor-help"
               >
-                <span className={`w-1.5 h-1.5 rounded-full ${s.active ? 'bg-emerald-500' : 'bg-slate-300'}`} />
+                <span className={`w-1.5 h-1.5 rounded-full ${s.active ? 'bg-emerald-500' : 'bg-amber-400'}`} />
                 <span>{s.name}</span>
-                <span className="text-slate-400 text-[9px]">({s.type})</span>
+                <span className={`text-[9px] ${s.active ? 'text-emerald-700 font-bold' : 'text-slate-400'}`}>
+                  ({s.status === 'ACTIVE' ? 'LIVE' : 'RESTRICTED'})
+                </span>
               </span>
             ))}
           </div>
@@ -1382,16 +1398,16 @@ export const AdminLeadsPage: React.FC = () => {
                       // Transfer to full manual ingest form with pre-filled fields
                       setNewLeadForm({
                         companyName: crawledDataPreview.companyName,
-                        companyWebsite: crawledDataPreview.companyWebsite,
-                        industry: 'General Trade',
-                        city: crawledDataPreview.city || 'Chennai',
+                        companyWebsite: crawledDataPreview.companyWebsite || '',
+                        industry: crawledDataPreview.industry || crawledDataPreview.category || 'General Operations',
+                        city: crawledDataPreview.city || '',
                         officialEmail: crawledDataPreview.officialEmail || '',
                         officialPhone: crawledDataPreview.officialPhone || '',
                         contactPageUrl: crawledDataPreview.contactPageUrl || '',
                         title: crawledDataPreview.title,
-                        category: 'General Trade',
+                        category: crawledDataPreview.category || 'General Operations',
                         workersNeeded: crawledDataPreview.workersNeeded || 1,
-                        salaryRange: crawledDataPreview.salaryRange || 'Competitive',
+                        salaryRange: crawledDataPreview.salaryRange || '',
                         sourceName: crawledDataPreview.sourceName || 'Web Scrape',
                         sourceUrl: crawledDataPreview.sourceUrl,
                         description: crawledDataPreview.description || '',
@@ -1410,16 +1426,16 @@ export const AdminLeadsPage: React.FC = () => {
                     onClick={() => {
                       manualIngestMutation.mutate({
                         companyName: crawledDataPreview.companyName,
-                        companyWebsite: crawledDataPreview.companyWebsite,
-                        industry: 'General Trade',
-                        city: crawledDataPreview.city || 'Chennai',
+                        companyWebsite: crawledDataPreview.companyWebsite || '',
+                        industry: crawledDataPreview.industry || crawledDataPreview.category || 'General Operations',
+                        city: crawledDataPreview.city || '',
                         officialEmail: crawledDataPreview.officialEmail || '',
                         officialPhone: crawledDataPreview.officialPhone || '',
                         contactPageUrl: crawledDataPreview.contactPageUrl || '',
                         title: crawledDataPreview.title,
-                        category: 'General Trade',
+                        category: crawledDataPreview.category || 'General Operations',
                         workersNeeded: crawledDataPreview.workersNeeded || 1,
-                        salaryRange: crawledDataPreview.salaryRange || 'Competitive',
+                        salaryRange: crawledDataPreview.salaryRange || '',
                         sourceName: crawledDataPreview.sourceName || 'Web Scrape',
                         sourceUrl: crawledDataPreview.sourceUrl,
                         description: crawledDataPreview.description || '',
