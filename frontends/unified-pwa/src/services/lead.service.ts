@@ -129,18 +129,20 @@ export interface AutoDiscoveryResponse {
 export const leadService = {
   getLeads: async (params?: GetLeadsParams): Promise<{ total: number; page: number; limit: number; totalPages: number; leads: EmployerLeadItem[] }> => {
     const response = await apiClient.get('/api/admin/leads', { params });
+    const payload = response.data?.data || response.data;
     return {
-      total: response.data.total || 0,
-      page: response.data.page || 1,
-      limit: response.data.limit || 10,
-      totalPages: response.data.totalPages || 1,
-      leads: response.data.leads || []
+      total: payload?.total || 0,
+      page: payload?.page || 1,
+      limit: payload?.limit || 10,
+      totalPages: payload?.totalPages || 1,
+      leads: payload?.leads || []
     };
   },
 
   getStats: async (): Promise<LeadStatsResponse> => {
     const response = await apiClient.get('/api/admin/leads/stats');
-    return response.data.stats;
+    const raw = response.data;
+    return raw?.stats || raw?.data || raw;
   },
 
   ingestLead: async (data: any): Promise<any> => {
@@ -180,6 +182,9 @@ export const leadService = {
 
   getSources: async (): Promise<DiscoverySourceItem[]> => {
     const response = await apiClient.get('/api/admin/leads/sources');
-    return response.data.sources || [];
+    const raw = response.data;
+    if (Array.isArray(raw)) return raw;
+    return raw?.sources || raw?.data || [];
   }
 };
+

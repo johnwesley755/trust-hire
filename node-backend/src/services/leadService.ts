@@ -30,6 +30,14 @@ export interface IngestLeadInput {
   requirements: IngestRequirementInput[];
 }
 
+export interface IngestLeadResult {
+  lead: any;
+  requirements: any[];
+  isNewLead: boolean;
+  duplicatesMergedCount: number;
+  newRequirementsCount: number;
+}
+
 export class LeadService {
   /**
    * Normalizes company name by stripping common corporate suffixes and punctuation.
@@ -115,16 +123,16 @@ export class LeadService {
     city?: string | null
   ): string {
     if (externalListingId && externalListingId.trim()) {
-      return crypto.createHash('sha256').update(`EXT:${externalListingId.trim()}`).digest('hex');
+      return crypto.createHash('sha256').update(`EXT:${leadId}:${externalListingId.trim()}`).digest('hex');
     }
     const normUrl = this.normalizeUrl(sourceUrl || '');
-    if (normUrl && normUrl !== 'https://trusthyre.com' && !normUrl.includes('example.com')) {
+    if (normUrl && !normUrl.includes('example.com')) {
       try {
         const parsed = new URL(normUrl);
         const canonical = `${parsed.origin}${parsed.pathname}`.toLowerCase();
-        return crypto.createHash('sha256').update(`URL:${canonical}`).digest('hex');
+        return crypto.createHash('sha256').update(`URL:${leadId}:${canonical}`).digest('hex');
       } catch {
-        return crypto.createHash('sha256').update(`URL:${normUrl.toLowerCase()}`).digest('hex');
+        return crypto.createHash('sha256').update(`URL:${leadId}:${normUrl.toLowerCase()}`).digest('hex');
       }
     }
     const normTitle = title.toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -136,7 +144,7 @@ export class LeadService {
   /**
    * Ingests a discovered lead with deduplication and entity resolution.
    */
-  static async ingestLead(input: IngestLeadInput) {
+  static async ingestLead(input: IngestLeadInput): Promise<IngestLeadResult> {
     const normalizedName = this.normalizeCompanyName(input.companyName);
     const normalizedWebsite = this.normalizeUrl(input.companyWebsite);
     const normalizedContactPage = this.normalizeUrl(input.contactPageUrl);
@@ -149,6 +157,8 @@ export class LeadService {
 
     // 1. Check for existing employer lead by domain first; fallback to normalized name + city
     let lead = null;
+    let isNewLead = false;
+
     if (domain) {
       lead = await prisma.employer_leads.findFirst({
         where: { company_domain: domain }
@@ -164,6 +174,7 @@ export class LeadService {
     }
 
     if (lead) {
+      isNewLead = false;
       // Update existing lead with newly discovered info or refreshed valid URLs
       lead = await prisma.employer_leads.update({
         where: { id: lead.id },
@@ -187,6 +198,7 @@ export class LeadService {
         }
       });
     } else {
+      isNewLead = true;
       // Create fresh employer lead without fabricating missing information
       lead = await prisma.employer_leads.create({
         data: {
@@ -209,13 +221,21 @@ export class LeadService {
 
     // 2. Process Requirements
     const results = [];
+    let duplicatesMergedCount = 0;
+    let newRequirementsCount = 0;
+
     for (const req of input.requirements) {
-      const normalizedSourceUrl = this.normalizeUrl(req.sourceUrl) || normalizedWebsite || 'https://trusthyre.com';
+      const normalizedSourceUrl = this.normalizeUrl(req.sourceUrl) || normalizedWebsite;
+      // Never fabricate a source URL with trusthyre.com for external listings!
+      if (!normalizedSourceUrl) {
+        continue;
+      }
+
       const normTitle = req.title.toLowerCase().trim();
       const hash = this.generateRequirementHash(
         lead.id,
         req.title,
-        req.sourceUrl,
+        normalizedSourceUrl,
         req.externalListingId,
         req.city || input.city
       );
@@ -228,13 +248,14 @@ export class LeadService {
       });
 
       if (existingReq) {
+        duplicatesMergedCount++;
         // Update freshness and valid source URL without deleting historical records
         const updated = await prisma.employer_lead_requirements.update({
           where: { id: existingReq.id },
           data: {
             title: req.title || existingReq.title,
             description: req.description || existingReq.description,
-            workers_needed: req.workersNeeded ?? existingReq.workers_needed,
+            workers_needed: req.workersNeeded !== undefined ? req.workersNeeded : existingReq.workers_needed,
             salary_range: req.salaryRange || existingReq.salary_range,
             source_url: normalizedSourceUrl,
             source_name: req.sourceName || existingReq.source_name,
@@ -243,6 +264,7 @@ export class LeadService {
         });
         results.push(updated);
       } else {
+        newRequirementsCount++;
         const created = await prisma.employer_lead_requirements.create({
           data: {
             lead_id: lead.id,
@@ -252,7 +274,7 @@ export class LeadService {
             description: req.description || null,
             city: req.city || input.city || null,
             location: req.location || input.address || null,
-            workers_needed: req.workersNeeded ?? 1,
+            workers_needed: req.workersNeeded !== undefined ? req.workersNeeded : null,
             salary_range: req.salaryRange || null,
             source_name: req.sourceName,
             source_url: normalizedSourceUrl,
@@ -264,7 +286,13 @@ export class LeadService {
       }
     }
 
-    return { lead, requirements: results };
+    return {
+      lead,
+      requirements: results,
+      isNewLead,
+      duplicatesMergedCount,
+      newRequirementsCount,
+    };
   }
 
   /**

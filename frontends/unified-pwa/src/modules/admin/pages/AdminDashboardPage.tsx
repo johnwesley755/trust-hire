@@ -134,13 +134,13 @@ export const AdminDashboardPage: React.FC = () => {
       {/* Main Two Columns */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         
-        {/* Left Column: KYC Verification Queue */}
+        {/* Left Column: Verification Queue */}
         <div className="lg:col-span-7 bg-white border border-[#e6e8ec] rounded-2xl p-6 sm:p-7 flex flex-col justify-between shadow-xs">
           <div>
             <div className="flex items-center justify-between mb-5 pb-4 border-b border-[#e6e8ec]">
               <div className="flex items-center gap-2.5">
                 <FileCheck2 className="w-5 h-5 text-[#0f2f63]" />
-                <h2 className="text-base font-semibold text-[#0a0a0a]">Pending KYC Verifications</h2>
+                <h2 className="text-base font-semibold text-[#0a0a0a]">Pending Verifications</h2>
               </div>
               <Link 
                 to="/admin/verifications"

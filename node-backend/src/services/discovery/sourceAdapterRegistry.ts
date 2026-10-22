@@ -8,6 +8,7 @@ import {
   ApnaSourceAdapter,
   WorkIndiaSourceAdapter,
 } from './adapters/restrictedPortalsAdapter';
+import { GoogleJobsMetaAdapter } from './adapters/googleJobsMetaAdapter';
 
 export interface SourceViewItem {
   id: string;
@@ -30,6 +31,7 @@ export class SourceAdapterRegistry {
       new LeverAtsAdapter(),
       new GreenhouseAtsAdapter(),
       new SchemaOrgCareerPageAdapter(),
+      new GoogleJobsMetaAdapter(),
       new WorkIndiaSourceAdapter(),
       new ApnaSourceAdapter(),
       new NaukriSourceAdapter(),

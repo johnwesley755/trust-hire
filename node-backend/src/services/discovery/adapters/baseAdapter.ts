@@ -43,14 +43,16 @@ export abstract class BaseJobSourceAdapter implements JobSourceAdapter {
    */
   protected stripHtml(html: string): string {
     if (!html) return '';
-    return this.decodeHtmlEntities(
-      html
-        .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
-        .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
-        .replace(/<[^>]+>/g, ' ')
-        .replace(/\s+/g, ' ')
-        .trim()
-    );
+    // First decode entities that could conceal tags (e.g. &lt;div&gt;)
+    let text = this.decodeHtmlEntities(html);
+    // Strip HTML tags, styles, scripts, and normalize whitespace
+    text = text
+      .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+      .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+    return this.decodeHtmlEntities(text);
   }
 
   /**

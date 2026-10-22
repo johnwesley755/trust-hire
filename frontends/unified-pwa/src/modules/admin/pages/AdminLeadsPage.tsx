@@ -41,6 +41,27 @@ import {
 import { toast } from 'sonner';
 import { AppLoader } from '../../../components/common/AppLoader';
 
+/**
+ * Strips HTML tags, handles entities, and normalizes text for clean UI display.
+ */
+const stripHtml = (html?: string | null): string => {
+  if (!html) return '';
+  return html
+    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&apos;/g, "'")
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&#x2F;/g, '/')
+    .replace(/\s+/g, ' ')
+    .trim();
+};
+
 export const AdminLeadsPage: React.FC = () => {
   const queryClient = useQueryClient();
 
@@ -129,10 +150,19 @@ export const AdminLeadsPage: React.FC = () => {
         ?.map((s: any) => `${s.sourceName} (${s.requirementsFound})`)
         ?.join(', ');
 
-      toast.success(
-        `Auto-Discovery Complete: ${res.newLeadsCount} new hiring companies created, ${res.updatedLeadsCount || 0} refreshed across ${res.totalScanned} scanned sources.${activeFound ? ` Active feeds: ${activeFound}` : ''}`,
-        { duration: 6000 }
-      );
+      const totalDiscovered = (res.newLeadsCount || 0) + (res.updatedLeadsCount || 0);
+
+      if (totalDiscovered > 0) {
+        toast.success(
+          `Auto-Discovery Complete: ${res.newLeadsCount} new hiring companies created, ${res.updatedLeadsCount || 0} refreshed across ${res.totalScanned} scanned sources.${activeFound ? ` Active feeds: ${activeFound}` : ''}`,
+          { duration: 6000 }
+        );
+      } else {
+        toast('Auto-Discovery Scan finished: All scanned feeds are currently up-to-date with 0 new openings.', {
+          icon: 'ℹ️',
+          duration: 5000,
+        });
+      }
       queryClient.invalidateQueries({ queryKey: ['adminLeads'] });
       queryClient.invalidateQueries({ queryKey: ['adminLeadStats'] });
       queryClient.invalidateQueries({ queryKey: ['adminLeadSources'] });
@@ -296,7 +326,7 @@ export const AdminLeadsPage: React.FC = () => {
           </div>
           <div className="flex items-center gap-2.5">
             <h1 className="text-2xl sm:text-3xl font-medium text-[#0a0a0a] tracking-tight">Hiring Company Discovery</h1>
-            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider bg-blue-50 text-[#0f2f63] border border-blue-200">
+            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider bg-blue-50 text-[#0f2f63] border border-blue-200 hidden">
               Live Opportunity Finder
             </span>
           </div>
@@ -357,11 +387,11 @@ export const AdminLeadsPage: React.FC = () => {
 
       {/* Discovery Sources Status Strip */}
       {sourcesData && sourcesData.length > 0 && (
-        <div className="bg-slate-50 border border-slate-200/90 rounded-2xl px-4 py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs">
+        <div className="bg-[#f8fafc] border border-[#e2e4e9] rounded-2xl px-4 py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs">
           <div className="flex items-center gap-2">
-            <Bot className="w-4 h-4 text-[#0066FF]" />
-            <span className="font-bold text-slate-700">Configured Discovery Crawlers:</span>
-            <span className="text-slate-500 font-medium">
+            <Bot className="w-4 h-4 text-[#0f2f63]" />
+            <span className="font-bold text-[#0a0a0a]">Configured Discovery Crawlers:</span>
+            <span className="text-[#717784] font-medium">
               {sourcesData.filter((s: any) => s.active).length} Active Channels
             </span>
           </div>
@@ -370,11 +400,11 @@ export const AdminLeadsPage: React.FC = () => {
               <span
                 key={s.id || s.name}
                 title={s.complianceNote || (s.active ? 'Active automated feed' : 'Requires official partner API')}
-                className="px-2 py-0.5 bg-white border border-slate-200 rounded-lg text-[10px] font-semibold text-slate-600 flex items-center gap-1 cursor-help"
+                className="px-2.5 py-1 bg-white border border-[#e2e4e9] rounded-full text-[10px] font-semibold text-[#5a6270] flex items-center gap-1.5 cursor-help shadow-2xs"
               >
                 <span className={`w-1.5 h-1.5 rounded-full ${s.active ? 'bg-emerald-500' : 'bg-amber-400'}`} />
                 <span>{s.name}</span>
-                <span className={`text-[9px] ${s.active ? 'text-emerald-700 font-bold' : 'text-slate-400'}`}>
+                <span className={`text-[9px] ${s.active ? 'text-emerald-700 font-bold' : 'text-[#717784]'}`}>
                   ({s.status === 'ACTIVE' ? 'LIVE' : 'RESTRICTED'})
                 </span>
               </span>
@@ -390,17 +420,17 @@ export const AdminLeadsPage: React.FC = () => {
           return (
             <div
               key={idx}
-              className="bg-white border border-slate-200/80 rounded-3xl p-5 relative overflow-hidden flex flex-col justify-between shadow-xs hover:border-slate-300 transition-all"
+              className="bg-white border border-[#e2e4e9] rounded-2xl sm:rounded-3xl p-5 relative overflow-hidden flex flex-col justify-between shadow-xs hover:border-[#cbd0d8] transition-all"
             >
               <div className="flex items-center justify-between mb-3">
-                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">{kpi.title}</span>
+                <span className="text-xs font-bold text-[#717784] uppercase tracking-wider">{kpi.title}</span>
                 <div className={`w-10 h-10 rounded-2xl ${kpi.color} flex items-center justify-center shadow-xs`}>
                   <Icon className="w-5 h-5" />
                 </div>
               </div>
               <div>
-                <span className="text-3xl font-black text-[#0A1931]">{kpi.value.toLocaleString()}</span>
-                <p className="text-xs text-slate-500 font-medium mt-1">{kpi.sub}</p>
+                <span className="text-3xl font-black text-[#0a0a0a]">{kpi.value.toLocaleString()}</span>
+                <p className="text-xs text-[#717784] font-medium mt-1">{kpi.sub}</p>
               </div>
             </div>
           );
@@ -453,16 +483,17 @@ export const AdminLeadsPage: React.FC = () => {
                 setPage(1);
               }}
               placeholder="Search company, job role, phone, city..."
-              className="w-full bg-slate-50 border border-slate-200 focus:border-[#0066FF] focus:bg-white rounded-xl px-3.5 py-2 pl-9 pr-8 text-xs text-slate-900 placeholder:text-slate-400 outline-none"
+              className="w-full bg-[#f8fafc] border border-[#e2e4e9] focus:border-[#0f2f63] focus:bg-white focus:ring-2 focus:ring-[#0f2f63]/10 rounded-xl px-3.5 py-2 pl-9 pr-8 text-xs text-[#0a0a0a] placeholder:text-[#94a3b8] outline-none transition-all"
             />
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-[#94a3b8] absolute left-3 top-1/2 -translate-y-1/2" />
             {searchQuery && (
               <button
+                type="button"
                 onClick={() => {
                   setSearchQuery('');
                   setPage(1);
                 }}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#94a3b8] hover:text-[#0a0a0a] p-0.5"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
@@ -477,7 +508,7 @@ export const AdminLeadsPage: React.FC = () => {
                 setContactabilityFilter(e.target.value);
                 setPage(1);
               }}
-              className="w-full bg-slate-50 border border-slate-200 focus:border-[#0066FF] rounded-xl px-3 py-2 text-xs text-slate-700 font-semibold outline-none"
+              className="w-full bg-[#f8fafc] border border-[#e2e4e9] focus:border-[#0f2f63] focus:ring-2 focus:ring-[#0f2f63]/10 rounded-xl px-3 py-2 text-xs text-[#0a0a0a] font-medium outline-none transition-all cursor-pointer"
             >
               <option value="ALL">All Contact Readiness</option>
               <option value="COMPLETE">Full Info (Phone + Email ✓)</option>
@@ -494,7 +525,7 @@ export const AdminLeadsPage: React.FC = () => {
                 setCategoryFilter(e.target.value);
                 setPage(1);
               }}
-              className="w-full bg-slate-50 border border-slate-200 focus:border-[#0066FF] rounded-xl px-3 py-2 text-xs text-slate-700 font-semibold outline-none"
+              className="w-full bg-[#f8fafc] border border-[#e2e4e9] focus:border-[#0f2f63] focus:ring-2 focus:ring-[#0f2f63]/10 rounded-xl px-3 py-2 text-xs text-[#0a0a0a] font-medium outline-none transition-all cursor-pointer"
             >
               <option value="ALL">All Trade Industries</option>
               <option value="Logistics">Logistics & Delivery</option>
@@ -516,7 +547,7 @@ export const AdminLeadsPage: React.FC = () => {
                 setSortBy(e.target.value);
                 setPage(1);
               }}
-              className="flex-1 bg-slate-50 border border-slate-200 focus:border-[#0066FF] rounded-xl px-2.5 py-2 text-xs text-slate-700 font-semibold outline-none"
+              className="flex-1 bg-[#f8fafc] border border-[#e2e4e9] focus:border-[#0f2f63] focus:ring-2 focus:ring-[#0f2f63]/10 rounded-xl px-2.5 py-2 text-xs text-[#0a0a0a] font-medium outline-none transition-all cursor-pointer"
             >
               <option value="NEWEST">Newest First</option>
               <option value="OLDEST">Oldest First</option>
@@ -530,7 +561,7 @@ export const AdminLeadsPage: React.FC = () => {
                 setLimit(Number(e.target.value));
                 setPage(1);
               }}
-              className="bg-slate-50 border border-slate-200 focus:border-[#0066FF] rounded-xl px-2.5 py-2 text-xs text-slate-700 font-semibold outline-none shrink-0"
+              className="bg-[#f8fafc] border border-[#e2e4e9] focus:border-[#0f2f63] focus:ring-2 focus:ring-[#0f2f63]/10 rounded-xl px-2.5 py-2 text-xs text-[#0a0a0a] font-medium outline-none shrink-0 transition-all cursor-pointer"
               title="Items per page"
             >
               <option value={10}>10 / page</option>
@@ -545,53 +576,65 @@ export const AdminLeadsPage: React.FC = () => {
       {isLoading ? (
         <AppLoader variant="page" message="Loading business lead directory..." />
       ) : leads.length === 0 ? (
-        <div className="text-center py-20 bg-white rounded-3xl border border-slate-200/80 shadow-xs">
-          <Building2 className="w-10 h-10 text-slate-400 mx-auto mb-3" />
-          <h3 className="text-sm font-bold text-slate-700">No hiring companies found</h3>
-          <p className="text-xs text-slate-400 mt-1">
+        <div className="text-center py-20 bg-white rounded-2xl sm:rounded-3xl border border-[#e2e4e9] shadow-xs">
+          <Building2 className="w-10 h-10 text-[#94a3b8] mx-auto mb-3" />
+          <h3 className="text-sm font-bold text-[#0a0a0a]">No hiring companies found</h3>
+          <p className="text-xs text-[#717784] mt-1">
             Click "Run Auto-Discovery Scan" or "Quick Scrape URL" to discover hiring businesses.
           </p>
         </div>
       ) : (
-        <div className="bg-white border border-slate-200/80 rounded-3xl overflow-hidden shadow-xs">
+        <div className="bg-white border border-[#e2e4e9] rounded-2xl sm:rounded-3xl overflow-hidden shadow-xs">
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-slate-600">
-              <thead className="bg-slate-50 text-slate-500 uppercase text-[10px] font-bold border-b border-slate-200 tracking-wider">
+            <table className="w-full text-left text-xs text-[#5a6270]">
+              <thead className="bg-[#f8fafc] text-[#5a6270] uppercase text-[10px] font-bold border-b border-[#e2e4e9] tracking-wider">
                 <tr>
-                  <th className="px-6 py-4">Company Name & Website</th>
-                  <th className="px-6 py-4">Workers Needed (Openings)</th>
-                  <th className="px-6 py-4">Phone & Email</th>
-                  <th className="px-6 py-4">Contact Readiness</th>
-                  <th className="px-6 py-4">Progress Status</th>
-                  <th className="px-6 py-4 text-right">Actions</th>
+                  <th className="px-5 py-3.5 whitespace-nowrap min-w-[240px]">Company Name & Website</th>
+                  <th className="px-5 py-3.5 whitespace-nowrap min-w-[220px]">Workers Needed (Openings)</th>
+                  <th className="px-5 py-3.5 whitespace-nowrap min-w-[180px]">Phone & Email</th>
+                  <th className="px-5 py-3.5 whitespace-nowrap min-w-[150px]">Contact Readiness</th>
+                  <th className="px-5 py-3.5 whitespace-nowrap min-w-[150px]">Progress Status</th>
+                  <th className="px-5 py-3.5 whitespace-nowrap text-right min-w-[180px]">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-[#e6e8ec]">
                 {leads.map((lead) => {
                   const reqCount = lead.requirements?.length || 0;
                   const primaryReq = lead.requirements?.[0];
 
                   return (
-                    <tr key={lead.id} className="hover:bg-slate-50/60 transition-colors">
+                    <tr key={lead.id} className="hover:bg-[#f8fafc]/80 transition-colors group">
                       {/* Employer Info */}
-                      <td className="px-6 py-4">
+                      <td className="px-5 py-3.5">
                         <div className="flex items-start gap-3">
-                          <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-100 text-[#0066FF] font-black flex items-center justify-center text-sm shrink-0">
+                          <div className="w-10 h-10 rounded-xl bg-blue-50/80 border border-blue-100 text-[#0f2f63] font-bold flex items-center justify-center text-sm shrink-0 shadow-2xs">
                             {lead.company_name.charAt(0)}
                           </div>
-                          <div>
-                            <span className="font-bold text-[#0A1931] block text-sm">{lead.company_name}</span>
-                            <div className="flex items-center gap-2 mt-0.5">
+                          <div className="min-w-0">
+                            <button
+                              type="button"
+                              onClick={() => setSelectedLead(lead)}
+                              className="font-bold text-[#0a0a0a] hover:text-[#0f2f63] text-left block text-xs sm:text-sm leading-tight transition-colors truncate max-w-[220px] cursor-pointer"
+                              title={lead.company_name}
+                            >
+                              {lead.company_name}
+                            </button>
+                            <div className="flex flex-wrap items-center gap-1.5 mt-1">
                               {lead.company_domain ? (
-                                <span className="text-[11px] text-[#0066FF] font-mono flex items-center gap-1">
-                                  <Globe className="w-3 h-3" />
-                                  <span>{lead.company_domain}</span>
-                                </span>
+                                <a
+                                  href={formatLink(lead.company_website || lead.company_domain)}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-[11px] text-[#0f2f63] hover:underline font-mono inline-flex items-center gap-1 shrink-0"
+                                >
+                                  <Globe className="w-3 h-3 text-[#717784]" />
+                                  <span className="truncate max-w-[140px]">{lead.company_domain}</span>
+                                </a>
                               ) : (
-                                <span className="text-[11px] text-slate-400">No website domain</span>
+                                <span className="text-[11px] text-[#94a3b8]">No website</span>
                               )}
                               {lead.city && (
-                                <span className="text-[10px] px-1.5 py-0.2 bg-slate-100 text-slate-600 rounded">
+                                <span className="text-[10px] px-2 py-0.5 bg-[#f4f5f8] text-[#5a6270] rounded-full border border-[#e2e4e9] font-medium whitespace-nowrap">
                                   {lead.city}
                                 </span>
                               )}
@@ -601,133 +644,151 @@ export const AdminLeadsPage: React.FC = () => {
                       </td>
 
                       {/* Worker Requirements */}
-                      <td className="px-6 py-4">
+                      <td className="px-5 py-3.5">
                         {primaryReq ? (
-                          <div>
-                            <span className="font-bold text-slate-800 block text-xs">{primaryReq.title}</span>
-                            <div className="flex items-center gap-2 text-[11px] text-slate-500 mt-0.5">
-                              <span className="text-[#0066FF] font-bold">{primaryReq.workers_needed} Workers Needed</span>
-                              {primaryReq.salary_range && <span>• {primaryReq.salary_range}</span>}
+                          <div className="min-w-0">
+                            <span className="font-bold text-[#0a0a0a] block text-xs truncate max-w-[240px]" title={primaryReq.title}>
+                              {primaryReq.title}
+                            </span>
+                            <div className="flex items-center gap-1.5 text-[11px] text-[#5a6270] mt-0.5 whitespace-nowrap">
+                              <span className="text-[#0f2f63] font-semibold">{primaryReq.workers_needed || 1} Worker(s) Needed</span>
+                              {primaryReq.salary_range && <span className="text-[#94a3b8]">•</span>}
+                              {primaryReq.salary_range && <span className="text-[#717784]">{primaryReq.salary_range}</span>}
                             </div>
-                            <div className="flex items-center gap-2 mt-1">
+                            <div className="flex items-center gap-1.5 mt-1.5">
                               {primaryReq.source_url && (
                                 <a
                                   href={formatLink(primaryReq.source_url)}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-50/80 hover:bg-blue-100 text-[#0066FF] rounded-md text-[10px] font-bold border border-blue-200/60 transition-colors"
+                                  className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-white hover:bg-[#f4f5f8] text-[#0f2f63] rounded-full text-[10px] font-semibold border border-[#e2e4e9] transition-all shadow-2xs max-w-[170px] truncate"
                                   title={`Open exact job post on ${primaryReq.source_name || 'Portal'}`}
                                 >
-                                  <Link2 className="w-2.5 h-2.5" />
-                                  <span>{primaryReq.source_name || 'View Job Post'}</span>
-                                  <ExternalLink className="w-2.5 h-2.5" />
+                                  <Link2 className="w-2.5 h-2.5 shrink-0 text-[#0f2f63]" />
+                                  <span className="truncate">{primaryReq.source_name || 'View Post'}</span>
+                                  <ExternalLink className="w-2.5 h-2.5 shrink-0 text-[#717784]" />
                                 </a>
                               )}
                               {reqCount > 1 && (
-                                <span className="text-[10px] font-bold text-slate-400">
-                                  + {reqCount - 1} more
+                                <span className="text-[10px] font-semibold text-[#717784] bg-[#f4f5f8] px-2 py-0.5 rounded-full border border-[#e2e4e9] whitespace-nowrap">
+                                  +{reqCount - 1} more
                                 </span>
                               )}
                             </div>
                           </div>
                         ) : (
-                          <span className="text-slate-400 italic">No roles listed</span>
+                          <span className="text-[#94a3b8] italic text-xs">No roles detected</span>
                         )}
                       </td>
 
                       {/* Contact Channels */}
-                      <td className="px-6 py-4">
+                      <td className="px-5 py-3.5">
                         <div className="space-y-1">
                           {lead.official_email ? (
                             <a
                               href={`mailto:${lead.official_email}`}
-                              className="flex items-center gap-1.5 text-[11px] text-slate-700 hover:text-[#0066FF]"
+                              className="flex items-center gap-1.5 text-[11px] text-[#0a0a0a] hover:text-[#0f2f63] font-medium transition-colors"
                             >
-                              <Mail className="w-3 h-3 text-slate-400" />
-                              <span className="truncate max-w-[150px]">{lead.official_email}</span>
+                              <Mail className="w-3 h-3 text-[#717784] shrink-0" />
+                              <span className="truncate max-w-[160px]">{lead.official_email}</span>
                             </a>
                           ) : null}
                           {lead.official_phone ? (
                             <a
                               href={`tel:${lead.official_phone}`}
-                              className="flex items-center gap-1.5 text-[11px] text-slate-700 hover:text-[#0066FF]"
+                              className="flex items-center gap-1.5 text-[11px] text-[#0a0a0a] hover:text-[#0f2f63] font-medium transition-colors"
                             >
-                              <Phone className="w-3 h-3 text-emerald-600" />
+                              <Phone className="w-3 h-3 text-emerald-600 shrink-0" />
                               <span>{lead.official_phone}</span>
                             </a>
                           ) : null}
                           {!lead.official_email && !lead.official_phone && (
-                            <span className="text-[11px] text-slate-400 italic">Finding contacts...</span>
+                            <span className="text-[11px] text-[#94a3b8] italic">Finding contacts...</span>
                           )}
                         </div>
                       </td>
 
-                      {/* Contactability Score */}
-                      <td className="px-6 py-4">
-                        <span
-                          className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[10px] font-bold ${
-                            lead.contactability_score === 'COMPLETE'
-                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                              : lead.contactability_score === 'PARTIAL'
-                              ? 'bg-amber-50 text-amber-700 border border-amber-200'
-                              : 'bg-slate-100 text-slate-500 border border-slate-200'
-                          }`}
-                        >
-                          <ShieldCheck className="w-3 h-3" />
-                          <span>
-                            {lead.contactability_score === 'COMPLETE'
-                              ? 'Full Info'
-                              : lead.contactability_score === 'PARTIAL'
-                              ? 'Website Only'
-                              : 'Missing Contact'}
+                      {/* Contactability Score Badge */}
+                      <td className="px-5 py-3.5 whitespace-nowrap">
+                        {lead.contactability_score === 'COMPLETE' ? (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200/80 whitespace-nowrap shadow-2xs">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+                            <ShieldCheck className="w-3 h-3 shrink-0" />
+                            <span>Full Info</span>
                           </span>
-                        </span>
+                        ) : lead.contactability_score === 'PARTIAL' ? (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-50 text-amber-700 border border-amber-200/80 whitespace-nowrap shadow-2xs">
+                            <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
+                            <ShieldCheck className="w-3 h-3 shrink-0" />
+                            <span>Partial Info</span>
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[#f4f5f8] text-[#717784] border border-[#e2e4e9] whitespace-nowrap shadow-2xs">
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#94a3b8] shrink-0" />
+                            <span>No Contact</span>
+                          </span>
+                        )}
                       </td>
 
-                      {/* Status */}
-                      <td className="px-6 py-4">
-                        <span
-                          className={`px-2.5 py-1 rounded-md text-[10px] font-bold uppercase ${
-                            lead.status === 'ONBOARDED'
-                              ? 'bg-purple-50 text-purple-700 border border-purple-200'
-                              : lead.status === 'INTERESTED'
-                              ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                              : lead.status === 'CONTACTED'
-                              ? 'bg-amber-50 text-amber-700 border border-amber-200'
-                              : lead.status === 'VERIFIED'
-                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                              : lead.status === 'EXPIRED' || lead.status === 'INVALID'
-                              ? 'bg-rose-50 text-rose-700 border border-rose-200'
-                              : 'bg-slate-100 text-slate-600 border border-slate-200'
-                          }`}
-                        >
-                          {lead.status === 'ONBOARDED'
-                            ? 'Joined Platform'
-                            : lead.status === 'DISCOVERED'
-                            ? 'New Found'
-                            : lead.status === 'VERIFIED'
-                            ? 'Verified Info'
-                            : lead.status}
-                        </span>
+                      {/* Progress Status Badge */}
+                      <td className="px-5 py-3.5 whitespace-nowrap">
+                        {lead.status === 'ONBOARDED' ? (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200/80 whitespace-nowrap shadow-2xs">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+                            <span>Joined Platform</span>
+                          </span>
+                        ) : lead.status === 'DISCOVERED' ? (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-blue-50 text-[#0f2f63] border border-blue-200/80 whitespace-nowrap shadow-2xs">
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#0f2f63] shrink-0" />
+                            <span>New Lead</span>
+                          </span>
+                        ) : lead.status === 'VERIFIED' ? (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-teal-50 text-teal-700 border border-teal-200/80 whitespace-nowrap shadow-2xs">
+                            <span className="w-1.5 h-1.5 rounded-full bg-teal-500 shrink-0" />
+                            <span>Verified Info</span>
+                          </span>
+                        ) : lead.status === 'CONTACTED' ? (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-50 text-amber-700 border border-amber-200/80 whitespace-nowrap shadow-2xs">
+                            <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
+                            <span>Contacted</span>
+                          </span>
+                        ) : lead.status === 'INTERESTED' ? (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-indigo-50 text-indigo-700 border border-indigo-200/80 whitespace-nowrap shadow-2xs">
+                            <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 shrink-0" />
+                            <span>Interested</span>
+                          </span>
+                        ) : lead.status === 'EXPIRED' || lead.status === 'INVALID' ? (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-rose-50 text-rose-700 border border-rose-200/80 whitespace-nowrap shadow-2xs">
+                            <span className="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0" />
+                            <span>Expired</span>
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[#f4f5f8] text-[#717784] border border-[#e2e4e9] whitespace-nowrap shadow-2xs">
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#94a3b8] shrink-0" />
+                            <span>{lead.status}</span>
+                          </span>
+                        )}
                       </td>
 
                       {/* Actions */}
-                      <td className="px-6 py-4 text-right">
-                        <div className="flex items-center justify-end gap-2">
+                      <td className="px-5 py-3.5 text-right whitespace-nowrap">
+                        <div className="inline-flex items-center justify-end gap-2 shrink-0">
                           <button
+                            type="button"
                             onClick={() => setSelectedLead(lead)}
-                            className="px-3 py-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 hover:text-slate-900 rounded-xl text-xs font-bold transition-all cursor-pointer"
+                            className="px-3 py-1.5 bg-white hover:bg-[#f4f5f8] border border-[#e2e4e9] text-[#0a0a0a] hover:text-[#0f2f63] rounded-full text-xs font-semibold whitespace-nowrap shadow-2xs transition-all cursor-pointer"
                           >
                             View Details
                           </button>
                           {lead.status !== 'ONBOARDED' && (
                             <button
+                              type="button"
                               onClick={() => convertMutation.mutate(lead.id)}
                               disabled={convertMutation.isPending}
-                              className="px-3 py-1.5 bg-[#0066FF] hover:bg-blue-600 text-white rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs disabled:opacity-50 flex items-center gap-1"
-                              title="Onboard company to TrustHire"
+                              className="px-3.5 py-1.5 bg-[#0f2f63] hover:bg-[#163e7f] text-white rounded-full text-xs font-semibold whitespace-nowrap shadow-xs hover:shadow-sm disabled:opacity-50 inline-flex items-center gap-1.5 transition-all cursor-pointer"
+                              title="Onboard company to TrustHyre"
                             >
-                              <Sparkles className="w-3.5 h-3.5" />
+                              <Sparkles className="w-3.5 h-3.5 text-amber-300" />
                               <span>Onboard</span>
                             </button>
                           )}
@@ -741,24 +802,25 @@ export const AdminLeadsPage: React.FC = () => {
           </div>
 
           {/* Table Pagination Footer */}
-          <div className="px-6 py-4 bg-slate-50/80 border-t border-slate-200/80 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <div className="text-xs text-slate-500 font-medium">
+          <div className="px-5 py-3.5 bg-[#fafbfc] border-t border-[#e2e4e9] flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div className="text-xs text-[#717784] font-medium">
               Showing{' '}
-              <span className="font-bold text-slate-800">
+              <span className="font-bold text-[#0a0a0a]">
                 {totalLeads === 0 ? 0 : (page - 1) * limit + 1}
               </span>{' '}
               to{' '}
-              <span className="font-bold text-slate-800">
+              <span className="font-bold text-[#0a0a0a]">
                 {Math.min(page * limit, totalLeads)}
               </span>{' '}
-              of <span className="font-bold text-[#0A1931]">{totalLeads}</span> hiring companies
+              of <span className="font-bold text-[#0a0a0a]">{totalLeads}</span> hiring companies
             </div>
 
             <div className="flex items-center gap-1.5">
               <button
+                type="button"
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page <= 1 || isLoading}
-                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border border-slate-200 bg-white text-xs font-bold text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer shadow-xs"
+                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border border-[#e2e4e9] bg-white text-xs font-semibold text-[#0a0a0a] hover:bg-[#f4f5f8] disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer shadow-2xs"
               >
                 <ChevronLeft className="w-3.5 h-3.5" />
                 <span>Prev</span>
@@ -783,7 +845,7 @@ export const AdminLeadsPage: React.FC = () => {
                   .map((p, idx) => {
                     if (typeof p === 'string') {
                       return (
-                        <span key={`ellipsis-${idx}`} className="px-1 text-slate-400 text-xs font-bold select-none">
+                        <span key={`ellipsis-${idx}`} className="px-1 text-[#94a3b8] text-xs font-bold select-none">
                           ...
                         </span>
                       );
@@ -791,12 +853,13 @@ export const AdminLeadsPage: React.FC = () => {
                     return (
                       <button
                         key={`page-${p}`}
+                        type="button"
                         onClick={() => setPage(p)}
                         disabled={isLoading}
                         className={`w-8 h-8 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                           page === p
-                            ? 'bg-[#0066FF] text-white shadow-xs shadow-blue-500/30'
-                            : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-100'
+                            ? 'bg-[#0f2f63] text-white shadow-xs'
+                            : 'bg-white border border-[#e2e4e9] text-[#5a6270] hover:text-[#0a0a0a] hover:bg-[#f4f5f8]'
                         }`}
                       >
                         {p}
@@ -806,9 +869,10 @@ export const AdminLeadsPage: React.FC = () => {
               </div>
 
               <button
+                type="button"
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={page >= totalPages || isLoading}
-                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border border-slate-200 bg-white text-xs font-bold text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer shadow-xs"
+                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border border-[#e2e4e9] bg-white text-xs font-semibold text-[#0a0a0a] hover:bg-[#f4f5f8] disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer shadow-2xs"
               >
                 <span>Next</span>
                 <ChevronRight className="w-3.5 h-3.5" />
@@ -820,73 +884,75 @@ export const AdminLeadsPage: React.FC = () => {
 
       {/* Lead Detail & Provenance Modal */}
       {selectedLead && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white border border-slate-200 w-full max-w-2xl rounded-3xl p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto space-y-5">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="bg-white border border-[#e2e4e9] w-full max-w-2xl rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xl relative max-h-[92vh] overflow-y-auto space-y-4">
             {/* Modal Header */}
-            <div className="flex items-start justify-between pb-4 border-b border-slate-100">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-100 text-[#0066FF] font-black flex items-center justify-center text-lg">
+            <div className="flex items-start justify-between gap-3 pb-3.5 border-b border-[#e6e8ec]">
+              <div className="flex items-start sm:items-center gap-3 min-w-0">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-blue-50/80 border border-blue-100 text-[#0f2f63] font-black flex items-center justify-center text-base sm:text-lg shrink-0 mt-0.5 sm:mt-0">
                   {selectedLead.company_name.charAt(0)}
                 </div>
-                <div>
-                  <h3 className="text-lg font-black text-[#0A1931]">{selectedLead.company_name}</h3>
-                  <div className="flex items-center gap-2 mt-0.5">
+                <div className="min-w-0">
+                  <h3 className="text-base sm:text-lg font-bold text-[#0a0a0a] truncate">{selectedLead.company_name}</h3>
+                  <div className="flex flex-wrap items-center gap-2 mt-0.5">
                     {selectedLead.company_website && (
                       <a
                         href={formatLink(selectedLead.company_website)}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-xs text-[#0066FF] hover:underline flex items-center gap-1"
+                        className="text-xs text-[#0f2f63] hover:underline flex items-center gap-1 font-medium"
                       >
                         <Globe className="w-3.5 h-3.5" />
                         <span>Visit Website</span>
                         <ExternalLink className="w-3 h-3" />
                       </a>
                     )}
-                    <span className="text-xs text-slate-400">• {selectedLead.industry || 'General Trade'}</span>
+                    <span className="text-xs text-[#717784]">• {selectedLead.industry || 'General Trade'}</span>
                   </div>
                 </div>
               </div>
 
               <button
+                type="button"
                 onClick={() => setSelectedLead(null)}
-                className="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition-colors"
+                className="p-1.5 sm:p-2 rounded-full text-[#717784] hover:text-[#0a0a0a] hover:bg-[#f4f5f8] transition-colors shrink-0 cursor-pointer"
+                aria-label="Close"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
             </div>
 
             {/* Official Contact & Provenance Section */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
               {/* Contact Channels Card */}
-              <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 space-y-2.5">
-                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
+              <div className="bg-[#f8fafc] p-3.5 sm:p-4 rounded-2xl border border-[#e2e4e9] space-y-2.5">
+                <span className="text-[10px] font-bold text-[#717784] uppercase tracking-wider block">
                   Official Business Channels
                 </span>
-                <div className="space-y-1.5 text-xs text-slate-700">
+                <div className="space-y-2 text-xs text-[#0a0a0a]">
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-500 flex items-center gap-1.5">
-                      <Mail className="w-3.5 h-3.5" /> Email:
+                    <span className="text-[#717784] flex items-center gap-1.5">
+                      <Mail className="w-3.5 h-3.5 text-[#0f2f63]" /> Email:
                     </span>
-                    <span className="font-semibold text-slate-800">{selectedLead.official_email || 'Not Provided'}</span>
+                    <span className="font-semibold text-[#0a0a0a] truncate max-w-[180px]">{selectedLead.official_email || 'Not Provided'}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-500 flex items-center gap-1.5">
-                      <Phone className="w-3.5 h-3.5" /> Phone:
+                    <span className="text-[#717784] flex items-center gap-1.5">
+                      <Phone className="w-3.5 h-3.5 text-emerald-600" /> Phone:
                     </span>
-                    <span className="font-semibold text-slate-800">{selectedLead.official_phone || 'Not Provided'}</span>
+                    <span className="font-semibold text-[#0a0a0a]">{selectedLead.official_phone || 'Not Provided'}</span>
                   </div>
                   {selectedLead.contact_page_url && (
-                    <div className="flex items-center justify-between pt-1">
-                      <span className="text-slate-500">Contact Form:</span>
+                    <div className="flex items-center justify-between pt-1 border-t border-[#e2e4e9]">
+                      <span className="text-[#717784]">Contact Form:</span>
                       <a
                         href={formatLink(selectedLead.contact_page_url)}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-[#0066FF] hover:underline flex items-center gap-1 font-semibold"
+                        className="text-[#0f2f63] hover:underline flex items-center gap-1 font-semibold"
                       >
                         <span>Open Page</span>
-                        <ExternalLink className="w-3 h-3" />
+                        <ExternalLink className="w-3 h-3 text-[#717784]" />
                       </a>
                     </div>
                   )}
@@ -894,34 +960,34 @@ export const AdminLeadsPage: React.FC = () => {
               </div>
 
               {/* Provenance & Status Card */}
-              <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 space-y-2.5">
-                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
+              <div className="bg-[#f8fafc] p-3.5 sm:p-4 rounded-2xl border border-[#e2e4e9] space-y-2.5">
+                <span className="text-[10px] font-bold text-[#717784] uppercase tracking-wider block">
                   Progress Status
                 </span>
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-slate-500">Stage:</span>
+                  <span className="text-[#717784]">Stage:</span>
                   <select
                     value={selectedLead.status}
                     onChange={(e) => updateStatusMutation.mutate({ id: selectedLead.id, status: e.target.value })}
-                    className="bg-white border border-slate-200 rounded-lg px-2.5 py-1 text-xs font-bold text-slate-800 outline-none"
+                    className="bg-white border border-[#e2e4e9] rounded-xl px-2.5 py-1 text-xs font-semibold text-[#0a0a0a] outline-none focus:border-[#0f2f63]"
                   >
                     <option value="DISCOVERED">New Found</option>
                     <option value="VERIFIED">Verified Info</option>
                     <option value="CONTACTED">Contacted</option>
                     <option value="INTERESTED">Interested</option>
-                    <option value="ONBOARDED">Joined TrustHire</option>
+                    <option value="ONBOARDED">Joined TrustHyre</option>
                     <option value="EXPIRED">Closed / Expired</option>
                   </select>
                 </div>
-                <div className="text-[11px] text-slate-500 flex justify-between">
+                <div className="text-[11px] text-[#717784] flex justify-between">
                   <span>Found on:</span>
-                  <span className="font-medium text-slate-700">
+                  <span className="font-medium text-[#0a0a0a]">
                     {new Date(selectedLead.created_at).toLocaleDateString()}
                   </span>
                 </div>
                 {selectedLead.trusthire_employer_id && (
-                  <div className="p-1.5 bg-purple-50 text-purple-700 rounded-lg text-[10px] font-bold text-center border border-purple-200">
-                    Linked to Live TrustHire Employer Account
+                  <div className="p-1.5 bg-blue-50/80 text-[#0f2f63] rounded-lg text-[10px] font-bold text-center border border-blue-100">
+                    Linked to Live TrustHyre Employer Account
                   </div>
                 )}
               </div>
@@ -929,52 +995,64 @@ export const AdminLeadsPage: React.FC = () => {
 
             {/* Worker Requirements List */}
             <div className="space-y-3">
-              <h4 className="text-xs font-bold text-[#0A1931] uppercase tracking-wider">
-                Workers Needed by This Company ({selectedLead.requirements?.length || 0})
-              </h4>
+              <div className="flex items-center justify-between">
+                <h4 className="text-xs font-bold text-[#0a0a0a] uppercase tracking-wider">
+                  Open Opportunities / Vacancies ({selectedLead.requirements?.length || 0})
+                </h4>
+                <span className="text-[11px] text-[#717784]">Detected from source postings</span>
+              </div>
               <div className="space-y-2.5">
-                {selectedLead.requirements?.map((req) => (
-                  <div key={req.id} className="p-4 bg-slate-50 border border-slate-200/80 rounded-2xl space-y-2">
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <h5 className="text-xs font-bold text-[#0A1931]">{req.title}</h5>
-                        <p className="text-[11px] text-slate-500 mt-0.5">{req.description || 'No description provided'}</p>
+                {selectedLead.requirements?.map((req) => {
+                  const cleanDesc = stripHtml(req.description);
+                  return (
+                    <div key={req.id} className="p-3.5 sm:p-4 bg-[#f8fafc] border border-[#e2e4e9] rounded-2xl space-y-2">
+                      <div className="flex items-start justify-between gap-2.5">
+                        <div className="min-w-0 flex-1">
+                          <h5 className="text-xs sm:text-sm font-semibold text-[#0a0a0a] leading-snug">{req.title}</h5>
+                          {cleanDesc ? (
+                            <p className="text-[11px] sm:text-xs text-[#5a6270] mt-1 leading-relaxed line-clamp-3">
+                              {cleanDesc}
+                            </p>
+                          ) : (
+                            <p className="text-[11px] text-[#94a3b8] italic mt-0.5">No description text provided in posting</p>
+                          )}
+                        </div>
+                        <span className="px-2.5 py-1 bg-blue-50/80 text-[#0f2f63] border border-blue-100 rounded-full text-[10px] font-bold uppercase tracking-wider shrink-0 whitespace-nowrap">
+                          {req.workers_needed || 1} Worker(s)
+                        </span>
                       </div>
-                      <span className="px-2 py-0.5 bg-blue-50 text-[#0066FF] border border-blue-200 rounded text-[10px] font-black uppercase shrink-0">
-                        {req.workers_needed} Worker(s)
-                      </span>
-                    </div>
 
-                    <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-200/60 text-[11px] text-slate-500">
-                      <div>
-                        <span>Salary: </span>
-                        <strong className="text-slate-700">{req.salary_range || 'Competitive'}</strong>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {req.source_url ? (
-                          <a
-                            href={formatLink(req.source_url)}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 hover:bg-blue-100 text-[#0066FF] rounded-lg text-xs font-bold border border-blue-200/80 transition-all"
-                          >
-                            <Link2 className="w-3 h-3" />
-                            <span>Open Exact Job Post ({req.source_name || 'Portal'})</span>
-                            <ExternalLink className="w-3 h-3" />
-                          </a>
-                        ) : (
-                          <span className="text-slate-400 font-medium">Source: {req.source_name}</span>
-                        )}
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-2 border-t border-[#e2e4e9] text-[11px] text-[#5a6270]">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[#717784]">Salary:</span>
+                          <strong className="text-[#0a0a0a] font-medium">{req.salary_range || 'Competitive'}</strong>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {req.source_url ? (
+                            <a
+                              href={formatLink(req.source_url)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1.5 px-3 py-1 bg-white hover:bg-[#f4f5f8] text-[#0f2f63] rounded-lg text-xs font-semibold border border-[#e2e4e9] transition-all shadow-2xs"
+                            >
+                              <Link2 className="w-3 h-3 text-[#0f2f63]" />
+                              <span className="truncate max-w-[240px]">Open Exact Job Post ({req.source_name || 'Portal'})</span>
+                              <ExternalLink className="w-3 h-3 text-[#717784]" />
+                            </a>
+                          ) : (
+                            <span className="text-[#717784] font-medium">Source: {req.source_name}</span>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 
             {/* Outreach Activity Log */}
-            <div className="space-y-3 pt-2 border-t border-slate-100">
-              <h4 className="text-xs font-bold text-[#0A1931] uppercase tracking-wider">
+            <div className="space-y-3 pt-2 border-t border-[#e6e8ec]">
+              <h4 className="text-xs font-bold text-[#0a0a0a] uppercase tracking-wider">
                 Call & Outreach Log ({selectedLead.outreach_logs?.length || 0})
               </h4>
 
@@ -988,13 +1066,13 @@ export const AdminLeadsPage: React.FC = () => {
                   }
                   outreachMutation.mutate({ id: selectedLead.id, data: outreachForm });
                 }}
-                className="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl space-y-2.5"
+                className="p-3.5 bg-[#f8fafc] border border-[#e2e4e9] rounded-2xl space-y-2.5"
               >
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                   <select
                     value={outreachForm.channel}
                     onChange={(e) => setOutreachForm({ ...outreachForm, channel: e.target.value })}
-                    className="bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs font-semibold text-slate-800 outline-none"
+                    className="bg-white border border-[#e2e4e9] rounded-xl px-2.5 py-1.5 text-xs font-medium text-[#0a0a0a] outline-none focus:border-[#0f2f63]"
                   >
                     <option value="PHONE">Phone Call</option>
                     <option value="EMAIL">Email</option>
@@ -1005,9 +1083,9 @@ export const AdminLeadsPage: React.FC = () => {
                   <select
                     value={outreachForm.outcome}
                     onChange={(e) => setOutreachForm({ ...outreachForm, outcome: e.target.value })}
-                    className="bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs font-semibold text-slate-800 outline-none"
+                    className="bg-white border border-[#e2e4e9] rounded-xl px-2.5 py-1.5 text-xs font-medium text-[#0a0a0a] outline-none focus:border-[#0f2f63]"
                   >
-                    <option value="INTERESTED">Interested in TrustHire</option>
+                    <option value="INTERESTED">Interested in TrustHyre</option>
                     <option value="FOLLOW_UP">Needs Follow-Up</option>
                     <option value="NOT_INTERESTED">Not Interested</option>
                     <option value="NO_ANSWER">No Answer</option>
@@ -1018,25 +1096,25 @@ export const AdminLeadsPage: React.FC = () => {
                     value={outreachForm.contactTarget}
                     onChange={(e) => setOutreachForm({ ...outreachForm, contactTarget: e.target.value })}
                     placeholder="e.g. Spoke with HR Mgr"
-                    className="bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-800 placeholder:text-slate-400 outline-none"
+                    className="bg-white border border-[#e2e4e9] rounded-xl px-3 py-1.5 text-xs text-[#0a0a0a] placeholder:text-[#94a3b8] outline-none focus:border-[#0f2f63]"
                   />
                 </div>
 
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2">
                   <input
                     type="text"
                     required
                     value={outreachForm.notes}
                     onChange={(e) => setOutreachForm({ ...outreachForm, notes: e.target.value })}
                     placeholder="Enter call notes or next action steps..."
-                    className="flex-1 bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-800 placeholder:text-slate-400 outline-none"
+                    className="flex-1 bg-white border border-[#e2e4e9] rounded-xl px-3 py-1.5 text-xs text-[#0a0a0a] placeholder:text-[#94a3b8] outline-none focus:border-[#0f2f63]"
                   />
                   <button
                     type="submit"
                     disabled={outreachMutation.isPending}
-                    className="px-4 py-1.5 bg-[#0066FF] hover:bg-blue-600 text-white rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 disabled:opacity-50 flex items-center gap-1"
+                    className="w-full sm:w-auto px-4 py-2 bg-[#0f2f63] hover:bg-[#163e7f] text-white rounded-xl text-xs font-semibold transition-all cursor-pointer shrink-0 disabled:opacity-50 flex items-center justify-center gap-1.5"
                   >
-                    <Send className="w-3 h-3" />
+                    <Send className="w-3.5 h-3.5" />
                     <span>Log Call</span>
                   </button>
                 </div>
@@ -1045,18 +1123,18 @@ export const AdminLeadsPage: React.FC = () => {
               {/* Past Logs */}
               <div className="space-y-2 max-h-36 overflow-y-auto">
                 {selectedLead.outreach_logs?.map((log) => (
-                  <div key={log.id} className="p-2.5 bg-white border border-slate-200/80 rounded-xl text-xs flex justify-between items-start">
+                  <div key={log.id} className="p-2.5 bg-white border border-[#e2e4e9] rounded-xl text-xs flex justify-between items-start">
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-bold text-[#0A1931]">{log.channel}</span>
-                        {log.contact_target && <span className="text-[11px] text-slate-500">({log.contact_target})</span>}
-                        <span className="px-1.5 py-0.2 bg-blue-50 text-[#0066FF] rounded text-[9px] font-bold">
+                        <span className="font-bold text-[#0a0a0a]">{log.channel}</span>
+                        {log.contact_target && <span className="text-[11px] text-[#717784]">({log.contact_target})</span>}
+                        <span className="px-1.5 py-0.5 bg-blue-50/80 text-[#0f2f63] border border-blue-100 rounded text-[9px] font-bold">
                           {log.outcome || 'COMPLETED'}
                         </span>
                       </div>
-                      <p className="text-slate-600 mt-0.5">{log.notes}</p>
+                      <p className="text-[#5a6270] mt-0.5">{log.notes}</p>
                     </div>
-                    <span className="text-[10px] text-slate-400">
+                    <span className="text-[10px] text-[#717784]">
                       {new Date(log.contacted_at).toLocaleDateString()}
                     </span>
                   </div>
@@ -1065,10 +1143,10 @@ export const AdminLeadsPage: React.FC = () => {
             </div>
 
             {/* Modal Actions */}
-            <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+            <div className="pt-3.5 border-t border-[#e6e8ec] flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
               <button
                 onClick={() => setSelectedLead(null)}
-                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-colors cursor-pointer"
+                className="w-full sm:w-auto px-4 py-2 bg-white hover:bg-[#f4f5f8] text-[#0a0a0a] border border-[#e2e4e9] rounded-xl text-xs font-medium transition-colors cursor-pointer text-center"
               >
                 Close
               </button>
@@ -1077,10 +1155,10 @@ export const AdminLeadsPage: React.FC = () => {
                 <button
                   onClick={() => convertMutation.mutate(selectedLead.id)}
                   disabled={convertMutation.isPending}
-                  className="px-5 py-2 bg-[#0066FF] hover:bg-blue-600 text-white rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs flex items-center gap-2 disabled:opacity-50"
+                  className="w-full sm:w-auto px-5 py-2.5 bg-[#0f2f63] hover:bg-[#163e7f] text-white rounded-xl text-xs font-semibold transition-all cursor-pointer shadow-xs flex items-center justify-center gap-2 disabled:opacity-50"
                 >
-                  <Sparkles className="w-4 h-4" />
-                  <span>Onboard to TrustHire (Create Employer)</span>
+                  <Sparkles className="w-4 h-4 text-[#5790e6]" />
+                  <span>Onboard to TrustHyre (Create Employer)</span>
                 </button>
               )}
             </div>
@@ -1090,18 +1168,20 @@ export const AdminLeadsPage: React.FC = () => {
 
       {/* Manual Add Lead Modal */}
       {isAddModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white border border-slate-200 w-full max-w-lg rounded-3xl p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <div>
-                <h3 className="text-base font-bold text-[#0A1931]">Add Hiring Company Record</h3>
-                <p className="text-[11px] text-slate-500">Record a new business looking for workers into your pipeline.</p>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="bg-white border border-[#e2e4e9] w-full max-w-lg rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xl relative max-h-[92vh] overflow-y-auto space-y-4">
+            <div className="flex items-start justify-between gap-3 pb-3.5 border-b border-[#e6e8ec]">
+              <div className="min-w-0">
+                <h3 className="text-base sm:text-lg font-bold text-[#0a0a0a] tracking-tight">Add Hiring Company Record</h3>
+                <p className="text-[11px] sm:text-xs text-[#5a6270] mt-0.5">Record a new business looking for workers into your pipeline.</p>
               </div>
               <button
+                type="button"
                 onClick={() => setIsAddModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100 transition-colors"
+                className="p-1.5 sm:p-2 rounded-full text-[#717784] hover:text-[#0a0a0a] hover:bg-[#f4f5f8] transition-colors shrink-0 cursor-pointer"
+                aria-label="Close"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
             </div>
 
@@ -1112,156 +1192,156 @@ export const AdminLeadsPage: React.FC = () => {
               }}
               className="space-y-3.5"
             >
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-700 mb-1">Company Name</label>
+                  <label className="block text-[11px] font-semibold text-[#0a0a0a] mb-1">Company Name</label>
                   <input
                     type="text"
                     required
                     value={newLeadForm.companyName}
                     onChange={(e) => setNewLeadForm({ ...newLeadForm, companyName: e.target.value })}
                     placeholder="e.g. ABC Restaurant"
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 outline-none focus:bg-white focus:border-[#0066FF]"
+                    className="w-full bg-[#f8fafc] border border-[#e2e4e9] rounded-xl px-3 py-2 text-xs text-[#0a0a0a] outline-none focus:bg-white focus:border-[#0f2f63] focus:ring-2 focus:ring-[#0f2f63]/10"
                   />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-700 mb-1">City</label>
+                  <label className="block text-[11px] font-semibold text-[#0a0a0a] mb-1">City</label>
                   <input
                     type="text"
                     required
                     value={newLeadForm.city}
                     onChange={(e) => setNewLeadForm({ ...newLeadForm, city: e.target.value })}
                     placeholder="e.g. Chennai"
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 outline-none focus:bg-white focus:border-[#0066FF]"
+                    className="w-full bg-[#f8fafc] border border-[#e2e4e9] rounded-xl px-3 py-2 text-xs text-[#0a0a0a] outline-none focus:bg-white focus:border-[#0f2f63] focus:ring-2 focus:ring-[#0f2f63]/10"
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-700 mb-1">Official Website</label>
+                  <label className="block text-[11px] font-semibold text-[#0a0a0a] mb-1">Official Website</label>
                   <input
                     type="text"
                     value={newLeadForm.companyWebsite}
                     onChange={(e) => setNewLeadForm({ ...newLeadForm, companyWebsite: e.target.value })}
                     placeholder="e.g. https://abcrestaurant.in"
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 outline-none focus:bg-white focus:border-[#0066FF]"
+                    className="w-full bg-[#f8fafc] border border-[#e2e4e9] rounded-xl px-3 py-2 text-xs text-[#0a0a0a] outline-none focus:bg-white focus:border-[#0f2f63] focus:ring-2 focus:ring-[#0f2f63]/10"
                   />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-700 mb-1">Official Email</label>
+                  <label className="block text-[11px] font-semibold text-[#0a0a0a] mb-1">Official Email</label>
                   <input
                     type="email"
                     value={newLeadForm.officialEmail}
                     onChange={(e) => setNewLeadForm({ ...newLeadForm, officialEmail: e.target.value })}
                     placeholder="careers@abcrestaurant.in"
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 outline-none focus:bg-white focus:border-[#0066FF]"
+                    className="w-full bg-[#f8fafc] border border-[#e2e4e9] rounded-xl px-3 py-2 text-xs text-[#0a0a0a] outline-none focus:bg-white focus:border-[#0f2f63] focus:ring-2 focus:ring-[#0f2f63]/10"
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-700 mb-1">Official Phone</label>
+                  <label className="block text-[11px] font-semibold text-[#0a0a0a] mb-1">Official Phone</label>
                   <input
                     type="text"
                     value={newLeadForm.officialPhone}
                     onChange={(e) => setNewLeadForm({ ...newLeadForm, officialPhone: e.target.value })}
                     placeholder="044-2811xxxx"
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 outline-none focus:bg-white focus:border-[#0066FF]"
+                    className="w-full bg-[#f8fafc] border border-[#e2e4e9] rounded-xl px-3 py-2 text-xs text-[#0a0a0a] outline-none focus:bg-white focus:border-[#0f2f63] focus:ring-2 focus:ring-[#0f2f63]/10"
                   />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-700 mb-1">Contact Page URL</label>
+                  <label className="block text-[11px] font-semibold text-[#0a0a0a] mb-1">Contact Page URL</label>
                   <input
                     type="text"
                     value={newLeadForm.contactPageUrl}
                     onChange={(e) => setNewLeadForm({ ...newLeadForm, contactPageUrl: e.target.value })}
                     placeholder="https://abcrestaurant.in/contact"
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 outline-none focus:bg-white focus:border-[#0066FF]"
+                    className="w-full bg-[#f8fafc] border border-[#e2e4e9] rounded-xl px-3 py-2 text-xs text-[#0a0a0a] outline-none focus:bg-white focus:border-[#0f2f63] focus:ring-2 focus:ring-[#0f2f63]/10"
                   />
                 </div>
               </div>
 
               {/* Requirement details */}
-              <div className="pt-2 border-t border-slate-100 space-y-3">
-                <span className="text-[11px] font-bold text-[#0066FF] uppercase tracking-wider block">
+              <div className="pt-2 border-t border-[#e6e8ec] space-y-3">
+                <span className="text-[11px] font-bold text-[#0f2f63] uppercase tracking-wider block">
                   Worker Opening Details
                 </span>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-700 mb-1">Job Title</label>
+                    <label className="block text-[11px] font-semibold text-[#0a0a0a] mb-1">Job Title</label>
                     <input
                       type="text"
                       required
                       value={newLeadForm.title}
                       onChange={(e) => setNewLeadForm({ ...newLeadForm, title: e.target.value })}
                       placeholder="e.g. Delivery Driver"
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 outline-none focus:bg-white focus:border-[#0066FF]"
+                      className="w-full bg-[#f8fafc] border border-[#e2e4e9] rounded-xl px-3 py-2 text-xs text-[#0a0a0a] outline-none focus:bg-white focus:border-[#0f2f63] focus:ring-2 focus:ring-[#0f2f63]/10"
                     />
                   </div>
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-700 mb-1">Workers Needed</label>
+                    <label className="block text-[11px] font-semibold text-[#0a0a0a] mb-1">Workers Needed</label>
                     <input
                       type="number"
                       required
                       min={1}
                       value={newLeadForm.workersNeeded}
                       onChange={(e) => setNewLeadForm({ ...newLeadForm, workersNeeded: parseInt(e.target.value, 10) })}
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 outline-none focus:bg-white focus:border-[#0066FF]"
+                      className="w-full bg-[#f8fafc] border border-[#e2e4e9] rounded-xl px-3 py-2 text-xs text-[#0a0a0a] outline-none focus:bg-white focus:border-[#0f2f63] focus:ring-2 focus:ring-[#0f2f63]/10"
                     />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-700 mb-1">Salary Range</label>
+                    <label className="block text-[11px] font-semibold text-[#0a0a0a] mb-1">Salary Range</label>
                     <input
                       type="text"
                       value={newLeadForm.salaryRange}
                       onChange={(e) => setNewLeadForm({ ...newLeadForm, salaryRange: e.target.value })}
                       placeholder="₹15,000 - ₹20,000 / month"
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 outline-none focus:bg-white focus:border-[#0066FF]"
+                      className="w-full bg-[#f8fafc] border border-[#e2e4e9] rounded-xl px-3 py-2 text-xs text-[#0a0a0a] outline-none focus:bg-white focus:border-[#0f2f63] focus:ring-2 focus:ring-[#0f2f63]/10"
                     />
                   </div>
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-700 mb-1">Original Job Posting Link</label>
+                    <label className="block text-[11px] font-semibold text-[#0a0a0a] mb-1">Original Job Posting Link</label>
                     <input
                       type="text"
                       required
                       value={newLeadForm.sourceUrl}
                       onChange={(e) => setNewLeadForm({ ...newLeadForm, sourceUrl: e.target.value })}
                       placeholder="https://source.com/listing/123"
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 outline-none focus:bg-white focus:border-[#0066FF]"
+                      className="w-full bg-[#f8fafc] border border-[#e2e4e9] rounded-xl px-3 py-2 text-xs text-[#0a0a0a] outline-none focus:bg-white focus:border-[#0f2f63] focus:ring-2 focus:ring-[#0f2f63]/10 font-mono"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-700 mb-1">Job Description</label>
+                  <label className="block text-[11px] font-semibold text-[#0a0a0a] mb-1">Job Description</label>
                   <textarea
                     rows={2}
                     value={newLeadForm.description}
                     onChange={(e) => setNewLeadForm({ ...newLeadForm, description: e.target.value })}
                     placeholder="Requirement description and job details..."
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-900 outline-none focus:bg-white focus:border-[#0066FF]"
+                    className="w-full bg-[#f8fafc] border border-[#e2e4e9] rounded-xl p-2.5 text-xs text-[#0a0a0a] outline-none focus:bg-white focus:border-[#0f2f63] focus:ring-2 focus:ring-[#0f2f63]/10"
                   />
                 </div>
               </div>
 
-              <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
+              <div className="pt-3 border-t border-[#e6e8ec] flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setIsAddModalOpen(false)}
-                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-colors cursor-pointer"
+                  className="w-full sm:w-auto px-4 py-2 bg-white hover:bg-[#f4f5f8] text-[#0a0a0a] border border-[#e2e4e9] rounded-xl text-xs font-medium transition-colors cursor-pointer text-center"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={manualIngestMutation.isPending}
-                  className="px-5 py-2 bg-[#0066FF] hover:bg-blue-600 text-white rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs disabled:opacity-50 flex items-center gap-1.5"
+                  className="w-full sm:w-auto px-5 py-2.5 bg-[#0f2f63] hover:bg-[#163e7f] text-white rounded-xl text-xs font-semibold transition-all cursor-pointer shadow-xs disabled:opacity-50 flex items-center justify-center gap-1.5"
                 >
                   {manualIngestMutation.isPending ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
@@ -1278,25 +1358,37 @@ export const AdminLeadsPage: React.FC = () => {
 
       {/* Quick Scrape from URL Modal */}
       {isCrawlModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white border border-slate-200 w-full max-w-xl rounded-3xl p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-[#0066FF]">
-                  <Link2 className="w-4 h-4" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="bg-white border border-[#e2e4e9] w-full max-w-lg rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xl relative max-h-[92vh] overflow-y-auto space-y-4">
+            
+            {/* Header */}
+            <div className="flex items-start justify-between gap-3 pb-3.5 border-b border-[#e6e8ec]">
+              <div className="flex items-start gap-3 min-w-0">
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-blue-50/80 border border-blue-100 flex items-center justify-center text-[#0f2f63] shrink-0 mt-0.5 shadow-2xs">
+                  <Link2 className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
-                <div>
-                  <h3 className="text-base font-bold text-[#0A1931]">Quick Scrape & Enrich from URL</h3>
-                  <p className="text-[11px] text-slate-500">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1.5 mb-0.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#0f2f63] animate-pulse shrink-0" />
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#0f2f63] whitespace-nowrap">
+                      Auto-Discovery Tool
+                    </span>
+                  </div>
+                  <h3 className="text-base sm:text-lg font-bold text-[#0a0a0a] tracking-tight leading-snug">
+                    Quick Scrape & Enrich from URL
+                  </h3>
+                  <p className="text-[11px] sm:text-xs text-[#5a6270] leading-relaxed mt-0.5">
                     Paste any external job post or career page to auto-extract company details & contacts.
                   </p>
                 </div>
               </div>
               <button
+                type="button"
                 onClick={() => setIsCrawlModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100 transition-colors"
+                className="p-1.5 sm:p-2 rounded-full text-[#717784] hover:text-[#0a0a0a] hover:bg-[#f4f5f8] transition-colors shrink-0 cursor-pointer"
+                aria-label="Close"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
             </div>
 
@@ -1307,83 +1399,93 @@ export const AdminLeadsPage: React.FC = () => {
                 if (!crawlUrlInput.trim()) return;
                 crawlUrlMutation.mutate(crawlUrlInput.trim());
               }}
-              className="space-y-3"
+              className="space-y-2.5"
             >
               <div>
-                <label className="block text-[11px] font-bold text-slate-700 mb-1">Target Webpage or Career URL</label>
-                <div className="flex gap-2">
-                  <input
-                    type="url"
-                    required
-                    value={crawlUrlInput}
-                    onChange={(e) => setCrawlUrlInput(e.target.value)}
-                    placeholder="https://company.com/careers/delivery-executive"
-                    className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs text-slate-900 placeholder:text-slate-400 outline-none focus:bg-white focus:border-[#0066FF]"
-                  />
+                <label className="block text-[11px] font-semibold text-[#0a0a0a] mb-1.5">
+                  Target Webpage or Career URL
+                </label>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <div className="relative flex-1 min-w-0">
+                    <input
+                      type="url"
+                      required
+                      value={crawlUrlInput}
+                      onChange={(e) => setCrawlUrlInput(e.target.value)}
+                      placeholder="https://company.com/careers/delivery-executive"
+                      className="w-full bg-[#f8fafc] border border-[#e2e4e9] rounded-xl px-3.5 py-2.5 text-xs text-[#0a0a0a] placeholder:text-[#94a3b8] outline-none focus:bg-white focus:border-[#0f2f63] focus:ring-2 focus:ring-[#0f2f63]/10 transition-all font-mono"
+                    />
+                  </div>
                   <button
                     type="submit"
                     disabled={crawlUrlMutation.isPending}
-                    className="px-4 py-2 bg-[#0066FF] hover:bg-blue-600 text-white rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs disabled:opacity-50 flex items-center gap-1.5 shrink-0"
+                    className="w-full sm:w-auto px-4 py-2.5 bg-[#0f2f63] hover:bg-[#163e7f] text-white rounded-xl text-xs font-semibold transition-all cursor-pointer shadow-xs disabled:opacity-50 flex items-center justify-center gap-1.5 shrink-0 select-none"
                   >
                     {crawlUrlMutation.isPending ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
                     ) : (
-                      <Sparkles className="w-4 h-4" />
+                      <Sparkles className="w-3.5 h-3.5" />
                     )}
-                    <span>{crawlUrlMutation.isPending ? 'Extracting...' : 'Extract Details'}</span>
+                    <span className="whitespace-nowrap">{crawlUrlMutation.isPending ? 'Extracting...' : 'Extract Details'}</span>
                   </button>
                 </div>
+                <p className="text-[10px] text-[#717784] mt-1.5 flex items-center gap-1">
+                  <span>💡 Paste job postings from corporate career sites, Job Boards, or direct vacancy pages.</span>
+                </p>
               </div>
             </form>
 
             {/* Extracted Data Preview */}
             {crawledDataPreview && (
-              <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-3 animate-in fade-in">
-                <div className="flex items-center justify-between pb-2 border-b border-slate-200">
-                  <span className="text-[11px] font-bold text-slate-700 uppercase tracking-wider">
-                    Extracted Hiring Signal
-                  </span>
-                  <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded text-[10px] font-bold">
+              <div className="p-3.5 sm:p-4 bg-[#f8fafc] rounded-2xl border border-[#e2e4e9] space-y-3 animate-in fade-in">
+                <div className="flex items-center justify-between pb-2.5 border-b border-[#e2e4e9]">
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                    <span className="text-[11px] font-bold text-[#0a0a0a] uppercase tracking-wider">
+                      Extracted Opportunity Signal
+                    </span>
+                  </div>
+                  <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full text-[10px] font-bold">
                     Extraction Successful
                   </span>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2.5 text-xs">
-                  <div>
-                    <span className="text-slate-400 block text-[10px] font-medium">Company Name:</span>
-                    <strong className="text-slate-800">{crawledDataPreview.companyName}</strong>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+                  <div className="bg-white p-2.5 rounded-xl border border-[#e6e8ec]">
+                    <span className="text-[#717784] block text-[10px] font-medium uppercase tracking-wider">Company Name</span>
+                    <strong className="text-[#0a0a0a] text-xs font-semibold block truncate mt-0.5">{crawledDataPreview.companyName}</strong>
                   </div>
-                  <div>
-                    <span className="text-slate-400 block text-[10px] font-medium">Job Title:</span>
-                    <strong className="text-slate-800">{crawledDataPreview.title}</strong>
+                  <div className="bg-white p-2.5 rounded-xl border border-[#e6e8ec]">
+                    <span className="text-[#717784] block text-[10px] font-medium uppercase tracking-wider">Job Title</span>
+                    <strong className="text-[#0a0a0a] text-xs font-semibold block truncate mt-0.5">{crawledDataPreview.title}</strong>
                   </div>
-                  <div>
-                    <span className="text-slate-400 block text-[10px] font-medium">Location / City:</span>
-                    <span className="text-slate-700">{crawledDataPreview.city || 'Detected from posting'}</span>
+                  <div className="bg-white p-2.5 rounded-xl border border-[#e6e8ec]">
+                    <span className="text-[#717784] block text-[10px] font-medium uppercase tracking-wider">Location / City</span>
+                    <span className="text-[#0a0a0a] text-xs block truncate mt-0.5">{crawledDataPreview.city || 'Detected from posting'}</span>
                   </div>
-                  <div>
-                    <span className="text-slate-400 block text-[10px] font-medium">Salary Range:</span>
-                    <span className="text-slate-700">{crawledDataPreview.salaryRange || 'Competitive'}</span>
+                  <div className="bg-white p-2.5 rounded-xl border border-[#e6e8ec]">
+                    <span className="text-[#717784] block text-[10px] font-medium uppercase tracking-wider">Salary Range</span>
+                    <span className="text-[#0a0a0a] text-xs block truncate mt-0.5">{crawledDataPreview.salaryRange || 'Competitive'}</span>
                   </div>
                 </div>
 
                 {/* Extracted Channels */}
-                <div className="pt-2 border-t border-slate-200/80 space-y-1 text-xs">
-                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
+                <div className="pt-2 border-t border-[#e2e4e9] space-y-1 text-xs">
+                  <span className="text-[10px] font-bold text-[#717784] uppercase tracking-wider block">
                     Discovered Official Contact Channels
                   </span>
-                  <div className="flex flex-wrap gap-2 pt-1">
+                  <div className="flex flex-wrap gap-2 pt-0.5">
                     {crawledDataPreview.officialEmail ? (
-                      <span className="px-2 py-1 bg-white border border-slate-200 rounded-lg text-[11px] text-slate-700 flex items-center gap-1 font-mono">
-                        <Mail className="w-3 h-3 text-[#0066FF]" />
-                        <span>{crawledDataPreview.officialEmail}</span>
+                      <span className="px-2.5 py-1 bg-white border border-[#e2e4e9] rounded-lg text-[11px] text-[#0a0a0a] flex items-center gap-1.5 font-mono">
+                        <Mail className="w-3 h-3 text-[#0f2f63]" />
+                        <span className="truncate max-w-[200px]">{crawledDataPreview.officialEmail}</span>
                       </span>
                     ) : (
-                      <span className="text-[11px] text-slate-400 italic">No direct email found</span>
+                      <span className="text-[11px] text-[#94a3b8] italic">No direct email found</span>
                     )}
 
                     {crawledDataPreview.officialPhone && (
-                      <span className="px-2 py-1 bg-white border border-slate-200 rounded-lg text-[11px] text-slate-700 flex items-center gap-1 font-mono">
+                      <span className="px-2.5 py-1 bg-white border border-[#e2e4e9] rounded-lg text-[11px] text-[#0a0a0a] flex items-center gap-1.5 font-mono">
                         <Phone className="w-3 h-3 text-emerald-600" />
                         <span>{crawledDataPreview.officialPhone}</span>
                       </span>
@@ -1391,11 +1493,11 @@ export const AdminLeadsPage: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="pt-3 border-t border-slate-200 flex items-center justify-end gap-2">
+                {/* Bottom Actions */}
+                <div className="pt-3 border-t border-[#e2e4e9] flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2">
                   <button
                     type="button"
                     onClick={() => {
-                      // Transfer to full manual ingest form with pre-filled fields
                       setNewLeadForm({
                         companyName: crawledDataPreview.companyName,
                         companyWebsite: crawledDataPreview.companyWebsite || '',
@@ -1415,7 +1517,7 @@ export const AdminLeadsPage: React.FC = () => {
                       setIsCrawlModalOpen(false);
                       setIsAddModalOpen(true);
                     }}
-                    className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-colors cursor-pointer"
+                    className="w-full sm:w-auto px-4 py-2 bg-white hover:bg-[#f4f5f8] text-[#0a0a0a] border border-[#e2e4e9] rounded-xl text-xs font-medium transition-colors cursor-pointer text-center"
                   >
                     Edit & Ingest
                   </button>
@@ -1442,7 +1544,7 @@ export const AdminLeadsPage: React.FC = () => {
                       });
                       setIsCrawlModalOpen(false);
                     }}
-                    className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs flex items-center gap-1.5"
+                    className="w-full sm:w-auto px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold transition-all cursor-pointer shadow-xs flex items-center justify-center gap-1.5"
                   >
                     <CheckCircle2 className="w-3.5 h-3.5" />
                     <span>Confirm & Ingest Company</span>
@@ -1456,26 +1558,28 @@ export const AdminLeadsPage: React.FC = () => {
 
       {/* Interactive Guide & Walkthrough Modal */}
       {isGuideModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white border border-slate-200 w-full max-w-3xl rounded-3xl p-6 sm:p-7 shadow-2xl relative max-h-[90vh] overflow-y-auto space-y-6">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="bg-white border border-[#e2e4e9] w-full max-w-3xl rounded-2xl sm:rounded-3xl p-4 sm:p-6 sm:p-7 shadow-xl relative max-h-[92vh] overflow-y-auto space-y-5">
             {/* Header */}
-            <div className="flex items-start justify-between pb-4 border-b border-slate-100">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600 shadow-xs">
-                  <Lightbulb className="w-6 h-6" />
+            <div className="flex items-start justify-between gap-3 pb-3.5 border-b border-[#e6e8ec]">
+              <div className="flex items-start sm:items-center gap-3 min-w-0">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600 shadow-xs shrink-0 mt-0.5 sm:mt-0">
+                  <Lightbulb className="w-5 h-5 sm:w-6 sm:h-6" />
                 </div>
-                <div>
-                  <h3 className="text-lg font-black text-[#0A1931]">How Hiring Company Discovery Works</h3>
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    A quick visual guide explaining how we find businesses and bring them onto TrustHire.
+                <div className="min-w-0">
+                  <h3 className="text-base sm:text-lg font-bold text-[#0a0a0a] tracking-tight">How Hiring Company Discovery Works</h3>
+                  <p className="text-[11px] sm:text-xs text-[#5a6270] mt-0.5">
+                    A quick visual guide explaining how we find businesses and bring them onto TrustHyre.
                   </p>
                 </div>
               </div>
               <button
+                type="button"
                 onClick={() => setIsGuideModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition-colors"
+                className="p-1.5 sm:p-2 rounded-full text-[#717784] hover:text-[#0a0a0a] hover:bg-[#f4f5f8] transition-colors shrink-0 cursor-pointer"
+                aria-label="Close"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
             </div>
 
@@ -1564,7 +1668,7 @@ export const AdminLeadsPage: React.FC = () => {
               </p>
               <ul className="list-disc list-inside space-y-1 text-[11px] text-slate-600 pl-1">
                 <li>Discovery crawler extracts company name, 5 driver requirement, and phone `044-2811xxxx`.</li>
-                <li>TrustHire Admin calls ABC Restaurant and explains how candidates are KYC background verified.</li>
+                <li>TrustHire Admin calls ABC Restaurant and explains how candidates are identity and background verified.</li>
                 <li>Admin clicks <strong>"Onboard to TrustHire"</strong> $\rightarrow$ ABC Restaurant's job goes live $\rightarrow$ Verified delivery drivers apply immediately!</li>
               </ul>
             </div>
@@ -1575,7 +1679,7 @@ export const AdminLeadsPage: React.FC = () => {
                 Quick BD Outreach Pitch Script
               </span>
               <p className="text-slate-700 italic bg-white p-3 rounded-xl border border-slate-200/70">
-                "Hello [Company Name], this is the TrustHire team in Chennai. We noticed you are currently hiring for [Job Role]. We have KYC-verified trade workers available in your area who can start immediately with zero advance placement fees. Can we share a few verified candidate profiles with you?"
+                "Hello [Company Name], this is the TrustHire team in Chennai. We noticed you are currently hiring for [Job Role]. We have background-verified trade workers available in your area who can start immediately with zero advance placement fees. Can we share a few verified candidate profiles with you?"
               </p>
             </div>
 

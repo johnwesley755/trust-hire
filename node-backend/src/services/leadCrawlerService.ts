@@ -333,26 +333,33 @@ export class LeadCrawlerService {
             })),
           };
 
-          const res = await LeadService.ingestLead(ingestInput);
+          const res: any = await LeadService.ingestLead(ingestInput);
           ingestedResults.push(res);
 
-          const isNew = res.lead.created_at.getTime() === res.lead.updated_at.getTime();
+          const isNew = Boolean(res.isNewLead);
           if (isNew) {
             newLeadsCount++;
           } else {
             updatedLeadsCount++;
           }
 
+          duplicatesIgnored += res.duplicatesMergedCount || 0;
+          const rejectedInLead = item.requirements.length - (res.requirements?.length || 0);
+          if (rejectedInLead > 0) {
+            rejectedCount += rejectedInLead;
+          }
+
           session.logStep(
             'DB_INGEST',
             `Lead Ingestion: ${item.companyName}`,
             'SUCCESS',
-            `${isNew ? 'Created new lead' : 'Refreshed existing lead'} with ${item.requirements.length} requirement(s).`,
+            `${isNew ? 'Created new lead' : 'Refreshed existing lead'} with ${res.requirements.length} requirement(s).`,
             {
               leadId: res.lead.id,
               isNew,
               domain: res.lead.company_domain,
-              requirementsCount: item.requirements.length,
+              requirementsCount: res.requirements.length,
+              duplicatesMerged: res.duplicatesMergedCount || 0,
             },
             enrichDuration
           );

@@ -22,7 +22,7 @@ export interface SafeFetchResponse {
 }
 
 export class UrlSecurityValidator {
-  private static readonly MAX_RESPONSE_SIZE = 2 * 1024 * 1024; // 2MB
+  private static readonly MAX_RESPONSE_SIZE = 8 * 1024 * 1024; // 8MB (Supports large enterprise boards like Paytm and Deliveroo)
   private static readonly DEFAULT_TIMEOUT_MS = 7000;
   private static readonly MAX_REDIRECTS = 3;
 
@@ -195,80 +195,107 @@ export class UrlSecurityValidator {
           ...options.headers,
         };
 
-        const response = await fetch(currentUrl, {
-          method: 'GET',
-          signal: controller.signal,
-          headers: defaultHeaders,
-          redirect: 'manual', // Intercept all redirects to validate destination!
-        });
-        clearTimeout(timeoutId);
+        let body = '';
+        try {
+          const response = await fetch(currentUrl, {
+            method: 'GET',
+            signal: controller.signal,
+            headers: defaultHeaders,
+            redirect: 'manual', // Intercept all redirects to validate destination!
+          });
 
-        // Handle HTTP 3xx Redirects
-        if ([301, 302, 303, 307, 308].includes(response.status)) {
-          const location = response.headers.get('location');
-          if (!location) {
-            throw new Error(`HTTP ${response.status} redirect without Location header.`);
+          // Handle HTTP 3xx Redirects
+          if ([301, 302, 303, 307, 308].includes(response.status)) {
+            const location = response.headers.get('location');
+            if (!location) {
+              throw new Error(`HTTP ${response.status} redirect without Location header.`);
+            }
+
+            redirectsCount++;
+            if (redirectsCount > maxRedirects) {
+              throw new Error(`Exceeded maximum allowed redirects (${maxRedirects}).`);
+            }
+
+            // Resolve relative redirect against current URL
+            const resolvedUrl = new URL(location, currentUrl).toString();
+            currentUrl = resolvedUrl;
+            continue;
           }
 
-          redirectsCount++;
-          if (redirectsCount > maxRedirects) {
-            throw new Error(`Exceeded maximum allowed redirects (${maxRedirects}).`);
-          }
+          // Validate Content-Type
+          const contentType = (response.headers.get('content-type') || '').toLowerCase();
+          const isAcceptable =
+            contentType.includes('text/html') ||
+            contentType.includes('application/json') ||
+            contentType.includes('application/ld+json') ||
+            contentType.includes('text/plain') ||
+            contentType.includes('application/xml') ||
+            contentType.includes('text/xml') ||
+            contentType === '';
 
-          // Resolve relative redirect against current URL
-          const resolvedUrl = new URL(location, currentUrl).toString();
-          currentUrl = resolvedUrl;
-          continue;
-        }
-
-        // Validate Content-Type
-        const contentType = (response.headers.get('content-type') || '').toLowerCase();
-        const isAcceptable =
-          contentType.includes('text/html') ||
-          contentType.includes('application/json') ||
-          contentType.includes('application/ld+json') ||
-          contentType.includes('text/plain') ||
-          contentType.includes('application/xml') ||
-          contentType.includes('text/xml') ||
-          contentType === '';
-
-        if (!isAcceptable) {
-          throw new Error(
-            `Unsupported Content-Type "${contentType}". Binary or non-text resources are rejected.`
-          );
-        }
-
-        // Validate Content-Length if present
-        const contentLengthHeader = response.headers.get('content-length');
-        if (contentLengthHeader) {
-          const length = parseInt(contentLengthHeader, 10);
-          if (length > maxSizeBytes) {
+          if (!isAcceptable) {
             throw new Error(
-              `Response size ${Math.round(length / 1024)} KB exceeds limit of ${Math.round(maxSizeBytes / 1024)} KB.`
+              `Unsupported Content-Type "${contentType}". Binary or non-text resources are rejected.`
             );
           }
+
+          // Validate Content-Length if present
+          const contentLengthHeader = response.headers.get('content-length');
+          if (contentLengthHeader) {
+            const length = parseInt(contentLengthHeader, 10);
+            if (length > maxSizeBytes) {
+              throw new Error(
+                `Response size ${Math.round(length / 1024)} KB exceeds limit of ${Math.round(maxSizeBytes / 1024)} KB.`
+              );
+            }
+          }
+
+          // Stream reading with byte-level enforcement to prevent memory exhaustion
+          if (response.body && typeof response.body.getReader === 'function') {
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder('utf-8');
+            let bytesReceived = 0;
+
+            while (true) {
+              const { done, value } = await reader.read();
+              if (done) break;
+              if (value) {
+                bytesReceived += value.length;
+                if (bytesReceived > maxSizeBytes) {
+                  reader.cancel();
+                  throw new Error(
+                    `Received payload of ${Math.round(bytesReceived / 1024)} KB exceeds limit of ${Math.round(maxSizeBytes / 1024)} KB.`
+                  );
+                }
+                body += decoder.decode(value, { stream: true });
+              }
+            }
+            body += decoder.decode();
+          } else {
+            body = await response.text();
+            if (body.length > maxSizeBytes) {
+              throw new Error(
+                `Received payload of ${Math.round(body.length / 1024)} KB exceeds limit of ${Math.round(maxSizeBytes / 1024)} KB.`
+              );
+            }
+          }
+
+          const headers: Record<string, string> = {};
+          response.headers.forEach((val, key) => {
+            headers[key.toLowerCase()] = val;
+          });
+
+          return {
+            ok: response.ok,
+            status: response.status,
+            statusText: response.statusText,
+            headers,
+            body,
+            finalUrl: currentUrl,
+          };
+        } finally {
+          clearTimeout(timeoutId);
         }
-
-        const body = await response.text();
-        if (body.length > maxSizeBytes) {
-          throw new Error(
-            `Received payload of ${Math.round(body.length / 1024)} KB exceeds limit of ${Math.round(maxSizeBytes / 1024)} KB.`
-          );
-        }
-
-        const headers: Record<string, string> = {};
-        response.headers.forEach((val, key) => {
-          headers[key.toLowerCase()] = val;
-        });
-
-        return {
-          ok: response.ok,
-          status: response.status,
-          statusText: response.statusText,
-          headers,
-          body,
-          finalUrl: currentUrl,
-        };
       } catch (err: any) {
         clearTimeout(timeoutId);
         if (err.name === 'AbortError') {

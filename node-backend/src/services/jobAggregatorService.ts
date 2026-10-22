@@ -18,7 +18,7 @@ export interface SyncExternalJobsResult {
   rejectionReasons: string[];
 }
 
-// Curated verified enterprise ATS endpoints in India (Swiggy, Zepto, Zomato, Urban Company, Shadowfax)
+// Curated verified enterprise ATS endpoints in India (Meesho, Porter, Paytm)
 const ENTERPRISE_ATS_SOURCES: Array<{
   companyName: string;
   companyWebsite: string;
@@ -29,30 +29,30 @@ const ENTERPRISE_ATS_SOURCES: Array<{
   type: 'lever' | 'greenhouse' | 'custom_json';
 }> = [
   {
-    companyName: 'Swiggy',
-    companyWebsite: 'https://www.swiggy.com',
-    sourceName: 'Swiggy Careers ATS',
-    industry: 'Logistics & Delivery',
-    city: 'Chennai',
-    feedUrl: 'https://api.lever.co/v0/postings/swiggy?mode=json',
+    companyName: 'Meesho',
+    companyWebsite: 'https://www.meesho.com',
+    sourceName: 'Meesho Careers ATS',
+    industry: 'Logistics & Warehouse',
+    city: 'Bengaluru',
+    feedUrl: 'https://api.lever.co/v0/postings/meesho?mode=json',
     type: 'lever',
   },
   {
-    companyName: 'Zepto',
-    companyWebsite: 'https://www.zeptonow.com',
-    sourceName: 'Zepto Careers ATS',
+    companyName: 'Porter',
+    companyWebsite: 'https://porter.in',
+    sourceName: 'Porter Careers ATS',
     industry: 'Logistics & Delivery',
     city: 'Bengaluru',
-    feedUrl: 'https://api.lever.co/v0/postings/zepto?mode=json',
+    feedUrl: 'https://api.lever.co/v0/postings/porter?mode=json',
     type: 'lever',
   },
   {
-    companyName: 'Urban Company',
-    companyWebsite: 'https://www.urbancompany.com',
-    sourceName: 'Urban Company ATS',
-    industry: 'Electrical & Maintenance',
-    city: 'Chennai',
-    feedUrl: 'https://api.lever.co/v0/postings/urbancompany?mode=json',
+    companyName: 'Paytm',
+    companyWebsite: 'https://paytm.com',
+    sourceName: 'Paytm Operations ATS',
+    industry: 'Field Sales & Operations',
+    city: 'Noida',
+    feedUrl: 'https://api.lever.co/v0/postings/paytm?mode=json',
     type: 'lever',
   },
 ];
@@ -60,6 +60,7 @@ const ENTERPRISE_ATS_SOURCES: Array<{
 export class JobAggregatorService {
   /**
    * Fetches fresh jobs from Lever ATS public endpoints without hitting anti-bot blocks.
+   * Strictly enforces zero data fabrication: missing titles or apply URLs are rejected.
    */
   static async fetchFromLeverATS(
     feedUrl: string,
@@ -84,19 +85,27 @@ export class JobAggregatorService {
       const data: any[] = await res.json();
       if (!Array.isArray(data)) return [];
 
-      return data.slice(0, 15).map((item) => ({
-        title: item.text || 'Trade Specialist',
-        companyName,
-        city: item.categories?.location || fallbackCity,
-        location: item.categories?.location || fallbackCity,
-        category: item.categories?.team || fallbackIndustry,
-        industry: fallbackIndustry,
-        description: item.descriptionPlain || item.description || '',
-        sourceName: `${companyName} ATS`,
-        sourceUrl: item.applyUrl || item.hostedUrl || `https://www.google.com/search?q=${encodeURIComponent(companyName + ' jobs')}`,
-        datePosted: item.createdAt ? new Date(item.createdAt) : new Date(),
-        salaryRange: 'Competitive Standard',
-      }));
+      const jobs: RawExternalJob[] = [];
+      for (const item of data) {
+        const title = (item.text || '').trim();
+        const sourceUrl = (item.applyUrl || item.hostedUrl || '').trim();
+        if (!title || !sourceUrl) continue; // Zero fabrication: reject missing title or link
+
+        jobs.push({
+          title,
+          companyName,
+          city: item.categories?.location || fallbackCity,
+          location: item.categories?.location || fallbackCity,
+          category: item.categories?.team || fallbackIndustry,
+          industry: fallbackIndustry,
+          description: item.descriptionPlain || item.description || '',
+          sourceName: `${companyName} ATS`,
+          sourceUrl,
+          datePosted: item.createdAt ? new Date(item.createdAt) : new Date(),
+          salaryRange: undefined, // Zero fabrication: never invent salary range
+        });
+      }
+      return jobs;
     } catch {
       return [];
     }
@@ -104,6 +113,7 @@ export class JobAggregatorService {
 
   /**
    * Fetches fresh jobs from JSearch / Google for Jobs Meta-Aggregator if RapidAPI key is provided.
+   * Strictly enforces zero data fabrication: missing titles, employers, or URLs are rejected.
    */
   static async fetchFromMetaAggregator(
     query: string = 'jobs',
@@ -136,114 +146,43 @@ export class JobAggregatorService {
       const data: any = await res.json();
       if (!data?.data || !Array.isArray(data.data)) return [];
 
-      return data.data.map((item: any) => ({
-        title: item.job_title || 'Trade Worker',
-        companyName: item.employer_name || 'Hiring Enterprise',
-        companyWebsite: item.employer_website || '',
-        city: item.job_city || city,
-        location: `${item.job_city || city}, ${item.job_state || 'Tamil Nadu'}`,
-        category: item.job_employment_type || 'Full Time',
-        industry: 'General Trade',
-        description: item.job_description || '',
-        salaryMin: item.job_min_salary || undefined,
-        salaryMax: item.job_max_salary || undefined,
-        salaryRange: item.job_min_salary && item.job_max_salary
-          ? `₹${item.job_min_salary} - ₹${item.job_max_salary}`
-          : '₹18,000 - ₹28,000 / month',
-        sourceName: item.job_publisher || 'Google for Jobs',
-        sourceUrl: item.job_apply_link || item.job_google_link || '',
-        datePosted: item.job_posted_at_datetime_utc ? new Date(item.job_posted_at_datetime_utc) : new Date(),
-      }));
+      const jobs: RawExternalJob[] = [];
+      for (const item of data.data) {
+        const title = (item.job_title || '').trim();
+        const companyName = (item.employer_name || '').trim();
+        const sourceUrl = (item.job_apply_link || item.job_google_link || '').trim();
+        if (!title || !companyName || !sourceUrl) continue; // Zero fabrication
+
+        jobs.push({
+          title,
+          companyName,
+          companyWebsite: item.employer_website || '',
+          city: item.job_city || city,
+          location: item.job_city ? `${item.job_city}, ${item.job_state || ''}`.trim() : city,
+          category: item.job_employment_type || 'Full Time',
+          industry: 'General Trade',
+          description: item.job_description || '',
+          salaryMin: item.job_min_salary || undefined,
+          salaryMax: item.job_max_salary || undefined,
+          salaryRange: item.job_min_salary && item.job_max_salary
+            ? `₹${item.job_min_salary} - ₹${item.job_max_salary}`
+            : undefined,
+          sourceName: item.job_publisher || 'Google for Jobs',
+          sourceUrl,
+          datePosted: item.job_posted_at_datetime_utc ? new Date(item.job_posted_at_datetime_utc) : new Date(),
+        });
+      }
+      return jobs;
     } catch {
       return [];
     }
   }
 
   /**
-   * Curated high-relevance live regional feeds (WorkIndia & Indeed partner requirements).
-   * Verified with active deep links, valid timestamps, and authentic company names.
-   */
-  static getCuratedRegionalFeeds(targetCity: string = 'Chennai'): RawExternalJob[] {
-    const now = new Date();
-    const city = targetCity || 'Chennai';
-
-    return [
-      {
-        title: 'Commercial Electrician & Facility Maintenance',
-        companyName: 'Blue Star Climate Systems',
-        companyWebsite: 'https://www.bluestarindia.com',
-        city,
-        location: `Guindy & Ambattur Industrial Estate, ${city}`,
-        category: 'Electrical & Wiring',
-        industry: 'Electrical & Wiring',
-        description: 'Immediate requirement for certified electricians with 1-4 years experience in commercial HVAC and panel wiring.',
-        salaryMin: 22000,
-        salaryMax: 32000,
-        salaryRange: '₹22,000 - ₹32,000 / month',
-        sourceName: 'Direct Career Portal',
-        sourceUrl: 'https://www.bluestarindia.com/careers',
-        datePosted: new Date(now.getTime() - 24 * 60 * 60 * 1000), // 1 day ago
-        experienceYears: 2,
-      },
-      {
-        title: 'Fleet Delivery Associate & Courier Rider',
-        companyName: 'Shadowfax Technologies',
-        companyWebsite: 'https://www.shadowfax.in',
-        city,
-        location: `T. Nagar & Central Hubs, ${city}`,
-        category: 'Logistics & Delivery',
-        industry: 'Logistics & Delivery',
-        description: 'Hiring two-wheeler courier riders with valid driving license. Flexible shifts with daily fuel allowance.',
-        salaryMin: 18000,
-        salaryMax: 26000,
-        salaryRange: '₹18,000 - ₹26,000 / month',
-        sourceName: 'Shadowfax Partner Portal',
-        sourceUrl: 'https://www.shadowfax.in/join-as-delivery-partner',
-        datePosted: new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
-        experienceYears: 0,
-      },
-      {
-        title: 'Warehouse Inventory Assistant & Picker/Packer',
-        companyName: 'BigBasket Supply Chain',
-        companyWebsite: 'https://www.bigbasket.com',
-        city,
-        location: `Madhavaram Logistics Park, ${city}`,
-        category: 'Warehousing & Packing',
-        industry: 'Warehousing & Packing',
-        description: 'Urgently hiring warehouse associates for order sorting, inventory scanning, and dispatch prep.',
-        salaryMin: 16000,
-        salaryMax: 24000,
-        salaryRange: '₹16,000 - ₹24,000 / month',
-        sourceName: 'Indeed Jobs',
-        sourceUrl: `https://in.indeed.com/jobs?q=BigBasket+Warehouse&l=${encodeURIComponent(city)}`,
-        datePosted: new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
-        experienceYears: 1,
-      },
-      {
-        title: 'Plumbing & Pipe Fitting Technician',
-        companyName: 'Eureka Forbes Facility Group',
-        companyWebsite: 'https://www.eurekaforbes.com',
-        city,
-        location: `Velachery & OMR Hub, ${city}`,
-        category: 'Plumbing & Sanitation',
-        industry: 'Plumbing & Sanitation',
-        description: 'Residential and commercial water filtration and plumbing installation technician wanted.',
-        salaryMin: 20000,
-        salaryMax: 30000,
-        salaryRange: '₹20,000 - ₹30,000 / month',
-        sourceName: 'Eureka Forbes Careers',
-        sourceUrl: 'https://www.eurekaforbes.com/careers',
-        datePosted: new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000), // 1 day ago
-        experienceYears: 1,
-      },
-    ];
-  }
-
-  /**
    * Master Sync Engine:
-   * Aggregates jobs across ATS, Meta-Aggregator, and Curated Feeds,
+   * Aggregates jobs exclusively from live verified ATS and Meta-Aggregator feeds,
    * runs Quality Gate validation, performs SHA-256 deduplication,
-   * and upserts fresh jobs into the database.
+   * and upserts fresh jobs into the database. Zero mock data.
    */
   static async syncFreshJobs(params: SyncExternalJobsParams = {}): Promise<SyncExternalJobsResult> {
     const city = params.city || 'Chennai';
@@ -265,10 +204,6 @@ export class JobAggregatorService {
         rawJobs.push(...atsJobs);
       }
     }
-
-    // 3. Ingest Curated Regional Feeds
-    const regionalJobs = this.getCuratedRegionalFeeds(city);
-    rawJobs.push(...regionalJobs);
 
     const totalScanned = rawJobs.length;
     let validCount = 0;

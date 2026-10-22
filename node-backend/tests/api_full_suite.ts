@@ -1,4 +1,5 @@
 import assert from 'node:assert';
+import process from 'node:process';
 
 const BASE_URL = process.env.API_BASE_URL || 'http://127.0.0.1:8787';
 
@@ -83,7 +84,7 @@ async function runApiTestSuite() {
 
     const sources = json.data || json.sources;
     assert.ok(Array.isArray(sources), 'Sources must be an array');
-    assert.strictEqual(sources.length, 7, 'Expected 7 registered discovery adapters');
+    assert.strictEqual(sources.length, 8, 'Expected 8 registered discovery adapters');
 
     // Verify Active Sources
     const lever = sources.find((s: any) => s.id === 'lever-ats');
@@ -99,6 +100,11 @@ async function runApiTestSuite() {
     assert.ok(schemaOrg, 'Schema.org adapter must exist');
     assert.strictEqual(schemaOrg.active, true);
 
+    const googleJobs = sources.find((s: any) => s.id === 'google-jobs-meta');
+    assert.ok(googleJobs, 'Google for Jobs meta adapter must exist');
+    assert.strictEqual(googleJobs.active, true);
+    assert.strictEqual(googleJobs.status, 'ACTIVE');
+
     // Verify Restricted Sources (Honest terms-of-service compliance)
     const naukri = sources.find((s: any) => s.id === 'naukri');
     assert.ok(naukri, 'Naukri adapter must exist');
@@ -110,7 +116,7 @@ async function runApiTestSuite() {
     assert.strictEqual(apna.active, false);
     assert.strictEqual(apna.status, 'BOT_WALL_RESTRICTED');
 
-    console.log(`     Verified 7 sources: 3 active feeds, 4 compliant restricted feeds`);
+    console.log(`     Verified 8 sources: 4 active feeds, 4 compliant restricted feeds`);
   });
 
   // -------------------------------------------------------------

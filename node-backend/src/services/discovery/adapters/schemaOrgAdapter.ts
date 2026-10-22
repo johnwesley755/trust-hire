@@ -169,6 +169,16 @@ export class SchemaOrgCareerPageAdapter extends BaseJobSourceAdapter {
       }
     }
 
+    // If not a structured JobPosting JSON-LD, ensure page actually represents a job listing
+    const isJobPostingSchema = Boolean(extractedJob);
+    const hasJobUrlSignal = /\/(jobs?|careers?|positions?|openings?|vacanc(y|ies))(\/|$|\?)/i.test(finalUrl);
+    const hasJobSchemaInHtml = html.includes('JobPosting') || html.includes('schema.org/JobPosting');
+
+    if (!isJobPostingSchema && !hasJobUrlSignal && !hasJobSchemaInHtml) {
+      // Ordinary company website without JobPosting schema or career URL signal
+      return null;
+    }
+
     // OpenGraph & Meta Tag Fallbacks if JSON-LD is absent or incomplete
     if (!title) {
       const ogTitleMatch =
@@ -184,6 +194,20 @@ export class SchemaOrgCareerPageAdapter extends BaseJobSourceAdapter {
             companyName = cand;
           }
         }
+      }
+    }
+
+    if (title) {
+      const lowerTitle = title.toLowerCase();
+      if (
+        lowerTitle.startsWith('welcome') ||
+        lowerTitle.startsWith('home') ||
+        lowerTitle.startsWith('about us') ||
+        lowerTitle.startsWith('contact us') ||
+        lowerTitle.includes('terms of') ||
+        lowerTitle.includes('privacy policy')
+      ) {
+        return null;
       }
     }
 
@@ -216,8 +240,9 @@ export class SchemaOrgCareerPageAdapter extends BaseJobSourceAdapter {
       city = this.extractCity(`${title} ${locationStr || ''} ${description}`);
     }
 
-    // Do NOT proceed if neither title nor company name could be legitimately found
-    if (!title && !companyName) {
+    // Strictly require a verified job title and company name
+    // Reject generic homepages or contact pages that do not contain an actual job vacancy
+    if (!title || !title.trim() || !companyName || !companyName.trim()) {
       return null;
     }
 
@@ -231,7 +256,7 @@ export class SchemaOrgCareerPageAdapter extends BaseJobSourceAdapter {
     const category = this.categorizeRole(`${title} ${description}`);
 
     const requirement: DiscoveredLeadRequirement = {
-      title: title || `Positions at ${companyName}`,
+      title: title.trim(),
       category,
       description: description.substring(0, 500) || undefined,
       city: city || null,
@@ -246,7 +271,7 @@ export class SchemaOrgCareerPageAdapter extends BaseJobSourceAdapter {
     };
 
     return {
-      companyName: companyName || 'Company',
+      companyName: companyName.trim(),
       companyWebsite: parsedOrigin,
       companyDomain: validation.parsedUrl.hostname.replace(/^www\./, ''),
       industry: category,
