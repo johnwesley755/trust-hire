@@ -4,7 +4,10 @@ import assert from 'node:assert';
 
 const PORT = process.env.PORT || 8787;
 const BASE_URL = `http://127.0.0.1:${PORT}`;
-const JWT_SECRET = process.env.JWT_SECRET || 'Q7mV2f8YbKc6n4GxR1Pz9TqJ5sH3W8dL0uCkE2aB7yFvM6rN1tX4pS9ZgH5jU3w';
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable is missing.');
+}
 
 import app from '../src/app';
 

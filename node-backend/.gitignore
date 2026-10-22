@@ -14,3 +14,7 @@ firebase-service-account.json
 serviceAccountKey.json
 *.pem
 *.key
+
+# Local test & scratch scripts
+scripts/
+
