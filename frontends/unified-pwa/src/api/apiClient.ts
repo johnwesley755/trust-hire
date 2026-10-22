@@ -2,10 +2,12 @@ import axios from 'axios';
 
 const defaultBaseURL = import.meta.env.DEV
   ? 'http://localhost:8787'
-  : 'https://trusthire-backend.johnwesley8113.workers.dev';
+  : '';
 
 const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || defaultBaseURL,
+  baseURL: import.meta.env.VITE_API_URL !== undefined && import.meta.env.VITE_API_URL !== ''
+    ? import.meta.env.VITE_API_URL
+    : defaultBaseURL,
   headers: {
     'Content-Type': 'application/json',
   },
