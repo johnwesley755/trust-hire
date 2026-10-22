@@ -234,7 +234,7 @@ export const PrivacyPage: React.FC = () => {
               </p>
               <ul className="list-disc pl-5 space-y-2 text-sm text-slate-600">
                 <li>Connecting qualified workers with employers with matching hiring requirements.</li>
-                <li>Conducting automated document authenticity and KYC checks via certified identity verification partners.</li>
+                <li>Conducting automated document authenticity and identity verification checks via certified partner gateways.</li>
                 <li>Safeguarding advance wage deposits and verifying shift completion for prompt payout.</li>
                 <li>Preventing impersonation, duplicate applications, and fraudulent employer solicitations.</li>
               </ul>
@@ -273,7 +273,7 @@ export const PrivacyPage: React.FC = () => {
                 <li><strong>Cloud Infrastructure:</strong> Cloudflare (Workers, CDN, and DDoS protection) and Neon PostgreSQL (database storage).</li>
                 <li><strong>Media & Document Storage:</strong> Cloudinary (secure encrypted CDN for portfolio and profile pictures).</li>
                 <li><strong>Communications & OTP:</strong> Brevo / Twilio (transactional SMS notifications and password resets).</li>
-                <li><strong>Verification Partners:</strong> Authorized KYC gateways conducting secure document and identity verification.</li>
+                <li><strong>Verification Partners:</strong> Authorized verification gateways conducting secure document and identity verification.</li>
               </ul>
             </section>
 

@@ -1,4 +1,5 @@
 import prisma from '../config/prisma';
+import { UrlSecurityValidator } from './discovery/urlSecurityValidator';
 
 export interface FreshnessCycleResult {
   expiredByTTL: number;
@@ -75,17 +76,15 @@ export class JobFreshnessWorker {
       if (!job.source_url) continue;
 
       try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 4000);
+        const validation = UrlSecurityValidator.validateUrl(job.source_url, false);
+        if (!validation.isValid) {
+          continue;
+        }
 
-        const res = await fetch(job.source_url, {
-          method: 'HEAD',
-          signal: controller.signal,
-          headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-          },
+        const res = await UrlSecurityValidator.safeFetch(job.source_url, {
+          timeoutMs: 4000,
+          maxSizeBytes: 512 * 1024,
         });
-        clearTimeout(timeoutId);
 
         if (res.status === 404 || res.status === 410) {
           // Job listing is confirmed dead/removed by host

@@ -24,7 +24,7 @@ export class LeadController {
         limit
       });
 
-      return c.json({ success: true, ...result });
+      return c.json({ success: true, ...result, data: result });
     } catch (error: any) {
       console.error('Error fetching leads:', error);
       return c.json({ success: false, error: error.message || 'Failed to fetch leads' }, 500);

@@ -166,6 +166,26 @@ async function runAllTests() {
     assert.strictEqual(result.requirements[0].salaryRange, null); // Zero fabrication when salary is missing!
   });
 
+  await test('Rejects ordinary website homepage without JobPosting or genuine vacancy', async () => {
+    const genericHomepageHtml = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Welcome to ACME Logistics</title>
+          <meta property="og:site_name" content="ACME Logistics">
+          <meta name="description" content="We are the premier supply chain solution. Contact us for quotes.">
+        </head>
+        <body>
+          <h1>Welcome to ACME</h1>
+          <p>Contact us at info@acmelogistics.com</p>
+        </body>
+      </html>
+    `;
+
+    const result = await schemaAdapter.parseJobPage('https://acmelogistics.com', genericHomepageHtml);
+    assert.strictEqual(result, null, 'Ordinary homepage without vacancy must return null, never fabricate a job!');
+  });
+
   await test('Rejects anti-bot challenge HTML without creating fake lead', async () => {
     const cloudflareChallengeHtml = `
       <!DOCTYPE html>

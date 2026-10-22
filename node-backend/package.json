@@ -10,6 +10,7 @@
     "dev:cloudflare": "wrangler dev",
     "deploy": "wrangler deploy",
     "seed:admin": "ts-node prisma/seed-admin.ts",
+    "test": "ts-node tests/api_full_suite.ts",
     "postinstall": "prisma generate"
   },
   "keywords": [],
@@ -39,7 +40,7 @@
     "@types/bcryptjs": "^2.4.6",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/multer": "^1.4.12",
-    "@types/node": "^26.4.1",
+    "@types/node": "^26.6.5",
     "@types/nodemailer": "^8.0.1",
     "@types/pg": "^8.23.1",
     "@types/uuid": "^10.0.0",
