@@ -337,7 +337,7 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {/* TrustHyre Guarantee Card */}
+            {/* TrustHyre Protection Card */}
             <div className="rounded-[2rem] border border-[#e6e8ec] bg-[#f4f4f4] p-6 sm:p-7 shadow-xs space-y-4">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100">
@@ -351,19 +351,19 @@ export default function DashboardPage() {
                 <li className="flex items-start gap-2.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0 mt-1.5" />
                   <span className="text-[#717784]">
-                    <strong className="text-[#0a0a0a]">100% Background Check:</strong> Government ID & physical skill verification before candidate dispatch.
+                    <strong className="text-[#0a0a0a]">Skill & Profile Check:</strong> Profile authentication & physical skill verification before candidate dispatch.
                   </span>
                 </li>
                 <li className="flex items-start gap-2.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0 mt-1.5" />
                   <span className="text-[#717784]">
-                    <strong className="text-[#0a0a0a]">Secure Payment Protection:</strong> Direct, guaranteed payouts released upon shift milestone sign-off.
+                    <strong className="text-[#0a0a0a]">Verified Work History:</strong> Permanent digital logs of completed shifts, attendance, and ratings.
                   </span>
                 </li>
                 <li className="flex items-start gap-2.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0 mt-1.5" />
                   <span className="text-[#717784]">
-                    <strong className="text-[#0a0a0a]">Reliable Replacement Guarantee:</strong> Immediate candidate replacement assistance if a specialist cancels.
+                    <strong className="text-[#0a0a0a]">Reliable Replacement Support:</strong> Immediate candidate replacement assistance if a specialist cancels.
                   </span>
                 </li>
               </ul>

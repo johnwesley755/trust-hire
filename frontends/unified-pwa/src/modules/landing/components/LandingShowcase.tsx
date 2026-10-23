@@ -28,7 +28,7 @@ export function LandingShowcase() {
           <div className="space-y-6">
             {[
               "Geofenced Smart Attendance with biometric proof",
-              "Automated On-Chain Payouts to verified accounts",
+              "Instant Job Applications with direct employer matching",
               "Real-time Performance Analytics & Trust Metrics",
               "Enterprise-Grade Compliance Guardrails built-in"
             ].map((text, i) => (

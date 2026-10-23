@@ -78,17 +78,17 @@ export const AdminDashboardPage: React.FC = () => {
     {
       title: 'Completed Hirings',
       value: stats?.totalHired || 0,
-      sub: `₹${(stats?.escrowVolume || 0).toLocaleString()} Escrow Settlements`,
+      sub: `${(stats?.totalHired || 0)} Direct Placements`,
       icon: CheckCircle2,
       color: 'bg-emerald-50 text-emerald-700 border border-emerald-200'
     },
   ];
 
   return (
-    <div className="space-y-6 font-['Onest',system-ui,sans-serif]">
+    <div className="space-y-6 font-['Onest',system-ui,sans-serif] w-full max-w-full min-w-0">
       {/* Welcome Banner */}
-      <div className="bg-white border border-[#e6e8ec] rounded-2xl p-6 sm:p-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-xs relative overflow-hidden">
-        <div>
+      <div className="bg-white border border-[#e6e8ec] rounded-2xl p-4 sm:p-6 lg:p-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-xs relative overflow-hidden min-w-0">
+        <div className="min-w-0 flex-1">
           <div className="inline-flex items-center gap-2 text-xs font-medium uppercase text-[#717784] mb-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-[#2563c9]" />
             <span>Platform Overview</span>
@@ -101,30 +101,30 @@ export const AdminDashboardPage: React.FC = () => {
           </p>
         </div>
         
-        <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium uppercase tracking-wider">
+        <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] sm:text-xs font-medium uppercase tracking-wider shrink-0">
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
           <span>Services Operational</span>
         </div>
       </div>
 
       {/* KPI Metric Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5 min-w-0">
         {kpiCards.map((kpi, idx) => {
           const Icon = kpi.icon;
           return (
             <div 
               key={idx}
-              className="bg-white border border-[#e6e8ec] rounded-2xl p-5 relative overflow-hidden flex flex-col justify-between shadow-xs hover:border-[#0f2f63]/30 transition-all"
+              className="bg-white border border-[#e6e8ec] rounded-2xl p-4 sm:p-5 relative overflow-hidden flex flex-col justify-between shadow-xs hover:border-[#0f2f63]/30 transition-all min-w-0"
             >
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-xs font-medium uppercase tracking-wider text-[#717784]">{kpi.title}</span>
-                <div className={`w-10 h-10 rounded-xl ${kpi.color} flex items-center justify-center shadow-2xs`}>
+              <div className="flex items-center justify-between mb-3 min-w-0">
+                <span className="text-xs font-medium uppercase tracking-wider text-[#717784] truncate mr-2">{kpi.title}</span>
+                <div className={`w-10 h-10 rounded-xl ${kpi.color} flex items-center justify-center shadow-2xs shrink-0`}>
                   <Icon className="w-5 h-5" />
                 </div>
               </div>
-              <div>
-                <span className="text-3xl font-semibold text-[#0a0a0a] tracking-tight">{kpi.value.toLocaleString()}</span>
-                <p className="text-xs text-[#717784] mt-1">{kpi.sub}</p>
+              <div className="min-w-0">
+                <span className="text-2xl sm:text-3xl font-semibold text-[#0a0a0a] tracking-tight block">{kpi.value.toLocaleString()}</span>
+                <p className="text-xs text-[#717784] mt-1 truncate">{kpi.sub}</p>
               </div>
             </div>
           );
@@ -132,19 +132,19 @@ export const AdminDashboardPage: React.FC = () => {
       </div>
 
       {/* Main Two Columns */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 min-w-0">
         
         {/* Left Column: Verification Queue */}
-        <div className="lg:col-span-7 bg-white border border-[#e6e8ec] rounded-2xl p-6 sm:p-7 flex flex-col justify-between shadow-xs">
-          <div>
-            <div className="flex items-center justify-between mb-5 pb-4 border-b border-[#e6e8ec]">
-              <div className="flex items-center gap-2.5">
-                <FileCheck2 className="w-5 h-5 text-[#0f2f63]" />
-                <h2 className="text-base font-semibold text-[#0a0a0a]">Pending Verifications</h2>
+        <div className="lg:col-span-7 bg-white border border-[#e6e8ec] rounded-2xl p-4 sm:p-6 lg:p-7 flex flex-col justify-between shadow-xs min-w-0">
+          <div className="min-w-0">
+            <div className="flex items-center justify-between mb-5 pb-4 border-b border-[#e6e8ec] gap-2 min-w-0">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <FileCheck2 className="w-5 h-5 text-[#0f2f63] shrink-0" />
+                <h2 className="text-base font-semibold text-[#0a0a0a] truncate">Pending Verifications</h2>
               </div>
               <Link 
                 to="/admin/verifications"
-                className="text-xs font-medium text-[#2563c9] hover:underline inline-flex items-center gap-1"
+                className="text-xs font-medium text-[#2563c9] hover:underline inline-flex items-center gap-1 shrink-0 whitespace-nowrap"
               >
                 <span>Full Queue ({pendingVerifications.length})</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -162,37 +162,37 @@ export const AdminDashboardPage: React.FC = () => {
                 <p className="text-[11px] text-[#717784] mt-0.5">No pending documents in queue.</p>
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-3 min-w-0">
                 {pendingVerifications.slice(0, 4).map((rec) => (
                   <div 
                     key={rec.id}
-                    className="p-3.5 bg-[#f8fafc] border border-[#e6e8ec] rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 hover:bg-[#f4f4f4] transition-colors"
+                    className="p-3 sm:p-3.5 bg-[#f8fafc] border border-[#e6e8ec] rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 hover:bg-[#f4f4f4] transition-colors min-w-0"
                   >
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 min-w-0 flex-1 w-full sm:w-auto">
                       <div className="w-10 h-10 rounded-xl bg-blue-50 text-[#0f2f63] font-bold flex items-center justify-center text-sm border border-blue-100 shrink-0">
                         {rec.userName.charAt(0)}
                       </div>
-                      <div>
-                        <h4 className="text-xs font-semibold text-[#0a0a0a]">{rec.userName}</h4>
-                        <p className="text-[11px] text-[#717784]">{rec.userEmail || rec.userPhone || 'Registered User'}</p>
+                      <div className="min-w-0 flex-1">
+                        <h4 className="text-xs font-semibold text-[#0a0a0a] truncate">{rec.userName}</h4>
+                        <p className="text-[11px] text-[#717784] truncate">{rec.userEmail || rec.userPhone || 'Registered User'}</p>
                         <span className="inline-block mt-1 px-2 py-0.5 bg-blue-50 border border-blue-200 text-[#0f2f63] rounded-md text-[9px] font-bold uppercase tracking-wider">
                           {rec.verificationType}
                         </span>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2 w-full sm:w-auto">
+                    <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
                       <button
                         onClick={() => verifyMutation.mutate({ id: rec.id, status: 'VERIFIED' })}
                         disabled={verifyMutation.isPending}
-                        className="flex-1 sm:flex-none px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full text-xs font-medium uppercase tracking-wider transition-all cursor-pointer shadow-xs"
+                        className="flex-1 sm:flex-none px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full text-xs font-medium uppercase tracking-wider transition-all cursor-pointer shadow-xs shrink-0"
                       >
                         Approve
                       </button>
                       <button
                         onClick={() => verifyMutation.mutate({ id: rec.id, status: 'REJECTED' })}
                         disabled={verifyMutation.isPending}
-                        className="flex-1 sm:flex-none px-3.5 py-1.5 bg-white hover:bg-rose-50 border border-[#e6e8ec] hover:border-rose-200 text-[#717784] hover:text-rose-600 rounded-full text-xs font-medium uppercase tracking-wider transition-all cursor-pointer"
+                        className="flex-1 sm:flex-none px-3.5 py-1.5 bg-white hover:bg-rose-50 border border-[#e6e8ec] hover:border-rose-200 text-[#717784] hover:text-rose-600 rounded-full text-xs font-medium uppercase tracking-wider transition-all cursor-pointer shrink-0"
                       >
                         Reject
                       </button>
@@ -203,36 +203,40 @@ export const AdminDashboardPage: React.FC = () => {
             )}
           </div>
 
-          <div className="mt-5 pt-4 border-t border-[#e6e8ec] text-[11px] text-[#717784] flex justify-between items-center">
-            <span>Approved records instantly receive verified trust badges.</span>
-            <Link to="/admin/verifications" className="text-[#0f2f63] font-medium hover:underline">
+          <div className="mt-5 pt-4 border-t border-[#e6e8ec] text-[11px] text-[#717784] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 min-w-0">
+            <span className="truncate">Approved records instantly receive verified trust badges.</span>
+            <Link to="/admin/verifications" className="text-[#0f2f63] font-medium hover:underline shrink-0 whitespace-nowrap">
               Inspect Queue &rarr;
             </Link>
           </div>
         </div>
 
         {/* Right Column: Platform Feeds & Fast Nav */}
-        <div className="lg:col-span-5 space-y-6">
+        <div className="lg:col-span-5 space-y-6 min-w-0">
           {/* Recent Registrations */}
-          <div className="bg-white border border-[#e6e8ec] rounded-2xl p-6 shadow-xs">
-            <div className="flex items-center justify-between mb-4 pb-3 border-b border-[#e6e8ec]">
-              <div className="flex items-center gap-2">
-                <UserCheck className="w-4 h-4 text-[#0f2f63]" />
-                <h3 className="text-sm font-semibold text-[#0a0a0a]">Recent Registrations</h3>
+          <div className="bg-white border border-[#e6e8ec] rounded-2xl p-4 sm:p-6 shadow-xs min-w-0">
+            <div className="flex items-center justify-between mb-4 pb-3 border-b border-[#e6e8ec] gap-2 min-w-0">
+              <div className="flex items-center gap-2 min-w-0">
+                <UserCheck className="w-4 h-4 text-[#0f2f63] shrink-0" />
+                <h3 className="text-sm font-semibold text-[#0a0a0a] truncate">Recent Registrations</h3>
               </div>
-              <Link to="/admin/users" className="text-xs font-medium text-[#2563c9] hover:underline">
+              <Link to="/admin/users" className="text-xs font-medium text-[#2563c9] hover:underline shrink-0 whitespace-nowrap">
                 View All
               </Link>
             </div>
 
-            <div className="space-y-2.5">
+            <div className="space-y-2.5 min-w-0">
               {(stats?.recentUsers || []).slice(0, 5).map((u: any) => (
-                <div key={u.id} className="flex items-center justify-between text-xs py-1.5 border-b border-[#e6e8ec] last:border-0">
-                  <div>
-                    <span className="font-semibold text-[#0a0a0a] block">{[u.first_name, u.last_name].filter(Boolean).join(' ') || u.email}</span>
-                    <span className="text-[10px] text-[#717784] font-normal">{u.email}</span>
+                <div key={u.id} className="flex items-center justify-between text-xs py-2 border-b border-[#e6e8ec] last:border-0 gap-3 min-w-0">
+                  <div className="min-w-0 flex-1">
+                    <span className="font-semibold text-[#0a0a0a] block truncate">
+                      {[u.first_name, u.last_name].filter(Boolean).join(' ') || u.email}
+                    </span>
+                    <span className="text-[10px] text-[#717784] font-normal block truncate">
+                      {u.email}
+                    </span>
                   </div>
-                  <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${
+                  <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider shrink-0 whitespace-nowrap ${
                     u.role === 'EMPLOYER' ? 'bg-amber-50 text-amber-800 border border-amber-200' : 'bg-blue-50 text-[#0f2f63] border border-blue-200'
                   }`}>
                     {u.role}
@@ -243,29 +247,29 @@ export const AdminDashboardPage: React.FC = () => {
           </div>
 
           {/* Quick Actions Card */}
-          <div className="bg-white border border-[#e6e8ec] rounded-2xl p-6 shadow-xs">
+          <div className="bg-white border border-[#e6e8ec] rounded-2xl p-4 sm:p-6 shadow-xs min-w-0">
             <h3 className="text-sm font-semibold text-[#0a0a0a] mb-3">Quick Navigation</h3>
-            <div className="grid grid-cols-3 gap-2.5">
+            <div className="grid grid-cols-3 gap-2 sm:gap-2.5 min-w-0">
               <Link
                 to="/admin/leads"
-                className="p-3 bg-[#f8fafc] hover:bg-emerald-50/50 border border-[#e6e8ec] hover:border-emerald-200 rounded-xl flex flex-col items-start gap-1 transition-all group"
+                className="p-2 sm:p-3 bg-[#f8fafc] hover:bg-emerald-50/50 border border-[#e6e8ec] hover:border-emerald-200 rounded-xl flex flex-col items-center sm:items-start text-center sm:text-left gap-1 transition-all group min-w-0"
               >
-                <Building2 className="w-4 h-4 text-emerald-600 group-hover:scale-110 transition-transform" />
-                <span className="text-xs font-medium text-[#0a0a0a]">Companies</span>
+                <Building2 className="w-4 h-4 text-emerald-600 group-hover:scale-110 transition-transform shrink-0" />
+                <span className="text-[11px] sm:text-xs font-medium text-[#0a0a0a] truncate w-full">Companies</span>
               </Link>
               <Link
                 to="/admin/users"
-                className="p-3 bg-[#f8fafc] hover:bg-blue-50/50 border border-[#e6e8ec] hover:border-blue-200 rounded-xl flex flex-col items-start gap-1 transition-all group"
+                className="p-2 sm:p-3 bg-[#f8fafc] hover:bg-blue-50/50 border border-[#e6e8ec] hover:border-blue-200 rounded-xl flex flex-col items-center sm:items-start text-center sm:text-left gap-1 transition-all group min-w-0"
               >
-                <Users className="w-4 h-4 text-[#0f2f63] group-hover:scale-110 transition-transform" />
-                <span className="text-xs font-medium text-[#0a0a0a]">Directory</span>
+                <Users className="w-4 h-4 text-[#0f2f63] group-hover:scale-110 transition-transform shrink-0" />
+                <span className="text-[11px] sm:text-xs font-medium text-[#0a0a0a] truncate w-full">Directory</span>
               </Link>
               <Link
                 to="/admin/jobs"
-                className="p-3 bg-[#f8fafc] hover:bg-amber-50/50 border border-[#e6e8ec] hover:border-amber-200 rounded-xl flex flex-col items-start gap-1 transition-all group"
+                className="p-2 sm:p-3 bg-[#f8fafc] hover:bg-amber-50/50 border border-[#e6e8ec] hover:border-amber-200 rounded-xl flex flex-col items-center sm:items-start text-center sm:text-left gap-1 transition-all group min-w-0"
               >
-                <Briefcase className="w-4 h-4 text-amber-600 group-hover:scale-110 transition-transform" />
-                <span className="text-xs font-medium text-[#0a0a0a]">Moderation</span>
+                <Briefcase className="w-4 h-4 text-amber-600 group-hover:scale-110 transition-transform shrink-0" />
+                <span className="text-[11px] sm:text-xs font-medium text-[#0a0a0a] truncate w-full">Moderation</span>
               </Link>
             </div>
           </div>

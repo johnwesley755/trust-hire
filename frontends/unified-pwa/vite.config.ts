@@ -78,7 +78,7 @@ export default defineConfig({
   },
   plugins: [react(), tailwindcss(), versionSyncPlugin(), VitePWA({
     registerType: 'autoUpdate',
-    includeAssets: ['logo.png', 'vite.svg'],
+    includeAssets: ['logo.png', 'vite.svg', 'images/**/*'],
     workbox: {
       cleanupOutdatedCaches: true,
       clientsClaim: true,
@@ -86,6 +86,36 @@ export default defineConfig({
       maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
       navigateFallback: '/index.html',
       navigateFallbackDenylist: [/^\/api/],
+      runtimeCaching: [
+        {
+          urlPattern: /\.(?:png|jpg|jpeg|svg|webp|ico)$/i,
+          handler: 'CacheFirst',
+          options: {
+            cacheName: 'trusthyre-images-cache',
+            expiration: {
+              maxEntries: 100,
+              maxAgeSeconds: 30 * 24 * 60 * 60, // 30 Days
+            },
+            cacheableResponse: {
+              statuses: [0, 200],
+            },
+          },
+        },
+        {
+          urlPattern: /^https:\/\/fonts\.(?:googleapis|gstatic)\.com\/.*/i,
+          handler: 'CacheFirst',
+          options: {
+            cacheName: 'google-fonts',
+            expiration: {
+              maxEntries: 30,
+              maxAgeSeconds: 365 * 24 * 60 * 60, // 1 Year
+            },
+            cacheableResponse: {
+              statuses: [0, 200],
+            },
+          },
+        },
+      ],
     },
     manifest: {
       name: 'TrustHyre | Trusted Talent. Better Hiring.',

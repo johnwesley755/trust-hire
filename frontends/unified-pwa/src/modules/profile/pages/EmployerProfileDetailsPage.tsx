@@ -665,17 +665,17 @@ export default function EmployerProfileDetailsPage() {
                     {/* Item 2 */}
                     <div className="flex items-start gap-4 bg-slate-50/80 p-4 rounded-2xl border border-slate-100">
                       <div className="w-9 h-9 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center shrink-0 text-[#0f2f63]">
-                        <DollarSign className="w-5 h-5" />
+                        <Briefcase className="w-5 h-5" />
                       </div>
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
-                          <h4 className="text-xs font-bold text-[#0A1931]">Payment Protection Active</h4>
+                          <h4 className="text-xs font-bold text-[#0A1931]">Verified Employer Badge</h4>
                           <span className="text-[10px] font-semibold text-[#0f2f63] bg-blue-50 px-2 py-0.5 rounded-full">
                             Active
                           </span>
                         </div>
                         <p className="text-[11px] text-slate-500 leading-relaxed">
-                          Automated payout protection enabled. Shift workers are guaranteed 100% dispute protection and direct fund releases upon check-out.
+                          Authentic employer profile enabled. Candidates can apply and connect directly with your hiring team.
                         </p>
                       </div>
                     </div>

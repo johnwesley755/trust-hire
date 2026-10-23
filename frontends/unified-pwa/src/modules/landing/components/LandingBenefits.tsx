@@ -24,10 +24,10 @@ export function LandingBenefits() {
         <div className="bg-white p-10 rounded-[40px] shadow-lg border border-surface-container relative overflow-hidden group">
           <div className="absolute -right-4 -bottom-4 w-32 h-32 bg-secondary-container/10 blob-2 group-hover:scale-110 transition-transform"></div>
           <div className="w-16 h-16 bg-primary/5 rounded-2xl flex items-center justify-center text-primary mb-8">
-            <span className="material-symbols-outlined text-3xl font-bold">payments</span>
+            <span className="material-symbols-outlined text-3xl font-bold">handshake</span>
           </div>
-          <h3 className="text-2xl font-black text-primary mb-4">Direct Payouts</h3>
-          <p className="text-primary/70 leading-relaxed relative z-10">Your full salary goes to your bank. No hidden cuts, no middle-men, and no delays in payment.</p>
+          <h3 className="text-2xl font-black text-primary mb-4">Direct Connection</h3>
+          <p className="text-primary/70 leading-relaxed relative z-10">Connect directly with verified employers. No agency middle-men, no commission deductions, and transparent job terms.</p>
         </div>
         
         {/* Card 3 */}

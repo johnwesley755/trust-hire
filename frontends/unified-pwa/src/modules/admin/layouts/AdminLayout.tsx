@@ -30,9 +30,9 @@ export const AdminLayout: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-[#fafbfc] text-[#0a0a0a] font-['Onest',system-ui,sans-serif] selection:bg-[#2563c9] selection:text-white flex flex-col">
+    <div className="min-h-screen bg-[#fafbfc] text-[#0a0a0a] font-['Onest',system-ui,sans-serif] selection:bg-[#2563c9] selection:text-white flex flex-col w-full max-w-full overflow-x-hidden">
       {/* Sticky Top Header */}
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-[#e6e8ec] shadow-xs">
+      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-[#e6e8ec] shadow-xs w-full">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
           
           {/* Left: Official Logo + Navigation */}
@@ -91,7 +91,7 @@ export const AdminLayout: React.FC = () => {
       </header>
 
       {/* Mobile Sub-Navbar (Pill Strip) */}
-      <div className="lg:hidden bg-white border-b border-[#e6e8ec] px-3 py-2 flex items-center overflow-x-auto gap-1.5 shadow-2xs scrollbar-none">
+      <div className="lg:hidden bg-white border-b border-[#e6e8ec] px-3 py-2 flex items-center overflow-x-auto gap-1.5 shadow-2xs scrollbar-none w-full">
         {navItems.map((item) => {
           const Icon = item.icon;
           return (
@@ -114,7 +114,7 @@ export const AdminLayout: React.FC = () => {
       </div>
 
       {/* Main Workbench Canvas */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6 min-w-0">
         <Outlet />
       </main>
 

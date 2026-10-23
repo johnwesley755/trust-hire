@@ -429,7 +429,7 @@ export default function WorkerProfileDetailsPage() {
                   <div className="bg-[#0f2f63] h-full rounded-full" style={{ width: '65%' }}></div>
                 </div>
                 <p className="text-[11px] text-slate-500 font-medium leading-relaxed">
-                  Complete 2 more verified shifts or pass a trade test to unlock Level 3 direct wage premiums.
+                  Complete 2 more verified shifts or pass a trade test to unlock Level 3 verified specialist badge.
                 </p>
               </div>
 
@@ -759,7 +759,7 @@ export default function WorkerProfileDetailsPage() {
                       </div>
                       <h4 className="text-sm font-bold text-[#0A1931]">No job applications yet</h4>
                       <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                        Explore verified openings matching your skills to start working and earning on-time payouts.
+                        Explore verified openings matching your skills to start working and connecting directly with employers.
                       </p>
                       <Link 
                         to="/search" 

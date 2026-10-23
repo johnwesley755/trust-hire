@@ -136,7 +136,7 @@ export const JobPostingPage = () => {
                 Post a New Job Opening
               </h1>
               <p className="text-xs text-[#717784] font-medium leading-relaxed max-w-xl">
-                Quickly find verified workers nearby with 100% payment safety and zero agency middle-men fees.
+                Quickly find verified workers nearby with authenticated profiles and zero agency middle-men fees.
               </p>
             </div>
 
@@ -277,7 +277,7 @@ export const JobPostingPage = () => {
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-[#0a0a0a]">Monthly Budget / Wage (₹) *</label>
+                    <label className="text-xs font-bold text-[#0a0a0a]">Monthly Budget (₹) *</label>
                     <div className="relative">
                       <IndianRupee className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#717784]" />
                       <input 
@@ -473,7 +473,7 @@ export const JobPostingPage = () => {
                 <div className="pt-2 border-t border-[#e6e8ec] flex items-center justify-between text-[11px]">
                   <span className="text-emerald-700 font-semibold flex items-center gap-1">
                     <ShieldCheck className="w-3.5 h-3.5" />
-                    <span>100% Payment Protected</span>
+                    <span>Verified Job Listing</span>
                   </span>
                   {previewExpiresAt && (
                     <span className="text-[#717784] text-[10px] flex items-center gap-1 font-medium">

@@ -120,7 +120,7 @@ export default function JobDetailPage() {
       queryClient.invalidateQueries({ queryKey: queryKeys.jobs.all });
       queryClient.invalidateQueries({ queryKey: ['recommendedJobs'] });
       queryClient.invalidateQueries({ queryKey: queryKeys.jobs.myApplications });
-      toast.success('Application submitted successfully with payment guarantee!');
+      toast.success('Application submitted successfully to employer!');
     },
     onError: (error: unknown) => {
       const message = (error as any)?.response?.data?.message || (error as Error)?.message || 'Failed to submit application.';
@@ -368,7 +368,7 @@ export default function JobDetailPage() {
             {/* Wage Highlight & Role-Aware Action Pill */}
             <div className="flex flex-row lg:flex-col items-start lg:items-end justify-between w-full lg:w-auto gap-3 pt-3 lg:pt-0 border-t lg:border-t-0 border-[#e6e8ec]">
               <div className="text-left lg:text-right">
-                <p className="text-[10px] font-bold uppercase text-[#717784]">Guaranteed Compensation</p>
+                <p className="text-[10px] font-bold uppercase text-[#717784]">Agreed Compensation</p>
                 <p className="text-xl sm:text-2xl font-bold text-emerald-700 mt-0.5">
                   {job.budget ? `₹${Number(job.budget).toLocaleString('en-IN')}` : 'Compensation on Discussion'}
                   {job.budget && <span className="text-xs font-medium text-[#717784] ml-1">/ month</span>}
@@ -613,7 +613,7 @@ export default function JobDetailPage() {
                         </div>
                         <div className="min-w-0">
                           <p className="text-xs font-bold text-[#0a0a0a]">Application Submitted</p>
-                          <p className="text-[10px] text-[#717784]">Profile verified & payment secured</p>
+                          <p className="text-[10px] text-[#717784]">Profile verified & application delivered</p>
                         </div>
                       </div>
 
@@ -759,7 +759,7 @@ export default function JobDetailPage() {
               <div className="bg-white rounded-2xl p-4 border border-[#e6e8ec] space-y-2.5 text-xs">
                 <p className="font-bold text-[#0a0a0a] text-sm">{employerName}</p>
                 <p className="text-[11px] text-[#717784] leading-relaxed">
-                  {employer?.profileBio || 'Verified employer committed to fair workplaces and guaranteed safe daily payments.'}
+                  {employer?.profileBio || 'Verified employer committed to fair workplaces and transparent hiring standards.'}
                 </p>
                 <div className="pt-2 border-t border-[#e6e8ec] flex justify-between items-center text-[11px] text-[#717784]">
                   <span>Identity Verification:</span>
@@ -784,12 +784,12 @@ export default function JobDetailPage() {
                   <span className="font-semibold text-[#0a0a0a]">{job.experienceYearsRequired || 1}+ Years</span>
                 </div>
                 <div className="flex justify-between items-center py-1 border-b border-[#e6e8ec]/60">
-                  <span className="text-[#717784]">Payment Schedule:</span>
-                  <span className="font-semibold text-emerald-700">Daily Direct Payment</span>
+                  <span className="text-[#717784]">Work Schedule:</span>
+                  <span className="font-semibold text-[#0a0a0a]">Regular Shifts</span>
                 </div>
                 <div className="flex justify-between items-center py-1">
-                  <span className="text-[#717784]">Payment Safety:</span>
-                  <span className="font-semibold text-emerald-700">100% Guaranteed</span>
+                  <span className="text-[#717784]">Verification Status:</span>
+                  <span className="font-semibold text-emerald-700">Verified Employer</span>
                 </div>
               </div>
             </div>

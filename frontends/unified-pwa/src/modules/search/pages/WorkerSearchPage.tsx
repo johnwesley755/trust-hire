@@ -545,7 +545,7 @@ export const WorkerSearchPage = () => {
               </Link>
             </div>
 
-            {/* Hiring Guarantee Info Card */}
+            {/* Hiring Verification Info Card */}
             <div className="rounded-[1.5rem] bg-white p-5 sm:p-6 border border-slate-200/80 space-y-4 shadow-xs">
               <div className="flex items-center gap-2 text-[#0A1931] font-medium text-xs uppercase">
                 <ShieldCheck className="w-4 h-4 text-emerald-600" />
@@ -554,7 +554,7 @@ export const WorkerSearchPage = () => {
               <ul className="text-xs text-slate-500 space-y-2.5 font-medium">
                 <li className="flex items-center gap-2.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 shrink-0" />
-                  <span>{t("Government ID & background verified", "Government ID & background verified")}</span>
+                  <span>{t("Skill certified & profile verified", "Skill certified & profile verified")}</span>
                 </li>
                 <li className="flex items-center gap-2.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 shrink-0" />
@@ -562,7 +562,7 @@ export const WorkerSearchPage = () => {
                 </li>
                 <li className="flex items-center gap-2.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 shrink-0" />
-                  <span>{t("Protected daily wage payouts", "Protected daily wage payouts")}</span>
+                  <span>{t("Direct employer communication", "Direct employer communication")}</span>
                 </li>
                 <li className="flex items-center gap-2.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 shrink-0" />

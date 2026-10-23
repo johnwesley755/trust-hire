@@ -25,7 +25,7 @@ export function LandingCareerLevels() {
               <div className="w-12 h-12 rounded-full bg-primary-fixed/60 flex items-center justify-center font-black text-primary/80 shadow-lg border-4 border-surface group-hover:scale-110 transition-transform text-xs uppercase">Expert</div>
               <div>
                 <h4 className="font-extrabold text-xl font-headline">Senior Specialist</h4>
-                <p className="text-primary/50 text-sm">Bonus payouts active • High priority</p>
+                <p className="text-primary/50 text-sm">Verified skill badge • High priority</p>
               </div>
             </div>
             

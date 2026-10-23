@@ -26,7 +26,7 @@ export function LandingProblemSolution() {
               <ul className="space-y-3">
                 <li className="flex items-start gap-4 text-md text-brand-forest">
                   <span className="material-symbols-outlined text-emerald-600" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
-                  Verified government ID and background validation.
+                  Verified skills and background validation.
                 </li>
                 <li className="flex items-start gap-4 text-md text-brand-forest">
                   <span className="material-symbols-outlined text-emerald-600" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>

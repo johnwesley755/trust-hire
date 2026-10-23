@@ -121,8 +121,8 @@ const HERO_MODES = [
     modeLabel: "For Workers",
     title: "FIND LOCAL JOBS",
     titleWords: ["FIND", "LOCAL", "JOBS"],
-    tagline: ["SHOW UP,", "GET PAID."],
-    badge: "Workers: Guaranteed Daily Safe Pay",
+    tagline: ["SHOW UP,", "WORK DIRECT."],
+    badge: "Workers: Verified Direct Job Openings",
   },
   {
     role: "EMPLOYER",
@@ -134,13 +134,13 @@ const HERO_MODES = [
   },
 ];
 
-// Core Operating Standards & Guarantees (Replacing Fake Statistics)
+// Core Operating Standards (Replacing Fake Statistics)
 const OPERATING_STANDARDS = [
   { 
     number: "#01", 
-    title: "Guaranteed Advance Pay Protection", 
-    subtitle: "Zero Unpaid Labor",
-    desc: "Employer booking funds are secured in advance before workers deploy. Wages are released immediately upon verified task completion." 
+    title: "Direct Job Connections", 
+    subtitle: "Zero Middle-Men",
+    desc: "Connect directly with verified local businesses and trades. No recruiting agencies, hidden commissions, or middlemen fees." 
   },
   { 
     number: "#02", 
@@ -150,15 +150,15 @@ const OPERATING_STANDARDS = [
   },
   { 
     number: "#03", 
-    title: "Direct UPI Settlement", 
-    subtitle: "0% Brokerage Cut",
-    desc: "Workers receive 100% of their earned wages directly into their UPI or bank accounts with zero middle-men contractor deductions." 
+    title: "Skill-Verified Profiles", 
+    subtitle: "Authentic Credentials",
+    desc: "Every candidate showcases practical trade evaluations, work experience records, and completed shifts to help employers hire with confidence." 
   },
   { 
     number: "#04", 
-    title: "Digital Dispute Records", 
-    subtitle: "Transparent Resolution",
-    desc: "Every shift maintains a permanent digital paper trail of check-ins, agreed hourly rates, and work summaries for fast, neutral conflict resolution." 
+    title: "Digital Work History", 
+    subtitle: "Permanent Shift Records",
+    desc: "Every shift maintains a digital paper trail of check-ins, job scopes, and completion summaries for transparent collaboration." 
   },
 ];
 
@@ -170,19 +170,19 @@ const PLATFORM_COMMITMENTS = [
     title: "Verified Arrival & Skill Assurance",
     desc: "Know exactly who is coming to your job site before they arrive.",
     points: [
-      "Government ID & skill badge verified before dispatch",
-      "Geofenced check-in: payment only releases on physical arrival",
-      "Prompt automatic replacement or refund if worker is absent"
+      "Skill badge & profile verified before dispatch",
+      "Geofenced check-in confirms physical on-site arrival",
+      "Prompt replacement support if a worker is unavailable"
     ]
   },
   {
     badge: "For Workers",
     badgeColor: "bg-[#2563c9] text-white",
-    title: "Protected Wages & Zero Broker Cut",
-    desc: "Get paid on time, every time, without paying middle-men commissions.",
+    title: "Direct Openings & Zero Broker Cut",
+    desc: "Find verified local employers without paying recruitment middle-men.",
     points: [
-      "Job budget is securely deposited before you travel to site",
-      "100% of agreed pay deposited directly to UPI or bank",
+      "Direct contact with verified employers near you",
+      "Zero commission or brokerage deductions taken from workers",
       "Build a permanent, verifiable work history and ratings profile"
     ]
   },
@@ -258,29 +258,39 @@ export default function LandingPage() {
   const isCandidate = user?.role === "WORKER";
 
   // --------------------------------------------------------------------------
-  // 1. Lenis Smooth Scroll Setup + Adaptive Scaling
+  // 1. Lenis Smooth Scroll Setup (Desktop Pointer Only) + Responsive Scaling
   // --------------------------------------------------------------------------
   useEffect(() => {
     window.scrollTo(0, 0);
 
-    const lenis = new Lenis({
-      duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      smoothWheel: true,
-    });
-    lenisRef.current = lenis;
+    // Modern mobile devices have native GPU momentum scrolling (60-120fps).
+    // Virtual smooth-scroll engines (like Lenis) must only run on desktop pointer devices.
+    const isDesktopPointer =
+      typeof window !== "undefined" &&
+      window.innerWidth >= 1024 &&
+      window.matchMedia("(pointer: fine)").matches;
 
-    // Start with scroll locked for intro loader
-    lenis.stop();
+    let lenis: Lenis | null = null;
+    let rafId: number | null = null;
 
-    let rafId: number;
-    function raf(time: number) {
-      lenis.raf(time);
+    if (isDesktopPointer) {
+      lenis = new Lenis({
+        duration: 1.1,
+        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        smoothWheel: true,
+      });
+      lenisRef.current = lenis;
+
+      function raf(time: number) {
+        lenis?.raf(time);
+        rafId = requestAnimationFrame(raf);
+      }
       rafId = requestAnimationFrame(raf);
+    } else {
+      lenisRef.current = null;
     }
-    rafId = requestAnimationFrame(raf);
 
-    // Track scroll for parallax effects
+    // Track scroll for parallax effects (hardware native on mobile)
     const onScroll = () => {
       const scrollY = window.scrollY;
       const vh = window.innerHeight;
@@ -315,19 +325,24 @@ export default function LandingPage() {
     window.addEventListener("resize", handleResize);
 
     return () => {
-      cancelAnimationFrame(rafId);
+      if (rafId) cancelAnimationFrame(rafId);
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", handleResize);
-      lenis.destroy();
+      if (lenis) {
+        lenis.destroy();
+        lenisRef.current = null;
+      }
+      document.documentElement.style.removeProperty("overflow");
+      document.body.style.removeProperty("overflow");
     };
   }, []);
 
   // --------------------------------------------------------------------------
-  // 2. Intro Curtain Loader Timing
+  // 2. Intro Curtain Loader Timing (Snappy & Non-Blocking)
   // --------------------------------------------------------------------------
   useEffect(() => {
-    const MIN_VISIBLE = 1400;
-    const EXIT_MS = 850;
+    const MIN_VISIBLE = 900;
+    const EXIT_MS = 600;
 
     const timer = setTimeout(() => {
       setReady(true);
@@ -354,18 +369,21 @@ export default function LandingPage() {
   }, [ready]);
 
   // --------------------------------------------------------------------------
-  // 4. Scroll Lock for Fullscreen Menu
+  // 4. Safe Scroll Lock for Fullscreen Menu
   // --------------------------------------------------------------------------
   useEffect(() => {
-    if (lenisRef.current) {
-      if (isMenuOpen) {
-        lenisRef.current.stop();
-        document.documentElement.style.overflow = "hidden";
-      } else if (ready) {
-        lenisRef.current.start();
-        document.documentElement.style.removeProperty("overflow");
-      }
+    if (isMenuOpen) {
+      if (lenisRef.current) lenisRef.current.stop();
+      document.body.style.overflow = "hidden";
+    } else {
+      if (lenisRef.current && ready) lenisRef.current.start();
+      document.body.style.removeProperty("overflow");
+      document.documentElement.style.removeProperty("overflow");
     }
+    return () => {
+      document.body.style.removeProperty("overflow");
+      document.documentElement.style.removeProperty("overflow");
+    };
   }, [isMenuOpen, ready]);
 
   // Handle ESC key for fullscreen menu
@@ -399,7 +417,7 @@ export default function LandingPage() {
     <div className="baseline-root bg-white text-[#0a0a0a] min-h-screen selection:bg-[#2563c9] selection:text-white font-['Onest',system-ui,sans-serif]">
       <SeoHead
         title="India's #1 Verified Workforce & Employer Network"
-        description="Connect verified blue-collar and skilled workers with top employers through smart escrow, verified skill passports, and instant hiring on TrustHyre."
+        description="Connect verified blue-collar and skilled workers with top employers through verified skill passports, transparent attendance, and direct hiring on TrustHyre."
         canonicalPath="/"
       />
       
@@ -409,7 +427,7 @@ export default function LandingPage() {
       {!loaderExited && (
         <div 
           className={`fixed inset-0 z-[200] bg-[#0f2f63] text-white flex flex-col items-center justify-center transition-transform duration-[850ms] ease-[cubic-bezier(0.65,0,0.35,1)] ${
-            ready ? "-translate-y-[105%]" : "translate-y-0"
+            ready ? "-translate-y-[105%] pointer-events-none" : "translate-y-0"
           }`}
         >          {/* Official TrustHyre White Logo on Deep-Navy Curtain */}
           <div className="mb-8 animate-[fadeRise_600ms_cubic-bezier(0.16,1,0.3,1)_forwards]">
@@ -558,6 +576,7 @@ export default function LandingPage() {
                   idx === activeHeroBgIdx ? "opacity-100 scale-105" : "opacity-0 scale-100"
                 }`}
                 loading={idx === 0 ? "eager" : "lazy"}
+                decoding={idx === 0 ? "sync" : "async"}
               />
             ))}
             {/* Top-to-bottom Overlay Gradients */}
@@ -881,11 +900,11 @@ export default function LandingPage() {
                   #01
                 </span>
                 <h3 className="text-base sm:text-lg font-medium text-[#0a0a0a] tracking-tight">
-                  {t("Direct Work & Hiring", "Direct Work & Hiring")}
+                  {t("Direct Work & Verified Hiring", "Direct Work & Verified Hiring")}
                 </h3>
               </div>
               <p className="text-sm text-[#717784] leading-relaxed">
-                {t("Built for cooks, electricians, drivers, helpers, and local businesses. Daily photo check-ins and safe advance payments ensure reliable attendance and direct, guaranteed payouts.", "Built for cooks, electricians, drivers, helpers, and local businesses. Daily photo check-ins and safe advance payments ensure reliable attendance and direct, guaranteed payouts.")}
+                {t("Built for cooks, electricians, drivers, helpers, and local businesses. GPS check-ins and direct connections ensure reliable attendance and transparent hiring.", "Built for cooks, electricians, drivers, helpers, and local businesses. GPS check-ins and direct connections ensure reliable attendance and transparent hiring.")}
               </p>
             </article>
           </div>
@@ -1044,7 +1063,7 @@ export default function LandingPage() {
           id="technology" 
           className="relative z-10 -mt-6 sm:-mt-8 rounded-[2rem] bg-white pt-10 pb-12 px-6 sm:px-10 text-[#0a0a0a] shadow-sm"
         >
-          <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 items-end">
+          <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             
             {/* Intro Column */}
             <div className="max-w-md">
@@ -1057,46 +1076,70 @@ export default function LandingPage() {
               </div>
 
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-medium tracking-tight text-[#0a0a0a] leading-[0.96]">
-                {t("Real Attendance & Safe Advance Pay", "Real Attendance & Safe Advance Pay")}
+                {t("Real Attendance & Verified Work Experience", "Real Attendance & Verified Work Experience")}
               </h2>
 
               <p className="text-sm sm:text-base text-[#717784] mt-4 leading-relaxed max-w-md">
-                {t("Every worker does a quick photo and location check-in on arrival, and pay is held safely in advance so workers always get paid on time.", "Every worker does a quick photo and location check-in on arrival, and pay is held safely in advance so workers always get paid on time.")}
+                {t("Every worker completes a quick photo and location check-in on arrival, building a permanent, verified work history that employers can trust.", "Every worker completes a quick photo and location check-in on arrival, building a permanent, verified work history that employers can trust.")}
               </p>
             </div>
 
-            {/* Staggered Verification Cards */}
-            <div className="flex items-end gap-4">
+            {/* Verification Tech Bento Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               
               {/* Tile 1: Photo & Location Check-in */}
-              <figure className="flex-1 aspect-[3/4] rounded-[1.5rem] overflow-hidden relative bg-[#f4f4f4] group shadow-lg transition-transform duration-500 hover:scale-[1.02]">
-                <img 
-                  src={LANDING_IMAGES.biometricGeofence.src} 
-                  alt={LANDING_IMAGES.biometricGeofence.alt}
-                  className="w-full h-full object-cover" 
-                />
-                <figcaption className="absolute inset-x-2.5 bottom-2.5 rounded-xl bg-[#0f2f63]/60 backdrop-blur-md p-2.5 text-white text-left shadow-lg">
-                  <p className="text-sm sm:text-base font-medium tracking-tight">{t("Photo & Location Check-in", "Photo & Location Check-in")}</p>
-                  <p className="text-xs text-white/90 leading-normal mt-1">
-                    {t("Quick photo check-in confirms the right worker arrived at the site.", "Quick photo check-in confirms the right worker arrived at the site.")}
-                  </p>
-                </figcaption>
-              </figure>
+              <div className="group rounded-[1.5rem] bg-[#f8fafc] border border-slate-200/80 p-3 sm:p-3.5 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col">
+                <div className="w-full aspect-[16/10] sm:aspect-[4/3] rounded-2xl overflow-hidden bg-slate-100 relative">
+                  <img 
+                    src={LANDING_IMAGES.biometricGeofence.src} 
+                    alt={LANDING_IMAGES.biometricGeofence.alt}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                    loading="lazy"
+                  />
+                  <div className="absolute top-2.5 left-2.5 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-900/80 backdrop-blur-md text-white text-[11px] font-medium tracking-tight shadow-sm">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#38d49a]" />
+                    <span>{t("Face & GPS Match", "Face & GPS Match")}</span>
+                  </div>
+                </div>
 
-              {/* Tile 2: Protected Advance Pay (Staggered mb-6) */}
-              <figure className="flex-1 aspect-[3/4] rounded-[1.5rem] overflow-hidden relative bg-[#f4f4f4] mb-6 group shadow-lg transition-transform duration-500 hover:scale-[1.02]">
-                <img 
-                  src={LANDING_IMAGES.digitalEscrowVault.src} 
-                  alt={LANDING_IMAGES.digitalEscrowVault.alt}
-                  className="w-full h-full object-cover" 
-                />
-                <figcaption className="absolute inset-x-2.5 bottom-2.5 rounded-xl bg-[#0b6e97]/60 backdrop-blur-md p-2.5 text-white text-left shadow-lg">
-                  <p className="text-sm sm:text-base font-medium tracking-tight">{t("Protected Advance Pay", "Protected Advance Pay")}</p>
-                  <p className="text-xs text-white/90 leading-normal mt-1">
-                    {t("Pay is deposited safely before work starts and paid directly to bank or UPI upon approval.", "Pay is deposited safely before work starts and paid directly to bank or UPI upon approval.")}
-                  </p>
-                </figcaption>
-              </figure>
+                <div className="pt-3 pb-1 px-1 flex-1 flex flex-col justify-between text-left">
+                  <div>
+                    <h3 className="text-base font-semibold tracking-tight text-[#0a0a0a]">
+                      {t("Photo & Location Check-in", "Photo & Location Check-in")}
+                    </h3>
+                    <p className="text-xs sm:text-sm text-[#717784] mt-1.5 leading-relaxed">
+                      {t("Quick photo check-in confirms the right worker arrived at the site.", "Quick photo check-in confirms the right worker arrived at the site.")}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Tile 2: Verified Skill Credential */}
+              <div className="group rounded-[1.5rem] bg-[#f8fafc] border border-slate-200/80 p-3 sm:p-3.5 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col">
+                <div className="w-full aspect-[16/10] sm:aspect-[4/3] rounded-2xl overflow-hidden bg-slate-100 relative">
+                  <img 
+                    src={LANDING_IMAGES.skillVerificationBadge.src} 
+                    alt={LANDING_IMAGES.skillVerificationBadge.alt}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                    loading="lazy"
+                  />
+                  <div className="absolute top-2.5 left-2.5 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#0b6e97]/85 backdrop-blur-md text-white text-[11px] font-medium tracking-tight shadow-sm">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#60a5fa]" />
+                    <span>{t("Skill Tested", "Skill Tested")}</span>
+                  </div>
+                </div>
+
+                <div className="pt-3 pb-1 px-1 flex-1 flex flex-col justify-between text-left">
+                  <div>
+                    <h3 className="text-base font-semibold tracking-tight text-[#0a0a0a]">
+                      {t("Verified Skill Credential", "Verified Skill Credential")}
+                    </h3>
+                    <p className="text-xs sm:text-sm text-[#717784] mt-1.5 leading-relaxed">
+                      {t("Candidates undergo verified skill assessments and work experience authentication before job placement.", "Candidates undergo verified skill assessments and work experience authentication before job placement.")}
+                    </p>
+                  </div>
+                </div>
+              </div>
 
             </div>
           </div>
@@ -1250,7 +1293,7 @@ export default function LandingPage() {
                 </div>
 
                 <p className="text-sm text-white/80 leading-relaxed">
-                  {t("A simple, trusted platform connecting skilled workers with verified local employers. Safe advance payments, daily photo check-ins, and direct payouts with zero middle-men fees.", "A simple, trusted platform connecting skilled workers with verified local employers. Safe advance payments, daily photo check-ins, and direct payouts with zero middle-men fees.")}
+                  {t("A simple, trusted platform connecting skilled workers with verified local employers. GPS photo check-ins, authentic skill profiles, and zero middle-men fees.", "A simple, trusted platform connecting skilled workers with verified local employers. GPS photo check-ins, authentic skill profiles, and zero middle-men fees.")}
                 </p>
               </div>
 
@@ -1292,7 +1335,7 @@ export default function LandingPage() {
 
             {/* Bottom Bar: Clean Production Attribution & Accessible Language Selector */}
             <div className="pt-6 border-t border-white/10 flex flex-col lg:flex-row items-center justify-between gap-4 text-xs sm:text-sm text-white/70">
-              <p>© 2026 TrustHyre. Safe, guaranteed hiring for verified workers and businesses.</p>
+              <p>© 2026 TrustHyre. Safe, transparent hiring for verified workers and businesses.</p>
               
               <div className="flex flex-wrap items-center gap-4 sm:gap-6">
                 {/* Direct Language Switcher Bar in Footer */}

@@ -43,7 +43,7 @@ export const StatsGrid = () => {
         { 
             label: 'Hired & Active', 
             value: stats?.totalHired || 0, 
-            trend: 'Payment Protected', 
+            trend: 'Verified Active', 
             trendColor: 'text-emerald-700 bg-emerald-50',
             icon: <Award className="w-5 h-5 text-emerald-600" />,
             bg: 'bg-emerald-50'

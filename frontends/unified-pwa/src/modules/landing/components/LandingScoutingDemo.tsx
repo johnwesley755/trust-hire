@@ -102,7 +102,7 @@ export function LandingScoutingDemo() {
                 <div className="grid grid-cols-1 gap-10">
                     {[
                         { title: "Velocity", desc: "Start work in minutes", icon: Zap, color: "text-amber-500" },
-                        { title: "Trust", desc: "Government verified ID", icon: ShieldCheck, color: "text-emerald-500" },
+                        { title: "Trust", desc: "Verified skill profile", icon: ShieldCheck, color: "text-emerald-500" },
                         { title: "Elite", desc: "Certified top specialists", icon: Star, color: "text-brand-primary" }
                     ].map((feat, i) => (
                         <motion.div 

@@ -101,7 +101,7 @@ export function EmployerHero() {
           {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
           <p className="mt-6 text-sm font-bold text-[#0A1931]/60 flex items-center gap-2">
             <span className="material-symbols-outlined text-[18px] text-emerald-600">verified</span>
-            Government ID & skill verification for every profile
+            Profile authentication & skill verification for every candidate
           </p>
         </div>
 

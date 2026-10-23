@@ -12,7 +12,7 @@ import {
   ShieldCheck, 
   Clock, 
   MapPin, 
-  DollarSign, 
+  Award, 
   AlertCircle, 
   FileText,
   Filter,
@@ -24,7 +24,7 @@ import apiClient from '../../../api/apiClient';
 export default function TrackerPage() {
   const navigate = useNavigate();
   const { user } = useUser();
-  const [filterType, setFilterType] = useState<'all' | 'applications' | 'shifts' | 'escrow'>('all');
+  const [filterType, setFilterType] = useState<'all' | 'applications' | 'shifts' | 'milestones'>('all');
 
   const { data: profile } = useQuery({
     queryKey: queryKeys.workers.detail('me'),
@@ -76,10 +76,10 @@ export default function TrackerPage() {
     activities.forEach((act: any, idx: number) => {
       list.push({
         id: `act-${act.id || idx}`,
-        type: act.type?.toLowerCase().includes('escrow') ? 'escrow' : 'activity',
+        type: act.type?.toLowerCase().includes('milestone') ? 'milestone' : 'activity',
         title: act.description || act.title || 'System Milestone',
         company: 'TrustHire Protocol',
-        location: 'Verified Chain',
+        location: 'Verified System',
         date: act.createdAt || new Date().toISOString(),
         status: act.type || 'EVENT',
         wage: act.amount ? `₹${Number(act.amount).toLocaleString('en-IN')}` : undefined
@@ -95,8 +95,8 @@ export default function TrackerPage() {
     if (filterType === 'shifts') {
       return list.filter(item => item.status === 'ACCEPTED' || item.status === 'COMPLETED' || item.status === 'APPROVED');
     }
-    if (filterType === 'escrow') {
-      return list.filter(item => item.type === 'escrow' || item.status?.includes('ESCROW'));
+    if (filterType === 'milestones') {
+      return list.filter(item => item.type === 'milestone' || item.type === 'activity');
     }
     return list;
   }, [myApplications, activities, filterType]);
@@ -119,7 +119,7 @@ export default function TrackerPage() {
                 Activity & Application History
               </h1>
               <p className="text-xs text-[#717784] font-medium leading-relaxed max-w-xl">
-                Comprehensive log of your verified job applications, shift confirmations, and automated payment releases.
+                Comprehensive log of your verified job applications, shift confirmations, and milestone updates.
               </p>
             </div>
 
@@ -193,14 +193,14 @@ export default function TrackerPage() {
               Confirmed Shifts ({completedApps.length})
             </button>
             <button
-              onClick={() => setFilterType('escrow')}
+              onClick={() => setFilterType('milestones')}
               className={`px-4 py-2 rounded-full text-xs font-semibold transition-all cursor-pointer ${
-                filterType === 'escrow'
+                filterType === 'milestones'
                   ? 'bg-[#0f2f63] text-white shadow-xs'
                   : 'bg-white text-[#717784] hover:text-[#0a0a0a] border border-[#e6e8ec]'
               }`}
             >
-              Payouts
+              Milestones
             </button>
           </div>
 
@@ -263,8 +263,8 @@ export default function TrackerPage() {
                           ? 'bg-rose-50 text-rose-600 border-rose-200' 
                           : 'bg-[#e6eefc] text-[#0f2f63] border-blue-200'
                       }`}>
-                        {item.type === 'escrow' ? (
-                          <DollarSign className="w-5 h-5" />
+                        {item.type === 'milestone' ? (
+                          <Award className="w-5 h-5" />
                         ) : isAccepted ? (
                           <CheckCircle2 className="w-5 h-5" />
                         ) : isOffer ? (

@@ -24,7 +24,7 @@ export function LandingHowItWorks() {
               <span className="material-symbols-outlined text-brand-forest text-2xl">fact_check</span>
             </div>
             <h3 className="text-xl font-bold text-brand-forest mb-3">Review Verified</h3>
-            <p className="text-brand-forest/70 leading-relaxed text-sm">Choose from pre-screened, government ID-verified workers with real past performance data.</p>
+            <p className="text-brand-forest/70 leading-relaxed text-sm">Choose from pre-screened, profile-verified workers with real past performance data.</p>
           </div>
           {/* Step 3 */}
           <div className="bg-white p-8 rounded-lg relative group hover:-translate-y-2 transition-transform shadow-sm">

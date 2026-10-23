@@ -72,7 +72,7 @@ export const AdminVerificationsPage: React.FC = () => {
             Identity & Document Verifications
           </h1>
           <p className="text-xs sm:text-sm text-[#717784] mt-1 leading-relaxed">
-            Review government IDs, biometric records, and credential authenticity for verified portal access.
+            Review submitted credentials, biometric records, and profile authenticity for verified portal access.
           </p>
         </div>
       </div>

@@ -4,7 +4,7 @@ import { ShieldCheck, UserCheck, Database, Zap } from "lucide-react";
 const PROCESS_STEPS = [
   {
     title: "AI Face Match",
-    desc: "Real-time biometric verification against government IDs.",
+    desc: "Real-time biometric and photo profile authentication.",
     icon: UserCheck,
     color: "text-brand-accent",
   },

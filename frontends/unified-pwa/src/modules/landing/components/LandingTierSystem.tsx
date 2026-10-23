@@ -71,7 +71,7 @@ export function LandingTierSystem() {
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> SPECIALIST CERTIFIED
               </div>
               <div className="flex items-center gap-2 text-[10px] font-bold text-brand-forest/70">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> REPLACEMENT GUARANTEE
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> REPLACEMENT SUPPORT
               </div>
             </div>
           </div>

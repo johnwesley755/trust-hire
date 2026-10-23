@@ -95,7 +95,8 @@ export const TranslationProvider: React.FC<{ children: React.ReactNode }> = ({ c
         sourceLang: 'en'
       });
 
-      const translations = res.data?.data?.translations || res.data?.translations;
+      const raw = res.data?.data?.translations ?? res.data?.translations ?? res.data?.data ?? res.data;
+      const translations = (raw && typeof raw === 'object' && 'translations' in raw) ? (raw as any).translations : raw;
       if (translations && typeof translations === 'object') {
         const currentLangCache: Record<string, string> = {};
 
@@ -233,7 +234,8 @@ export const TranslationProvider: React.FC<{ children: React.ReactNode }> = ({ c
           sourceLang: 'en'
         });
 
-        const translations = res.data?.data?.translations || res.data?.translations;
+        const raw = res.data?.data?.translations ?? res.data?.translations ?? res.data?.data ?? res.data;
+        const translations = (raw && typeof raw === 'object' && 'translations' in raw) ? (raw as any).translations : raw;
         if (translations && typeof translations === 'object') {
           const currentLangCache: Record<string, string> = {};
           for (const [orig, trans] of Object.entries(translations)) {

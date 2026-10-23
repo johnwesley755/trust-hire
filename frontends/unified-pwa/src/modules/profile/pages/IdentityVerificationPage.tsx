@@ -88,7 +88,7 @@ export const IdentityVerificationPage = () => {
           <div className="flex items-center gap-6">
             {!isFinalStatus && (
               <span className="hidden sm:block text-[#2d4d41]/60 font-headline font-bold text-sm tracking-tight">
-                {step === 1 ? 'Step 1: Upload Government ID' : 'Step 2: Biometric Match'}
+                {step === 1 ? 'Step 1: Upload ID Document' : 'Step 2: Biometric Match'}
               </span>
             )}
             <button className="p-2 hover:bg-[#c1c8c3]/20 rounded-full transition-all text-[#2d4d41]">

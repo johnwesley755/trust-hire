@@ -34,7 +34,7 @@ export const ProfileStatsCard: React.FC<ProfileStatsCardProps> = ({ level, exper
 
         <div className="pt-4 border-t border-white/15">
           <p className="text-xs font-medium text-blue-100/80 leading-relaxed mb-4">
-            Top 2% verified workforce specialist. Eligible for direct job payouts.
+            Top verified workforce specialist. Recommended for priority job matching.
           </p>
           <div className="flex justify-between items-center bg-white/10 p-3 rounded-2xl">
             <div>

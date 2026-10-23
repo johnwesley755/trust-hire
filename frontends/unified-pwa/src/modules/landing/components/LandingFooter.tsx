@@ -17,7 +17,7 @@ export function LandingFooter() {
           </Link>
           <p className="text-white/70 text-xs leading-relaxed max-w-xs">
             © 2026 TrustHyre.<br/>
-            Safe, guaranteed hiring for verified workers and businesses across India.
+            Safe, transparent hiring for verified workers and businesses across India.
           </p>
         </div>
         
@@ -26,7 +26,7 @@ export function LandingFooter() {
           <ul className="space-y-2.5 text-white/70 text-xs">
             <li><Link className="hover:text-white transition-colors" to="/search">Find Jobs</Link></li>
             <li><Link className="hover:text-white transition-colors" to="/sign-up?role=worker">Worker Sign Up</Link></li>
-            <li><Link className="hover:text-white transition-colors" to="/terms">Payment Safety Rules</Link></li>
+            <li><Link className="hover:text-white transition-colors" to="/terms">Terms & Safety Rules</Link></li>
             <li><Link className="hover:text-white transition-colors" to="/privacy">Privacy Policy</Link></li>
           </ul>
         </div>
@@ -55,7 +55,7 @@ export function LandingFooter() {
       </div>
       
       <div className="border-t border-white/10 py-6 text-center px-8 text-white/50 text-xs font-medium">
-        <p>Building Trust, One Job at a Time · Direct Payouts & Zero Middle-Men</p>
+        <p>Building Trust, One Job at a Time · Direct Connections & Zero Middle-Men</p>
       </div>
     </footer>
   );

@@ -55,7 +55,7 @@ export function LandingNavbar() {
           </Link>
           <Link className="hover:text-[#0066FF] transition-colors flex items-center gap-1.5 cursor-pointer" to="/terms">
             <ShieldCheck className="w-4 h-4 text-emerald-600" />
-            Payment Protection
+            Terms & Safety
           </Link>
         </div>
 

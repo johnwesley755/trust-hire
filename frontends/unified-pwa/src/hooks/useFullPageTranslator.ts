@@ -1,4 +1,5 @@
 import { useEffect, useRef, useCallback } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useTranslation, type SupportedLanguage } from '../providers/TranslationContext';
 
 // HTML elements whose children should never be translated
@@ -29,6 +30,7 @@ const IGNORED_WORDS = new Set(['en', 'hi', 'ta', 'te', 'eng', 'hin', 'tam', 'tel
  */
 export const useFullPageTranslator = () => {
   const { language, batchTranslateTexts, getCachedTranslation, getStaticTranslation } = useTranslation();
+  const location = useLocation();
 
   // Stores original English text for each DOM text node: WeakMap<Node, originalEnglishText>
   const originalTextMapRef = useRef<WeakMap<Node, string>>(new WeakMap());
@@ -240,10 +242,17 @@ export const useFullPageTranslator = () => {
     [batchTranslateTexts, getCachedTranslation, isValidTextNode, restoreOriginalEnglish]
   );
 
-  // Trigger translation when language changes
+  // Trigger translation when language or route changes
   useEffect(() => {
-    translateDom(language);
-  }, [language, translateDom]);
+    if (language === 'en') {
+      restoreOriginalEnglish();
+      return;
+    }
+    const timer = setTimeout(() => {
+      translateDom(language);
+    }, 80);
+    return () => clearTimeout(timer);
+  }, [language, location.pathname, translateDom, restoreOriginalEnglish]);
 
   // Set up MutationObserver to translate new content (e.g. route changes, dialogs, newly rendered cards)
   useEffect(() => {

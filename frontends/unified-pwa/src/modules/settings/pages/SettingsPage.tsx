@@ -811,7 +811,7 @@ export const SettingsPage: React.FC = () => {
                       {!isEmployer && (
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <div>
-                            <label className="block text-xs font-bold text-slate-700 mb-1">Expected Wage (₹ / Day or Hr)</label>
+                            <label className="block text-xs font-bold text-slate-700 mb-1">Expected Rate (₹ / Day or Hr)</label>
                             <input
                               type="number"
                               value={profileForm.hourlyRate}
@@ -1115,7 +1115,7 @@ export const SettingsPage: React.FC = () => {
                     <div className="pb-4 border-b border-slate-100">
                       <h2 className="text-base font-bold text-[#0A1931]">Notification Channels & Delivery</h2>
                       <p className="text-xs text-slate-500 font-medium mt-0.5">
-                        Customize how and when you receive critical alerts regarding jobs, applications, and payouts.
+                        Customize how and when you receive critical alerts regarding jobs, applications, and messages.
                       </p>
                     </div>
 
@@ -1165,7 +1165,7 @@ export const SettingsPage: React.FC = () => {
                           </div>
                           <div>
                             <div className="flex items-center gap-2">
-                              <h3 className="text-xs font-bold text-[#0A1931]">Email Summaries & Receipts</h3>
+                              <h3 className="text-xs font-bold text-[#0A1931]">Email Summaries & Updates</h3>
                               <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
                                 emailNotifs ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-200 text-slate-600'
                               }`}>
@@ -1173,7 +1173,7 @@ export const SettingsPage: React.FC = () => {
                               </span>
                             </div>
                             <p className="text-[11px] text-slate-500 font-medium mt-0.5">
-                              Receive daily job digests, verified payment invoices, and application status summaries.
+                              Receive daily job digests, interview notifications, and application status summaries.
                             </p>
                           </div>
                         </div>
@@ -1202,7 +1202,7 @@ export const SettingsPage: React.FC = () => {
                           </div>
                           <div>
                             <div className="flex items-center gap-2">
-                              <h3 className="text-xs font-bold text-[#0A1931]">Market Wage & Hiring Intel</h3>
+                              <h3 className="text-xs font-bold text-[#0A1931]">Market Rates & Hiring Intel</h3>
                               <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
                                 marketingNotifs ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-200 text-slate-600'
                               }`}>
@@ -1210,7 +1210,7 @@ export const SettingsPage: React.FC = () => {
                               </span>
                             </div>
                             <p className="text-[11px] text-slate-500 font-medium mt-0.5">
-                              Weekly market wage reports, local employer demand trends, and feature announcements.
+                              Weekly market rate reports, local employer demand trends, and feature announcements.
                             </p>
                           </div>
                         </div>
@@ -1369,13 +1369,13 @@ export const SettingsPage: React.FC = () => {
                     <div className="pb-3 border-b border-slate-100">
                       <h3 className="text-base font-bold text-[#0A1931]">Marketplace Regional Configuration</h3>
                       <p className="text-xs text-slate-500 font-medium mt-0.5 leading-relaxed">
-                        Default currency and timezone applied to job wage rates, payment releases, and shift schedules.
+                        Default currency and timezone applied to job compensation details and shift schedules.
                       </p>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                       <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between">
-                        <span className="text-slate-500 font-medium">Settlement Currency:</span>
+                        <span className="text-slate-500 font-medium">Display Currency:</span>
                         <span className="font-bold text-[#0A1931] bg-white px-2.5 py-1 rounded-full border border-slate-200 shadow-2xs">
                           ₹ INR (Indian Rupee)
                         </span>
@@ -1392,9 +1392,9 @@ export const SettingsPage: React.FC = () => {
                   {/* Legal Terms & Data Privacy Card */}
                   <div className="bg-white rounded-[2rem] p-6 sm:p-7 border border-slate-200/90 shadow-xs space-y-4">
                     <div className="pb-3 border-b border-slate-100">
-                      <h3 className="text-base font-bold text-[#0A1931]">Compliance, Privacy & Payment Policy</h3>
+                      <h3 className="text-base font-bold text-[#0A1931]">Compliance, Privacy & Terms</h3>
                       <p className="text-xs text-slate-500 font-medium mt-0.5 leading-relaxed">
-                        TrustHyre operates under rigorous verification and milestone payment safety standards.
+                        TrustHyre operates under verified employer and candidate safety standards.
                       </p>
                     </div>
 

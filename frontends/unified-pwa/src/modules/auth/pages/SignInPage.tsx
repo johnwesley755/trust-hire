@@ -182,7 +182,7 @@ export const SignInPage = () => {
                             </h1>
                             <p className="text-xs sm:text-sm text-[#717784] mt-2 leading-relaxed">
                                 {isCandidate 
-                                    ? 'Access verified jobs, biometric shifts, and direct UPI wage settlements.' 
+                                    ? 'Access verified jobs, verified shifts, and direct employer connections.' 
                                     : 'Access your hiring pipeline, active job postings, and verified candidates.'}
                             </p>
                         </div>

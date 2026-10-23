@@ -92,7 +92,7 @@ export const FeaturedJobCard: React.FC<{ job: Job; onApply?: () => void; onClick
               <span className="text-[0.65rem] font-bold text-[#414845]">{job.schedule || '9 AM - 6 PM'}</span>
             </div>
             <div className="flex items-center gap-1">
-              <span className="material-symbols-outlined text-sm text-[#414845]">payments</span>
+              <span className="material-symbols-outlined text-sm text-[#414845]">currency_rupee</span>
               <span className="text-[0.65rem] font-bold text-[#414845]">₹{job.budget?.toLocaleString()}/mo</span>
             </div>
           </div>

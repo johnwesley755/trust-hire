@@ -238,15 +238,15 @@ export const OnboardingVisualHero: React.FC<OnboardingVisualHeroProps> = ({
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-xl bg-white/15 border border-white/20 flex items-center justify-center text-white shrink-0">
-                    <Lock className="w-4 h-4 text-emerald-400" />
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-white">Direct Attendance & Wage Escrow</p>
-                    <p className="text-[11px] text-white/70">Pay only for verified shifts worked</p>
+                    <p className="text-xs font-bold text-white">Direct Attendance & Verified Shifts</p>
+                    <p className="text-[11px] text-white/70">GPS-verified physical arrival</p>
                   </div>
                 </div>
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 shrink-0">
-                  Secured
+                  Verified
                 </span>
               </div>
             </div>

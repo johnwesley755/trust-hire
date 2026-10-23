@@ -224,8 +224,8 @@ export const SignUpPage = () => {
                             </h1>
                             <p className="text-xs sm:text-sm text-[#717784] mt-2 leading-relaxed">
                                 {isCandidate 
-                                    ? 'Get verified, discover high-paying jobs, and earn guaranteed daily payouts.' 
-                                    : 'Access India’s pre-screened technical talent pool with zero no-show guarantee.'}
+                                    ? 'Get verified, discover local jobs, and connect directly with verified employers.' 
+                                    : 'Access India’s pre-screened technical talent pool with reliable attendance commitment.'}
                             </p>
                         </div>
 

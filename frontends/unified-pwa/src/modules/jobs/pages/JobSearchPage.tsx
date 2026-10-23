@@ -439,7 +439,7 @@ export default function JobSearchPage() {
                     Upload your resume
                   </h4>
                   <p className="text-xs text-[#717784] font-medium truncate">
-                    AI-powered smart matching with verified employers and guaranteed payouts.
+                    AI-powered smart matching with verified local employers.
                   </p>
                 </div>
               </div>

@@ -127,7 +127,7 @@ export const AuthVisualHero: React.FC<AuthVisualHeroProps> = ({ role, className 
           </div>
         </motion.div>
 
-        {/* Card 2: Protected Payouts */}
+        {/* Card 2: Direct Connection */}
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
@@ -137,14 +137,14 @@ export const AuthVisualHero: React.FC<AuthVisualHeroProps> = ({ role, className 
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-xl bg-white/15 border border-white/20 flex items-center justify-center text-white shrink-0">
-                {isCandidate ? <Zap className="w-4 h-4 text-emerald-400" /> : <Lock className="w-4 h-4 text-emerald-400" />}
+                <Zap className="w-4 h-4 text-emerald-400" />
               </div>
               <p className="text-sm font-medium text-white">
-                {isCandidate ? 'Instant UPI Wage Payouts' : 'Direct Payment Protection'}
+                {isCandidate ? 'Direct Job Applications' : 'Verified Candidate Matching'}
               </p>
             </div>
             <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 shrink-0">
-              Instant
+              Direct
             </span>
           </div>
         </motion.div>
@@ -154,9 +154,9 @@ export const AuthVisualHero: React.FC<AuthVisualHeroProps> = ({ role, className 
       <div className="relative z-10 pt-2 pb-2">
         <h2 className="text-2xl sm:text-3xl font-medium text-white leading-snug">
           {isCandidate ? (
-            <>Work with pride. <br />Get paid daily.</>
+            <>Work with pride. <br />Direct hiring.</>
           ) : (
-            <>Hire with trust. <br />Zero no-shows.</>
+            <>Hire with trust. <br />Zero middle-men.</>
           )}
         </h2>
       </div>

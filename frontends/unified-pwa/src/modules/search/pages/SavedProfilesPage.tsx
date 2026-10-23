@@ -254,7 +254,7 @@ export const SavedProfilesPage: React.FC = () => {
                           </span>
                           <span className="inline-flex items-center gap-1.5 text-[#0A1931]">
                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                            {t("Payment Protected", "Payment Protected")}
+                            {t("Profile Verified", "Profile Verified")}
                           </span>
                         </div>
 

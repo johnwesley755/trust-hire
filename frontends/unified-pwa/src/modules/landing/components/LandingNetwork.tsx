@@ -4,7 +4,7 @@ import { CheckCircle2, Globe2 } from "lucide-react";
 const VERIFICATION_STEPS = [
   "Biometric Identity Verification",
   "Blockchain Work History Ledger",
-  "Government-Record Criminal Checks",
+  "Comprehensive Background Checks",
   "NQF-Aligned Skill Validation",
 ];
 

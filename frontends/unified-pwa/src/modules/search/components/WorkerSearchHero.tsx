@@ -46,8 +46,8 @@ export const WorkerSearchHero: React.FC<WorkerSearchHeroProps> = ({
   const employerName = user?.companyName || user?.firstName || 'Partner';
   const resolvedTitle = title || (user ? `${t("Welcome back,", "Welcome back,")} ${employerName}! 👋` : t("Verified Specialist Directory", "Verified Specialist Directory"));
   const resolvedSubtitle = subtitle || (user 
-    ? t("Explore pre-screened specialists ready for immediate dispatch with direct payment protections.", "Explore pre-screened specialists ready for immediate dispatch with direct payment protections.")
-    : t("Browse pre-evaluated candidates with biometric attendance records, practical skill validation, and guaranteed payment protection.", "Browse pre-evaluated candidates with biometric attendance records, practical skill validation, and guaranteed payment protection."));
+    ? t("Explore pre-screened specialists ready for immediate dispatch with verified skill credentials.", "Explore pre-screened specialists ready for immediate dispatch with verified skill credentials.")
+    : t("Browse pre-evaluated candidates with verified attendance records, practical skill validation, and direct hiring.", "Browse pre-evaluated candidates with verified attendance records, practical skill validation, and direct hiring."));
   const [internalLocating, setInternalLocating] = useState(false);
   const [locationNotice, setLocationNotice] = useState<string | null>(null);
 
