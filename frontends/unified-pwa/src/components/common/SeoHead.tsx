@@ -9,8 +9,8 @@ export interface SeoHeadProps {
   jsonLd?: Record<string, any>;
 }
 
-const DEFAULT_TITLE = 'TrustHyre | Trusted talent. Better hiring.';
-const DEFAULT_DESCRIPTION = "India's premier verified skilled workforce and talent hiring network with skill verification and direct employer matching.";
+const DEFAULT_TITLE = 'TrustHyre | Hire Verified Skilled Workers & Blue-Collar Talent in India';
+const DEFAULT_DESCRIPTION = "India's premier verified skilled workforce platform. Hire certified electricians, commercial chefs, warehouse logistics crew, plumbers, and technicians with photo check-in verification and direct employer matching.";
 const BASE_DOMAIN = 'https://trusthyre.com';
 
 export const SeoHead: React.FC<SeoHeadProps> = ({
