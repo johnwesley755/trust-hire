@@ -138,17 +138,19 @@ export class LeadController {
 
   static async runAutoDiscovery(c: Context) {
     try {
-      const { LeadCrawlerService } = await import('../services/leadCrawlerService');
-      const results = await LeadCrawlerService.runAutoDiscovery();
+      const { ScraperServiceClient } = await import('../services/scraperServiceClient');
+      const results = await ScraperServiceClient.triggerScan();
       return c.json({
         success: true,
-        sourcesScanned: results.sourceBreakdown?.length || results.totalScanned,
-        durationMs: results.session?.totalDurationMs,
-        ...results
+        sourcesScanned: results.sources_scanned?.length || 0,
+        ...results,
       });
     } catch (error: any) {
       console.error('Error running auto-discovery:', error);
-      return c.json({ success: false, error: error.message || 'Failed to run discovery scan' }, 500);
+      return c.json({
+        success: false,
+        error: error.message || 'Scraper service is unreachable. Please verify Python service is running.',
+      }, 503);
     }
   }
 
@@ -159,33 +161,41 @@ export class LeadController {
         return c.json({ success: false, error: 'Target URL is required' }, 400);
       }
 
-      const { LeadCrawlerService } = await import('../services/leadCrawlerService');
-      const crawled = await LeadCrawlerService.crawlUrl(url);
+      // Legacy direct crawler in Node.js backend has been completely removed for security.
+      // Ingestion is now dispatched through the Python Blue-Collar microservice.
+      const { ScraperServiceClient } = await import('../services/scraperServiceClient');
+      const results = await ScraperServiceClient.triggerScan({ query: url });
       return c.json({
         success: true,
-        data: crawled.lead,
-        lead: crawled.lead, // For backwards compatibility
-        logs: crawled.logs,
-        session: crawled.session
+        message: 'Job discovery dispatched to Python scraping microservice',
+        session: { scanId: results.id, status: results.status },
       });
     } catch (error: any) {
       console.error('Error crawling URL:', error);
       return c.json({
         success: false,
-        error: error.message || 'Failed to scrape target URL',
-        message: error.message || 'Failed to scrape target URL'
-      }, 400);
+        error: error.message || 'Failed to dispatch URL to scraper service',
+        message: error.message || 'Failed to dispatch URL to scraper service'
+      }, 503);
     }
   }
 
   static async getSources(c: Context) {
     try {
-      const { SourceAdapterRegistry } = await import('../services/discovery/sourceAdapterRegistry');
-      const sources = SourceAdapterRegistry.getSourceList();
+      const { ScraperServiceClient } = await import('../services/scraperServiceClient');
+      const rawSources = await ScraperServiceClient.getSources();
+      const sources = rawSources.map((s) => ({
+        ...s,
+        id: s.id || s.source_id,
+        type: s.is_restricted ? 'RESTRICTED_PARTNER' : 'DIRECT_FEED',
+        active: s.status === 'ACTIVE',
+        complianceNote: s.compliance_note,
+        lastScan: s.last_checked_at,
+      }));
       return c.json({ success: true, data: sources, sources });
     } catch (error: any) {
       console.error('Error fetching sources:', error);
-      return c.json({ success: false, error: error.message || 'Failed to fetch sources' }, 500);
+      return c.json({ success: true, data: [], sources: [] });
     }
   }
 }

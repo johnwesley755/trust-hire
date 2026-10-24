@@ -327,14 +327,14 @@ export const createAdminUser = async (c: Context) => {
 export const syncExternalJobs = async (c: Context) => {
   try {
     const body = await c.req.json().catch(() => ({}));
-    const { JobAggregatorService } = await import('../services/jobAggregatorService');
-    const result = await JobAggregatorService.syncFreshJobs({
+    const { ScraperServiceClient } = await import('../services/scraperServiceClient');
+    const result = await ScraperServiceClient.triggerScan({
       query: body.query,
       city: body.city,
       category: body.category,
-      limit: Number(body.limit) || 20,
+      limit: Number(body.limit) || 25,
     });
-    return c.json(ApiResponse.ok("External jobs synchronized successfully", result));
+    return c.json(ApiResponse.ok("External jobs synchronized successfully via Python Scraper Service", result));
   } catch (err: any) {
     console.error("syncExternalJobs error:", err);
     return c.json(ApiResponse.error(err.message), 500 as any);

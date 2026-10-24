@@ -1,0 +1,277 @@
+/**
+ * ScraperServiceClient
+ * Secure proxy client connecting Node.js backend to the Python FastAPI Blue-Collar Scraping Microservice.
+ * All HTTP crawling and scraping is exclusively performed in the isolated Python service.
+ */
+
+export interface SourceHealth {
+  source_id: string;
+  id?: string;
+  name: string;
+  status: 'ACTIVE' | 'RESTRICTED' | 'DOWN';
+  is_restricted: boolean;
+  compliance_note: string;
+  last_checked_at: string;
+  error_message?: string;
+}
+
+export interface ScanResult {
+  id: string;
+  status: 'QUEUED' | 'RUNNING' | 'COMPLETED' | 'FAILED' | 'CANCELLED';
+  total_found: number;
+  valid_count: number;
+  duplicate_count: number;
+  rejected_count: number;
+  error_count: number;
+  sources_scanned: string[];
+  source_stats: Record<string, any>;
+  started_at: string;
+  completed_at?: string;
+}
+
+export interface ScraperJobRecord {
+  id: string;
+  title: string;
+  employer_name?: string;
+  city?: string;
+  location?: string;
+  budget?: number;
+  status: string;
+  is_external: boolean;
+  source_name?: string;
+  source_url?: string;
+  alternate_sources?: any[];
+  date_posted?: string;
+  last_verified_at?: string;
+  created_at?: string;
+}
+
+export class ScraperServiceClient {
+  private static get baseUrl(): string {
+    return (process.env.SCRAPER_SERVICE_URL || 'http://localhost:5000').replace(/\/+$/, '');
+  }
+
+  private static get internalSecret(): string {
+    return process.env.INTERNAL_SERVICE_SECRET || 'trusthyre-secure-internal-scraper-key-2026';
+  }
+
+  private static get headers(): HeadersInit {
+    return {
+      'Content-Type': 'application/json',
+      'X-Internal-Secret': this.internalSecret,
+      'User-Agent': 'TrustHyre-NodeBackend/1.0',
+    };
+  }
+
+  /**
+   * Helper to execute a fetch with fallback across port 5000 and port 8000 if ECONNREFUSED
+   */
+  private static async safeFetch(path: string, options: RequestInit = {}): Promise<Response> {
+    const urls = [
+      this.baseUrl,
+      this.baseUrl.includes('5000') ? 'http://localhost:8000' : 'http://localhost:5000',
+      this.baseUrl.includes('5000') ? 'http://127.0.0.1:8000' : 'http://127.0.0.1:5000',
+    ];
+
+    let lastError: any = null;
+    for (const host of urls) {
+      try {
+        const res = await fetch(`${host}${path}`, {
+          ...options,
+          headers: {
+            ...this.headers,
+            ...(options.headers || {}),
+          },
+        });
+        return res;
+      } catch (err: any) {
+        lastError = err;
+      }
+    }
+    throw lastError || new Error(`Could not connect to Python Scraper Service on any local port`);
+  }
+
+  /**
+   * Check health and connectivity of the Python Scraping Microservice.
+   */
+  static async healthCheck(): Promise<{ status: string; service: string; database?: string }> {
+    try {
+      const res = await this.safeFetch('/api/v1/health', {
+        signal: AbortSignal.timeout(4000),
+      });
+      if (!res.ok) {
+        throw new Error(`Microservice health check returned HTTP ${res.status}`);
+      }
+      return (await res.json()) as any;
+    } catch (err: any) {
+      return {
+        status: 'DOWN',
+        service: 'TrustHyre Blue-Collar Scraping Microservice',
+        database: 'UNREACHABLE',
+      };
+    }
+  }
+
+  /**
+   * Retrieves list of registered job sources and their current health/compliance status.
+   */
+  static async getSources(): Promise<SourceHealth[]> {
+    try {
+      const res = await this.safeFetch('/api/v1/sources', {
+        signal: AbortSignal.timeout(6000),
+      });
+
+      if (!res.ok) {
+        throw new Error(`Failed to fetch scraper sources: HTTP ${res.status}`);
+      }
+
+      return (await res.json()) as SourceHealth[];
+    } catch (err: any) {
+      console.warn(`[ScraperServiceClient] Could not connect to Python microservice: ${err.message}. Returning default registry.`);
+      return [
+        {
+          source_id: 'lever_ats',
+          id: 'lever_ats',
+          name: 'Direct Employer ATS Feeds (Lever - Porter/Meesho)',
+          status: 'DOWN',
+          is_restricted: false,
+          compliance_note: 'Compliant direct ingestion via public JSON candidate feeds published by employers.',
+          last_checked_at: new Date().toISOString(),
+          error_message: 'Python microservice is starting or offline',
+        },
+        {
+          source_id: 'greenhouse_ats',
+          id: 'greenhouse_ats',
+          name: 'Greenhouse Logistics Employer Feeds (Shadowfax)',
+          status: 'DOWN',
+          is_restricted: false,
+          compliance_note: 'Direct compliant ingestion via Greenhouse Board public API feeds.',
+          last_checked_at: new Date().toISOString(),
+          error_message: 'Python microservice is starting or offline',
+        },
+        {
+          source_id: 'workindia',
+          id: 'workindia',
+          name: 'WorkIndia Verified Portal Gateway',
+          status: 'RESTRICTED',
+          is_restricted: true,
+          compliance_note: 'Direct unauthenticated scraping is blocked by WorkIndia Cloudflare Bot Management.',
+          last_checked_at: new Date().toISOString(),
+          error_message: 'Requires licensed Partner API credentials.',
+        },
+        {
+          source_id: 'apna',
+          id: 'apna',
+          name: 'Apna.co Verified Gateway',
+          status: 'RESTRICTED',
+          is_restricted: true,
+          compliance_note: 'Direct web scraping of Apna listings is prohibited by ToS and Cloudflare WAF.',
+          last_checked_at: new Date().toISOString(),
+          error_message: 'Requires official Enterprise API integration.',
+        },
+        {
+          source_id: 'naukri',
+          id: 'naukri',
+          name: 'Naukri.com Enterprise Gateway',
+          status: 'RESTRICTED',
+          is_restricted: true,
+          compliance_note: 'Direct unauthenticated crawling is protected by Akamai Bot Manager and restricted by ToS.',
+          last_checked_at: new Date().toISOString(),
+          error_message: 'Requires official Naukri RMS credentials.',
+        },
+      ];
+    }
+  }
+
+  /**
+   * Triggers a compliant blue-collar discovery scan in the Python microservice.
+   */
+  static async triggerScan(options: {
+    query?: string;
+    city?: string;
+    category?: string;
+    sources?: string[];
+    limit?: number;
+  } = {}): Promise<ScanResult> {
+    const res = await this.safeFetch('/api/v1/scans', {
+      method: 'POST',
+      body: JSON.stringify({
+        query: options.query || null,
+        city: options.city || 'Chennai',
+        category: options.category || null,
+        sources: options.sources || null,
+        limit: Math.min(options.limit || 25, 100),
+      }),
+      signal: AbortSignal.timeout(30000),
+    });
+
+    if (!res.ok) {
+      const errBody = await res.text().catch(() => '');
+      throw new Error(`Failed to trigger scraper scan (HTTP ${res.status}): ${errBody}`);
+    }
+
+    return (await res.json()) as ScanResult;
+  }
+
+  /**
+   * Fetches status and metrics of a scan session.
+   */
+  static async getScanStatus(scanId: string): Promise<ScanResult> {
+    const res = await this.safeFetch(`/api/v1/scans/${encodeURIComponent(scanId)}`, {
+      signal: AbortSignal.timeout(5000),
+    });
+
+    if (!res.ok) {
+      throw new Error(`Failed to fetch scan status: HTTP ${res.status}`);
+    }
+
+    return (await res.json()) as ScanResult;
+  }
+
+  /**
+   * Lists jobs discovered or imported with filtering.
+   */
+  static async listJobs(params: {
+    page?: number;
+    limit?: number;
+    status?: string;
+    city?: string;
+  } = {}): Promise<{ total: number; page: number; limit: number; items: ScraperJobRecord[] }> {
+    const searchParams = new URLSearchParams();
+    if (params.page) searchParams.set('page', String(params.page));
+    if (params.limit) searchParams.set('limit', String(params.limit));
+    if (params.status) searchParams.set('status', params.status);
+    if (params.city) searchParams.set('city', params.city);
+
+    const res = await this.safeFetch(`/api/v1/jobs?${searchParams.toString()}`, {
+      signal: AbortSignal.timeout(8000),
+    });
+
+    if (!res.ok) {
+      throw new Error(`Failed to list scraper jobs: HTTP ${res.status}`);
+    }
+
+    return (await res.json()) as any;
+  }
+
+  /**
+   * Moderate job status in the Python scraper repository (e.g. approve, reject, expire).
+   */
+  static async moderateJob(
+    jobId: string,
+    action: 'approve' | 'reject' | 'expire',
+    reason: string = 'Admin moderation'
+  ): Promise<ScraperJobRecord> {
+    const res = await this.safeFetch(`/api/v1/jobs/${encodeURIComponent(jobId)}/${action}`, {
+      method: 'POST',
+      body: JSON.stringify({ reason }),
+      signal: AbortSignal.timeout(8000),
+    });
+
+    if (!res.ok) {
+      throw new Error(`Failed to ${action} job: HTTP ${res.status}`);
+    }
+
+    return (await res.json()) as ScraperJobRecord;
+  }
+}
