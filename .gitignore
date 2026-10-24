@@ -56,10 +56,11 @@ target/
 Thumbs.db
 
 # =========================
-# IDE
+# IDE & Agents
 # =========================
 .vscode/
 .idea/
+.agents/
 *.iml
 static-images/
 # =========================
