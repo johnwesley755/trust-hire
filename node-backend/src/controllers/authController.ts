@@ -12,17 +12,28 @@ import { SearchAlertService } from '../services/searchAlertService';
 
 export const register = async (c: Context) => {
   try {
-    const { email, password, firstName, lastName, role, phoneNumber } = (await c.req.json());
+    const { email, password, firstName, lastName, role, phoneNumber, otp } = (await c.req.json());
 
     // Security fix 1.1: Restrict public role to WORKER or EMPLOYER only (block ADMIN privilege escalation)
     const assignedRole = role === 'EMPLOYER' ? 'EMPLOYER' : 'WORKER';
 
     const existing = await prisma.user_metadata.findUnique({ where: { email } });
-    if (existing) {
+    if (existing && existing.password_hash) {
       if (existing.role && existing.role !== assignedRole) {
         return c.json(ApiResponse.error(`This email is already registered as a ${existing.role} account. A ${existing.role.toLowerCase()} account cannot be registered as an ${assignedRole.toLowerCase()}.`), 400 as any);
       }
-      return c.json(ApiResponse.error("Email already in use"), 400 as any);
+      return c.json(ApiResponse.error("Email already in use. Please sign in instead."), 400 as any);
+    }
+
+    // Verify Email OTP if provided
+    if (otp) {
+      const cleanOtp = String(otp).trim();
+      if (!existing || !existing.reset_token || existing.reset_token !== cleanOtp) {
+        return c.json(ApiResponse.error("Invalid verification code. Please check your email and try again."), 400 as any);
+      }
+      if (!existing.reset_token_expiry || new Date(existing.reset_token_expiry) < new Date()) {
+        return c.json(ApiResponse.error("Verification code has expired. Please request a new code."), 400 as any);
+      }
     }
 
     const cleanPhone = phoneNumber ? String(phoneNumber).trim().replace(/\D/g, '').slice(-10) : null;
@@ -31,9 +42,12 @@ export const register = async (c: Context) => {
         return c.json(ApiResponse.error("Phone number must be a valid 10-digit mobile number."), 400 as any);
       }
       const existingPhone = await prisma.user_metadata.findFirst({
-        where: { phone_number: cleanPhone }
+        where: { 
+          phone_number: cleanPhone,
+          password_hash: { not: null }
+        }
       });
-      if (existingPhone) {
+      if (existingPhone && (!existing || existingPhone.id !== existing.id)) {
         return c.json(ApiResponse.error("This phone number is already registered with another account. Please use a different phone number."), 400 as any);
       }
     }
@@ -47,21 +61,72 @@ export const register = async (c: Context) => {
 
     const passwordHash = password ? await bcrypt.hash(password, 10) : null;
 
-    const user = await prisma.user_metadata.create({
-      data: {
-        id: uuidv4(),
-        email,
-        password_hash: passwordHash,
-        first_name: firstName,
-        last_name: lastName,
-        role: assignedRole,
-        phone_number: cleanPhone || null,
-        created_at: new Date(),
-        updated_at: new Date(),
-        email_verified: false,
-        onboarded: false
-      }
-    });
+    let user: any;
+    if (existing) {
+      user = await prisma.user_metadata.update({
+        where: { id: existing.id },
+        data: {
+          password_hash: passwordHash,
+          first_name: firstName,
+          last_name: lastName,
+          role: assignedRole,
+          phone_number: cleanPhone || null,
+          email_verified: true,
+          reset_token: null,
+          reset_token_expiry: null,
+          updated_at: new Date()
+        }
+      });
+    } else {
+      user = await prisma.user_metadata.create({
+        data: {
+          id: uuidv4(),
+          email,
+          password_hash: passwordHash,
+          first_name: firstName,
+          last_name: lastName,
+          role: assignedRole,
+          phone_number: cleanPhone || null,
+          created_at: new Date(),
+          updated_at: new Date(),
+          email_verified: !!otp,
+          onboarded: false
+        }
+      });
+    }
+
+    // Auto-create initial profile record so downstream queries resolve cleanly
+    if (assignedRole === 'WORKER') {
+      await prisma.worker_profiles.upsert({
+        where: { user_id: user.id },
+        update: {
+          full_name: `${firstName || 'Worker'} ${lastName || ''}`.trim()
+        },
+        create: {
+          user_id: user.id,
+          full_name: `${firstName || 'Worker'} ${lastName || ''}`.trim(),
+          level: 'L1',
+          level_number: 1,
+          level_score: 100,
+          experience_years: 0,
+          created_at: new Date(),
+          updated_at: new Date(),
+        }
+      }).catch((e: any) => console.warn("Worker profile initial sync:", e.message));
+    } else if (assignedRole === 'EMPLOYER') {
+      await prisma.employer_profiles.upsert({
+        where: { user_id: user.id },
+        update: {
+          company_name: `${firstName || 'Enterprise'}`.trim()
+        },
+        create: {
+          user_id: user.id,
+          company_name: `${firstName || 'Enterprise'}`.trim(),
+          created_at: new Date(),
+          updated_at: new Date(),
+        }
+      }).catch((e: any) => console.warn("Employer profile initial sync:", e.message));
+    }
 
     const token = jwt.sign({ sub: user.id, role: user.role }, process.env.JWT_SECRET as string, { expiresIn: '30d' });
 
@@ -120,6 +185,11 @@ export const sendOtp = async (c: Context) => {
     const targetRole = role === 'WORKER' ? 'WORKER' : 'EMPLOYER';
     let user = await prisma.user_metadata.findUnique({ where: { email } });
 
+    // Reject if user is already registered with an active password
+    if (user && user.password_hash) {
+      return c.json(ApiResponse.error("This email is already registered. Please sign in instead."), 400 as any);
+    }
+
     // Mutually exclusive role validation
     if (user && user.role && user.role !== targetRole) {
       return c.json(ApiResponse.error(`This email is registered as a ${user.role} account. A ${user.role.toLowerCase()} account cannot sign in or register as an ${targetRole.toLowerCase()}.`), 400 as any);
@@ -128,11 +198,13 @@ export const sendOtp = async (c: Context) => {
     const otp = crypto.randomInt(100000, 1000000).toString();
     const expiry = new Date(Date.now() + 15 * 60 * 1000);
 
+    console.log(`\n🔑 [OTP:GENERATED] Target: ${email} | Role: ${targetRole} | Code: ${otp} | Expires in 15 mins`);
+
     // Defect fix 1.2: Server-side OTP Persistence with 15m expiration
     if (user) {
       await prisma.user_metadata.update({
         where: { id: user.id },
-        data: { reset_token: otp, reset_token_expiry: expiry }
+        data: { reset_token: otp, reset_token_expiry: expiry, role: targetRole }
       });
     } else {
       user = await prisma.user_metadata.create({
@@ -416,16 +488,18 @@ export const oauthSync = async (c: Context) => {
 
       if (!verifiedEmail) {
         try {
-          const fbKey = process.env.FIREBASE_API_KEY || 'AIzaSyC4gevbnB8eDxk5nskKjf5Nepr_9tVxThE';
-          const fbRes = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${fbKey}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ idToken })
-          });
-          if (fbRes.ok) {
-            const fbData = await fbRes.json() as any;
-            if (fbData.users?.[0]?.email) {
-              verifiedEmail = fbData.users[0].email.toLowerCase().trim();
+          const fbKey = process.env.FIREBASE_API_KEY;
+          if (fbKey) {
+            const fbRes = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${fbKey}`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ idToken })
+            });
+            if (fbRes.ok) {
+              const fbData = await fbRes.json() as any;
+              if (fbData.users?.[0]?.email) {
+                verifiedEmail = fbData.users[0].email.toLowerCase().trim();
+              }
             }
           }
         } catch (e) {

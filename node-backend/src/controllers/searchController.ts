@@ -90,18 +90,24 @@ export const searchJobs = async (c: Context) => {
     });
 
     const jobIds = jobs.map(j => j.id);
+    const isValidUuid = (val: any): boolean =>
+      typeof val === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(val);
+
     const employerIds = jobs.map(j => j.employer_id).filter(Boolean);
+    const validEmployerIds = employerIds.filter(isValidUuid) as string[];
 
     const [searchIndices, employerProfiles] = await Promise.all([
       prisma.job_search_index.findMany({ where: { job_id: { in: jobIds } } }),
-      prisma.employer_profiles.findMany({
-        where: {
-          OR: [
-            { id: { in: employerIds } },
-            { user_id: { in: employerIds } }
-          ]
-        }
-      })
+      validEmployerIds.length > 0
+        ? prisma.employer_profiles.findMany({
+            where: {
+              OR: [
+                { id: { in: validEmployerIds } },
+                { user_id: { in: validEmployerIds } }
+              ]
+            }
+          })
+        : Promise.resolve([])
     ]);
 
     const indexByJobId = new Map(searchIndices.map(si => [si.job_id, si]));

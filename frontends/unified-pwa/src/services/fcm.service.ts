@@ -71,11 +71,21 @@ export const fcmService = {
       }
       console.log('✅ [FCM-CLIENT:STEP-3:MESSAGING-INIT] Firebase Messaging instance acquired successfully.');
 
-      // 3. Ensure background service worker is registered
+      // 3. Ensure background service worker is registered with dynamic env credentials
       let swRegistration: ServiceWorkerRegistration | undefined;
-      console.log('👷 [FCM-CLIENT:STEP-4:SERVICE-WORKER] Registering /firebase-messaging-sw.js...');
+      const swParams = new URLSearchParams({
+        apiKey: import.meta.env.VITE_FIREBASE_API_KEY || '',
+        authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || '',
+        projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || '',
+        storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || '',
+        messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '',
+        appId: import.meta.env.VITE_FIREBASE_APP_ID || ''
+      });
+      const swUrl = `/firebase-messaging-sw.js?${swParams.toString()}`;
+
+      console.log('👷 [FCM-CLIENT:STEP-4:SERVICE-WORKER] Registering /firebase-messaging-sw.js with dynamic env parameters...');
       try {
-        swRegistration = await navigator.serviceWorker.register('/firebase-messaging-sw.js', { scope: '/' });
+        swRegistration = await navigator.serviceWorker.register(swUrl, { scope: '/' });
         console.log(`✅ [FCM-CLIENT:STEP-4:SERVICE-WORKER] Registered successfully. Scope: "${swRegistration.scope}" | Active: ${Boolean(swRegistration.active)}`);
       } catch (swErr: any) {
         console.warn('⚠️ [FCM-CLIENT:STEP-4:SERVICE-WORKER] Dedicated SW register threw, falling back to navigator.serviceWorker.ready:', swErr.message);

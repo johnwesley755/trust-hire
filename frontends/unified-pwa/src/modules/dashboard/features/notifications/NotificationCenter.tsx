@@ -103,7 +103,7 @@ export const NotificationCenter = () => {
         if (targetLink) {
             // Map legacy dashboard employer links to canonical /jobs routes
             if (targetLink.includes('/dashboard/employer/jobs')) {
-                const match = targetLink.match(/\/dashboard\/employer\/jobs\/([^\/]+)/);
+                const match = targetLink.match(/\/dashboard\/employer\/jobs\/([^/]+)/);
                 if (match && match[1] && match[1] !== 'applicants') {
                     targetLink = `/jobs/${match[1]}/applicants`;
                 } else {

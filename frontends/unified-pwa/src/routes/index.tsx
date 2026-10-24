@@ -11,7 +11,6 @@ import JobSearchPage from '../modules/jobs/pages/JobSearchPage';
 import JobDetailPage from '../modules/jobs/pages/JobDetailPage';
 import AppliedJobsPage from '../modules/jobs/pages/AppliedJobsPage';
 import { SavedJobsPage } from '../modules/jobs/pages/SavedJobsPage';
-import { SkillTestsPage } from '../modules/profile/pages/SkillTestsPage';
 import { LevelDetailsPage } from '../modules/profile/pages/LevelDetailsPage';
 import { IdentityVerificationPage } from '../modules/profile/pages/IdentityVerificationPage';
 import { SignInPage } from '../modules/auth/pages/SignInPage';
@@ -80,6 +79,22 @@ export const router = createBrowserRouter([
       },
       {
         path: '/onboarding',
+        element: (
+          <ProtectedRoute>
+            <OnboardingPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/onboarding/worker',
+        element: (
+          <ProtectedRoute>
+            <OnboardingPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/onboarding/employer',
         element: (
           <ProtectedRoute>
             <OnboardingPage />

@@ -206,7 +206,7 @@ export const WorkerSearchPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           
           {/* DESKTOP LEFT COLUMN: Talent Filter Sidebar (Hidden on mobile) */}
-          <div className="hidden lg:block lg:col-span-3 bg-white rounded-[1.5rem] p-5 sm:p-6 border border-slate-200/80 shadow-xs space-y-6 lg:sticky lg:top-4 lg:self-start lg:max-h-[calc(100vh-2rem)] lg:overflow-y-auto">
+          <div className="hidden lg:block lg:col-span-3 bg-white rounded-[1.5rem] p-5 sm:p-6 border border-slate-200/80 shadow-xs space-y-6 lg:sticky lg:top-20 lg:self-start lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto no-scrollbar">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2">
                 <SlidersHorizontal className="w-4 h-4 text-[#0f2f63]" />
@@ -517,7 +517,7 @@ export const WorkerSearchPage = () => {
           </div>
 
           {/* RIGHT COLUMN: Direct Hire & Verification Standard */}
-          <div className="lg:col-span-3 space-y-6 lg:sticky lg:top-4 lg:self-start lg:max-h-[calc(100vh-2rem)] lg:overflow-y-auto">
+          <div className="lg:col-span-3 space-y-6 lg:sticky lg:top-20 lg:self-start lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto no-scrollbar">
             
             {/* Quick Post Job Card in Navy Aesthetic */}
             <div className="relative overflow-hidden rounded-[1.5rem] bg-[#0f2f63] text-white p-5 sm:p-6 space-y-4 shadow-lg border border-white/10">

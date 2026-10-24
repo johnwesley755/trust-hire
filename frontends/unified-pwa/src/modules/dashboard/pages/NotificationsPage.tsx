@@ -3,18 +3,15 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 import { 
-  Bell, 
   BellOff, 
   CheckCheck, 
   Trash2, 
   RefreshCw, 
-  CheckCircle2, 
   Briefcase, 
   Award, 
   ShieldCheck, 
   Info, 
   ChevronRight,
-  ExternalLink,
   ArrowLeft,
   Settings
 } from 'lucide-react';
@@ -82,7 +79,7 @@ export const NotificationsPage: React.FC = () => {
     if (targetLink && targetLink !== '/notifications') {
       // Map legacy or deep-linked dashboard employer paths to canonical active jobs routes
       if (targetLink.includes('/dashboard/employer/jobs')) {
-        const match = targetLink.match(/\/dashboard\/employer\/jobs\/([^\/]+)/);
+        const match = targetLink.match(/\/dashboard\/employer\/jobs\/([^/]+)/);
         if (match && match[1] && match[1] !== 'applicants') {
           targetLink = `/jobs/${match[1]}/applicants`;
         } else {

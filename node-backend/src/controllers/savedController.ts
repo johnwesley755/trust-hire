@@ -18,9 +18,14 @@ export const getSavedJobs = async (c: Context) => {
     });
 
     // Extract employer IDs to fetch employer profiles
+    const isValidUuid = (val: any): boolean =>
+      typeof val === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(val);
+
     const employerIds = Array.from(new Set(savedRecords.map((r: any) => r.jobs?.employer_id).filter(Boolean)));
-    const employerProfiles = employerIds.length > 0 ? await prisma.employer_profiles.findMany({
-      where: { user_id: { in: employerIds as string[] } }
+    const validEmployerIds = employerIds.filter(isValidUuid) as string[];
+
+    const employerProfiles = validEmployerIds.length > 0 ? await prisma.employer_profiles.findMany({
+      where: { user_id: { in: validEmployerIds } }
     }) : [];
 
     const employerMap = new Map(employerProfiles.map((p: any) => [p.user_id, p]));

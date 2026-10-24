@@ -29,6 +29,7 @@ import savedRoutes from './routes/savedRoutes';
 import adminRoutes from './routes/adminRoutes';
 import searchAlertRoutes from './routes/searchAlertRoutes';
 import { leadRouter } from './routes/leadRoutes';
+import metadataRoutes from './routes/metadataRoutes';
 import { requestContextStorage, RequestScope } from './config/prisma';
 
 export type AppContext = {
@@ -144,6 +145,7 @@ app.route('/api/verification', verificationRoutes);
 app.route('/api/saved', savedRoutes);
 app.route('/api/admin/leads', leadRouter);
 app.route('/api/admin', adminRoutes);
+app.route('/api/metadata', metadataRoutes);
 
 app.get('/api/health', (c) => {
   return c.json({ status: 'UP', runtime: 'Hono' });

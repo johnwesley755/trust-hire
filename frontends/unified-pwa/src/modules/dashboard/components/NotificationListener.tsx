@@ -58,7 +58,7 @@ export const NotificationListener = () => {
           onClick: () => {
             let targetLink = link || '/notifications';
             if (targetLink.includes('/dashboard/employer/jobs')) {
-              const match = targetLink.match(/\/dashboard\/employer\/jobs\/([^\/]+)/);
+              const match = targetLink.match(/\/dashboard\/employer\/jobs\/([^/]+)/);
               if (match && match[1] && match[1] !== 'applicants') {
                 targetLink = `/jobs/${match[1]}/applicants`;
               } else {

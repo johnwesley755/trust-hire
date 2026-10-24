@@ -11,7 +11,7 @@ export default function AppLayout() {
       </AutoTranslate>
       
       {/* Full Width Main App Content */}
-      <main className="flex-1 w-full relative overflow-x-hidden">
+      <main className="flex-1 w-full relative overflow-x-clip">
         <AutoTranslate>
           <Outlet />
         </AutoTranslate>

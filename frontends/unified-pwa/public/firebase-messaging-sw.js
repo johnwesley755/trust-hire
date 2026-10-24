@@ -3,54 +3,69 @@
 importScripts('https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging-compat.js');
 
-// Initialize Firebase App in Service Worker context
-firebase.initializeApp({
-  apiKey: "AIzaSyC4gevbnB8eDxk5nskKjf5Nepr_9tVxThE",
-  authDomain: "trust-hire-6edba.firebaseapp.com",
-  projectId: "trust-hire-6edba",
-  storageBucket: "trust-hire-6edba.firebasestorage.app",
-  messagingSenderId: "824793842854",
-  appId: "1:824793842854:web:c892195f74ebb3ae43e067"
-});
+// Dynamically extract Firebase configuration passed via Service Worker registration URL parameters
+const urlParams = new URL(self.location.href).searchParams;
+const firebaseConfig = {
+  apiKey: urlParams.get('apiKey'),
+  authDomain: urlParams.get('authDomain'),
+  projectId: urlParams.get('projectId'),
+  storageBucket: urlParams.get('storageBucket'),
+  messagingSenderId: urlParams.get('messagingSenderId'),
+  appId: urlParams.get('appId')
+};
+
+// Initialize Firebase App only if configuration parameters are present
+if (firebaseConfig.apiKey && firebaseConfig.projectId) {
+  firebase.initializeApp(firebaseConfig);
+}
 
 console.log('👷 [FCM-SW:STEP-1:INIT] Initializing Firebase Cloud Messaging Background Service Worker...');
 
-const messaging = firebase.messaging();
+let messaging = null;
+try {
+  if (firebase.apps && firebase.apps.length > 0) {
+    messaging = firebase.messaging();
+  }
+} catch (swInitErr) {
+  console.warn('⚠️ [FCM-SW] Firebase Messaging initialization notice:', swInitErr);
+}
 
 // Handle background push messages when PWA tab is closed or unfocused
-messaging.onBackgroundMessage((payload) => {
-  console.log('\n🔔 [FCM-SW:STEP-2:BACKGROUND-MESSAGE] Received background push payload:', payload);
+if (messaging) {
+  messaging.onBackgroundMessage((payload) => {
+    console.log('\n🔔 [FCM-SW:STEP-2:BACKGROUND-MESSAGE] Received background push payload:', payload);
 
-  // If the push already has a top-level notification object, the Firebase/Chrome runtime automatically displays it.
-  // Manually calling showNotification in that case creates a DUPLICATE notification.
-  if (payload.notification) {
-    console.log('ℹ️ [FCM-SW:STEP-3:AUTO-HANDLED] Top-level notification payload detected. Automatic WebPush display handled by browser.');
-    return;
-  }
+    // If the push already has a top-level notification object, the Firebase/Chrome runtime automatically displays it.
+    // Manually calling showNotification in that case creates a DUPLICATE notification.
+    if (payload.notification) {
+      console.log('ℹ️ [FCM-SW:STEP-3:AUTO-HANDLED] Top-level notification payload detected. Automatic WebPush display handled by browser.');
+      return;
+    }
 
-  // Handle data-only push messages manually with TrustHyre branding
-  const title = payload.data?.title || 'TrustHyre Notification';
-  const body = payload.data?.body || payload.data?.message || 'You have a new update on TrustHyre.';
-  const link = payload.data?.url || payload.data?.link || '/notifications';
+    // Handle data-only push messages manually with TrustHyre branding
+    const title = payload.data?.title || 'TrustHyre Notification';
+    const body = payload.data?.body || payload.data?.message || 'You have a new update on TrustHyre.';
+    const link = payload.data?.url || payload.data?.link || '/notifications';
 
-  console.log(`📢 [FCM-SW:STEP-3:SHOW-NOTIFICATION] Displaying branded notification: "${title}" -> ${link}`);
+    console.log(`📢 [FCM-SW:STEP-3:SHOW-NOTIFICATION] Displaying branded notification: "${title}" -> ${link}`);
 
-  const notificationOptions = {
-    body,
-    icon: '/logo.png',
-    badge: '/logo.png',
-    data: {
-      url: link,
-      timestamp: Date.now()
-    },
-    vibrate: [100, 50, 100],
-    actions: [
-      { action: 'open', title: 'Open TrustHyre' }
-    ]
-  };
+    const notificationOptions = {
+      body,
+      icon: '/logo.png',
+      badge: '/logo.png',
+      data: {
+        url: link,
+        timestamp: Date.now()
+      },
+      vibrate: [100, 50, 100],
+      actions: [
+        { action: 'open', title: 'Open TrustHyre' }
+      ]
+    };
 
-  return self.registration.showNotification(title, notificationOptions);
-});
+    return self.registration.showNotification(title, notificationOptions);
+  });
+}
 
 // Handle notification click to focus existing tab or navigate
 self.addEventListener('notificationclick', (event) => {

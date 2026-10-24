@@ -7,7 +7,7 @@
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
     width: 100%;
-    overflow-x: hidden;
+    overflow-x: clip;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-y: auto;
   }
@@ -18,7 +18,7 @@
     letter-spacing: -0.011em;
     width: 100%;
     min-height: 100%;
-    overflow-x: hidden;
+    overflow-x: clip;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-y: auto;
     touch-action: pan-y;

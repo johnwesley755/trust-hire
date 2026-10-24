@@ -33,109 +33,15 @@ import {
   Plus,
   Wrench,
   Clock,
-  RotateCcw
+  RotateCcw,
+  Phone,
+  MessageSquare,
+  Accessibility
 } from "lucide-react";
 import { CandidateResumeModal } from "../components/resume/CandidateResumeModal";
 import type { ResumeData } from "../components/resume/CandidateResumeView";
 import { OnboardingVisualHero } from "../components/OnboardingVisualHero";
-
-const EDUCATION_LEVELS = [
-  "10th or Below 10th",
-  "12th Pass",
-  "Diploma",
-  "ITI",
-  "Graduate",
-  "Post Graduate"
-];
-
-const DEGREE_OPTIONS = [
-  "B.Com",
-  "B.Sc",
-  "B.Tech / B.E.",
-  "BCA",
-  "BBA",
-  "BA",
-  "Diploma in Engineering",
-  "ITI Certificate",
-  "M.Sc",
-  "M.Com",
-  "MCA",
-  "MBA",
-  "Other Degree"
-];
-
-const SCHOOL_MEDIUMS = [
-  "English",
-  "Tamil",
-  "Hindi",
-  "Telugu",
-  "Kannada",
-  "Malayalam",
-  "Marathi",
-  "Bengali",
-  "Gujarati",
-  "Other"
-];
-
-const ENGLISH_LEVELS = [
-  { id: "NONE", label: "No English", desc: "Prefer native / regional languages" },
-  { id: "BASIC", label: "Basic", desc: "You can understand/speak basic sentences & greetings" },
-  { id: "INTERMEDIATE", label: "Intermediate", desc: "You can have a conversation in English on most topics" },
-  { id: "ADVANCED", label: "Advanced", desc: "You can do your entire job in English and speak fluently" }
-];
-
-const POPULAR_LANGUAGES = [
-  "Tamil", "Hindi", "Telugu", "Kannada", "Malayalam",
-  "Marathi", "Bengali", "Gujarati", "Urdu", "Punjabi",
-  "Odia", "Assamese", "Nepali", "French", "German", "Spanish"
-];
-
-const POPULAR_JOB_ROLES = [
-  "Electrician",
-  "Plumber",
-  "Delivery Driver",
-  "Warehouse Associate",
-  "Cook / Chef / Kitchen Help",
-  "Retail Sales & Operations",
-  "Customer Support / BPO",
-  "Data Entry / Computer Operator",
-  "Field Sales Executive",
-  "Security Guard",
-  "Facility & Cleaning",
-  "Mechanic",
-  "Carpenter",
-  "Welder",
-  "Telesales"
-];
-
-const POPULAR_REGIONS = [
-  "Chennai Region, TN",
-  "Bengaluru Region, KA",
-  "Hyderabad Region, TS",
-  "Mumbai Region, MH",
-  "Pune Region, MH",
-  "Delhi NCR Region",
-  "Pondicherry Region, TN",
-  "Coimbatore Region, TN",
-  "Kochi Region, KL"
-];
-
-const POPULAR_SKILLS = [
-  "Maintenance & Repair",
-  "Electrical Wiring",
-  "Pipe Fitting & Plumbing",
-  "Customer Support",
-  "Inventory & Warehousing",
-  "Driving & Delivery",
-  "Cooking & Food Safety",
-  "MS Office / Data Entry",
-  "Retail Sales & Cash Handling",
-  "Facility Cleaning",
-  "Carpentry & Woodwork",
-  "Machine Operation",
-  "Welding & Fabrication",
-  "First Aid & Security"
-];
+import { metadataService, type OnboardingOption, type LocalityItem } from "../../../services/metadata.service";
 
 const STEP_TITLES: Record<number, string> = {
   1: "Basic Details & Photo",
@@ -145,6 +51,69 @@ const STEP_TITLES: Record<number, string> = {
   5: "Languages Known",
   6: "Trade, Skills & Experience"
 };
+
+export const TRADE_SKILLS_CATALOG = [
+  {
+    category: "Driver & Delivery",
+    icon: "🚗",
+    skills: ["Heavy Vehicle (HCV)", "Light Motor Vehicle (LMV)", "Auto Rickshaw", "Two-Wheeler Delivery", "GPS Route Navigation", "Night Driving", "Defensive Driving", "Vehicle Maintenance"]
+  },
+  {
+    category: "Electrician & Wiring",
+    icon: "⚡",
+    skills: ["House Wiring", "3-Phase Industrial", "Circuit Breakers (MCB/ELCB)", "Inverter & Battery Setup", "Switchboard Fitting", "Appliance Repair", "Conduit Piping", "Electrical Fault Finding"]
+  },
+  {
+    category: "Plumbing & Sanitary",
+    icon: "🔧",
+    skills: ["Pipe Fitting (CPVC/PVC)", "Leak Detection & Repair", "Bathroom Fixtures", "Drainage Lines", "Water Pump Repair", "Geyser Installation", "Valve & Tap Replacement"]
+  },
+  {
+    category: "Carpentry & Woodwork",
+    icon: "🪚",
+    skills: ["Furniture Making", "Modular Kitchen", "Wood Polishing", "Door & Window Framing", "Wood Planing", "Interior Partition", "Cabinet Fitting"]
+  },
+  {
+    category: "Masonry & Construction",
+    icon: "🧱",
+    skills: ["Brick Laying", "Plastering Work", "Floor Tile & Marble", "Concrete Mixing", "Bar Bending", "Waterproofing", "Foundation Work"]
+  },
+  {
+    category: "Welding & Fabrication",
+    icon: "👨‍🏭",
+    skills: ["Arc Welding", "Gas Welding", "TIG / MIG Welding", "Metal Grinding & Cutting", "Steel Grill Fabrication", "Sheet Metal Work"]
+  },
+  {
+    category: "Painting & Putty",
+    icon: "🎨",
+    skills: ["Interior Wall Painting", "Exterior Weatherproof Coating", "Wall Putty Application", "Primer Coating", "Spray Painting", "Texture & Stencil Design"]
+  },
+  {
+    category: "Cooking & Kitchen",
+    icon: "🍳",
+    skills: ["South Indian Cooking", "North Indian Cooking", "Chinese / Fast Food", "Tandoor & Roti", "Vegetable Prep & Chopping", "Kitchen Hygiene", "Bulk Catering Prep"]
+  },
+  {
+    category: "Mechanic & Automobile",
+    icon: "⚙️",
+    skills: ["Two-Wheeler Servicing", "Four-Wheeler Servicing", "Brake & Clutch Repair", "Engine Tuning", "Tyre Fitting & Puncture", "Oil Change & Lubrication"]
+  },
+  {
+    category: "Housekeeping & Facility",
+    icon: "🧹",
+    skills: ["Deep Cleaning", "Floor Mopping & Scrubbing", "Bathroom Sanitization", "Office Boy / Peon", "Waste Segregation", "Linen & Laundry"]
+  },
+  {
+    category: "Security & Guarding",
+    icon: "🛡️",
+    skills: ["Gate Security & Access Control", "CCTV Monitoring", "Visitor Register Entry", "Night Patrolling", "Fire Safety & Extinguisher"]
+  },
+  {
+    category: "Warehouse & Packing",
+    icon: "📦",
+    skills: ["Package Delivery", "Cash on Delivery (COD)", "Inventory Sorting", "Carton Packing & Loading", "Barcode Scanning"]
+  }
+];
 
 export default function WorkerOnboardingPage() {
   const { user } = useUser();
@@ -168,16 +137,36 @@ export default function WorkerOnboardingPage() {
   const [isUploadingPhoto, setIsUploadingPhoto] = useState<boolean>(false);
   const photoInputRef = useRef<HTMLInputElement>(null);
   
-  // Step 2: Demographics
+  // Step 2: Demographics & Inclusivity (Kaigal-aligned)
   const [dob, setDob] = useState<string>("2000-01-01");
   const [gender, setGender] = useState<string>("Male");
   const [email, setEmail] = useState<string>(user?.email || "");
   const [phoneNumber, setPhoneNumber] = useState<string>(
     user?.phoneNumber || (user as any)?.phone_number || ""
   );
+  const [whatsappNumber, setWhatsappNumber] = useState<string>(
+    user?.phoneNumber || (user as any)?.phone_number || ""
+  );
+  const [sameAsMobile, setSameAsMobile] = useState<boolean>(true);
   const [whatsappOptIn, setWhatsappOptIn] = useState<boolean>(true);
 
-  // Step 3: Location
+  // Inclusivity: Differently Abled
+  const [isDifferentlyAbled, setIsDifferentlyAbled] = useState<boolean>(false);
+  const [disabilityType, setDisabilityType] = useState<string>("");
+  const [disabilityArea, setDisabilityArea] = useState<string>("");
+  const [disabilityReason, setDisabilityReason] = useState<string>("");
+
+  // Step 3: 100% Dynamic Cascading Location Hierarchy
+  const [state, setState] = useState<string>("Tamil Nadu");
+  const [district, setDistrict] = useState<string>("Chennai");
+  const [taluk, setTaluk] = useState<string>("Tondiarpet");
+  const [townPanchayat, setTownPanchayat] = useState<string>("Royapuram");
+  const [pincode, setPincode] = useState<string>("600013");
+  const [customLocality, setCustomLocality] = useState<string>("");
+  const [isUsingCustomLocality, setIsUsingCustomLocality] = useState<boolean>(false);
+  const [isLookingUpPincode, setIsLookingUpPincode] = useState<boolean>(false);
+  const [pincodeSuccessBadge, setPincodeSuccessBadge] = useState<string | null>(null);
+
   const [city, setCity] = useState<string>(user?.location || "Chennai");
   const [area, setArea] = useState<string>("Royapuram");
   const [address, setAddress] = useState<string>("");
@@ -192,21 +181,52 @@ export default function WorkerOnboardingPage() {
   // Step 4: Education Deep Dive
   const [isPursuingEducation, setIsPursuingEducation] = useState<boolean>(false);
   const [collegeName, setCollegeName] = useState<string>("");
-  const [degree, setDegree] = useState<string>("B.Sc");
+  const [degree, setDegree] = useState<string>("B.Sc (Science / Computer)");
   const [specialization, setSpecialization] = useState<string>("Computer Science");
-  const [schoolMedium, setSchoolMedium] = useState<string>("English");
+  const [schoolMedium, setSchoolMedium] = useState<string>("Tamil Medium");
 
   // Step 5: Language Matrix
-  const [englishProficiency, setEnglishProficiency] = useState<string>("ADVANCED");
-  const [languagesKnown, setLanguagesKnown] = useState<string[]>(["Tamil", "English", "Hindi"]);
+  const [englishProficiency, setEnglishProficiency] = useState<string>("INTERMEDIATE");
+  const [languagesKnown, setLanguagesKnown] = useState<string[]>(["Tamil", "English"]);
 
   // Step 6: Preferred Job Roles, Skills, Experience & Bio
+  const [workExperienceType, setWorkExperienceType] = useState<"FRESHER" | "EXPERIENCED">("FRESHER");
   const [preferredRoles, setPreferredRoles] = useState<string[]>([]);
   const [roleSearchInput, setRoleSearchInput] = useState<string>("");
   const [skills, setSkills] = useState<string[]>([]);
   const [skillInput, setSkillInput] = useState<string>("");
+  const [selectedSkillCategory, setSelectedSkillCategory] = useState<string>("Driver & Delivery");
   const [experienceYears, setExperienceYears] = useState<number>(0);
   const [bio, setBio] = useState<string>("");
+
+  // ==========================================
+  // Dynamic Metadata Queries (100% Dynamic)
+  // ==========================================
+  const { data: onboardingOptions } = useQuery({
+    queryKey: ['onboardingOptions'],
+    queryFn: metadataService.getOnboardingOptions,
+    staleTime: 10 * 60 * 1000
+  });
+
+  const { data: dynamicStates = [] } = useQuery({
+    queryKey: ['locationStates'],
+    queryFn: metadataService.getStates,
+    staleTime: 60 * 60 * 1000
+  });
+
+  const { data: dynamicDistricts = [] } = useQuery({
+    queryKey: ['locationDistricts', state],
+    queryFn: () => metadataService.getDistricts(state),
+    enabled: !!state,
+    staleTime: 30 * 60 * 1000
+  });
+
+  const { data: dynamicLocalities = [] } = useQuery({
+    queryKey: ['locationLocalities', district, state],
+    queryFn: () => metadataService.getLocalities(district, state),
+    enabled: !!district,
+    staleTime: 15 * 60 * 1000
+  });
 
   // Global Submission & Resume Preview
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -306,7 +326,7 @@ export default function WorkerOnboardingPage() {
     reader.readAsDataURL(file);
   };
 
-  // GPS Locate Action
+  // GPS Locate Action (100% Dynamic All-India Auto-Fill)
   const handleDetectGPS = () => {
     if (!navigator.geolocation) {
       setErrorMessage("Geolocation is not supported by your browser.");
@@ -324,22 +344,60 @@ export default function WorkerOnboardingPage() {
         setLongitude(lon);
 
         try {
-          const res = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1`,
-            { headers: { 'Accept-Language': 'en' } }
-          );
-          const data = await res.json();
-          if (data && data.address) {
-            const detectedCity = data.address.city || data.address.town || data.address.state_district || "Chennai";
-            const detectedArea = data.address.suburb || data.address.neighbourhood || data.address.road || "Central";
-            setCity(detectedCity);
-            setArea(detectedArea);
-            setAddress(data.display_name || "");
+          // 1. Call backend reverse-geocode endpoint (uses country-state-city & India Post)
+          const result = await metadataService.reverseGeocode(lat, lon);
+          if (result && (result.state || result.district)) {
+            if (result.state) setState(result.state);
+            if (result.district) {
+              setDistrict(result.district);
+              setCity(result.district);
+            }
+            if (result.taluk) setTaluk(result.taluk);
+            const chosenLocality = result.townPanchayat || result.locality || result.taluk || '';
+            if (chosenLocality) {
+              setTownPanchayat(chosenLocality);
+              setArea(chosenLocality);
+            }
+            if (result.pincode) {
+              setPincode(result.pincode);
+              handlePincodeLookup(result.pincode);
+            }
+            if (result.formattedAddress) setAddress(result.formattedAddress);
+            setPincodeSuccessBadge(`${chosenLocality || result.district}, ${result.state}`);
+            setIsLocating(false);
+            return;
           }
-        } catch {
-          // fallback
-          setCity("Chennai");
-          setArea("Guindy");
+
+          // 2. Client-side BigDataCloud fallback if backend endpoint was unreachable
+          const bdcRes = await fetch(
+            `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`
+          );
+          if (bdcRes.ok) {
+            const bdcData: any = await bdcRes.json();
+            const detectedState = bdcData.principalSubdivision || "";
+            const detectedDistrict = bdcData.localityInfo?.administrative?.find((a: any) => a.adminLevel === 6 || a.adminLevel === 5)?.name || bdcData.city || "";
+            const detectedLocality = bdcData.locality || bdcData.localityInfo?.administrative?.find((a: any) => a.adminLevel === 8 || a.adminLevel === 7)?.name || "";
+            const detectedPin = bdcData.postcode ? bdcData.postcode.replace(/\D/g, '').slice(0, 6) : "";
+
+            if (detectedState) setState(detectedState);
+            if (detectedDistrict) {
+              setDistrict(detectedDistrict);
+              setCity(detectedDistrict);
+            }
+            if (detectedLocality) {
+              setTownPanchayat(detectedLocality);
+              setTaluk(detectedLocality);
+              setArea(detectedLocality);
+            }
+            if (detectedPin) {
+              setPincode(detectedPin);
+              handlePincodeLookup(detectedPin);
+            }
+            setPincodeSuccessBadge(`${detectedLocality || detectedDistrict}, ${detectedState}`);
+          }
+        } catch (e: any) {
+          console.warn("GPS resolution error:", e);
+          setErrorMessage("Could not auto-detect address details from GPS coordinates. Please select your location manually.");
         } finally {
           setIsLocating(false);
         }
@@ -347,10 +405,40 @@ export default function WorkerOnboardingPage() {
       (err) => {
         console.warn("GPS error:", err);
         setIsLocating(false);
-        setErrorMessage("GPS location denied. Please select your city manually.");
+        setErrorMessage("GPS location access was denied. Please select your location manually.");
       },
-      { timeout: 8000 }
+      { timeout: 10000, enableHighAccuracy: true }
     );
+  };
+
+  // Dynamic Pincode Lookup Handler (India Post Auto-Discovery)
+  const handlePincodeLookup = async (val: string) => {
+    const cleanPin = val.replace(/\D/g, '').slice(0, 6);
+    setPincode(cleanPin);
+    setPincodeSuccessBadge(null);
+
+    if (cleanPin.length === 6) {
+      setIsLookingUpPincode(true);
+      try {
+        const res = await metadataService.lookupPincode(cleanPin);
+        if (res) {
+          if (res.state) setState(res.state);
+          if (res.district) setDistrict(res.district);
+          if (res.taluk) setTaluk(res.taluk);
+          if (res.localities && res.localities.length > 0) {
+            const locName = res.localities[0].name;
+            setTownPanchayat(locName);
+            setArea(locName);
+            setCity(res.district);
+          }
+          setPincodeSuccessBadge(`${res.taluk ? res.taluk + ', ' : ''}${res.district}, ${res.state}`);
+        }
+      } catch (err) {
+        console.warn("Pincode lookup failed, worker can use manual dropdowns:", err);
+      } finally {
+        setIsLookingUpPincode(false);
+      }
+    }
   };
 
   // Toggle Language
@@ -406,18 +494,28 @@ export default function WorkerOnboardingPage() {
     setSkillInput("");
   };
 
+  const handleToggleSkill = (skillToToggle: string) => {
+    const val = skillToToggle.trim();
+    if (!val) return;
+    if (skills.includes(val)) {
+      setSkills(prev => prev.filter(s => s !== val));
+    } else {
+      setSkills(prev => [...prev, val]);
+    }
+  };
+
   const handleRemoveSkill = (skillToRemove: string) => {
     setSkills(prev => prev.filter(s => s !== skillToRemove));
   };
 
   // Auto-Generate / Refresh Bio
   const handleGenerateBio = () => {
-    const fullLoc = `${area ? area + ', ' : ''}${city}`;
+    const fullLoc = `${area ? area + ', ' : ''}${city || district}`;
     const rolesList = preferredRoles.length > 0 ? preferredRoles.join(', ') : 'Professional specialist';
     const expText = experienceYears > 0 
       ? `${experienceYears} years of verified practical experience` 
       : 'Dedicated and motivated professional ready to contribute immediately';
-    const langText = languagesKnown.length > 0 ? `Proficient in ${englishProficiency.toLowerCase()} English and ${languagesKnown.join(', ')}.` : '';
+    const langText = languagesKnown.length > 0 ? `Languages known: ${languagesKnown.join(', ')}.` : '';
     const skillHighlight = skills.length > 0 ? `Core strengths include ${skills.slice(0, 4).join(', ')}.` : '';
     setBio(`${rolesList} based in ${fullLoc} with ${expText}. ${skillHighlight} ${langText} Punctual, reliable, and committed to delivering high-quality work.`.trim());
   };
@@ -452,10 +550,11 @@ export default function WorkerOnboardingPage() {
       setCurrentStep(5);
     } else if (currentStep === 5) {
       if (!bio.trim()) {
-        const fullLoc = `${area ? area + ', ' : ''}${city}`;
+        const fullLoc = `${area ? area + ', ' : ''}${city || district}`;
         const rolesList = preferredRoles.length > 0 ? preferredRoles.join(', ') : 'Professional candidate';
         const expText = experienceYears > 0 ? `${experienceYears} years experience` : 'Eager to work';
-        setBio(`${rolesList} based in ${fullLoc} with ${expText}. Proficient in ${englishProficiency.toLowerCase()} English and ${languagesKnown.join(', ')}.`);
+        const langText = languagesKnown.length > 0 ? `Languages: ${languagesKnown.join(', ')}` : '';
+        setBio(`${rolesList} based in ${fullLoc} with ${expText}. ${langText}`.trim());
       }
       setCurrentStep(6);
     }
@@ -480,9 +579,9 @@ export default function WorkerOnboardingPage() {
     setIsSubmitting(true);
 
     const cleanPhone = phoneNumber.replace(/\D/g, '').slice(-10);
-    const fullLoc = `${area ? area + ', ' : ''}${city}`;
+    const fullLoc = `${area ? area + ', ' : ''}${city || district}`;
     const combinedSkills = Array.from(new Set([...skills, ...preferredRoles]));
-    const finalBio = bio.trim() || `${preferredRoles.join(', ')} specialist based in ${fullLoc}. ${experienceYears > 0 ? `${experienceYears} years experience.` : 'Enthusiastic candidate.'} Proficient in ${englishProficiency.toLowerCase()} English and ${languagesKnown.join(', ')}.`;
+    const finalBio = bio.trim() || `${preferredRoles.join(', ')} specialist based in ${fullLoc}. ${experienceYears > 0 ? `${experienceYears} years experience.` : 'Enthusiastic candidate.'} ${languagesKnown.length > 0 ? `Languages: ${languagesKnown.join(', ')}.` : ''}`.trim();
 
     const resumeData: ResumeData = {
       fullName: fullName.trim(),
@@ -531,15 +630,26 @@ export default function WorkerOnboardingPage() {
       await apiClient.put('/api/worker/profile', {
         fullName: fullName.trim(),
         phoneNumber: cleanPhone,
-        city,
-        area,
-        address: address || fullLoc,
+        whatsappNumber: sameAsMobile ? cleanPhone : whatsappNumber.replace(/\D/g, '').slice(-10),
+        isDifferentlyAbled,
+        disabilityType: isDifferentlyAbled ? disabilityType : undefined,
+        disabilityArea: isDifferentlyAbled ? disabilityArea : undefined,
+        disabilityReason: isDifferentlyAbled ? disabilityReason : undefined,
+        state,
+        district,
+        taluk,
+        townPanchayat: isUsingCustomLocality && customLocality.trim() ? customLocality.trim() : townPanchayat,
+        pincode,
+        city: district || city,
+        area: (isUsingCustomLocality && customLocality.trim() ? customLocality.trim() : townPanchayat) || area,
+        address: address || `${townPanchayat ? townPanchayat + ', ' : ''}${district}, ${state} ${pincode}`,
         latitude,
         longitude,
         isAvailable: true,
         dob,
         gender,
         whatsappOptIn,
+        workExperienceType,
         willingToRelocate,
         preferredCities,
         highestEducation,
@@ -677,7 +787,7 @@ export default function WorkerOnboardingPage() {
               <div className="space-y-6">
                 <div className="space-y-1.5">
                   <label className="block text-xs font-bold uppercase tracking-wider text-[#0A1931]">
-                    Tell us your full name *
+                    Tell us your full name <span className="text-red-500 font-bold ml-0.5">*</span>
                   </label>
                   <input
                     type="text"
@@ -694,7 +804,7 @@ export default function WorkerOnboardingPage() {
                   <div className="flex items-center justify-between">
                     <label className="text-xs font-bold uppercase tracking-wider text-[#0A1931] flex items-center gap-1.5">
                       <Camera className="w-4 h-4 text-[#0f2f63]" />
-                      Candidate Profile Photo *
+                      Candidate Profile Photo <span className="text-red-500 font-bold ml-0.5">*</span>
                     </label>
                     <span className="text-[10px] font-bold uppercase tracking-wider text-amber-800 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
                       Mandatory for Verification
@@ -775,13 +885,22 @@ export default function WorkerOnboardingPage() {
                 {/* Education Level Selector */}
                 <div className="space-y-2">
                   <label className="block text-xs font-bold uppercase tracking-wider text-[#0A1931]">
-                    What is your highest level of education? *
+                    What is your highest level of education? <span className="text-red-500 font-bold ml-0.5">*</span>
                   </label>
                   <p className="text-xs text-[#717784]">
                     Select highest education level even if not completed
                   </p>
                   <div className="flex flex-wrap gap-2 pt-1">
-                    {EDUCATION_LEVELS.map((edu) => (
+                    {(onboardingOptions?.educationLevels?.map(e => e.label) || [
+                      "Below 10th Standard",
+                      "10th Standard (SSLC)",
+                      "12th Standard (HSC)",
+                      "ITI / Vocational Training",
+                      "Diploma / Polytechnic",
+                      "Graduate / Bachelor's Degree",
+                      "Post Graduate / Master's Degree",
+                      "No Formal Education"
+                    ]).map((edu) => (
                       <button
                         key={edu}
                         type="button"
@@ -818,7 +937,7 @@ export default function WorkerOnboardingPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
                     <label className="block text-xs font-bold uppercase tracking-wider text-[#0A1931]">
-                      Date of Birth (DOB) *
+                      Date of Birth (DOB) <span className="text-red-500 font-bold ml-0.5">*</span>
                     </label>
                     <input
                       type="date"
@@ -831,7 +950,7 @@ export default function WorkerOnboardingPage() {
 
                   <div className="space-y-1.5">
                     <label className="block text-xs font-bold uppercase tracking-wider text-[#0A1931]">
-                      Gender *
+                      Gender <span className="text-red-500 font-bold ml-0.5">*</span>
                     </label>
                     <div className="flex gap-2">
                       {["Male", "Female", "Other"].map((g) => (
@@ -865,10 +984,11 @@ export default function WorkerOnboardingPage() {
                   />
                 </div>
 
+                {/* Mobile Phone Number */}
                 <div className="space-y-1.5">
                   <div className="flex justify-between items-center">
                     <label className="block text-xs font-bold uppercase tracking-wider text-[#0A1931]">
-                      Mobile Phone Number *
+                      Mobile Phone Number <span className="text-red-500 font-bold ml-0.5">*</span>
                     </label>
                     <span className="text-[10px] text-[#717784] font-medium">10-Digit Mobile</span>
                   </div>
@@ -880,13 +1000,137 @@ export default function WorkerOnboardingPage() {
                     <input
                       type="tel"
                       value={phoneNumber}
-                      onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, '').slice(0, 10);
+                        setPhoneNumber(val);
+                        if (sameAsMobile) setWhatsappNumber(val);
+                      }}
                       maxLength={10}
                       placeholder="98765 43210"
                       required
                       className="w-full bg-white border border-[#e6e8ec] hover:border-[#0f2f63]/50 focus:border-[#0f2f63] focus:ring-2 focus:ring-[#0f2f63]/10 rounded-xl pl-18 pr-4 py-2.5 text-xs text-[#0A1931] font-semibold transition-all outline-none"
                     />
                   </div>
+                </div>
+
+                {/* WhatsApp Number (Kaigal Aligned with Same as Mobile Quick Toggle) */}
+                <div className="space-y-1.5">
+                  <div className="flex justify-between items-center">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-[#0A1931]">
+                      WhatsApp Number <span className="text-red-500 font-bold ml-0.5">*</span>
+                    </label>
+                    <label className="flex items-center gap-1.5 text-xs font-semibold text-[#0f2f63] cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={sameAsMobile}
+                        onChange={(e) => {
+                          setSameAsMobile(e.target.checked);
+                          if (e.target.checked) setWhatsappNumber(phoneNumber);
+                        }}
+                        className="rounded text-[#0f2f63] focus:ring-0 cursor-pointer"
+                      />
+                      <span>Same as Mobile</span>
+                    </label>
+                  </div>
+                  <div className="relative flex items-center">
+                    <div className="absolute left-3.5 flex items-center gap-1.5 text-slate-700 font-bold text-xs pointer-events-none select-none border-r border-slate-200 pr-2.5 z-10">
+                      <MessageSquare className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>+91</span>
+                    </div>
+                    <input
+                      type="tel"
+                      value={sameAsMobile ? phoneNumber : whatsappNumber}
+                      disabled={sameAsMobile}
+                      onChange={(e) => setWhatsappNumber(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                      maxLength={10}
+                      placeholder="98765 43210"
+                      className={`w-full bg-white border border-[#e6e8ec] focus:border-[#0f2f63] focus:ring-2 focus:ring-[#0f2f63]/10 rounded-xl pl-18 pr-4 py-2.5 text-xs text-[#0A1931] font-semibold transition-all outline-none ${sameAsMobile ? 'bg-slate-50 opacity-90 cursor-not-allowed' : ''}`}
+                    />
+                  </div>
+                </div>
+
+                {/* Differently Abled Declaration (Kaigal Inclusivity) */}
+                <div className="p-4 rounded-2xl bg-[#fbfbfb] border border-[#e6e8ec] space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Accessibility className="w-4 h-4 text-[#0f2f63]" />
+                      <span className="text-xs font-bold uppercase tracking-wider text-[#0A1931]">
+                        Are you differently abled / physically challenged?
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setIsDifferentlyAbled(false)}
+                      className={`flex-1 py-2 text-xs font-semibold rounded-xl border transition-all cursor-pointer ${
+                        !isDifferentlyAbled
+                          ? "bg-[#0f2f63] text-white border-[#0f2f63] shadow-xs"
+                          : "bg-[#f4f4f4] text-[#717784] border-transparent hover:text-[#0A1931]"
+                      }`}
+                    >
+                      No
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setIsDifferentlyAbled(true)}
+                      className={`flex-1 py-2 text-xs font-semibold rounded-xl border transition-all cursor-pointer ${
+                        isDifferentlyAbled
+                          ? "bg-[#0f2f63] text-white border-[#0f2f63] shadow-xs"
+                          : "bg-[#f4f4f4] text-[#717784] border-transparent hover:text-[#0A1931]"
+                      }`}
+                    >
+                      Yes, Differently Abled
+                    </button>
+                  </div>
+
+                  {isDifferentlyAbled && (
+                    <div className="space-y-3 pt-3 border-t border-slate-200">
+                      <div className="space-y-1.5">
+                        <label className="block text-[11px] font-bold text-slate-700">Disability Type</label>
+                        <select
+                          value={disabilityType}
+                          onChange={(e) => setDisabilityType(e.target.value)}
+                          className="w-full bg-white border border-[#e6e8ec] rounded-xl px-3 py-2 text-xs font-semibold text-[#0A1931] outline-none"
+                        >
+                          <option value="">Select Disability Type...</option>
+                          {onboardingOptions?.disabilityTypes?.map((dt) => (
+                            <option key={dt.key} value={dt.label}>{dt.label}</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="space-y-1.5">
+                          <label className="block text-[11px] font-bold text-slate-700">Affected Area</label>
+                          <select
+                            value={disabilityArea}
+                            onChange={(e) => setDisabilityArea(e.target.value)}
+                            className="w-full bg-white border border-[#e6e8ec] rounded-xl px-3 py-2 text-xs font-semibold text-[#0A1931] outline-none"
+                          >
+                            <option value="">Select Area...</option>
+                            {onboardingOptions?.disabilityAreas?.map((da) => (
+                              <option key={da.key} value={da.label}>{da.label}</option>
+                            ))}
+                          </select>
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <label className="block text-[11px] font-bold text-slate-700">Disability Reason</label>
+                          <select
+                            value={disabilityReason}
+                            onChange={(e) => setDisabilityReason(e.target.value)}
+                            className="w-full bg-white border border-[#e6e8ec] rounded-xl px-3 py-2 text-xs font-semibold text-[#0A1931] outline-none"
+                          >
+                            <option value="">Select Reason...</option>
+                            {onboardingOptions?.disabilityReasons?.map((dr) => (
+                              <option key={dr.key} value={dr.label}>{dr.label}</option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* WhatsApp Opt-in Checkbox */}
@@ -898,30 +1142,159 @@ export default function WorkerOnboardingPage() {
                     className="mt-0.5 rounded text-[#0f2f63] focus:ring-0 cursor-pointer"
                   />
                   <span className="text-xs text-[#0A1931] font-medium leading-relaxed">
-                    Send me important job offers, interview alerts, and employer calls on WhatsApp
+                    Send me important job offers, interview alerts, and direct employer calls on WhatsApp
                   </span>
                 </label>
               </div>
             )}
 
-            {/* Step 3: Location Details & Hyperlocal Area */}
+            {/* Step 3: 100% Dynamic Cascading Location Hierarchy */}
             {currentStep === 3 && (
               <div className="space-y-5">
-                <div className="p-4 sm:p-5 rounded-2xl bg-[#fbfbfb] border border-[#e6e8ec] space-y-3">
+                {/* 1. Quick PIN Code Auto-Discovery */}
+                <div className="p-4 rounded-2xl bg-gradient-to-r from-blue-50/70 to-indigo-50/50 border border-blue-200/80 space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold uppercase tracking-wider text-[#0A1931]">Current Base Location</span>
-                    <button
-                      type="button"
-                      onClick={() => setIsCityModalOpen(true)}
-                      className="text-xs font-bold text-[#0f2f63] hover:underline cursor-pointer"
-                    >
-                      Change City
-                    </button>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-[#0A1931]">
+                      ⚡ Quick PIN Code Auto-Fill
+                    </label>
+                    <span className="text-[10px] font-semibold text-blue-700 bg-blue-100/70 px-2 py-0.5 rounded-full">
+                      Instant Auto-Detect
+                    </span>
                   </div>
+                  <p className="text-[11px] text-slate-600">
+                    Enter your 6-digit PIN code to instantly detect State, District, and Town Panchayat options.
+                  </p>
+                  <div className="relative flex items-center">
+                    <input
+                      type="text"
+                      value={pincode}
+                      onChange={(e) => handlePincodeLookup(e.target.value)}
+                      maxLength={6}
+                      placeholder="e.g. 642109 or 600001"
+                      className="w-full bg-white border border-blue-200 focus:border-[#0f2f63] focus:ring-2 focus:ring-[#0f2f63]/10 rounded-xl px-3.5 py-2.5 text-xs text-[#0A1931] font-bold tracking-widest outline-none"
+                    />
+                    {isLookingUpPincode && (
+                      <div className="absolute right-3 flex items-center gap-1.5 text-xs font-semibold text-blue-700">
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        <span>Searching...</span>
+                      </div>
+                    )}
+                  </div>
+                  {pincodeSuccessBadge && (
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-200 animate-fadeIn">
+                      <Check className="w-3.5 h-3.5" />
+                      <span>Auto-filled: {pincodeSuccessBadge}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* 2. Cascading Selectors: State -> District -> Taluk / Town Panchayat */}
+                <div className="p-4 sm:p-5 rounded-2xl bg-[#fbfbfb] border border-[#e6e8ec] space-y-4">
+                  <span className="block text-xs font-bold uppercase tracking-wider text-[#0A1931]">
+                    Location Hierarchy (100% Dynamic)
+                  </span>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                    {/* State Selector */}
+                    <div className="space-y-1.5">
+                      <label className="block text-[11px] font-bold text-slate-700">
+                        State / Union Territory <span className="text-red-500 font-bold ml-0.5">*</span>
+                      </label>
+                      <select
+                        value={state}
+                        onChange={(e) => {
+                          const newState = e.target.value;
+                          setState(newState);
+                          setDistrict("");
+                          setTownPanchayat("");
+                        }}
+                        className="w-full bg-white border border-[#e6e8ec] focus:border-[#0f2f63] rounded-xl px-3 py-2.5 text-xs font-semibold text-[#0A1931] outline-none"
+                      >
+                        {dynamicStates.map((st: string) => (
+                          <option key={st} value={st}>{st}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* District Selector */}
+                    <div className="space-y-1.5">
+                      <label className="block text-[11px] font-bold text-slate-700">
+                        District ({dynamicDistricts.length} available) <span className="text-red-500 font-bold ml-0.5">*</span>
+                      </label>
+                      <select
+                        value={district}
+                        onChange={(e) => {
+                          const newDist = e.target.value;
+                          setDistrict(newDist);
+                          setCity(newDist);
+                          setTownPanchayat("");
+                        }}
+                        className="w-full bg-white border border-[#e6e8ec] focus:border-[#0f2f63] rounded-xl px-3 py-2.5 text-xs font-semibold text-[#0A1931] outline-none"
+                      >
+                        <option value="">Select District...</option>
+                        {dynamicDistricts.map((dst: string) => (
+                          <option key={dst} value={dst}>{dst}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Taluk / Town Panchayat / Locality Selector */}
+                  <div className="space-y-1.5">
+                    <div className="flex justify-between items-center">
+                      <label className="block text-[11px] font-bold text-slate-700">
+                        City / Taluk / Town Panchayat <span className="text-red-500 font-bold ml-0.5">*</span>
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => setIsUsingCustomLocality(!isUsingCustomLocality)}
+                        className="text-[11px] font-bold text-[#0f2f63] hover:underline cursor-pointer"
+                      >
+                        {isUsingCustomLocality ? "Select from list" : "+ Custom locality / village"}
+                      </button>
+                    </div>
+
+                    {!isUsingCustomLocality ? (
+                      <select
+                        value={townPanchayat}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setTownPanchayat(val);
+                          setArea(val);
+                        }}
+                        className="w-full bg-white border border-[#e6e8ec] focus:border-[#0f2f63] rounded-xl px-3 py-2.5 text-xs font-semibold text-[#0A1931] outline-none"
+                      >
+                        <option value="">Select Town Panchayat, Taluk, or Locality...</option>
+                        {dynamicLocalities.map((loc: LocalityItem) => (
+                          <option key={`${loc.name}-${loc.taluk || ''}`} value={loc.name}>
+                            {loc.name} {loc.taluk ? `(${loc.taluk})` : ''} - {loc.type.replace('_', ' ')}
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <input
+                        type="text"
+                        value={customLocality}
+                        onChange={(e) => {
+                          setCustomLocality(e.target.value);
+                          setTownPanchayat(e.target.value);
+                          setArea(e.target.value);
+                        }}
+                        placeholder="Type your exact Town Panchayat, Village, or Ward..."
+                        className="w-full bg-white border border-[#0f2f63] rounded-xl px-3.5 py-2.5 text-xs font-semibold text-[#0A1931] outline-none"
+                      />
+                    )}
+                  </div>
+
+                  {/* Selected Base Location Display */}
                   <div className="flex items-center gap-2.5 text-xs font-semibold text-[#0A1931] bg-white p-3 rounded-xl border border-[#e6e8ec]">
                     <MapPin className="w-4 h-4 text-[#0f2f63] shrink-0" />
-                    <span>{area ? `${area}, ` : ''}{city}, India</span>
+                    <span>
+                      {townPanchayat || area ? `${townPanchayat || area}, ` : ''}{district ? `${district}, ` : ''}{state} {pincode ? `(${pincode})` : ''}
+                    </span>
                   </div>
+
+                  {/* GPS Locator Button */}
                   <button
                     type="button"
                     onClick={handleDetectGPS}
@@ -936,7 +1309,7 @@ export default function WorkerOnboardingPage() {
                 {/* Relocation Preference */}
                 <div className="space-y-3 pt-2 border-t border-[#e6e8ec]">
                   <label className="block text-xs font-bold uppercase tracking-wider text-[#0A1931]">
-                    Would you also like to explore jobs outside {city}?
+                    Would you also like to explore jobs outside your home district?
                   </label>
                   <div className="flex gap-3">
                     <button
@@ -966,21 +1339,21 @@ export default function WorkerOnboardingPage() {
                   {willingToRelocate && (
                     <div className="space-y-2 pt-2">
                       <label className="block text-xs font-semibold text-[#717784]">
-                        Select Preferred Regions / Cities:
+                        Select Preferred Districts / Industrial Hubs:
                       </label>
                       <div className="flex flex-wrap gap-2">
-                        {POPULAR_REGIONS.map((reg) => (
+                        {dynamicDistricts.slice(0, 12).map((dst: string) => (
                           <button
-                            key={reg}
+                            key={dst}
                             type="button"
-                            onClick={() => handleToggleRegion(reg)}
+                            onClick={() => handleToggleRegion(dst)}
                             className={`px-3 py-1.5 text-xs font-semibold rounded-lg border transition-all cursor-pointer ${
-                              preferredCities.includes(reg)
+                              preferredCities.includes(dst)
                                 ? "bg-[#0f2f63] text-white border-[#0f2f63]"
                                 : "bg-[#f4f4f4] text-[#717784] border-transparent hover:text-[#0A1931]"
                             }`}
                           >
-                            {reg} {preferredCities.includes(reg) ? "✓" : "+"}
+                            {dst} {preferredCities.includes(dst) ? "✓" : "+"}
                           </button>
                         ))}
                       </div>
@@ -995,7 +1368,7 @@ export default function WorkerOnboardingPage() {
               <div className="space-y-5">
                 <div className="space-y-2">
                   <label className="block text-xs font-bold uppercase tracking-wider text-[#0A1931]">
-                    Are you currently pursuing your education? *
+                    Are you currently pursuing your education? <span className="text-red-500 font-bold ml-0.5">*</span>
                   </label>
                   <div className="flex gap-3">
                     <button
@@ -1049,7 +1422,18 @@ export default function WorkerOnboardingPage() {
                           onChange={(e) => setDegree(e.target.value)}
                           className="w-full bg-white border border-[#e6e8ec] focus:border-[#0f2f63] focus:ring-2 focus:ring-[#0f2f63]/10 rounded-xl px-4 py-2.5 text-xs text-[#0A1931] font-semibold outline-none"
                         >
-                          {DEGREE_OPTIONS.map((d) => (
+                          {(onboardingOptions?.degrees?.map(d => d.label) || [
+                            "B.E / B.Tech (Engineering)",
+                            "B.Sc (Science / Computer)",
+                            "B.Com (Commerce / Accounts)",
+                            "B.A (Arts / Literature)",
+                            "BBA / BCA",
+                            "Diploma in Mechanical",
+                            "Diploma in EEE / ECE",
+                            "ITI Fitter / Turner / Machinist",
+                            "ITI Electrician / Wireman",
+                            "Other Degree / Certification"
+                          ]).map((d) => (
                             <option key={d} value={d}>{d}</option>
                           ))}
                         </select>
@@ -1080,7 +1464,14 @@ export default function WorkerOnboardingPage() {
                         onChange={(e) => setSchoolMedium(e.target.value)}
                         className="w-full bg-white border border-[#e6e8ec] focus:border-[#0f2f63] focus:ring-2 focus:ring-[#0f2f63]/10 rounded-xl px-4 py-2.5 text-xs text-[#0A1931] font-semibold outline-none"
                       >
-                        {SCHOOL_MEDIUMS.map((m) => (
+                        {(onboardingOptions?.schoolMediums?.map(m => m.label) || [
+                          "Tamil Medium",
+                          "English Medium",
+                          "Telugu Medium",
+                          "Malayalam Medium",
+                          "Hindi Medium",
+                          "Other Medium"
+                        ]).map((m) => (
                           <option key={m} value={m}>{m}</option>
                         ))}
                       </select>
@@ -1090,60 +1481,62 @@ export default function WorkerOnboardingPage() {
               </div>
             )}
 
-            {/* Step 5: Language Matrix */}
+            {/* Step 5: Languages Known (1-Tap Selection, No English Proficiency Quiz) */}
             {currentStep === 5 && (
-              <div className="space-y-5">
-                <div className="space-y-2.5">
-                  <label className="block text-xs font-bold uppercase tracking-wider text-[#0A1931]">
-                    English Proficiency Level *
-                  </label>
-                  <div className="space-y-2">
-                    {ENGLISH_LEVELS.map((lvl) => (
-                      <div
-                        key={lvl.id}
-                        onClick={() => setEnglishProficiency(lvl.id)}
-                        className={`p-3.5 rounded-xl border transition-all cursor-pointer flex items-center justify-between ${
-                          englishProficiency === lvl.id
-                            ? "border-[#0f2f63] bg-[#0f2f63]/5 shadow-xs"
-                            : "border-[#e6e8ec] bg-white hover:border-[#0f2f63]/40"
-                        }`}
-                      >
-                        <div>
-                          <p className={`text-xs font-bold ${englishProficiency === lvl.id ? "text-[#0f2f63]" : "text-[#0A1931]"}`}>
-                            {lvl.label}
-                          </p>
-                          <p className="text-[11px] text-[#717784] mt-0.5">{lvl.desc}</p>
-                        </div>
-                        <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
-                          englishProficiency === lvl.id ? "border-[#0f2f63] bg-[#0f2f63]" : "border-slate-300"
-                        }`}>
-                          {englishProficiency === lvl.id && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+              <div className="space-y-6">
+                <div className="p-4 rounded-2xl bg-gradient-to-r from-blue-50/60 to-indigo-50/40 border border-blue-200/70 space-y-2">
+                  <span className="block text-xs font-bold uppercase tracking-wider text-[#0A1931]">
+                    🗣️ Communication & Languages
+                  </span>
+                  <p className="text-xs text-slate-600">
+                    Select all the languages you can speak or understand comfortably at work.
+                  </p>
                 </div>
 
-                {/* Regional Indian Languages */}
-                <div className="space-y-2.5 pt-2 border-t border-[#e6e8ec]">
-                  <label className="block text-xs font-bold uppercase tracking-wider text-[#0A1931]">
-                    Add other languages you can speak
-                  </label>
-                  <div className="flex flex-wrap gap-2 max-h-36 overflow-y-auto p-1">
-                    {POPULAR_LANGUAGES.map((lang) => {
-                      const isSelected = languagesKnown.includes(lang);
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-[#0A1931]">
+                      Languages You Can Speak <span className="text-red-500 font-bold ml-0.5">*</span>
+                    </label>
+                    <span className="text-[11px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100">
+                      {languagesKnown.length} selected
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                    {[
+                      { name: "Tamil", native: "தமிழ்" },
+                      { name: "English", native: "English" },
+                      { name: "Hindi", native: "हिन्दी" },
+                      { name: "Telugu", native: "తెలుగు" },
+                      { name: "Malayalam", native: "മലയാളം" },
+                      { name: "Kannada", native: "ಕನ್ನಡ" },
+                      { name: "Marathi", native: "मराठी" },
+                      { name: "Bengali", native: "বাংলা" },
+                      { name: "Urdu", native: "اردو" },
+                      { name: "Gujarati", native: "ગુજરાતી" },
+                      { name: "Punjabi", native: "ਪੰਜਾਬੀ" },
+                      { name: "Odia", native: "ଓଡ଼ିଆ" }
+                    ].map((lang) => {
+                      const isSelected = languagesKnown.some(l => l.toLowerCase().startsWith(lang.name.toLowerCase()));
                       return (
                         <button
-                          key={lang}
+                          key={lang.name}
                           type="button"
-                          onClick={() => handleToggleLanguage(lang)}
-                          className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer border ${
+                          onClick={() => handleToggleLanguage(lang.name)}
+                          className={`p-3 rounded-xl text-left border transition-all cursor-pointer flex items-center justify-between ${
                             isSelected
-                              ? "bg-[#0f2f63] text-white border-[#0f2f63]"
-                              : "bg-[#f4f4f4] text-[#717784] border-transparent hover:text-[#0A1931]"
+                              ? "bg-[#0f2f63] text-white border-[#0f2f63] shadow-xs"
+                              : "bg-white text-slate-700 border-[#e6e8ec] hover:border-[#0f2f63]/40"
                           }`}
                         >
-                          {lang} {isSelected ? "✓" : "+"}
+                          <div>
+                            <p className="text-xs font-bold">{lang.name}</p>
+                            <p className={`text-[10px] ${isSelected ? "text-blue-200" : "text-slate-400"}`}>{lang.native}</p>
+                          </div>
+                          <span className={`text-xs font-bold ${isSelected ? "text-white" : "text-slate-400"}`}>
+                            {isSelected ? "✓" : "+"}
+                          </span>
                         </button>
                       );
                     })}
@@ -1155,11 +1548,48 @@ export default function WorkerOnboardingPage() {
             {/* Step 6: Preferred Job Roles, Experience, Skills & Bio */}
             {currentStep === 6 && (
               <div className="space-y-6">
+                {/* Kaigal-aligned Work Experience Level Toggle */}
+                <div className="p-4 rounded-2xl bg-[#fbfbfb] border border-[#e6e8ec] space-y-2.5">
+                  <label className="block text-xs font-bold uppercase tracking-wider text-[#0A1931]">
+                    Work Experience Level <span className="text-red-500 font-bold ml-0.5">*</span>
+                  </label>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setWorkExperienceType("FRESHER");
+                        setExperienceYears(0);
+                      }}
+                      className={`flex-1 py-2.5 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
+                        workExperienceType === "FRESHER"
+                          ? "bg-[#0f2f63] text-white border-[#0f2f63] shadow-xs"
+                          : "bg-[#f4f4f4] text-[#717784] border-transparent hover:text-[#0A1931]"
+                      }`}
+                    >
+                      Fresher (Looking for 1st Job)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setWorkExperienceType("EXPERIENCED");
+                        if (experienceYears === 0) setExperienceYears(1);
+                      }}
+                      className={`flex-1 py-2.5 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
+                        workExperienceType === "EXPERIENCED"
+                          ? "bg-[#0f2f63] text-white border-[#0f2f63] shadow-xs"
+                          : "bg-[#f4f4f4] text-[#717784] border-transparent hover:text-[#0A1931]"
+                      }`}
+                    >
+                      Experienced Worker
+                    </button>
+                  </div>
+                </div>
+
                 {/* 1. Target Trade Roles */}
                 <div className="space-y-2.5">
                   <div className="flex items-center justify-between">
                     <label className="block text-xs font-bold uppercase tracking-wider text-[#0A1931]">
-                      Target Trade or Job Role *
+                      Target Trade or Job Role <span className="text-red-500 font-bold ml-0.5">*</span>
                     </label>
                     <span className="text-[11px] text-[#717784]">
                       {preferredRoles.length} selected
@@ -1202,7 +1632,17 @@ export default function WorkerOnboardingPage() {
 
                   {/* Popular Trade Roles */}
                   <div className="flex flex-wrap gap-1.5 max-h-28 overflow-y-auto p-0.5 pt-1">
-                    {POPULAR_JOB_ROLES.slice(0, 9).map((role) => {
+                    {(onboardingOptions?.popularJobRoles?.map(r => r.label) || [
+                      "Driver (Car / Van / Truck / Auto)",
+                      "Electrician / Wireman",
+                      "Plumber / Pipe Fitter",
+                      "Carpenter / Wood Worker",
+                      "Painter (House / Commercial)",
+                      "Welder / Fabricator",
+                      "Cook / Chef / Kitchen Helper",
+                      "Security Guard",
+                      "Delivery Partner / Courier"
+                    ]).slice(0, 10).map((role: string) => {
                       const isSelected = preferredRoles.includes(role);
                       return (
                         <button
@@ -1226,7 +1666,7 @@ export default function WorkerOnboardingPage() {
                 <div className="space-y-2.5 pt-3 border-t border-[#e6e8ec]">
                   <div className="flex items-center justify-between">
                     <label className="block text-xs font-bold uppercase tracking-wider text-[#0A1931]">
-                      Total Work Experience *
+                      Total Work Experience <span className="text-red-500 font-bold ml-0.5">*</span>
                     </label>
                     <span className="text-xs font-bold text-[#0f2f63]">
                       {experienceYears === 0 ? "Fresher (0 yrs)" : `${experienceYears} ${experienceYears === 1 ? 'Year' : 'Years'} Exp`}
@@ -1258,86 +1698,149 @@ export default function WorkerOnboardingPage() {
                   </div>
                 </div>
 
-                {/* 3. Core Skills & Specialties */}
-                <div className="space-y-2.5 pt-3 border-t border-[#e6e8ec]">
+                {/* 3. Core Trade Skills & Strengths (1-Tap Selection) */}
+                <div className="space-y-4 pt-3 border-t border-[#e6e8ec]">
                   <div className="flex items-center justify-between">
-                    <label className="block text-xs font-bold uppercase tracking-wider text-[#0A1931]">
-                      Specific Skills & Strengths *
-                    </label>
-                    <span className="text-[11px] text-[#717784]">
-                      {skills.length} skills listed
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-[#0A1931]">
+                        Trade Skills & Strengths <span className="text-red-500 font-bold ml-0.5">*</span>
+                      </label>
+                      <p className="text-[11px] text-[#717784]">
+                        Tap any skill to add or remove it instantly.
+                      </p>
+                    </div>
+                    <span className="text-[11px] font-bold text-blue-700 bg-blue-50 px-2.5 py-1 rounded-full border border-blue-100">
+                      {skills.length} selected
                     </span>
                   </div>
 
-                  <div className="flex gap-2">
-                    <div className="relative flex-1">
-                      <Wrench className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                      <input
-                        type="text"
-                        value={skillInput}
-                        onChange={(e) => setSkillInput(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            e.preventDefault();
-                            handleAddSkill();
-                          }
-                        }}
-                        placeholder="Add skill (e.g. Wiring, Fitting, Tally) & press Enter..."
-                        className="w-full bg-white border border-[#e6e8ec] focus:border-[#0f2f63] focus:ring-2 focus:ring-[#0f2f63]/10 rounded-xl pl-10 pr-4 py-2.5 text-xs text-[#0A1931] font-semibold outline-none"
-                      />
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => handleAddSkill()}
-                      disabled={!skillInput.trim()}
-                      className="px-4 py-2.5 bg-[#0f2f63] text-white text-xs font-bold rounded-xl disabled:opacity-40 hover:bg-[#0c244c] cursor-pointer shrink-0 transition-all"
-                    >
-                      Add
-                    </button>
-                  </div>
-
-                  {/* Selected Skills Tags */}
+                  {/* Selected Skills Badges */}
                   {skills.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5 pt-1">
-                      {skills.map((skill) => (
-                        <span
-                          key={skill}
-                          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold bg-blue-50 text-[#0f2f63] border border-blue-200"
-                        >
-                          <span>{skill}</span>
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveSkill(skill)}
-                            className="hover:text-rose-600 cursor-pointer"
+                    <div className="p-3 bg-blue-50/50 rounded-xl border border-blue-200/60 space-y-1.5">
+                      <span className="block text-[10px] font-bold uppercase tracking-wider text-blue-900">
+                        Selected Skills ({skills.length}):
+                      </span>
+                      <div className="flex flex-wrap gap-1.5">
+                        {skills.map((skill) => (
+                          <span
+                            key={skill}
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-[#0f2f63] text-white shadow-2xs"
                           >
-                            <X className="w-3 h-3" />
-                          </button>
-                        </span>
-                      ))}
+                            <span>{skill}</span>
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveSkill(skill)}
+                              className="hover:text-rose-300 cursor-pointer"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </span>
+                        ))}
+                      </div>
                     </div>
                   )}
 
-                  {/* Suggested Quick Add Skills */}
-                  <div className="space-y-1.5 pt-1">
-                    <p className="text-[11px] font-semibold text-[#717784]">Recommended trade skills:</p>
-                    <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto p-0.5">
-                      {POPULAR_SKILLS.map((sk) => {
-                        const isAdded = skills.includes(sk);
+                  {/* Trade Category Tabs */}
+                  <div className="space-y-2">
+                    <span className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
+                      Browse Skills By Trade:
+                    </span>
+                    <div className="flex gap-1.5 overflow-x-auto pb-1.5 no-scrollbar">
+                      {TRADE_SKILLS_CATALOG.map((cat) => {
+                        const isActive = selectedSkillCategory === cat.category;
+                        const categorySkillsSelectedCount = cat.skills.filter(s => skills.includes(s)).length;
                         return (
                           <button
-                            key={sk}
+                            key={cat.category}
                             type="button"
-                            onClick={() => isAdded ? handleRemoveSkill(sk) : handleAddSkill(sk)}
-                            className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition-all cursor-pointer border ${
-                              isAdded
-                                ? "bg-[#0f2f63] text-white border-[#0f2f63]"
-                                : "bg-[#f8f9fa] text-[#717784] border-slate-200 hover:text-[#0A1931]"
+                            onClick={() => setSelectedSkillCategory(cat.category)}
+                            className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 border shrink-0 ${
+                              isActive
+                                ? "bg-[#0f2f63] text-white border-[#0f2f63] shadow-xs"
+                                : "bg-[#f8f9fa] text-slate-600 border-[#e6e8ec] hover:border-slate-300 hover:text-[#0A1931]"
                             }`}
                           >
-                            {sk} {isAdded ? "✓" : "+"}
+                            <span>{cat.icon}</span>
+                            <span>{cat.category}</span>
+                            {categorySkillsSelectedCount > 0 && (
+                              <span className={`text-[10px] px-1.5 py-0.2 rounded-full ${isActive ? "bg-white/20 text-white" : "bg-blue-100 text-blue-800 font-bold"}`}>
+                                {categorySkillsSelectedCount}
+                              </span>
+                            )}
                           </button>
                         );
                       })}
+                    </div>
+                  </div>
+
+                  {/* Category Skills Pills (1-Tap Selection) */}
+                  {(() => {
+                    const currentCatalog = TRADE_SKILLS_CATALOG.find(c => c.category === selectedSkillCategory) || TRADE_SKILLS_CATALOG[0];
+                    return (
+                      <div className="p-3.5 rounded-2xl bg-[#fbfbfb] border border-[#e6e8ec] space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-bold text-[#0A1931] flex items-center gap-1.5">
+                            <span>{currentCatalog.icon}</span>
+                            <span>{currentCatalog.category} Skills</span>
+                          </span>
+                          <span className="text-[10px] text-slate-500 font-medium">Tap to toggle</span>
+                        </div>
+                        <div className="flex flex-wrap gap-2 pt-1">
+                          {currentCatalog.skills.map((skillName) => {
+                            const isSelected = skills.includes(skillName);
+                            return (
+                              <button
+                                key={skillName}
+                                type="button"
+                                onClick={() => handleToggleSkill(skillName)}
+                                className={`px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer border flex items-center gap-1.5 ${
+                                  isSelected
+                                    ? "bg-[#0f2f63] text-white border-[#0f2f63] shadow-xs"
+                                    : "bg-white text-slate-700 border-[#e6e8ec] hover:border-[#0f2f63]/40 hover:bg-slate-50"
+                                }`}
+                              >
+                                <span>{skillName}</span>
+                                <span className={isSelected ? "text-blue-200" : "text-slate-400"}>
+                                  {isSelected ? "✓" : "+"}
+                                </span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })()}
+
+                  {/* Custom Skill Input (For Niche / Other Specializations) */}
+                  <div className="space-y-1.5 pt-1">
+                    <label className="block text-[11px] font-bold text-slate-600">
+                      Need another specific skill? Type it below:
+                    </label>
+                    <div className="flex gap-2">
+                      <div className="relative flex-1">
+                        <Wrench className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                        <input
+                          type="text"
+                          value={skillInput}
+                          onChange={(e) => setSkillInput(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              handleAddSkill();
+                            }
+                          }}
+                          placeholder="Type custom skill & press Add..."
+                          className="w-full bg-white border border-[#e6e8ec] focus:border-[#0f2f63] focus:ring-2 focus:ring-[#0f2f63]/10 rounded-xl pl-10 pr-4 py-2 text-xs text-[#0A1931] font-semibold outline-none"
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleAddSkill()}
+                        disabled={!skillInput.trim()}
+                        className="px-4 py-2 bg-[#0f2f63] text-white text-xs font-bold rounded-xl disabled:opacity-40 hover:bg-[#0c244c] cursor-pointer shrink-0 transition-all"
+                      >
+                        + Add
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -1346,7 +1849,7 @@ export default function WorkerOnboardingPage() {
                 <div className="space-y-2 pt-3 border-t border-[#e6e8ec]">
                   <div className="flex items-center justify-between">
                     <label className="block text-xs font-bold uppercase tracking-wider text-[#0A1931]">
-                      Candidate Bio & Summary *
+                      Candidate Bio & Summary <span className="text-red-500 font-bold ml-0.5">*</span>
                     </label>
                     <button
                       type="button"

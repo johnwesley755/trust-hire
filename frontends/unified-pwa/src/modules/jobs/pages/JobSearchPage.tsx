@@ -387,7 +387,7 @@ export default function JobSearchPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-start">
           
           {/* DESKTOP LEFT COLUMN: Filters Sidebar (Hidden on mobile) */}
-          <div className="hidden lg:block lg:col-span-3 bg-[#f4f4f4] rounded-[1.75rem] p-5 sm:p-6 border border-[#e6e8ec] lg:sticky lg:top-4 lg:self-start lg:max-h-[calc(100vh-2rem)] lg:overflow-y-auto">
+          <div className="hidden lg:block lg:col-span-3 bg-[#f4f4f4] rounded-[1.75rem] p-5 sm:p-6 border border-[#e6e8ec] lg:sticky lg:top-20 lg:self-start lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto no-scrollbar">
             <JobFilterSidebar
               selectedJobType={jobType}
               onSelectJobType={(t) => {
@@ -577,7 +577,7 @@ export default function JobSearchPage() {
           </div>
 
           {/* DESKTOP RIGHT COLUMN: Contextual Widgets Sidebar (Hidden on mobile) */}
-          <div className="hidden lg:block lg:col-span-3 space-y-6 lg:sticky lg:top-4 lg:self-start">
+          <div className="hidden lg:block lg:col-span-3 space-y-6 lg:sticky lg:top-20 lg:self-start lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto no-scrollbar">
             <JobSearchRightSidebar
               currentCity={city}
               currentTrade={trade}
