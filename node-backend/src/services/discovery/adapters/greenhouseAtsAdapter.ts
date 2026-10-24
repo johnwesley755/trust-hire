@@ -41,7 +41,7 @@ export class GreenhouseAtsAdapter extends BaseJobSourceAdapter {
 
   canHandleUrl(url: URL): boolean {
     const host = url.hostname.toLowerCase();
-    return host.includes('greenhouse.io');
+    return host === 'greenhouse.io' || host.endsWith('.greenhouse.io');
   }
 
   async discoverJobs(options?: DiscoveryOptions): Promise<AdapterDiscoveryResult> {

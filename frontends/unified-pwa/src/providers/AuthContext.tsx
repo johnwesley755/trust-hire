@@ -5,6 +5,7 @@ import type { User, UserRole } from '../types';
 import { auth, googleProvider, signInWithPopup, signOut as firebaseSignOut } from '../lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import apiClient from '../api/apiClient';
+import { secureStorage } from '../utils/secureStorage';
 
 interface AuthContextType {
   user: User | null;
@@ -73,24 +74,24 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const login = (token: string, userData: any) => {
     const mappedUser = mapUserFields(userData);
-    localStorage.setItem('token', token);
-    localStorage.setItem('user', JSON.stringify(mappedUser));
+    secureStorage.setItem('token', token);
+    secureStorage.setItem('user', JSON.stringify(mappedUser));
     setUser(mappedUser);
   };
 
   useEffect(() => {
     const initAuth = () => {
       // 1. Check local session
-      const token = localStorage.getItem('token');
-      const storedUser = localStorage.getItem('user');
+      const token = secureStorage.getItem('token');
+      const storedUser = secureStorage.getItem('user');
       if (token && storedUser) {
         try {
           const parsed = JSON.parse(storedUser);
           setUser(parsed);
         } catch (e) {
           console.error("Failed to parse stored user", e);
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
+          secureStorage.removeItem('token');
+          secureStorage.removeItem('user');
         }
       }
       setIsLoaded(true);
@@ -103,10 +104,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     // 2. Listen to Firebase Auth state changes
     const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
       if (fbUser && !syncInProgress) {
-        const token = localStorage.getItem('token');
+        const token = secureStorage.getItem('token');
         if (!token) {
           syncInProgress = true;
-          const targetRole = (localStorage.getItem('target_role') || 'WORKER') as UserRole;
+          const targetRole = (secureStorage.getItem('target_role') || 'WORKER') as UserRole;
           const nameParts = (fbUser.displayName || 'Worker').split(' ');
           const firstName = nameParts[0] || 'Worker';
           const lastName = nameParts.slice(1).join(' ') || '';
@@ -132,8 +133,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             setAuthError(errorMessage);
             window.dispatchEvent(new CustomEvent('auth:error', { detail: errorMessage }));
             await firebaseSignOut(auth);
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
+            secureStorage.removeItem('token');
+            secureStorage.removeItem('user');
           } finally {
             syncInProgress = false;
           }
@@ -146,13 +147,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     };
   }, []);
 
-  const getToken = async () => localStorage.getItem('token');
+  const getToken = async () => secureStorage.getItem('token');
 
   const updateUser = (data: Partial<User>) => {
     setUser((prev) => {
       if (!prev) return null;
       const updated = { ...prev, ...data };
-      localStorage.setItem('user', JSON.stringify(updated));
+      secureStorage.setItem('user', JSON.stringify(updated));
       return updated;
     });
   };
@@ -161,7 +162,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setUser((prev) => {
       if (!prev) return null;
       const updated = { ...prev, role: newRole };
-      localStorage.setItem('user', JSON.stringify(updated));
+      secureStorage.setItem('user', JSON.stringify(updated));
       return updated;
     });
   };
@@ -172,23 +173,23 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     } catch {
       // ignore
     }
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    secureStorage.removeItem('token');
+    secureStorage.removeItem('user');
     setUser(null);
     window.location.href = '/';
   };
 
   const signInWithGoogle = async (targetRole: UserRole = 'WORKER') => {
     setAuthError(null);
-    localStorage.setItem('target_role', targetRole);
+    secureStorage.setItem('target_role', targetRole);
     try {
       await signInWithPopup(auth, googleProvider);
       // Wait for onAuthStateChanged to handle the sync
       let retries = 0;
       const checkToken = setInterval(() => {
-        if (localStorage.getItem('token')) {
+        if (secureStorage.getItem('token')) {
           clearInterval(checkToken);
-          const storedUser = localStorage.getItem('user');
+          const storedUser = secureStorage.getItem('user');
           let parsed: any = null;
           try { 
             parsed = storedUser ? JSON.parse(storedUser) : null; 

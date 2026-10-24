@@ -15,6 +15,14 @@ export default function BiometricStep({ onCapture, preview, isPending }: Biometr
     }
   };
 
+  const isSafePreview = preview && (
+    preview.startsWith('blob:') || 
+    preview.startsWith('data:image/') || 
+    preview.startsWith('https://') || 
+    preview.startsWith('http://')
+  );
+  const safePreview = isSafePreview ? preview : null;
+
   return (
     <motion.div 
         initial={{ opacity: 0, x: 20 }}
@@ -41,9 +49,9 @@ export default function BiometricStep({ onCapture, preview, isPending }: Biometr
                         className="absolute inset-0 opacity-0 cursor-pointer z-20" 
                         disabled={isPending}
                     />
-                    {preview ? (
+                    {safePreview ? (
                         <div className="w-full h-full rounded-full overflow-hidden border-[8px] border-[#FACD15] shadow-2xl relative rotate-3">
-                            <img src={preview} alt="Live Capture" className="w-full h-full object-cover grayscale-[0.3]" />
+                            <img src={safePreview} alt="Live Capture" className="w-full h-full object-cover grayscale-[0.3]" />
                             <div className="absolute inset-0 bg-[#FACD15]/5" />
                         </div>
                     ) : (

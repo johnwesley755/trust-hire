@@ -16,7 +16,8 @@ export class NaukriSourceAdapter extends BaseJobSourceAdapter {
     'Direct unauthenticated crawling is restricted by Akamai/Cloudflare bot defenses and prohibited by Naukri ToS (Section 3). Ingestion requires official Naukri RMS/eHire Recruiter API credentials.';
 
   canHandleUrl(url: URL): boolean {
-    return url.hostname.toLowerCase().includes('naukri.com');
+    const host = url.hostname.toLowerCase();
+    return host === 'naukri.com' || host.endsWith('.naukri.com');
   }
 
   async discoverJobs(_options?: DiscoveryOptions): Promise<AdapterDiscoveryResult> {
@@ -85,7 +86,8 @@ export class ApnaSourceAdapter extends BaseJobSourceAdapter {
     'Apna.co utilizes client-side SPA rendering with Datadome bot challenge. Automated scraping without official employer partner feeds is restricted.';
 
   canHandleUrl(url: URL): boolean {
-    return url.hostname.toLowerCase().includes('apna.co');
+    const host = url.hostname.toLowerCase();
+    return host === 'apna.co' || host.endsWith('.apna.co');
   }
 
   async discoverJobs(_options?: DiscoveryOptions): Promise<AdapterDiscoveryResult> {
@@ -119,7 +121,8 @@ export class WorkIndiaSourceAdapter extends BaseJobSourceAdapter {
     'WorkIndia search results are protected by Cloudflare bot defense and strict terms prohibiting automated harvesting. Official B2B employer feeds required.';
 
   canHandleUrl(url: URL): boolean {
-    return url.hostname.toLowerCase().includes('workindia.in');
+    const host = url.hostname.toLowerCase();
+    return host === 'workindia.in' || host.endsWith('.workindia.in');
   }
 
   async discoverJobs(_options?: DiscoveryOptions): Promise<AdapterDiscoveryResult> {

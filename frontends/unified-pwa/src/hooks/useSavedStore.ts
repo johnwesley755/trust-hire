@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useUser } from '../providers/AuthContext';
 import { savedService } from '../services/saved.service';
 import { toast } from 'sonner';
+import { secureStorage } from '../utils/secureStorage';
 
 export interface SavedJob {
   id: string;
@@ -56,7 +57,7 @@ export const useSavedStore = (options?: UseSavedStoreOptions) => {
 
   const loadSavedJobs = useCallback((): SavedJob[] => {
     try {
-      const data = localStorage.getItem(getJobsStorageKey());
+      const data = secureStorage.getItem(getJobsStorageKey());
       return data ? JSON.parse(data) : [];
     } catch {
       return [];
@@ -65,7 +66,7 @@ export const useSavedStore = (options?: UseSavedStoreOptions) => {
 
   const loadSavedWorkers = useCallback((): SavedWorker[] => {
     try {
-      const data = localStorage.getItem(getWorkersStorageKey());
+      const data = secureStorage.getItem(getWorkersStorageKey());
       return data ? JSON.parse(data) : [];
     } catch {
       return [];
@@ -90,13 +91,13 @@ export const useSavedStore = (options?: UseSavedStoreOptions) => {
           const serverWorkers = await savedService.getSavedWorkers();
           if (isMounted && Array.isArray(serverWorkers)) {
             setSavedWorkers(serverWorkers);
-            localStorage.setItem(getWorkersStorageKey(), JSON.stringify(serverWorkers));
+            secureStorage.setItem(getWorkersStorageKey(), JSON.stringify(serverWorkers));
           }
         } else {
           const serverJobs = await savedService.getSavedJobs();
           if (isMounted && Array.isArray(serverJobs)) {
             setSavedJobs(serverJobs);
-            localStorage.setItem(getJobsStorageKey(), JSON.stringify(serverJobs));
+            secureStorage.setItem(getJobsStorageKey(), JSON.stringify(serverJobs));
           }
         }
       } catch (err) {
@@ -177,7 +178,7 @@ export const useSavedStore = (options?: UseSavedStoreOptions) => {
     }
 
     try {
-      localStorage.setItem(getJobsStorageKey(), JSON.stringify(updated));
+      secureStorage.setItem(getJobsStorageKey(), JSON.stringify(updated));
       setSavedJobs(updated);
       notifyChange();
     } catch (e) {
@@ -189,7 +190,7 @@ export const useSavedStore = (options?: UseSavedStoreOptions) => {
   const removeSavedJob = useCallback((jobId: string) => {
     const current = loadSavedJobs();
     const updated = current.filter((j) => j.id !== jobId);
-    localStorage.setItem(getJobsStorageKey(), JSON.stringify(updated));
+    secureStorage.setItem(getJobsStorageKey(), JSON.stringify(updated));
     setSavedJobs(updated);
     notifyChange();
     toast.info('Job removed from Saved Jobs');
@@ -237,7 +238,7 @@ export const useSavedStore = (options?: UseSavedStoreOptions) => {
     }
 
     try {
-      localStorage.setItem(getWorkersStorageKey(), JSON.stringify(updated));
+      secureStorage.setItem(getWorkersStorageKey(), JSON.stringify(updated));
       setSavedWorkers(updated);
       notifyChange();
     } catch (e) {
@@ -249,7 +250,7 @@ export const useSavedStore = (options?: UseSavedStoreOptions) => {
   const removeSavedWorker = useCallback((workerId: string) => {
     const current = loadSavedWorkers();
     const updated = current.filter((w) => w.userId !== workerId);
-    localStorage.setItem(getWorkersStorageKey(), JSON.stringify(updated));
+    secureStorage.setItem(getWorkersStorageKey(), JSON.stringify(updated));
     setSavedWorkers(updated);
     notifyChange();
     toast.info('Worker profile removed from Saved Profiles');
@@ -300,7 +301,7 @@ export const useSavedStore = (options?: UseSavedStoreOptions) => {
 
     if (changed) {
       try {
-        localStorage.setItem(getWorkersStorageKey(), JSON.stringify(updated));
+        secureStorage.setItem(getWorkersStorageKey(), JSON.stringify(updated));
         setSavedWorkers(updated);
         notifyChange();
       } catch (e) {

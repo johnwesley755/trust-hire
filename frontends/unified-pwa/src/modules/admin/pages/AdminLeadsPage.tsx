@@ -46,10 +46,16 @@ import { AppLoader } from '../../../components/common/AppLoader';
  */
 const stripHtml = (html?: string | null): string => {
   if (!html) return '';
+  if (typeof window !== 'undefined' && window.DOMParser) {
+    try {
+      const doc = new DOMParser().parseFromString(html, 'text/html');
+      return (doc.body.textContent || '').replace(/\s+/g, ' ').trim();
+    } catch {
+      // fallback
+    }
+  }
   return html
-    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
-    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
-    .replace(/<[^>]+>/g, ' ')
+    .replace(/<[^>]*>/g, ' ')
     .replace(/&amp;/g, '&')
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')

@@ -1,3 +1,5 @@
+import crypto from 'node:crypto';
+
 export type ScrapeStage =
   | 'URL_PARSE'
   | 'HTTP_FETCH'
@@ -55,7 +57,7 @@ export class ScrapeDiagnosticsSession {
   private summary: ScrapeSessionSummary;
 
   constructor(targetUrl?: string, sourceType: string = 'URL_CRAWL') {
-    this.sessionId = `crawl_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+    this.sessionId = `crawl_${Date.now()}_${crypto.randomBytes(3).toString('hex')}`;
     this.startTime = Date.now();
     this.summary = {
       sessionId: this.sessionId,

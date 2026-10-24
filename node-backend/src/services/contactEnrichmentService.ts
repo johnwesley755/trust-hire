@@ -28,16 +28,23 @@ export class ContactEnrichmentService {
           .map((e) => e.toLowerCase().trim())
           .filter((e) => {
             if (e.endsWith('.png') || e.endsWith('.jpg') || e.endsWith('.svg') || e.endsWith('.js') || e.endsWith('.css')) return false;
-            if (e.includes('sentry') || e.includes('wixpress') || e.includes('schema.org') || e.includes('example.com')) return false;
+            const domainPart = e.split('@')[1] || '';
+            const blockedDomains = ['sentry.io', 'wixpress.com', 'schema.org', 'example.com'];
+            if (blockedDomains.some((bd) => domainPart === bd || domainPart.endsWith('.' + bd))) return false;
             return true;
           })
       )
     );
 
     // Prioritize domain-specific or recruitment/official mailboxes
+    const cleanDomain = domain ? domain.toLowerCase().replace(/^www\./, '') : '';
     filteredEmails.sort((a, b) => {
-      const aScore = (a.startsWith('careers@') || a.startsWith('hr@') || a.startsWith('contact@') || a.startsWith('info@')) ? 2 : (domain && a.includes(domain) ? 1 : 0);
-      const bScore = (b.startsWith('careers@') || b.startsWith('hr@') || b.startsWith('contact@') || b.startsWith('info@')) ? 2 : (domain && b.includes(domain) ? 1 : 0);
+      const aDomain = a.split('@')[1] || '';
+      const bDomain = b.split('@')[1] || '';
+      const aMatches = cleanDomain && (aDomain === cleanDomain || aDomain.endsWith('.' + cleanDomain));
+      const bMatches = cleanDomain && (bDomain === cleanDomain || bDomain.endsWith('.' + cleanDomain));
+      const aScore = (a.startsWith('careers@') || a.startsWith('hr@') || a.startsWith('contact@') || a.startsWith('info@')) ? 2 : (aMatches ? 1 : 0);
+      const bScore = (b.startsWith('careers@') || b.startsWith('hr@') || b.startsWith('contact@') || b.startsWith('info@')) ? 2 : (bMatches ? 1 : 0);
       return bScore - aScore;
     });
 

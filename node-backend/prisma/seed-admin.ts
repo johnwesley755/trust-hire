@@ -56,7 +56,7 @@ async function main() {
   console.log('\n=======================================');
   console.log(' TRUSTHYRE SUPER ADMIN CREDENTIALS:');
   console.log(` Email:    ${adminEmail}`);
-  console.log(` Password: ${adminPassword}`);
+  console.log(` Password: [CONFIGURED SECURELY IN ADMIN_PASSWORD ENV]`);
   console.log(' Portal:   /admin/login');
   console.log('=======================================\n');
 }

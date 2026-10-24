@@ -14,6 +14,14 @@ export default function AadhaarStep({ onUpload, preview, isPending }: AadhaarSte
     }
   };
 
+  const isSafePreview = preview && (
+    preview.startsWith('blob:') || 
+    preview.startsWith('data:image/') || 
+    preview.startsWith('https://') || 
+    preview.startsWith('http://')
+  );
+  const safePreview = isSafePreview ? preview : null;
+
   return (
     <motion.div 
         initial={{ opacity: 0, x: 20 }}
@@ -49,10 +57,10 @@ export default function AadhaarStep({ onUpload, preview, isPending }: AadhaarSte
                     />
                 </div>
 
-                {preview && (
+                {safePreview && (
                     <div className="mb-8 p-4 bg-[#d1fae5]/20 rounded-xl border border-[#d1fae5] flex items-center gap-4 animate-in fade-in slide-in-from-bottom-2">
                         <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 border-2 border-white shadow-sm">
-                            <img src={preview} alt="ID Preview" className="w-full h-full object-cover" />
+                            <img src={safePreview} alt="ID Preview" className="w-full h-full object-cover" />
                         </div>
                         <div className="flex-1 text-left">
                             <p className="text-xs font-bold text-[#0A1931] uppercase tracking-widest">Document Preview</p>

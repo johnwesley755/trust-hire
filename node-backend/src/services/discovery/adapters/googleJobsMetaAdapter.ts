@@ -32,8 +32,9 @@ export class GoogleJobsMetaAdapter extends BaseJobSourceAdapter {
 
   canHandleUrl(url: URL): boolean {
     const host = url.hostname.toLowerCase();
+    const isGoogle = host === 'google.com' || host.endsWith('.google.com');
     return (
-      host.includes('google.com') &&
+      isGoogle &&
       (url.pathname.includes('/search') || url.pathname.includes('/about/careers'))
     );
   }

@@ -126,11 +126,14 @@ export class LeadService {
       return crypto.createHash('sha256').update(`EXT:${leadId}:${externalListingId.trim()}`).digest('hex');
     }
     const normUrl = this.normalizeUrl(sourceUrl || '');
-    if (normUrl && !normUrl.includes('example.com')) {
+    if (normUrl) {
       try {
         const parsed = new URL(normUrl);
-        const canonical = `${parsed.origin}${parsed.pathname}`.toLowerCase();
-        return crypto.createHash('sha256').update(`URL:${leadId}:${canonical}`).digest('hex');
+        const host = parsed.hostname.toLowerCase();
+        if (host !== 'example.com' && !host.endsWith('.example.com')) {
+          const canonical = `${parsed.origin}${parsed.pathname}`.toLowerCase();
+          return crypto.createHash('sha256').update(`URL:${leadId}:${canonical}`).digest('hex');
+        }
       } catch {
         return crypto.createHash('sha256').update(`URL:${leadId}:${normUrl.toLowerCase()}`).digest('hex');
       }
